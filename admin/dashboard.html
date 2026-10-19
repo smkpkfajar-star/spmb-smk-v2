@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Admin - SPMB Online</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "sans-serif"] },
+            colors: {
+              brand: { 50: "#eef2ff", 100: "#e0e7ff", 500: "#6366f1", 600: "#4f46e5", 700: "#4338ca" }
+            }
+          }
+        }
+      };
+    </script>
+  </head>
+  <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+    <!-- HEADER NAVBAR -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <div>
+            <span class="block font-bold text-lg text-slate-900 leading-tight">Admin SPMB</span>
+            <span class="text-xs text-slate-500 block" id="adminInfoText">Sistem Informasi Petugas</span>
+          </div>
+        </div>
+        <button onclick="logoutAdmin()" class="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-4 py-2 rounded-xl transition flex items-center gap-1.5">
+          <i class="fa-solid fa-power-off"></i> Keluar
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900" id="welcomeTitle">Selamat Datang</h1>
+        <p class="text-sm text-slate-600 mt-1">Pilih modul tugas admin di bawah ini untuk memulai pengelolaan data.</p>
+      </div>
+
+      <!-- GRID MODUL MENU (Otomatis Sembunyi Jika Bukan Hak Aksesnya) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="moduleGrid">
+        
+        <!-- Modul Verifikasi Berkas -->
+        <a href="verifikasi.html" id="mod-verifikasi" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition group">
+          <div class="w-12 h-12 bg-indigo-50 text-brand-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
+            <i class="fa-solid fa-file-circle-check"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg">Verifikasi Berkas</h3>
+          <p class="text-xs text-slate-500 mt-2">Validasi dokumen, ijazah, KK, dan status pendaftaran pendaftar baru.</p>
+        </a>
+
+        <!-- Modul Keuangan -->
+        <a href="keuangan.html" id="mod-keuangan" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition group">
+          <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
+            <i class="fa-solid fa-receipt"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg">Keuangan & Voucher</h3>
+          <p class="text-xs text-slate-500 mt-2">Kelola validasi kode voucher, potongan harga, dan pembayaran daftar ulang.</p>
+        </a>
+
+        <!-- Modul Tes Fisik & Seragam -->
+        <a href="tes-fisik.html" id="mod-fisik" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition group">
+          <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
+            <i class="fa-solid fa-heart-pulse"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg">Tes Fisik & Seragam</h3>
+          <p class="text-xs text-slate-500 mt-2">Input tinggi/berat badan, hasil tes kesehatan fisik, dan ukuran seragam.</p>
+        </a>
+
+        <!-- Modul Superadmin -->
+        <a href="superadmin.html" id="mod-superadmin" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition group">
+          <div class="w-12 h-12 bg-slate-100 text-slate-800 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
+            <i class="fa-solid fa-sliders"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg">Superadmin</h3>
+          <p class="text-xs text-slate-500 mt-2">Rekapitulasi total, ekspor data penuh, dan manajemen akun petugas.</p>
+        </a>
+
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6">
+      <div class="max-w-7xl mx-auto px-4 text-center text-sm text-slate-500">
+        &copy; 2026 Panitia Penerimaan Peserta Didik Baru (SPMB). Hak cipta dilindungi.
+      </div>
+    </footer>
+
+    <!-- SCRIPT AUTH & KONTROL TAMPILAN MODUL BERDASARKAN ROLE -->
+    <script src="../assets/js/auth.js"></script>
+    <script>
+      const session = checkAdminAccess();
+      if (session) {
+        document.getElementById("welcomeTitle").textContent = `Selamat Datang, ${session.name}`;
+        document.getElementById("adminInfoText").textContent = `Role: ${session.role.toUpperCase()}`;
+
+        // Jika bukan superadmin, sembunyikan modul yang tidak sesuai role secara total
+        if (session.role !== "superadmin") {
+          const mappingRoleToId = {
+            "verifikasi": "mod-verifikasi",
+            "keuangan": "mod-keuangan",
+            "tes-fisik": "mod-fisik"
+          };
+
+          const allModules = ["mod-verifikasi", "mod-keuangan", "mod-fisik", "mod-superadmin"];
+
+          allModules.forEach((modId) => {
+            const el = document.getElementById(modId);
+            if (el) {
+              const assignedModId = mappingRoleToId[session.role];
+              // Jika elemen card bukan milik role tersebut, tambahkan class "hidden" agar hilang dari layar
+              if (modId !== assignedModId) {
+                el.classList.add("hidden");
+              }
+            }
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
