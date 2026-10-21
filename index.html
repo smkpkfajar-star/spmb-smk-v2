@@ -23,7 +23,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
 
-    <!-- Tailwind CDN + konfigurasi kustom -->
+    <!-- Tailwind CDN + Konfigurasi Kustom -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/tailwind-config.js"></script>
 
@@ -32,7 +32,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- CSS kustom -->
+    <!-- CSS Kustom -->
     <link rel="stylesheet" href="assets/css/style.css" />
   </head>
 
@@ -111,7 +111,7 @@
           </div>
         </div>
 
-        <!-- Mobile menu -->
+        <!-- Mobile Menu -->
         <div
           id="mobileMenu"
           class="lg:hidden hidden mt-2 rounded-2xl bg-white/95 backdrop-blur-lg border border-slate-200 shadow-2xl overflow-hidden transition-all duration-300"
@@ -167,6 +167,7 @@
 
       <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
           <!-- Hero Left Column -->
           <div class="lg:col-span-7 fade-in-up text-center lg:text-left">
             <div
@@ -180,10 +181,10 @@
                   class="relative inline-flex rounded-full h-2.5 w-2.5 bg-spark-400"
                 ></span>
               </span>
-              <span
-                >Tahun Ajaran 2026/2027 —
-                <span class="text-white">SPMB Sudah Dimulai</span></span
-              >
+              <span>
+                Tahun Ajaran 2026/2027 —
+                <span class="text-white">Gelombang 1 Resmi Dibuka</span>
+              </span>
             </div>
 
             <h1
@@ -279,81 +280,83 @@
             </div>
           </div>
 
-          <!-- Hero Right Column (Schedule Card) -->
+          <!-- Hero Right Column (Schedule Card - Dark Glassmorphism Modern) -->
           <div class="lg:col-span-5 fade-in-up" style="animation-delay: 0.15s">
             <div
-              class="relative rounded-3xl border border-white/20 bg-white/95 p-6 sm:p-7 shadow-2xl shadow-brand-950/50 backdrop-blur-xl"
+              class="relative rounded-3xl border border-white/15 bg-slate-900/80 p-6 sm:p-7 shadow-2xl shadow-black/50 backdrop-blur-xl"
             >
+              <!-- Header Card -->
               <div
-                class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5"
+                class="flex items-center justify-between border-b border-white/10 pb-4 mb-5"
               >
                 <div>
-                  <h3 class="font-display font-bold text-slate-900 text-lg">
+                  <h3
+                    class="font-display font-bold text-white text-lg flex items-center gap-2"
+                  >
+                    <span class="h-2 w-2 rounded-full bg-spark-400"></span>
                     Jadwal Penting SPMB
                   </h3>
-                  <p class="text-xs text-slate-500 mt-0.5">
+                  <p class="text-xs text-slate-400 mt-0.5 font-medium">
                     Agenda Pendaftaran 2026/2027
                   </p>
                 </div>
                 <span
-                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-brand-50 text-brand-700 text-xs font-semibold"
+                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-spark-400 text-xs font-semibold backdrop-blur-md"
                 >
                   <i class="fa-solid fa-clock-rotate-left text-[10px]"></i>
                   Terbaru
                 </span>
               </div>
 
-              <ul class="space-y-4">
+              <!-- List Jadwal -->
+              <ul class="space-y-3.5">
+                <!-- Item 1 -->
                 <li
-                  class="flex items-center gap-3.5 p-2.5 rounded-2xl hover:bg-slate-50/80 transition-colors"
+                  class="flex items-center gap-3.5 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200"
                 >
                   <div
-                    class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600 font-medium text-base"
+                    class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white font-medium text-base shadow-lg shadow-brand-600/30"
                   >
                     <i class="fa-regular fa-calendar-check"></i>
                   </div>
                   <div>
-                    <p
-                      class="text-sm font-semibold text-slate-900 leading-tight"
-                    >
+                    <p class="text-sm font-bold text-white leading-tight">
                       Pendaftaran Online
                     </p>
                   </div>
                 </li>
 
+                <!-- Item 2 -->
                 <li
-                  class="flex items-center gap-3.5 p-2.5 rounded-2xl hover:bg-slate-50/80 transition-colors"
+                  class="flex items-center gap-3.5 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200"
                 >
                   <div
-                    class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600 font-medium text-base"
+                    class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white font-medium text-base shadow-lg shadow-brand-600/30"
                   >
                     <i class="fa-regular fa-folder-open"></i>
                   </div>
                   <div>
-                    <p
-                      class="text-sm font-semibold text-slate-900 leading-tight"
-                    >
+                    <p class="text-sm font-bold text-white leading-tight">
                       Verifikasi Berkas
                     </p>
                   </div>
                 </li>
 
+                <!-- Item 3 (Highlight Pengumuman) -->
                 <li
-                  class="flex items-center gap-3.5 p-2.5 rounded-2xl hover:bg-slate-50/80 transition-colors"
+                  class="flex items-center gap-3.5 p-3 rounded-2xl bg-brand-500/10 border border-brand-500/30 hover:bg-brand-500/20 transition-all duration-200"
                 >
                   <div
-                    class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600 font-medium text-base"
+                    class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-spark-400 text-slate-950 font-medium text-base shadow-lg shadow-spark-400/20"
                   >
                     <i class="fa-regular fa-bell"></i>
                   </div>
                   <div>
-                    <p
-                      class="text-sm font-semibold text-slate-900 leading-tight"
-                    >
+                    <p class="text-sm font-bold text-white leading-tight">
                       Pengumuman Kelulusan
                     </p>
                     <p
-                      class="mt-1 text-xs font-medium text-brand-600 bg-brand-50/80 px-2 py-0.5 rounded-md inline-block"
+                      class="mt-1 text-xs font-bold text-slate-950 bg-spark-400 px-2.5 py-0.5 rounded-md inline-block shadow-sm"
                     >
                       20 Jul 2026
                     </p>
@@ -361,24 +364,26 @@
                 </li>
               </ul>
 
+              <!-- Footer Note -->
               <div
-                class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500"
+                class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 font-medium"
               >
-                <span
-                  ><i class="fa-solid fa-circle-info text-brand-500 mr-1"></i>
-                  Jadwal dapat berubah sewaktu-waktu</span
-                >
+                <span>
+                  <i class="fa-solid fa-circle-info text-spark-400 mr-1.5"></i>
+                  Jadwal dapat berubah sewaktu-waktu
+                </span>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </section>
 
-    <!-- ======================= PROGRAM KEAHLIAN ======================= -->
-    <!-- ======================= PROGRAM KEAHLIAN (MODERN & COMPACT) ======================= -->
+    <!-- ======================= PROGRAM KEAHLIAN (COMPACT SLIDER) ======================= -->
     <section id="jurusan" class="py-16 lg:py-28 bg-slate-50 overflow-hidden">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        
         <!-- Header Section -->
         <div
           class="flex flex-col md:flex-row md:items-end justify-between mb-10 lg:mb-14 gap-4"
@@ -605,27 +610,26 @@
             </ul>
           </div>
 
-          <!-- Consultation Card (Compact) -->
-          <!-- Consultation Card (Clean White & High Contrast) -->
+          <!-- Consultation Card (Highlighted Brand Theme) -->
           <div
-            class="min-w-[280px] sm:min-w-[320px] lg:min-w-0 snap-center group bg-blue rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:shadow-lg hover:border-brand-300 transition-all duration-300 flex flex-col justify-between"
+            class="min-w-[280px] sm:min-w-[320px] lg:min-w-0 snap-center rounded-2xl p-6 bg-brand-700 text-white flex flex-col justify-between shadow-lg shadow-brand-700/20 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
           >
             <div>
               <div class="flex items-center justify-between mb-4">
                 <div
-                  class="h-12 w-12 rounded-xl bg-brand-50 text-brand-600 grid place-items-center text-xl"
+                  class="h-12 w-12 rounded-xl bg-white/15 text-spark-400 grid place-items-center text-xl backdrop-blur-sm"
                 >
                   <i class="fa-solid fa-comments"></i>
                 </div>
                 <span
-                  class="text-xs font-bold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-lg"
-                  >BK</span
+                  class="text-xs font-bold text-slate-900 bg-spark-400 px-2.5 py-1 rounded-lg"
+                  >Konsultasi BK</span
                 >
               </div>
-              <h3 class="font-display font-bold text-lg text-slate-900 mb-1">
+              <h3 class="font-display font-bold text-lg text-white mb-1.5">
                 Bingung Pilih Jurusan?
               </h3>
-              <p class="text-xs text-slate-600 leading-relaxed mb-6">
+              <p class="text-xs text-brand-100 leading-relaxed mb-6">
                 Konsultasikan minat dan bakatmu langsung bersama tim Bimbingan
                 Konseling kami.
               </p>
@@ -633,9 +637,9 @@
             <a
               href="https://wa.me/628232128784"
               target="_blank"
-              class="inline-flex items-center justify-center gap-2 text-xs font-bold bg-brand-600 text-white px-4 py-3 rounded-xl hover:bg-brand-700 transition-colors shadow-sm"
+              class="inline-flex items-center justify-center gap-2 text-xs font-bold bg-white text-brand-900 px-4 py-3 rounded-xl hover:bg-spark-300 transition-colors shadow-sm"
             >
-              Konsultasi WhatsApp <i class="fa-brands fa-whatsapp text-sm"></i>
+              Hubungi via WhatsApp <i class="fa-brands fa-whatsapp text-sm"></i>
             </a>
           </div>
         </div>
@@ -683,11 +687,10 @@
             </div>
             <div>
               <h3 class="font-display font-bold text-slate-900 mb-1">
-                Isi Formulir Online
+                Isi Formulir & Dapat Akun
               </h3>
               <p class="text-xs text-slate-600 leading-relaxed">
-                Lengkapi data diri dan tentukan jurusan pilihan utama &
-                cadangan.
+                Daftar online, pilih jurusan, dan dapatkan akses Akun Siswa.
               </p>
             </div>
           </div>
@@ -701,10 +704,10 @@
             </div>
             <div>
               <h3 class="font-display font-bold text-slate-900 mb-1">
-                Unggah Berkas
+                Unggah Berkas (Bisa Disusulkan)
               </h3>
               <p class="text-xs text-slate-600 leading-relaxed">
-                Upload scan Ijazah/SKL, Kartu Keluarga, dan Pas foto terbaru.
+                Upload KK/Foto sekarang. Ijazah/SKL dapat diunggah menyusul via akun.
               </p>
             </div>
           </div>
@@ -721,7 +724,7 @@
                 Verifikasi Panitia
               </h3>
               <p class="text-xs text-slate-600 leading-relaxed">
-                Tim pendaftaran memvalidasi kelengkapan berkas kamu.
+                Tim pendaftaran memvalidasi kelengkapan berkas yang diunggah.
               </p>
             </div>
           </div>
@@ -735,10 +738,10 @@
             </div>
             <div>
               <h3 class="font-display font-bold text-slate-900 mb-1">
-                Pengumuman & Daftar Ulang
+                Pengumuman Kelulusan
               </h3>
               <p class="text-xs text-slate-600 leading-relaxed">
-                Cek hasil seleksi via web atau WhatsApp resmi panitia.
+                Cek hasil seleksi dan status penerimaan langsung melalui portal.
               </p>
             </div>
           </div>
@@ -756,10 +759,10 @@
                 1
               </div>
               <h3 class="font-display font-bold text-slate-900 mb-2 text-base">
-                Isi Formulir
+                Isi Formulir & Dapat Akun
               </h3>
               <p class="text-xs text-slate-600 leading-relaxed">
-                Isi data diri & pilih jurusan impianmu secara online.
+                Daftar online, pilih jurusan, dan dapatkan akses Akun Siswa.
               </p>
             </div>
 
@@ -772,10 +775,10 @@
                 2
               </div>
               <h3 class="font-display font-bold text-slate-900 mb-2 text-base">
-                Unggah Berkas
+                Lengkapi Berkas (Bisa Disusulkan)
               </h3>
               <p class="text-xs text-slate-600 leading-relaxed">
-                Upload syarat Ijazah, KK, dan Pas Foto sesuai petunjuk.
+                Upload KK/Foto sekarang. Berkas ijazah bisa di-upload menyusul via akun.
               </p>
             </div>
 
@@ -788,10 +791,10 @@
                 3
               </div>
               <h3 class="font-display font-bold text-slate-900 mb-2 text-base">
-                Verifikasi
+                Verifikasi Panitia
               </h3>
               <p class="text-xs text-slate-600 leading-relaxed">
-                Panitia memproses & memvalidasi dokumen pendaftaran.
+                Panitia memproses & memvalidasi kevalidan dokumen.
               </p>
             </div>
 
@@ -844,93 +847,104 @@
         </div>
 
         <div class="space-y-4">
-          <div
-            class="faq-item bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all"
+          <!-- FAQ Item 1 -->
+          <details
+            class="group bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all duration-300 open:shadow-md open:border-brand-300"
           >
-            <button
-              class="faq-trigger w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-bold text-slate-900 hover:text-brand-600 transition-colors"
+            <summary
+              class="flex items-center justify-between gap-4 px-6 py-5 text-left font-bold text-slate-900 cursor-pointer select-none hover:text-brand-600 transition-colors list-none"
             >
               <span class="text-sm sm:text-base"
                 >Apakah pendaftaran SPMB ini dikenakan biaya?</span
               >
-              <i
-                class="fa-solid fa-chevron-down faq-chevron text-slate-400 text-sm"
-              ></i>
-            </button>
-            <div class="faq-answer px-6">
-              <p class="text-sm text-slate-600 leading-relaxed pb-5">
-                Proses pendaftaran online melalui portal ini 100% gratis tanpa
-                dipungut biaya apapun. Hati-hati terhadap segala bentuk penipuan
-                yang mengatasnamakan panitia sekolah.
-              </p>
+              <span
+                class="h-8 w-8 rounded-xl bg-slate-50 group-open:bg-brand-50 group-open:text-brand-600 grid place-items-center text-slate-400 text-xs transition-transform duration-300 group-open:rotate-180 shrink-0"
+              >
+                <i class="fa-solid fa-chevron-down"></i>
+              </span>
+            </summary>
+            <div
+              class="px-6 pb-5 pt-1 text-sm text-slate-600 leading-relaxed border-t border-slate-100"
+            >
+              Proses pendaftaran online melalui portal ini 100% gratis tanpa
+              dipungut biaya apapun. Hati-hati terhadap segala bentuk penipuan
+              yang mengatasnamakan panitia sekolah.
             </div>
-          </div>
+          </details>
 
-          <div
-            class="faq-item bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all"
+          <!-- FAQ Item 2 -->
+          <details
+            class="group bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all duration-300 open:shadow-md open:border-brand-300"
           >
-            <button
-              class="faq-trigger w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-bold text-slate-900 hover:text-brand-600 transition-colors"
+            <summary
+              class="flex items-center justify-between gap-4 px-6 py-5 text-left font-bold text-slate-900 cursor-pointer select-none hover:text-brand-600 transition-colors list-none"
             >
               <span class="text-sm sm:text-base"
                 >Apakah bisa mendaftar dua pilihan jurusan sekaligus?</span
               >
-              <i
-                class="fa-solid fa-chevron-down faq-chevron text-slate-400 text-sm"
-              ></i>
-            </button>
-            <div class="faq-answer px-6">
-              <p class="text-sm text-slate-600 leading-relaxed pb-5">
-                Ya, calon siswa diperbolehkan memilih **Jurusan Utama (Pilihan
-                1)** dan **Jurusan Cadangan (Pilihan 2)** pada formulir
-                pendaftaran.
-              </p>
+              <span
+                class="h-8 w-8 rounded-xl bg-slate-50 group-open:bg-brand-50 group-open:text-brand-600 grid place-items-center text-slate-400 text-xs transition-transform duration-300 group-open:rotate-180 shrink-0"
+              >
+                <i class="fa-solid fa-chevron-down"></i>
+              </span>
+            </summary>
+            <div
+              class="px-6 pb-5 pt-1 text-sm text-slate-600 leading-relaxed border-t border-slate-100"
+            >
+              Ya, calon siswa diperbolehkan memilih
+              <strong>Jurusan Utama (Pilihan 1)</strong> dan
+              <strong>Jurusan Cadangan (Pilihan 2)</strong> pada formulir
+              pendaftaran.
             </div>
-          </div>
+          </details>
 
-          <div
-            class="faq-item bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all"
+          <!-- FAQ Item 3 (Dokumen Susulan) -->
+          <details
+            class="group bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all duration-300 open:shadow-md open:border-brand-300"
           >
-            <button
-              class="faq-trigger w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-bold text-slate-900 hover:text-brand-600 transition-colors"
+            <summary
+              class="flex items-center justify-between gap-4 px-6 py-5 text-left font-bold text-slate-900 cursor-pointer select-none hover:text-brand-600 transition-colors list-none"
             >
               <span class="text-sm sm:text-base"
-                >Apa saja dokumen yang wajib diunggah?</span
+                >Bagaimana jika Ijazah atau SKL belum keluar dari sekolah asal?</span
               >
-              <i
-                class="fa-solid fa-chevron-down faq-chevron text-slate-400 text-sm"
-              ></i>
-            </button>
-            <div class="faq-answer px-6">
-              <p class="text-sm text-slate-600 leading-relaxed pb-5">
-                Dokumen yang dibutuhkan antara lain: Scan Ijazah/SKL, Kartu
-                Keluarga (KK), dan Pas Foto formal berukuran maks. 2MB dengan
-                format JPG/PNG/PDF.
-              </p>
+              <span
+                class="h-8 w-8 rounded-xl bg-slate-50 group-open:bg-brand-50 group-open:text-brand-600 grid place-items-center text-slate-400 text-xs transition-transform duration-300 group-open:rotate-180 shrink-0"
+              >
+                <i class="fa-solid fa-chevron-down"></i>
+              </span>
+            </summary>
+            <div
+              class="px-6 pb-5 pt-1 text-sm text-slate-600 leading-relaxed border-t border-slate-100"
+            >
+              Tenang saja! Anda tetap dapat mendaftar di awal. Setelah mengisi formulir, sistem akan otomatis membuatkan <strong>Akun Portal Siswa</strong>. Anda dapat menggunakannya untuk masuk kembali dan <strong>menyusulkan unggahan berkas</strong> (seperti Ijazah/SKL) kapan saja setelah diterbitkan oleh sekolah Anda.
             </div>
-          </div>
+          </details>
 
-          <div
-            class="faq-item bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all"
+          <!-- FAQ Item 4 -->
+          <details
+            class="group bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all duration-300 open:shadow-md open:border-brand-300"
           >
-            <button
-              class="faq-trigger w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-bold text-slate-900 hover:text-brand-600 transition-colors"
+            <summary
+              class="flex items-center justify-between gap-4 px-6 py-5 text-left font-bold text-slate-900 cursor-pointer select-none hover:text-brand-600 transition-colors list-none"
             >
               <span class="text-sm sm:text-base"
                 >Bagaimana cara mengecek status pendaftaran saya?</span
               >
-              <i
-                class="fa-solid fa-chevron-down faq-chevron text-slate-400 text-sm"
-              ></i>
-            </button>
-            <div class="faq-answer px-6">
-              <p class="text-sm text-slate-600 leading-relaxed pb-5">
-                Kamu dapat langsung mengecek status kelulusan & verifikasi
-                melalui menu **Cek Status** dengan memasukkan Nomor NISN
-                terdaftar.
-              </p>
+              <span
+                class="h-8 w-8 rounded-xl bg-slate-50 group-open:bg-brand-50 group-open:text-brand-600 grid place-items-center text-slate-400 text-xs transition-transform duration-300 group-open:rotate-180 shrink-0"
+              >
+                <i class="fa-solid fa-chevron-down"></i>
+              </span>
+            </summary>
+            <div
+              class="px-6 pb-5 pt-1 text-sm text-slate-600 leading-relaxed border-t border-slate-100"
+            >
+              Kamu dapat langsung mengecek status kelulusan & verifikasi melalui
+              menu <strong>Cek Status</strong> dengan memasukkan Nomor NISN
+              terdaftar atau login menggunakan akun siswa Anda.
             </div>
-          </div>
+          </details>
         </div>
       </div>
     </section>
