@@ -40,29 +40,35 @@
     class="bg-slate-900/5 text-slate-800 antialiased selection:bg-brand-500 selection:text-white"
   >
     <!-- ======================= NAVBAR ======================= -->
+    <!-- ======================= NAVBAR ======================= -->
     <header
       id="navbar"
-      class="fixed top-0 inset-x-0 z-50 transition-all duration-300"
+      class="fixed top-0 inset-x-0 z-50 transition-all duration-300 px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4"
     >
-      <div class="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-7xl">
         <div
           id="navInner"
-          class="flex items-center justify-between h-16 md:h-20 mt-3 md:mt-4 rounded-2xl px-4 md:px-7 bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-900/5 transition-all duration-300"
+          class="flex items-center justify-between h-16 md:h-20 px-4 sm:px-6 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-900/5 transition-all duration-300"
         >
           <!-- Logo & Title -->
-          <a href="index.html" class="flex items-center gap-3 shrink-0">
+          <a
+            href="index.html"
+            class="flex items-center gap-2.5 sm:gap-3 shrink-0"
+          >
             <div
-              class="h-10 w-10 rounded-xl bg-gradient-to-tr from-brand-700 to-brand-500 text-white grid place-items-center font-display font-bold text-lg shadow-md shadow-brand-500/20"
+              class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-tr from-brand-700 to-brand-500 text-white grid place-items-center font-display font-bold text-base sm:text-lg shadow-md shadow-brand-500/20"
             >
               TN
             </div>
             <div class="leading-tight">
               <p
-                class="font-display font-extrabold text-slate-900 text-sm sm:text-base"
+                class="font-display font-extrabold text-slate-900 text-xs sm:text-sm md:text-base tracking-tight"
               >
                 SMK Tamansiswa Jetis
               </p>
-              <p class="text-[11px] font-medium text-brand-600">
+              <p
+                class="text-[10px] sm:text-[11px] font-semibold text-brand-600"
+              >
                 Portal SPMB 2026/2027
               </p>
             </div>
@@ -96,20 +102,21 @@
           </nav>
 
           <!-- Action Buttons -->
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 sm:gap-3">
             <a
-              href="daftar.html"
-              class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-md shadow-brand-600/20 transition-all duration-200"
+              href="daftar/index.html"
+              class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-xs md:text-sm font-bold px-4 py-2 sm:py-2.5 rounded-xl shadow-md shadow-brand-600/20 transition-all duration-200"
             >
-              Daftar Sekarang <i class="fa-solid fa-arrow-right text-xs"></i>
+              <span>Daftar Sekarang</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
             </a>
             <button
               id="menuBtn"
               aria-label="Buka menu"
               aria-expanded="false"
-              class="lg:hidden h-10 w-10 grid place-items-center rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-colors"
+              class="lg:hidden h-9 w-9 sm:h-10 sm:w-10 grid place-items-center rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-colors shrink-0"
             >
-              <i class="fa-solid fa-bars"></i>
+              <i class="fa-solid fa-bars text-sm sm:text-base"></i>
             </button>
           </div>
         </div>
@@ -117,70 +124,73 @@
         <!-- Mobile Menu Dropdown -->
         <div
           id="mobileMenu"
-          class="lg:hidden absolute inset-x-3 top-full mt-2 rounded-2xl bg-white/95 backdrop-blur-lg border border-slate-200 shadow-2xl overflow-hidden origin-top scale-y-0 opacity-0 pointer-events-none transition-all duration-200 ease-out z-50"
+          class="lg:hidden absolute inset-x-3 top-full mt-2 rounded-2xl bg-white/95 backdrop-blur-lg border border-slate-200/80 shadow-2xl overflow-hidden origin-top scale-y-0 opacity-0 pointer-events-none transition-all duration-200 ease-out z-50"
         >
           <a
             href="index.html"
-            class="mobile-link block px-6 py-3.5 text-sm font-semibold text-slate-800 border-b border-slate-100"
+            class="mobile-link block px-5 py-3 text-sm font-semibold text-slate-800 border-b border-slate-100"
             >Beranda</a
           >
           <a
             href="index.html#jurusan"
-            class="mobile-link block px-6 py-3.5 text-sm font-semibold text-slate-700 border-b border-slate-100"
+            class="mobile-link block px-5 py-3 text-sm font-semibold text-slate-700 border-b border-slate-100"
             >Program Keahlian</a
           >
           <a
             href="index.html#alur"
-            class="mobile-link block px-6 py-3.5 text-sm font-semibold text-slate-700 border-b border-slate-100"
+            class="mobile-link block px-5 py-3 text-sm font-semibold text-slate-700 border-b border-slate-100"
             >Alur Pendaftaran</a
           >
           <a
             href="index.html#faq"
-            class="mobile-link block px-6 py-3.5 text-sm font-semibold text-slate-700 border-b border-slate-100"
+            class="mobile-link block px-5 py-3 text-sm font-semibold text-slate-700 border-b border-slate-100"
             >FAQ</a
           >
           <a
             href="daftar/index.html#cek-status"
-            class="mobile-link block px-6 py-3.5 text-sm font-semibold text-slate-700 border-b border-slate-100"
+            class="mobile-link block px-5 py-3 text-sm font-semibold text-slate-700 border-b border-slate-100"
             >Cek Status</a
           >
-          <a
-            href="daftar/"
-            class="mobile-link block px-6 py-4 text-sm font-bold text-center text-white bg-brand-600"
-            >Daftar Sekarang</a
-          >
+          <div class="p-3">
+            <a
+              href="daftar/index.html"
+              class="mobile-link block px-4 py-3 text-sm font-bold text-center text-white bg-brand-600 rounded-xl"
+              >Daftar Sekarang</a
+            >
+          </div>
         </div>
       </div>
     </header>
 
     <!-- ======================= HERO ======================= -->
+    <!-- ======================= HERO ======================= -->
     <section
-      class="relative overflow-hidden bg-slate-950 pt-32 pb-20 lg:pt-40 lg:pb-32"
+      class="relative overflow-hidden bg-slate-950 pt-28 pb-16 lg:pt-40 lg:pb-32"
     >
-      <!-- Ambient Glows -->
+      <!-- Ambient Glows (Diringankan ukurannya untuk mobile) -->
       <div
-        class="absolute inset-0 blueprint-grid opacity-20 pointer-events-none"
+        class="absolute inset-0 blueprint-grid opacity-15 pointer-events-none"
       ></div>
       <div
-        class="absolute -top-32 -right-32 w-[500px] h-[500px] bg-brand-600/20 rounded-full blur-[130px] pointer-events-none"
+        class="absolute -top-20 -right-20 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-brand-600/15 rounded-full blur-[80px] sm:blur-[130px] pointer-events-none"
       ></div>
       <div
-        class="absolute bottom-0 -left-20 w-[400px] h-[400px] bg-spark-500/15 rounded-full blur-[110px] pointer-events-none"
+        class="absolute bottom-0 -left-20 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-spark-500/10 rounded-full blur-[70px] sm:blur-[110px] pointer-events-none"
       ></div>
 
       <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        <div class="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           <!-- Hero Left Column -->
-          <div class="lg:col-span-7 fade-in-up text-center lg:text-left">
+          <div class="lg:col-span-7 text-center lg:text-left">
             <div
-              class="inline-flex items-center gap-2.5 bg-white/5 backdrop-blur-md border border-white/10 text-spark-400 text-xs sm:text-sm font-semibold px-4 py-2 rounded-full mb-6 shadow-inner"
+              class="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-spark-400 text-xs sm:text-sm font-semibold px-3.5 py-1.5 rounded-full mb-5"
             >
-              <span class="relative flex h-2.5 w-2.5">
+              <span class="relative flex h-2 w-2">
                 <span
                   class="animate-ping absolute inline-flex h-full w-full rounded-full bg-spark-400 opacity-75"
                 ></span>
                 <span
-                  class="relative inline-flex rounded-full h-2.5 w-2.5 bg-spark-400"
+                  class="relative inline-flex rounded-full h-2 w-2 bg-spark-400"
                 ></span>
               </span>
               <span>
@@ -190,7 +200,7 @@
             </div>
 
             <h1
-              class="font-display font-extrabold text-white text-3xl sm:text-5xl lg:text-[3.5rem] leading-[1.12] tracking-tight mb-6"
+              class="font-display font-extrabold text-white text-3xl sm:text-5xl lg:text-[3.5rem] leading-[1.12] tracking-tight mb-5"
             >
               Rakit masa depanmu,<br class="hidden sm:block" />
               mulai dari
@@ -201,7 +211,7 @@
             </h1>
 
             <p
-              class="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed font-normal"
+              class="text-slate-300 text-sm sm:text-lg max-w-2xl mx-auto lg:mx-0 mb-7 leading-relaxed font-normal"
             >
               SMK Tamansiswa Jetis menyiapkan lulusan siap kerja dan wirausaha
               lewat 5 program keahlian unggulan dengan praktik nyata berbasis
@@ -209,72 +219,72 @@
             </p>
 
             <div
-              class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-12"
+              class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 mb-10"
             >
               <a
                 href="daftar/"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-spark-400 hover:bg-spark-300 text-slate-950 font-bold px-8 py-4 rounded-2xl shadow-lg shadow-spark-400/20 hover:shadow-spark-400/30 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-spark-400 hover:bg-spark-300 text-slate-950 font-bold px-7 py-3.5 rounded-xl sm:rounded-2xl shadow-md shadow-spark-400/20 transition-all duration-200"
               >
                 Daftar Sekarang
                 <i class="fa-solid fa-arrow-right text-xs"></i>
               </a>
               <a
                 href="#alur"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 text-white font-semibold px-7 py-4 rounded-2xl border border-white/15 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all duration-300"
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 text-white font-semibold px-6 py-3.5 rounded-xl sm:rounded-2xl border border-white/15 bg-white/5 hover:bg-white/10 transition-all duration-200"
               >
-                <i class="fa-regular fa-circle-play text-spark-400 text-lg"></i>
+                <i
+                  class="fa-regular fa-circle-play text-spark-400 text-base"
+                ></i>
                 Lihat Alur Pendaftaran
               </a>
             </div>
 
             <!-- Stats Grid -->
-            <div
-              class="grid grid-cols-3 gap-3 sm:gap-4 max-w-xl mx-auto lg:mx-0"
-            >
+            <div class="grid grid-cols-3 gap-3 max-w-xl mx-auto lg:mx-0">
               <div
-                class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-3.5 sm:p-4 text-left"
+                class="bg-slate-900/60 border border-white/10 rounded-2xl p-3 sm:p-4 text-left"
               >
                 <p
                   class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-0.5"
                   data-target="5"
                   data-suffix=""
                 >
-                  0
+                  5
                 </p>
                 <p
-                  class="text-slate-400 text-xs sm:text-sm font-medium leading-snug"
+                  class="text-slate-400 text-[11px] sm:text-sm font-medium leading-snug"
                 >
                   Program Keahlian
                 </p>
               </div>
               <div
-                class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-3.5 sm:p-4 text-left"
+                class="bg-slate-900/60 border border-white/10 rounded-2xl p-3 sm:p-4 text-left"
               >
                 <p
                   class="font-display font-extrabold text-2xl sm:text-3xl text-spark-400 mb-0.5"
                   data-target="92"
                   data-suffix="%"
                 >
-                  0
+                  92%
                 </p>
                 <p
-                  class="text-slate-400 text-xs sm:text-sm font-medium leading-snug"
+                  class="text-slate-400 text-[11px] sm:text-sm font-medium leading-snug"
                 >
                   Terserap Kerja
                 </p>
               </div>
               <div
-                class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-3.5 sm:p-4 text-left"
+                class="bg-slate-900/60 border border-white/10 rounded-2xl p-3 sm:p-4 text-left"
               >
                 <p
                   class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-0.5"
                   data-target="40"
                   data-suffix="+"
                 >
-                  0
+                  40+
                 </p>
                 <p
-                  class="text-slate-400 text-xs sm:text-sm font-medium leading-snug"
+                  class="text-slate-400 text-[11px] sm:text-sm font-medium leading-snug"
                 >
                   Mitra DUDI
                 </p>
@@ -282,18 +292,18 @@
             </div>
           </div>
 
-          <!-- Hero Right Column (Schedule Card - Dark Glassmorphism Modern) -->
-          <div class="lg:col-span-5 fade-in-up" style="animation-delay: 0.15s">
+          <!-- Hero Right Column (Schedule Card - Optimized for Mobile Performance) -->
+          <div class="lg:col-span-5">
             <div
-              class="relative rounded-3xl border border-white/15 bg-slate-900/80 p-6 sm:p-7 shadow-2xl shadow-black/50 backdrop-blur-xl"
+              class="relative rounded-2xl sm:rounded-3xl border border-white/15 bg-slate-900/90 p-5 sm:p-7 shadow-xl shadow-black/40"
             >
               <!-- Header Card -->
               <div
-                class="flex items-center justify-between border-b border-white/10 pb-4 mb-5"
+                class="flex items-center justify-between border-b border-white/10 pb-4 mb-4"
               >
                 <div>
                   <h3
-                    class="font-display font-bold text-white text-lg flex items-center gap-2"
+                    class="font-display font-bold text-white text-base sm:text-lg flex items-center gap-2"
                   >
                     <span class="h-2 w-2 rounded-full bg-spark-400"></span>
                     Jadwal Penting SPMB
@@ -303,7 +313,7 @@
                   </p>
                 </div>
                 <span
-                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-spark-400 text-xs font-semibold backdrop-blur-md"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-spark-400 text-[11px] font-semibold"
                 >
                   <i class="fa-solid fa-clock-rotate-left text-[10px]"></i>
                   Terbaru
@@ -311,18 +321,20 @@
               </div>
 
               <!-- List Jadwal -->
-              <ul class="space-y-3.5">
+              <ul class="space-y-3">
                 <!-- Item 1 -->
                 <li
-                  class="flex items-center gap-3.5 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200"
+                  class="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl bg-white/5 border border-white/10"
                 >
                   <div
-                    class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white font-medium text-base shadow-lg shadow-brand-600/30"
+                    class="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white font-medium text-sm sm:text-base shadow-md"
                   >
                     <i class="fa-regular fa-calendar-check"></i>
                   </div>
                   <div>
-                    <p class="text-sm font-bold text-white leading-tight">
+                    <p
+                      class="text-xs sm:text-sm font-bold text-white leading-tight"
+                    >
                       Pendaftaran Online
                     </p>
                   </div>
@@ -330,15 +342,17 @@
 
                 <!-- Item 2 -->
                 <li
-                  class="flex items-center gap-3.5 p-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200"
+                  class="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl bg-white/5 border border-white/10"
                 >
                   <div
-                    class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white font-medium text-base shadow-lg shadow-brand-600/30"
+                    class="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white font-medium text-sm sm:text-base shadow-md"
                   >
                     <i class="fa-regular fa-folder-open"></i>
                   </div>
                   <div>
-                    <p class="text-sm font-bold text-white leading-tight">
+                    <p
+                      class="text-xs sm:text-sm font-bold text-white leading-tight"
+                    >
                       Verifikasi Berkas
                     </p>
                   </div>
@@ -346,19 +360,21 @@
 
                 <!-- Item 3 (Highlight Pengumuman) -->
                 <li
-                  class="flex items-center gap-3.5 p-3 rounded-2xl bg-brand-500/10 border border-brand-500/30 hover:bg-brand-500/20 transition-all duration-200"
+                  class="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl bg-brand-500/10 border border-brand-500/30"
                 >
                   <div
-                    class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-spark-400 text-slate-950 font-medium text-base shadow-lg shadow-spark-400/20"
+                    class="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl bg-spark-400 text-slate-950 font-medium text-sm sm:text-base shadow-md"
                   >
                     <i class="fa-regular fa-bell"></i>
                   </div>
                   <div>
-                    <p class="text-sm font-bold text-white leading-tight">
+                    <p
+                      class="text-xs sm:text-sm font-bold text-white leading-tight"
+                    >
                       Pengumuman Kelulusan
                     </p>
                     <p
-                      class="mt-1 text-xs font-bold text-slate-950 bg-spark-400 px-2.5 py-0.5 rounded-md inline-block shadow-sm"
+                      class="mt-1 text-[11px] sm:text-xs font-bold text-slate-950 bg-spark-400 px-2 py-0.5 rounded inline-block"
                     >
                       20 Jul 2026
                     </p>
@@ -368,10 +384,10 @@
 
               <!-- Footer Note -->
               <div
-                class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 font-medium"
+                class="mt-5 pt-3.5 border-t border-white/10 flex items-center justify-between text-[11px] sm:text-xs text-slate-400 font-medium"
               >
                 <span>
-                  <i class="fa-solid fa-circle-info text-spark-400 mr-1.5"></i>
+                  <i class="fa-solid fa-circle-info text-spark-400 mr-1"></i>
                   Jadwal dapat berubah sewaktu-waktu
                 </span>
               </div>
