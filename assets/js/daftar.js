@@ -556,8 +556,18 @@ async function fetchRecordByNisn(config, nisn) {
   }
 }
 
+// Contoh fungsi untuk mengubah format tanggal YYYY-MM-DD menjadi DD-MM-YYYY (Standar Indonesia)
+function formatTanggalIndonesia(tanggalString) {
+  if (!tanggalString) return "";
+  const bagian = tanggalString.split("-"); // Memecah [YYYY, MM, DD]
+  if (bagian.length !== 3) return tanggalString;
+  return `${bagian[2]}-${bagian[1]}-${bagian[0]}`; // Menjadi DD-MM-YYYY
+}
+
 /* --- KIRIM DATA KE SHEETSON --- */
 async function sendDataToSheetson(config, data) {
+  var tanggalSimpan = formatTanggalIndonesia(data.lahir);
+
   await Promise.all([
     fetch(`https://api.sheetson.com/v2/sheets/Data_Pendaftar`, {
       method: "POST",
@@ -573,7 +583,7 @@ async function sendDataToSheetson(config, data) {
         jenisKelamin: data.jenisKelamin,
         nisn: data.nisn,
         tempatLahir: data.tempatLahir,
-        tanggalLahir: data.tanggalLahir,
+        tanggalLahir: tanggalSimpan,
         agama: data.agama,
         whatsapp: data.whatsapp,
         alamat: data.alamat,
