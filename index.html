@@ -40,137 +40,146 @@
     class="bg-slate-900/5 text-slate-800 antialiased selection:bg-brand-500 selection:text-white"
   >
     <!-- ======================= NAVBAR ======================= -->
-    <header
-      id="navbar"
-      class="fixed top-0 inset-x-0 z-50 transition-all duration-300"
+   <header
+  id="navbar"
+  class="fixed top-0 inset-x-0 z-50 transition-all duration-300"
+>
+  <div class="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+    <div
+      id="navInner"
+      class="flex items-center justify-between h-16 md:h-20 mt-2 sm:mt-3 md:mt-4 rounded-xl sm:rounded-2xl px-3 sm:px-5 md:px-7 bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-900/5 transition-all duration-300"
     >
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <!-- Logo & Title -->
+      <a href="index.html" class="flex items-center gap-2.5 sm:gap-3 shrink-0 group">
         <div
-          id="navInner"
-          class="flex items-center justify-between h-16 md:h-20 mt-3 md:mt-4 rounded-2xl px-4 md:px-7 bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-900/5 transition-all duration-300"
+          class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-tr from-brand-700 to-brand-500 text-white grid place-items-center font-display font-bold text-base sm:text-lg shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform"
         >
-          <a href="index.html" class="flex items-center gap-3 shrink-0">
-            <div
-              class="h-10 w-10 rounded-xl bg-gradient-to-tr from-brand-700 to-brand-500 text-white grid place-items-center font-display font-bold text-lg shadow-md shadow-brand-500/20"
-            >
-              TN
-            </div>
-            <div class="leading-tight">
-              <p
-                class="font-display font-extrabold text-slate-900 text-sm sm:text-base"
-              >
-                SMK Tamansiswa Jetis
-              </p>
-              <p class="text-[11px] font-medium text-brand-600">
-                Portal SPMB 2026/2027
-              </p>
-            </div>
-          </a>
-
-          <nav
-            class="hidden lg:flex items-center gap-8 font-semibold text-sm text-slate-600"
+          TN
+        </div>
+        <div class="leading-tight">
+          <p
+            class="font-display font-extrabold text-slate-900 text-xs sm:text-sm md:text-base tracking-tight"
           >
-            <a href="index.html" class="nav-link text-brand-600">Beranda</a>
-            <a
-              href="index.html#jurusan"
-              class="nav-link hover:text-brand-600 transition-colors"
-              >Program Keahlian</a
-            >
-            <a
-              href="index.html#alur"
-              class="nav-link hover:text-brand-600 transition-colors"
-              >Alur Pendaftaran</a
-            >
-            <a
-              href="index.html#faq"
-              class="nav-link hover:text-brand-600 transition-colors"
-              >FAQ</a
-            >
-            <a
-              href="daftar/index.html#cek-status"
-              class="nav-link hover:text-brand-600 transition-colors"
-              >Cek Status</a
-            >
-          </nav>
-
-          <div class="flex items-center gap-3">
-            <a
-              href="daftar/index.html"
-              class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-md shadow-brand-600/20 transition-all duration-200"
-            >
-              Daftar Sekarang <i class="fa-solid fa-arrow-right text-xs"></i>
-            </a>
-            <button
-              id="menuBtn"
-              aria-label="Buka menu"
-              aria-expanded="false"
-              class="lg:hidden h-10 w-10 grid place-items-center rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-colors"
-            >
-              <i class="fa-solid fa-bars"></i>
-            </button>
-          </div>
+            SMK Tamansiswa Jetis
+          </p>
+          <p class="text-[10px] sm:text-[11px] font-semibold text-brand-600">
+            Portal SPMB 2026/2027
+          </p>
         </div>
+      </a>
 
-        <!-- Mobile Menu -->
-        <!-- Mobile Menu -->
-        <div
-          id="mobileMenu"
-          class="lg:hidden absolute inset-x-4 top-full mt-2 rounded-2xl bg-white border border-slate-200/80 shadow-xl overflow-hidden origin-top scale-y-0 opacity-0 pointer-events-none transition-all duration-200 ease-out"
+      <!-- Desktop Navigation -->
+      <nav
+        class="hidden lg:flex items-center gap-6 xl:gap-8 font-semibold text-xs xl:text-sm text-slate-600"
+      >
+        <a href="index.html" class="nav-link text-brand-600">Beranda</a>
+        <a
+          href="index.html#jurusan"
+          class="nav-link hover:text-brand-600 transition-colors"
+          >Program Keahlian</a
         >
-          <div class="px-2 py-2">
-            <a
-              href="index.html"
-              class="mobile-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
-            >
-              <i class="fa-solid fa-house w-4 text-brand-500 text-xs"></i>
-              Beranda
-            </a>
-            <a
-              href="index.html#jurusan"
-              class="mobile-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-            >
-              <i
-                class="fa-solid fa-graduation-cap w-4 text-brand-500 text-xs"
-              ></i>
-              Program Keahlian
-            </a>
-            <a
-              href="index.html#alur"
-              class="mobile-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-            >
-              <i class="fa-solid fa-list-check w-4 text-brand-500 text-xs"></i>
-              Alur Pendaftaran
-            </a>
-            <a
-              href="index.html#faq"
-              class="mobile-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-            >
-              <i
-                class="fa-regular fa-circle-question w-4 text-brand-500 text-xs"
-              ></i>
-              FAQ
-            </a>
-            <a
-              href="daftar/index.html#cek-status"
-              class="mobile-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
-            >
-              <i
-                class="fa-solid fa-magnifying-glass w-4 text-brand-500 text-xs"
-              ></i>
-              Cek Status
-            </a>
-          </div>
-          <div class="px-4 pb-4 pt-1">
-            <a
-              href="daftar/"
-              class="mobile-link flex items-center justify-center gap-2 w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold px-4 py-3 rounded-xl transition-colors"
-            >
-              Daftar Sekarang <i class="fa-solid fa-arrow-right text-xs"></i>
-            </a>
-          </div>
-        </div>
+        <a
+          href="index.html#alur"
+          class="nav-link hover:text-brand-600 transition-colors"
+          >Alur Pendaftaran</a
+        >
+        <a
+          href="index.html#faq"
+          class="nav-link hover:text-brand-600 transition-colors"
+          >FAQ</a
+        >
+        <a
+          href="daftar/index.html#cek-status"
+          class="nav-link hover:text-brand-600 transition-colors"
+          >Cek Status</a
+        >
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Button Cek Status (Khusus Mobile / Tablet Kecil) -->
+        <a
+          href="daftar/index.html#cek-status"
+          class="sm:hidden grid place-items-center h-9 w-9 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-colors"
+          title="Cek Status Pendaftaran"
+        >
+          <i class="fa-solid fa-magnifying-glass text-xs text-brand-600"></i>
+        </a>
+
+        <!-- Button Daftar Sekarang (Tampil dari breakpoint SM) -->
+        <a
+          href="daftar/index.html"
+          class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-xs md:text-sm font-bold px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl shadow-md shadow-brand-600/20 transition-all duration-200 shrink-0"
+        >
+          <span>Daftar Sekarang</span>
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+
+        <!-- Toggle Mobile Menu Button -->
+        <button
+          id="menuBtn"
+          aria-label="Buka menu"
+          aria-expanded="false"
+          class="lg:hidden h-9 w-9 sm:h-10 sm:w-10 grid place-items-center rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 active:scale-95 transition-all shrink-0"
+        >
+          <i class="fa-solid fa-bars text-sm sm:text-base"></i>
+        </button>
       </div>
-    </header>
+    </div>
+
+    <!-- Mobile Menu Dropdown -->
+    <div
+      id="mobileMenu"
+      class="lg:hidden absolute inset-x-3 sm:inset-x-6 top-full mt-2 rounded-2xl bg-white/95 backdrop-blur-lg border border-slate-200/80 shadow-2xl shadow-slate-900/10 overflow-hidden origin-top scale-y-0 opacity-0 pointer-events-none transition-all duration-200 ease-out z-50"
+    >
+      <div class="p-2 space-y-0.5">
+        <a
+          href="index.html"
+          class="mobile-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+        >
+          <i class="fa-solid fa-house w-4 text-brand-500 text-xs"></i>
+          Beranda
+        </a>
+        <a
+          href="index.html#jurusan"
+          class="mobile-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+        >
+          <i class="fa-solid fa-graduation-cap w-4 text-brand-500 text-xs"></i>
+          Program Keahlian
+        </a>
+        <a
+          href="index.html#alur"
+          class="mobile-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+        >
+          <i class="fa-solid fa-list-check w-4 text-brand-500 text-xs"></i>
+          Alur Pendaftaran
+        </a>
+        <a
+          href="index.html#faq"
+          class="mobile-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+        >
+          <i class="fa-regular fa-circle-question w-4 text-brand-500 text-xs"></i>
+          FAQ
+        </a>
+        <a
+          href="daftar/index.html#cek-status"
+          class="mobile-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+        >
+          <i class="fa-solid fa-magnifying-glass w-4 text-brand-500 text-xs"></i>
+          Cek Status
+        </a>
+      </div>
+      <div class="p-3 pt-1 border-t border-slate-100 mt-1">
+        <a
+          href="daftar/index.html"
+          class="mobile-link flex items-center justify-center gap-2 w-full bg-brand-600 hover:bg-brand-700 active:scale-98 text-white text-sm font-bold px-4 py-3 rounded-xl shadow-md shadow-brand-600/20 transition-all"
+        >
+          Daftar Sekarang <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
 
     <!-- ======================= HERO ======================= -->
     <section
