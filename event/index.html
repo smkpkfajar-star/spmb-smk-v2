@@ -1,0 +1,1376 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Tamansiswa Jetis Futsal Cup</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,700;0,800;1,700;1,800;1,900&family=Roboto:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: navy bands for hero, header and footer; paper sections between them; lime is the one accent. */
+:root {
+  --navy-950: #021E33;
+  --navy-900: #032A46;
+  --navy-800: #073F66;
+  --blue: #1B7FD1;
+  --blue-ink: #0B5CAD;
+  --lime: #FFE600;
+  --lime-hi: #FFF04D;
+  --paper: #EEF5FF;
+  --white: #FFFFFF;
+  --ink: #05263F;
+  --muted: #4F6B85;
+  --line: #D3E2F2;
+  --on-navy: #FFFFFF;
+  --on-navy-muted: #AFC8E6;
+  --err: #C81E4E;
+  --display: "Roboto Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Roboto", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --r-lg: 22px;
+  --r-md: 14px;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 16px/1.6 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  background: var(--navy-900);
+}
+img { display: block; max-width: 100%; height: auto; }
+h1, h2, h3, p, ul, dl, dd, blockquote { margin: 0; }
+ul { padding: 0; list-style: none; }
+a { color: inherit; }
+button, input, select { font: inherit; color: inherit; }
+[id] { scroll-margin-top: 92px; }
+:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.wrap {
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.ico {
+  width: 24px; height: 24px; flex: 0 0 auto;
+  fill: none; stroke: currentColor; stroke-width: 1.9;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.ico.fill { fill: currentColor; stroke: none; }
+
+/* Header */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 9;
+  background: var(--navy-900);
+  color: var(--on-navy);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 72px; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; text-decoration: none; color: var(--on-navy); }
+.brand-mark {
+  flex: 0 0 auto; width: 42px; height: 42px; border-radius: 50%;
+  border: 2px solid var(--lime); color: var(--lime);
+  display: grid; place-items: center;
+}
+.brand-mark .ico { width: 24px; height: 24px; stroke-width: 1.6; }
+.brand-text { font: 800 18px/1.05 var(--display); font-style: italic; text-transform: uppercase; letter-spacing: .02em; }
+.brand-text small {
+  display: block; margin-top: 3px;
+  font: 700 11px/1 var(--body); font-style: normal;
+  letter-spacing: .24em; color: var(--lime);
+}
+.nav { display: flex; align-items: center; gap: 24px; }
+.nav a {
+  color: var(--on-navy-muted); text-decoration: none;
+  font-size: 14px; font-weight: 600;
+  padding: 8px 0; border-bottom: 2px solid transparent;
+}
+.nav a:hover { color: #fff; }
+.nav a[aria-current="page"] { color: var(--lime); border-bottom-color: var(--lime); }
+.nav a.btn { padding: 11px 18px; border: 0; color: var(--navy-950); }
+.nav a.btn:hover { color: var(--navy-950); background: var(--lime-hi); }
+.menu-btn {
+  display: none; width: 44px; height: 44px; border: 0; border-radius: 10px;
+  background: transparent; color: #fff; cursor: pointer; place-items: center;
+}
+.menu-btn .ico { width: 26px; height: 26px; }
+.menu-btn .ico-close { display: none; }
+.site-header.is-open .menu-btn .ico-menu { display: none; }
+.site-header.is-open .menu-btn .ico-close { display: block; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 48px; padding: 12px 22px;
+  border: 2px solid transparent; border-radius: 999px;
+  font: 700 15px/1.2 var(--body); text-decoration: none; cursor: pointer;
+  transition: background-color .2s ease, transform .2s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn .ico { width: 18px; height: 18px; stroke-width: 2.2; }
+.btn-lime { background: var(--lime); color: var(--navy-950); }
+.btn-lime:hover { background: var(--lime-hi); }
+.btn-ghost { background: transparent; border-color: rgba(255,255,255,.7); color: #fff; }
+.btn-ghost:hover { background: rgba(255,255,255,.1); }
+.btn-navy { background: var(--navy-900); color: #fff; }
+.btn-navy:hover { background: var(--navy-800); }
+.btn-line { background: #fff; border-color: #B9C8EC; color: var(--navy-900); }
+.btn-block { width: 100%; }
+.btn-sm { min-height: 40px; padding: 9px 16px; font-size: 14px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* Type */
+.eyebrow {
+  margin-bottom: 10px;
+  font: 800 12px/1.2 var(--body);
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--blue-ink);
+}
+.eyebrow.on-navy { color: var(--lime); }
+.h2 {
+  font: italic 900 clamp(34px, 5vw, 56px)/.95 var(--display);
+  text-transform: uppercase; color: var(--ink);
+  margin-bottom: 16px;
+}
+.h1 {
+  font: italic 900 clamp(40px, 6vw, 72px)/.95 var(--display);
+  text-transform: uppercase; color: #fff;
+  margin-bottom: 18px;
+}
+.lead { color: var(--muted); max-width: 62ch; }
+.on-navy-lead { color: var(--on-navy-muted); max-width: 62ch; }
+.underline { position: relative; display: inline-block; }
+.underline::after {
+  content: ""; position: absolute; left: -4px; right: -4px; bottom: -8px; height: 8px;
+  background: var(--lime); transform: skewX(-18deg); border-radius: 2px;
+}
+
+/* Hero (beranda) */
+.hero {
+  position: relative; overflow: hidden; isolation: isolate;
+  color: #fff;
+  background:
+    radial-gradient(90% 70% at 88% 18%, #1B7FD1 0%, rgba(27,127,209,0) 60%),
+    linear-gradient(165deg, var(--navy-800) 0%, var(--navy-950) 72%);
+}
+.court-art {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  fill: none; stroke: rgba(255,255,255,.12); stroke-width: 3;
+  pointer-events: none; z-index: -1;
+}
+.hero-slash {
+  position: absolute; z-index: -1; right: -10%; top: 12%;
+  width: 62%; height: 62%; transform: skewX(-16deg);
+  background: linear-gradient(90deg, transparent 0 30%, rgba(255,230,0,.0) 30%, rgba(255,230,0,.55) 46%, rgba(255,230,0,.0) 58%);
+  pointer-events: none;
+}
+.hero-grid {
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  align-items: center; gap: 24px;
+  padding-block: 56px 48px;
+}
+.hero-copy { min-width: 0; }
+.hero-kicker {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  font: italic 800 clamp(20px, 3vw, 28px)/1 var(--display);
+  text-transform: uppercase; letter-spacing: .03em;
+}
+.crown { width: 26px; height: 26px; color: var(--lime); }
+.hero-title {
+  margin-top: 8px;
+  font: italic 900 clamp(58px, 11vw, 136px)/.86 var(--display);
+  text-transform: uppercase; letter-spacing: -.01em;
+  text-wrap: balance;
+}
+.hero-title .accent { color: var(--lime); }
+.hero-lead {
+  margin-top: 22px; font-size: clamp(16px, 2vw, 19px); font-weight: 600;
+  line-height: 1.5; max-width: 30ch; color: #E6EEFF;
+}
+.info-row {
+  display: flex; flex-wrap: wrap; gap: 18px 34px;
+  margin: 26px 0 30px; padding: 0;
+}
+.info-row li { display: flex; align-items: flex-start; gap: 12px; min-width: 0; }
+.info-row .ico { width: 26px; height: 26px; color: var(--lime); }
+.info-row strong {
+  display: block; font-size: 12px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--on-navy-muted);
+}
+.info-row span { font-weight: 700; font-size: 15px; line-height: 1.4; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 14px; }
+.hero-photo {
+  position: relative; min-height: 420px; min-width: 0;
+  display: flex; justify-content: flex-end; align-items: flex-end;
+}
+.hero-photo img {
+  height: 100%; max-height: 440px; width: auto; max-width: 100%;
+  object-fit: contain; object-position: right bottom;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22%);
+  mask-image: linear-gradient(to right, transparent 0, #000 22%);
+}
+
+/* Feature row (beranda + tentang) */
+.features { background: var(--white); padding-block: 44px; }
+.feature-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.feature { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+.feature-icon {
+  width: 66px; height: 66px; border-radius: 50%;
+  background: var(--navy-900); color: var(--lime);
+  display: grid; place-items: center;
+  box-shadow: 0 0 0 6px #E4EBFB;
+}
+.feature-icon .ico { width: 28px; height: 28px; }
+.feature h3 {
+  margin-top: 6px;
+  font: italic 800 22px/1.05 var(--display); text-transform: uppercase;
+}
+.feature p { font-size: 13px; line-height: 1.5; color: var(--muted); max-width: 22ch; }
+
+/* About split (beranda) */
+.about-split {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center; gap: 40px; padding-block: 56px;
+}
+.court {
+  position: relative; min-width: 0; aspect-ratio: 4 / 3;
+  border-radius: var(--r-lg); overflow: hidden;
+  background: linear-gradient(160deg, #0F6CB8 0%, var(--navy-950) 85%);
+  box-shadow: 0 18px 40px rgba(8,27,77,.25);
+}
+.court .court-art { stroke: rgba(255,255,255,.35); z-index: 0; }
+.sticker {
+  position: absolute; right: 16px; bottom: 16px; z-index: 1;
+  padding: 12px 16px; border-radius: 12px;
+  background: #fff; color: var(--navy-900);
+  font: italic 900 24px/.92 var(--display); text-transform: uppercase;
+  transform: rotate(-4deg);
+  box-shadow: 0 10px 24px rgba(0,0,0,.28);
+}
+.sticker span { color: var(--blue-ink); }
+
+/* Soft sections */
+.section-soft { background: var(--paper); padding-block: 56px; }
+.section-soft .h2 { margin-bottom: 12px; }
+.two-up {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 22px; margin-top: 32px; align-items: stretch;
+}
+.two-up > * { min-width: 0; }
+
+/* Cards */
+.card {
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: var(--r-lg); padding: 24px;
+  box-shadow: 0 12px 30px rgba(11,27,69,.06);
+}
+.card h3 {
+  font: italic 900 26px/1 var(--display); text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.dl-list { display: grid; gap: 18px; }
+.dl-list li { display: flex; align-items: flex-start; gap: 14px; }
+.dl-list .ico { width: 24px; height: 24px; color: var(--blue-ink); margin-top: 2px; }
+.dl-list strong {
+  display: block; font-size: 12px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted);
+}
+.dl-list span { font-weight: 700; line-height: 1.4; }
+.bullets { display: grid; gap: 12px; }
+.bullets li { display: flex; gap: 12px; align-items: flex-start; line-height: 1.5; }
+.bullets li::before {
+  content: ""; flex: 0 0 auto; width: 9px; height: 9px; margin-top: 8px;
+  border-radius: 50%; background: var(--lime);
+  box-shadow: 0 0 0 3px var(--navy-900);
+}
+
+/* Prize card (navy) */
+.prize-card {
+  position: relative; overflow: hidden; isolation: isolate;
+  color: #fff; border-radius: var(--r-lg); padding: 24px;
+  background: linear-gradient(150deg, #0A5388 0%, var(--navy-950) 78%);
+  box-shadow: 0 18px 40px rgba(8,27,77,.3);
+}
+.prize-body {
+  display: grid; grid-template-columns: minmax(0, 1fr) 120px;
+  align-items: center; gap: 12px;
+}
+.prize-head {
+  display: flex; align-items: center; gap: 10px;
+  font: italic 900 30px/1 var(--display); text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.prize-head .ico { width: 26px; height: 26px; color: var(--lime); }
+.prize-list { display: grid; gap: 0; }
+.prize-list li {
+  display: grid; grid-template-columns: 20px minmax(0, 1fr) auto;
+  gap: 12px; align-items: center;
+  padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.12);
+  font-size: 15px;
+}
+.prize-list li:last-child { border-bottom: 0; }
+.prize-list .ico { width: 18px; height: 18px; color: var(--lime); }
+.prize-list .amt { font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.prize-art { width: 120px; height: auto; filter: drop-shadow(0 10px 18px rgba(0,0,0,.4)); }
+
+/* Quote band */
+.quote-band {
+  position: relative; overflow: hidden; isolation: isolate;
+  background: var(--navy-900); color: #fff;
+  padding-block: 52px;
+}
+.quote-band::before {
+  content: ""; position: absolute; z-index: -1;
+  left: -8%; right: -8%; top: 22%; bottom: 22%;
+  background: linear-gradient(90deg, var(--navy-800), #0A5388);
+  transform: skewY(-3deg);
+}
+.quote {
+  display: flex; align-items: center; justify-content: center; gap: 18px;
+  text-align: center;
+}
+.quote .crown { flex: 0 0 auto; width: 34px; height: 34px; }
+.quote blockquote {
+  font: italic 800 clamp(24px, 4vw, 40px)/1.12 var(--display);
+  text-transform: uppercase; text-wrap: balance; max-width: 26ch;
+}
+
+/* Checklist (tentang) */
+.goals {
+  display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  align-items: center; gap: 40px;
+}
+.goals > * { min-width: 0; }
+.goal-photo {
+  border-radius: var(--r-lg); overflow: hidden;
+  aspect-ratio: 4 / 5; background: var(--navy-900);
+}
+.goal-photo img { width: 100%; height: 100%; object-fit: cover; }
+.checklist { display: grid; gap: 16px; margin-top: 8px; }
+.checklist li { display: flex; align-items: flex-start; gap: 14px; }
+.checklist .tick {
+  flex: 0 0 auto; width: 26px; height: 26px; margin-top: 1px;
+  padding: 5px; border-radius: 50%;
+  background: var(--lime); color: var(--navy-950);
+}
+.checklist .tick .ico { width: 16px; height: 16px; stroke-width: 2.6; }
+
+/* Page hero (sub pages) */
+.page-hero {
+  position: relative; overflow: hidden; isolation: isolate;
+  color: #fff; padding-block: 56px 64px;
+  background: linear-gradient(165deg, var(--navy-800) 0%, var(--navy-950) 80%);
+}
+.page-hero .wrap { position: relative; }
+.page-hero .court-art { z-index: -1; }
+.page-hero-grid {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  align-items: center; gap: 28px;
+}
+.page-hero-grid > * { min-width: 0; }
+.page-lead { color: var(--on-navy-muted); max-width: 60ch; font-size: 17px; }
+.page-hero .h1 { max-width: 16ch; }
+.page-art { width: 100%; max-width: 320px; justify-self: end; border-radius: var(--r-lg); }
+.page-art.round { width: 180px; height: 180px; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255,230,0,.85); }
+.hype {
+  margin-top: 40px; padding: 22px 24px; text-align: center;
+  background: var(--lime); color: var(--navy-950);
+  border-radius: var(--r-md); transform: rotate(-1.2deg);
+  box-shadow: 0 14px 30px rgba(255,230,0,.25);
+}
+.hype strong { display: block; font: italic 900 clamp(22px, 3.4vw, 30px)/1.05 var(--display); text-transform: uppercase; }
+.hype span { font-size: 15px; font-weight: 600; }
+
+/* CTA band (beranda bottom) */
+.cta-band {
+  position: relative; overflow: hidden; isolation: isolate;
+  color: #fff; padding-block: 52px;
+  background:
+    linear-gradient(90deg, rgba(4,12,42,.94) 0%, rgba(8,27,77,.78) 60%, rgba(8,27,77,.6) 100%),
+    linear-gradient(160deg, #0F6CB8 0%, var(--navy-950) 90%);
+}
+.cta-band .court-art { z-index: -1; }
+.cta-band h2 {
+  font: italic 900 clamp(30px, 4.6vw, 48px)/.98 var(--display);
+  text-transform: uppercase; max-width: 20ch; margin-bottom: 12px;
+}
+.cta-band p { color: var(--on-navy-muted); max-width: 52ch; margin-bottom: 24px; }
+
+/* Footer */
+.site-footer { background: var(--navy-950); color: var(--on-navy-muted); padding-block: 32px 28px; }
+.foot-grid {
+  display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: 20px 28px;
+}
+.foot-nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.foot-nav a { color: var(--on-navy-muted); text-decoration: none; font-size: 14px; font-weight: 600; }
+.foot-nav a:hover { color: var(--lime); }
+.socials { display: flex; gap: 10px; }
+.socials a {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center; color: #fff;
+  border: 1px solid rgba(255,255,255,.2);
+}
+.socials a:hover { border-color: var(--lime); color: var(--lime); }
+.socials .ico { width: 17px; height: 17px; }
+.copy { margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.1); font-size: 12px; text-align: center; }
+
+/* Registration form (daftar) */
+.form-grid {
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  gap: 22px; align-items: start; margin-top: 4px;
+}
+.form-grid > * { min-width: 0; }
+.stack { display: grid; gap: 22px; min-width: 0; }
+.stack > * { min-width: 0; }
+.panel-title {
+  display: flex; align-items: center; gap: 10px;
+  font: italic 900 24px/1 var(--display); text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.panel-title .ico { width: 24px; height: 24px; color: var(--blue-ink); }
+.field { display: grid; gap: 7px; margin-bottom: 16px; border: 0; padding: 0; min-width: 0; }
+.field > label, .field > legend, .field-label {
+  font-size: 13px; font-weight: 700; color: var(--ink); padding: 0;
+}
+.req { color: var(--err); }
+.hint { font-size: 12px; color: var(--muted); }
+.field input[type="text"], .field input[type="tel"], .field select,
+.table-wrap input, .table-wrap select {
+  width: 100%; min-height: 46px; padding: 10px 14px;
+  border: 1px solid #C4D2EE; border-radius: 10px;
+  background: #FAFCFF; color: var(--ink);
+  font-size: 15px; font-weight: 500;
+}
+.field input::placeholder, .table-wrap input::placeholder { color: #8D9CBF; }
+.field input:focus, .field select:focus, .table-wrap input:focus, .table-wrap select:focus {
+  outline: none; border-color: var(--blue-ink); box-shadow: 0 0 0 3px rgba(27,127,209,.18);
+}
+.field.invalid input, .field.invalid select, .upload-field.invalid .upload { border-color: var(--err); }
+.field.invalid input, .field.invalid select { box-shadow: 0 0 0 3px rgba(200,30,78,.12); }
+.err { min-height: 0; font-size: 12px; font-weight: 600; color: var(--err); }
+.err:empty { display: none; }
+.radio-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.radio-chip {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 46px; padding: 10px 16px; border-radius: 10px;
+  border: 1px solid #C4D2EE; background: #FAFCFF; cursor: pointer; font-weight: 600;
+}
+.radio-chip input { width: 18px; height: 18px; margin: 0; accent-color: var(--blue-ink); }
+.radio-chip:has(input:checked) { border-color: var(--blue-ink); background: #EAF0FF; }
+
+/* Uploads */
+.upload-field { display: grid; gap: 8px; margin-bottom: 14px; }
+.upload {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px; min-width: 0;
+  border: 1px dashed #9FB3DD; border-radius: 12px; background: #F6F9FF;
+  cursor: pointer;
+}
+.upload:hover { border-color: var(--blue-ink); }
+.upload input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.upload-icon {
+  flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%;
+  background: var(--navy-900); color: var(--lime);
+  display: grid; place-items: center;
+}
+.upload-icon .ico { width: 20px; height: 20px; }
+.upload-text { min-width: 0; display: grid; gap: 2px; }
+.upload-text strong { font-size: 14px; }
+.upload-text small { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.upload-text .file-name { color: var(--blue-ink); font-weight: 700; }
+.upload-field { position: relative; }
+.upload-field label.upload { position: relative; }
+
+/* Members table */
+.members-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.members-head .panel-title { margin-bottom: 0; }
+.table-wrap {
+  overflow-x: auto; border: 1px solid var(--line); border-radius: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.members {
+  width: 100%; min-width: 560px; border-collapse: collapse; font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.members th {
+  text-align: left; padding: 12px; background: var(--navy-900); color: #fff;
+  font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700;
+}
+.members td { padding: 8px; border-top: 1px solid var(--line); vertical-align: middle; }
+.members td:first-child { width: 48px; text-align: center; font-weight: 700; color: var(--muted); }
+.members input, .members select { min-height: 40px; padding: 8px 10px; font-size: 14px; }
+.check-field { margin-bottom: 8px; }
+.check {
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 14px; line-height: 1.5; cursor: pointer;
+}
+.check input { width: 18px; height: 18px; margin: 2px 0 0; flex: 0 0 auto; accent-color: var(--blue-ink); }
+.submit-row { margin-top: 26px; display: grid; gap: 14px; }
+
+/* Success (berhasil) */
+.success {
+  position: relative; overflow: hidden; isolation: isolate;
+  color: #fff; background: var(--navy-950);
+}
+.success-bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; opacity: .55; z-index: -2;
+}
+.success::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(4,12,42,.2) 0%, rgba(4,12,42,.92) 78%);
+}
+.success-inner {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 16px; padding-block: 64px 72px;
+}
+.check-badge {
+  width: 88px; height: 88px; border-radius: 50%;
+  background: #22C55E; color: #052E16;
+  display: grid; place-items: center;
+  box-shadow: 0 0 0 12px rgba(34,197,94,.18);
+  margin-bottom: 6px;
+}
+.check-badge .ico { width: 44px; height: 44px; stroke-width: 2.8; }
+.success-title {
+  font: italic 900 clamp(40px, 7vw, 68px)/.95 var(--display);
+  text-transform: uppercase; color: var(--lime);
+}
+.success-lead { color: #E6EEFF; max-width: 46ch; font-size: 17px; }
+.detail-card {
+  width: 100%; max-width: 560px; margin-top: 10px; text-align: left;
+  padding: 22px; border-radius: var(--r-lg);
+  background: rgba(8,27,77,.88);
+  border: 1px solid rgba(255,230,0,.4);
+  box-shadow: 0 18px 40px rgba(0,0,0,.35);
+}
+.detail-card h2 {
+  font: italic 900 24px/1 var(--display); text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.detail-card dl {
+  display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr);
+  gap: 12px 16px; font-size: 15px;
+}
+.detail-card dt { color: var(--on-navy-muted); font-weight: 600; }
+.detail-card dd { font-weight: 800; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.success-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 8px; }
+
+/* Center card content vertically when it stretches beside a taller card */
+.two-up > .card { display: flex; flex-direction: column; justify-content: center; }
+
+/* Brand assets */
+.brand-logo { height: 54px; width: auto; max-width: 100%; }
+.feature-img { width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 6px #DCEBFA; }
+.pic { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 50%; }
+.info-row .pic { width: 44px; height: 44px; }
+.court-ball { position: absolute; left: 9%; top: 24%; width: 30%; height: auto; filter: drop-shadow(0 14px 18px rgba(0,0,0,.45)); }
+.sticker-img { position: absolute; right: 4%; bottom: 7%; width: 48%; height: auto; filter: drop-shadow(0 8px 14px rgba(0,0,0,.35)); }
+.page-art.ball { width: 190px; height: auto; border: 0; border-radius: 0; filter: drop-shadow(0 18px 22px rgba(0,0,0,.45)); }
+.prize-art { width: 120px; }
+.cta-band { background: linear-gradient(90deg, rgba(2,30,51,.95) 0%, rgba(3,42,70,.8) 60%, rgba(3,42,70,.55) 100%), url("assets/arena.jpg") center / cover; }
+@media (max-width: 600px) { .brand-logo { height: 46px; } .feature-img { width: 62px; height: 62px; } }
+
+/* Photo assets */
+.hero-slash { display: none; }
+.hero-stack { display: grid; gap: 28px; padding-block: 28px 44px; }
+.hero-banner { width: 100%; height: auto; border-radius: var(--r-lg); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 26px 56px rgba(0,0,0,.45); }
+.hero-bottom { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto; gap: 20px 36px; align-items: center; }
+.hero-bottom .hero-lead { margin: 0; max-width: 34ch; }
+.hero-bottom .info-row { margin: 0; }
+.court-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.court .sticker-img { z-index: 1; }
+.goal-photo { aspect-ratio: 4 / 3; }
+.goal-photo img { object-position: 28% center; }
+.prize-body { grid-template-columns: minmax(0, 1fr) 150px; }
+.prize-art { width: 150px; border-radius: 16px; filter: none; box-shadow: 0 12px 28px rgba(0,0,0,.4); }
+.cta-band { background: linear-gradient(90deg, rgba(2,30,51,.95) 0%, rgba(3,42,70,.8) 60%, rgba(3,42,70,.55) 100%), url("assets/court.jpg") center / cover; }
+.brand-logo { height: 56px; }
+@media (max-width: 960px) { .hero-bottom { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 600px) { .brand-logo { height: 48px; } .hero-stack { padding-block: 20px 36px; } }
+
+/* Hero v2: full-bleed banner, glass info bar, moving ribbon */
+.hero { padding-bottom: 44px; }
+.hero-media { position: relative; overflow: hidden; line-height: 0; background: var(--navy-950); }
+.hero-banner { width: 100%; height: auto; min-height: 220px; object-fit: cover; border: 0; border-radius: 0; box-shadow: none; transform-origin: 70% 45%; animation: kenburns 20s ease-in-out infinite alternate; }
+.hero-media::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(2,30,51,.35) 0%, rgba(2,30,51,0) 25%, rgba(2,30,51,0) 55%, var(--navy-950) 100%); }
+.hero-badge-row { position: absolute; left: 0; right: 0; top: 0; z-index: 2; padding-top: 22px; margin-inline: auto; line-height: 1; }
+.pill { display: inline-flex; align-items: center; gap: 9px; padding: 9px 16px; border-radius: 999px; background: var(--lime); color: var(--navy-950); font: 800 12px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; box-shadow: 0 8px 20px rgba(0,0,0,.3); }
+.pill .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--navy-950); animation: pulse 1.6s ease-in-out infinite; }
+.hero-bar-wrap { position: relative; z-index: 3; margin-top: -88px; }
+.hero-bar { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr) auto; gap: 20px 32px; align-items: center; padding: 26px 30px; border-radius: var(--r-lg); background: rgba(3,42,70,.84); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.16); border-top: 3px solid var(--lime); box-shadow: 0 26px 56px rgba(0,0,0,.5); }
+.hero-bar .hero-lead { margin: 0; max-width: 30ch; font-size: 17px; }
+.hero-bar .info-row { margin: 0; }
+.ribbon { margin-top: 44px; overflow: hidden; background: var(--lime); color: var(--navy-950); padding: 13px 0; border-block: 3px solid var(--navy-950); transform: rotate(-1.2deg) scale(1.03); }
+.ribbon-track { display: flex; align-items: center; gap: 26px; width: max-content; font: italic 900 22px/1 var(--display); text-transform: uppercase; white-space: nowrap; animation: marquee 32s linear infinite; padding-right: 26px; }
+.ribbon-track b { font-style: normal; font-size: 16px; }
+@keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.07); } }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .hero-banner, .pill .dot, .ribbon-track { animation: none; } }
+@media (max-width: 960px) { .hero-bar { grid-template-columns: minmax(0, 1fr); padding: 22px; } .hero-bar-wrap { margin-top: -40px; } }
+@media (max-width: 600px) { .hero-badge-row { padding-top: 12px; } .pill { font-size: 11px; padding: 7px 12px; } .ribbon-track { font-size: 18px; } .hero-bar .btn { flex: 1 1 100%; } .hero-bar-wrap { margin-top: -28px; } }
+
+/* Phone and tablet widths */
+@media (max-width: 960px) {
+  .menu-btn { display: grid; }
+  .nav {
+    display: none;
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 2;
+    flex-direction: column; align-items: stretch; gap: 0;
+    padding-top: 6px; padding-bottom: 18px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    background: var(--navy-900);
+    border-top: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 18px 30px rgba(0,0,0,.3);
+  }
+  .site-header.is-open .nav { display: flex; }
+  .nav a { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 16px; }
+  .nav a[aria-current="page"] { border-bottom-color: rgba(255,230,0,.5); }
+  .nav a.btn { margin-top: 14px; justify-content: center; border-bottom: 0; }
+
+  .hero-grid { grid-template-columns: minmax(0, 1fr); padding-block: 40px 0; gap: 8px; }
+  .hero-photo { min-height: 300px; justify-content: center; }
+  .hero-photo img { max-height: 300px; height: 300px; object-position: center bottom; }
+  .about-split { grid-template-columns: minmax(0, 1fr); padding-block: 44px; gap: 28px; }
+  .feature-row { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; }
+  .page-hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .page-art { justify-self: start; max-width: 240px; }
+  .page-art.round { width: 150px; height: 150px; }
+  .two-up, .form-grid, .goals { grid-template-columns: minmax(0, 1fr); }
+  .goal-photo { aspect-ratio: 4 / 3; }
+}
+
+/* Phones */
+@media (max-width: 600px) {
+  .bar { min-height: 64px; }
+  .brand-mark { width: 38px; height: 38px; }
+  .brand-text { font-size: 16px; }
+  .feature-row { gap: 24px 12px; }
+  .feature h3 { font-size: 20px; }
+  .feature p { font-size: 12.5px; }
+  .feature-icon { width: 58px; height: 58px; }
+  .info-row { gap: 16px 24px; }
+  .hero-actions .btn { flex: 1 1 100%; }
+  .section-soft, .features { padding-block: 40px; }
+  .card, .panel { padding: 18px; }
+  .prize-body { grid-template-columns: minmax(0, 1fr); }
+  .prize-art { display: none; }
+  .prize-head { font-size: 26px; }
+  .prize-list li { grid-template-columns: 18px minmax(0, 1fr); row-gap: 2px; }
+  .prize-list .amt { grid-column: 2; text-align: left; font-size: 14px; }
+  .quote .crown { display: none; }
+  .sticker { font-size: 19px; right: 10px; bottom: 10px; padding: 9px 12px; }
+  .cta-band { padding-block: 40px; }
+  .detail-card dl { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .detail-card dd { margin-bottom: 10px; }
+  .success-actions .btn { width: 100%; }
+  .hype { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1.5A3 3 0 0 0 7 10.5M17 6h3v1.5A3 3 0 0 1 17 10.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.4-3.3 3-5.2 6-5.2s5.6 1.9 6 5.2"/><path d="M16 4.9a3.2 3.2 0 0 1 0 6.2M18 14.8c1.8.6 3 2.4 3.2 5.2"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.6 1-5.8-4.2-4.1 5.8-.8z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s6.5-5.6 6.5-11a6.5 6.5 0 1 0-13 0c0 5.4 6.5 11 6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+    <symbol id="i-badge" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2.5"/><circle cx="12" cy="11" r="2.5"/><path d="M8 17c.7-1.5 2.1-2.3 4-2.3s3.3.8 4 2.3"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+    <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.5-1.3 1.6-2 3-2s2.5.7 3 2M14.5 10h4M14.5 13.5h3"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M4 17l5-4.5 3.5 3 2.5-2 4.5 3.5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.3l2.8 2-1.1 3.3h-3.4l-1.1-3.3z" fill="currentColor"/></symbol>
+    <symbol id="i-ig" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.3 6.6h.01"/></symbol>
+    <symbol id="i-yt" viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor"/></symbol>
+    <symbol id="i-tt" viewBox="0 0 24 24"><path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M14 3c.4 2.6 2.1 4.2 4.5 4.5"/></symbol>
+    <symbol id="court-lines" viewBox="0 0 800 500"><rect x="40" y="40" width="720" height="420" rx="6"/><path d="M400 40v420"/><circle cx="400" cy="250" r="78"/><circle cx="400" cy="250" r="5" fill="currentColor"/><path d="M40 170h110v160H40M760 170H650v160h110"/></symbol>
+  </defs>
+</svg>
+
+<header class="site-header" id="top">
+  <div class="wrap bar">
+    <a class="brand" href="#beranda" data-go="beranda" aria-label="SMK Tamansiswa Jetis Futsal Cup, ke beranda">
+      <img class="brand-logo" src="assets/logo.png" alt="SMK Tamansiswa Jetis Futsal Cup" width="191" height="200">
+    </a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Buka menu">
+      <svg class="ico ico-menu" aria-hidden="true"><use href="#i-menu"/></svg>
+      <svg class="ico ico-close" aria-hidden="true"><use href="#i-close"/></svg>
+    </button>
+    <nav class="nav" id="site-nav" aria-label="Utama">
+      <a href="#beranda" data-go="beranda" data-nav="beranda">Beranda</a>
+      <a href="#tentang" data-go="tentang" data-nav="tentang">Tentang</a>
+      <a href="#jadwal" data-go="jadwal" data-nav="jadwal">Jadwal</a>
+      <a href="#hadiah" data-go="hadiah" data-nav="hadiah">Hadiah</a>
+      <a href="#daftar" data-go="daftar" data-nav="daftar">Pendaftaran</a>
+      <a class="btn btn-lime" href="#daftar" data-go="daftar">Daftar Sekarang</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ============ BERANDA ============ -->
+<section class="view" data-view="beranda" aria-label="Beranda">
+  <div class="hero">
+    <svg class="court-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#court-lines"/></svg>
+    <div class="hero-slash" aria-hidden="true"></div>
+    <div class="hero-media">
+      <img class="hero-banner" src="assets/herobanner.jpg" alt="Pemain futsal menendang bola di lapangan. SMK Tamansiswa Jetis Futsal Cup" width="689" height="366">
+      <div class="wrap hero-badge-row"><span class="pill"><i class="dot"></i>Pendaftaran Dibuka</span></div>
+    </div>
+    <h1 class="sr-only">SMK Tamansiswa Jetis Futsal Cup</h1>
+    <div class="wrap hero-bar-wrap">
+      <div class="hero-bar">
+        <p class="hero-lead">Tunjukkan Skill Terbaikmu, Raih Kemenangan, dan Jadilah Juara di Lapangan!</p>
+        <ul class="info-row">
+          <li><img class="pic" src="assets/icony1.png" alt="" width="66" height="66"><div><strong>Pelaksanaan</strong><span>15 - 16 November 2025</span></div></li>
+          <li><img class="pic" src="assets/icony2.png" alt="" width="66" height="66"><div><strong>Lokasi</strong><span>GOR SMK Tamansiswa Jetis<br>Yogyakarta</span></div></li>
+        </ul>
+        <div class="hero-actions">
+          <a class="btn btn-lime" href="#daftar" data-go="daftar">Daftar Sekarang <svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn-ghost" href="#jadwal" data-go="jadwal">Lihat Detail</a>
+        </div>
+      </div>
+    </div>
+    <div class="ribbon" aria-hidden="true"><div class="ribbon-track"><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b></div></div>
+  </div>
+
+  <section class="features" aria-label="Nilai kegiatan">
+    <div class="wrap feature-row">
+      <div class="feature">
+        <img class="feature-img" src="assets/icon1.png" alt="" width="66" height="66">
+        <h3>Sportivitas</h3>
+        <p>Menjunjung tinggi nilai sportivitas</p>
+      </div>
+      <div class="feature">
+        <img class="feature-img" src="assets/icon2.png" alt="" width="66" height="66">
+        <h3>Persahabatan</h3>
+        <p>Membangun relasi antar sekolah</p>
+      </div>
+      <div class="feature">
+        <img class="feature-img" src="assets/icon3.png" alt="" width="66" height="66">
+        <h3>Pengembangan Bakat</h3>
+        <p>Memberi ruang untuk potensi terbaikmu</p>
+      </div>
+      <div class="feature">
+        <img class="feature-img" src="assets/icon4.png" alt="" width="66" height="66">
+        <h3>Jadi Juara</h3>
+        <p>Raih pengalaman berharga &amp; prestasi</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="about-h">
+    <div class="wrap about-split">
+      <div>
+        <p class="eyebrow">Tentang Kami</p>
+        <h2 class="h2" id="about-h">Lebih dari Sekadar Pertandingan</h2>
+        <p class="lead">SMK Tamansiswa Jetis Futsal Cup adalah ajang kompetisi futsal antar siswa SMP yang diselenggarakan oleh SMK Tamansiswa Jetis dengan tujuan untuk menumbuhkan sportivitas, mempererat persahabatan, dan mengasah bakat di bidang olahraga.</p>
+        <div class="hero-actions" style="margin-top:24px">
+          <a class="btn btn-lime" href="#tentang" data-go="tentang">Tentang Kami <svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        </div>
+      </div>
+      <div class="court" role="img" aria-label="Lapangan futsal indoor">
+        <img class="court-photo" src="assets/court.jpg" alt="" width="413" height="365">
+        <img class="sticker-img" src="assets/sticker.png" alt="Fair Play, Good Friends, Great Game" width="158" height="75">
+      </div>
+    </div>
+  </section>
+
+  <section class="section-soft" aria-labelledby="sched-h">
+    <div class="wrap">
+      <p class="eyebrow">Jadwal &amp; Hadiah</p>
+      <h2 class="h2" id="sched-h">Siapkan Tim Terbaikmu!</h2>
+      <p class="lead">Jangan lewatkan kesempatan untuk menjadi bagian dari kompetisi seru ini. Catat tanggalnya dan siapkan strategimu.</p>
+      <div class="two-up">
+        <div class="card">
+          <ul class="dl-list">
+            <li><img class="pic" src="assets/icony1.png" alt="" width="66" height="66"><div><strong>Pelaksanaan</strong><span>15 - 16 November 2025</span></div></li>
+            <li><img class="pic" src="assets/icony2.png" alt="" width="66" height="66"><div><strong>Lokasi</strong><span>GOR SMK Tamansiswa Jetis Yogyakarta</span></div></li>
+            <li><img class="pic" src="assets/icony3.png" alt="" width="66" height="66"><div><strong>Kategori</strong><span>SMP (Putra &amp; Putri)</span></div></li>
+          </ul>
+        </div>
+        <div class="prize-card">
+          <div class="prize-body">
+            <div>
+              <h3 class="prize-head"><svg class="ico" aria-hidden="true"><use href="#i-trophy"/></svg>Total Hadiah</h3>
+              <ul class="prize-list">
+                <li><svg class="ico" aria-hidden="true"><use href="#i-trophy"/></svg><span>Juara 1</span><span class="amt">Rp 1.500.000 + Trophy</span></li>
+                <li><svg class="ico" aria-hidden="true"><use href="#i-trophy"/></svg><span>Juara 2</span><span class="amt">Rp 1.000.000 + Trophy</span></li>
+                <li><svg class="ico" aria-hidden="true"><use href="#i-trophy"/></svg><span>Juara 3</span><span class="amt">Rp 750.000 + Trophy</span></li>
+                <li><svg class="ico" aria-hidden="true"><use href="#i-star"/></svg><span>Best Player</span><span class="amt">Rp 250.000</span></li>
+                <li><svg class="ico" aria-hidden="true"><use href="#i-star"/></svg><span>Top Scorer</span><span class="amt">Rp 250.000</span></li>
+                <li><svg class="ico" aria-hidden="true"><use href="#i-star"/></svg><span>Best GK</span><span class="amt">Rp 250.000</span></li>
+              </ul>
+            </div>
+            <img class="prize-art" src="assets/trophy2.jpg" alt="Trofi emas dan bola futsal" width="350" height="365">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band" aria-labelledby="cta-h">
+    <svg class="court-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#court-lines"/></svg>
+    <div class="wrap">
+      <h2 id="cta-h">Siap Jadi Bagian dari Futsal Cup 2025?</h2>
+      <p>Daftar sekarang dan tunjukkan bahwa tim kamu adalah yang terbaik!</p>
+      <a class="btn btn-lime" href="#daftar" data-go="daftar">Daftar Sekarang <svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </div>
+  </section>
+</section>
+
+<!-- ============ TENTANG ============ -->
+<section class="view" data-view="tentang" hidden aria-label="Tentang kami">
+  <div class="page-hero">
+    <svg class="court-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#court-lines"/></svg>
+    <div class="wrap">
+      <p class="eyebrow on-navy">Tentang Kami</p>
+      <h1 class="h1">Lebih dari Sekadar Pertandingan</h1>
+      <p class="page-lead">SMK Tamansiswa Jetis Futsal Cup adalah ajang kompetisi futsal antar siswa SMP yang diselenggarakan oleh SMK Tamansiswa Jetis dengan tujuan untuk menumbuhkan sportivitas, mempererat persahabatan, dan mengasah bakat di bidang olahraga.</p>
+    </div>
+  </div>
+
+  <section class="features" aria-label="Nilai kegiatan">
+    <div class="wrap feature-row">
+      <div class="feature">
+        <img class="feature-img" src="assets/icon1.png" alt="" width="66" height="66">
+        <h3>Sportivitas</h3>
+        <p>Menjunjung tinggi nilai sportivitas</p>
+      </div>
+      <div class="feature">
+        <img class="feature-img" src="assets/icon2.png" alt="" width="66" height="66">
+        <h3>Persahabatan</h3>
+        <p>Membangun relasi antar sekolah</p>
+      </div>
+      <div class="feature">
+        <img class="feature-img" src="assets/icon3.png" alt="" width="66" height="66">
+        <h3>Pengembangan Bakat</h3>
+        <p>Memberi ruang untuk potensi terbaikmu</p>
+      </div>
+      <div class="feature">
+        <img class="feature-img" src="assets/icon4.png" alt="" width="66" height="66">
+        <h3>Prestasi</h3>
+        <p>Mencetak generasi berprestasi</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="quote-band">
+    <div class="wrap quote">
+      <svg class="ico fill crown" aria-hidden="true"><use href="#i-crown"/></svg>
+      <blockquote>"Bukan hanya soal menang, tapi tentang bagaimana kita bermain dengan hati dan rasa hormat."</blockquote>
+      <svg class="ico fill crown" aria-hidden="true"><use href="#i-crown"/></svg>
+    </div>
+  </div>
+
+  <section class="section-soft" aria-labelledby="goal-h">
+    <div class="wrap goals">
+      <div class="goal-photo">
+        <img src="assets/shoes.jpg" alt="Bola futsal dan sepatu futsal di lapangan" width="542" height="233">
+      </div>
+      <div>
+        <h2 class="h2" id="goal-h">Tujuan Kegiatan</h2>
+        <ul class="checklist">
+          <li><span class="tick"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg></span><span>Meningkatkan minat dan bakat siswa di bidang olahraga futsal.</span></li>
+          <li><span class="tick"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg></span><span>Menjalin silaturahmi antar SMP.</span></li>
+          <li><span class="tick"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg></span><span>Menumbuhkan jiwa sportivitas dan kerja sama tim.</span></li>
+          <li><span class="tick"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg></span><span>Mencari bibit unggul untuk jenjang yang lebih tinggi.</span></li>
+          <li><span class="tick"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg></span><span>Menciptakan generasi yang sehat, disiplin, dan berprestasi.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ============ JADWAL & HADIAH ============ -->
+<section class="view" data-view="jadwal" hidden aria-label="Jadwal dan hadiah">
+  <div class="page-hero">
+    <svg class="court-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#court-lines"/></svg>
+    <div class="wrap">
+      <p class="eyebrow on-navy">Jadwal &amp; Hadiah</p>
+      <h1 class="h1">Catat Tanggalnya, <span class="underline">Siapkan Strategimu!</span></h1>
+      <p class="page-lead">Berikut adalah informasi lengkap mengenai jadwal pertandingan, kategori, dan hadiah yang akan diperebutkan.</p>
+    </div>
+  </div>
+
+  <section class="section-soft" aria-label="Detail jadwal">
+    <div class="wrap">
+      <div class="two-up" style="margin-top:0">
+        <div class="card">
+          <h3>Jadwal Pelaksanaan</h3>
+          <ul class="dl-list">
+            <li><img class="pic" src="assets/icony1.png" alt="" width="66" height="66"><div><strong>Tanggal</strong><span>15 - 16 November 2025</span></div></li>
+            <li><img class="pic" src="assets/icony2.png" alt="" width="66" height="66"><div><strong>Lokasi</strong><span>GOR SMK Tamansiswa Jetis Yogyakarta</span></div></li>
+            <li><img class="pic" src="assets/icony3.png" alt="" width="66" height="66"><div><strong>Kategori</strong><span>SMP (Putra &amp; Putri)</span></div></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Format Pertandingan</h3>
+          <ul class="bullets">
+            <li>Sistem gugur (knock out)</li>
+            <li>Durasi pertandingan 2 x 10 menit</li>
+            <li>Istirahat 5 menit</li>
+            <li>Offside sesuai peraturan futsal</li>
+            <li>Wasit dari PSSI / berpengalaman</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="prize-card" id="hadiah" style="margin-top:22px">
+        <div class="prize-body">
+          <div>
+            <h2 class="prize-head"><svg class="ico" aria-hidden="true"><use href="#i-trophy"/></svg>Hadiah</h2>
+            <ul class="prize-list">
+              <li><svg class="ico" aria-hidden="true"><use href="#i-trophy"/></svg><span>Juara 1</span><span class="amt">Rp 1.500.000 + Trophy</span></li>
+              <li><svg class="ico" aria-hidden="true"><use href="#i-trophy"/></svg><span>Juara 2</span><span class="amt">Rp 1.000.000 + Trophy</span></li>
+              <li><svg class="ico" aria-hidden="true"><use href="#i-trophy"/></svg><span>Juara 3</span><span class="amt">Rp 750.000 + Trophy</span></li>
+              <li><svg class="ico" aria-hidden="true"><use href="#i-star"/></svg><span>Best Player</span><span class="amt">Rp 250.000</span></li>
+              <li><svg class="ico" aria-hidden="true"><use href="#i-star"/></svg><span>Top Scorer</span><span class="amt">Rp 250.000</span></li>
+              <li><svg class="ico" aria-hidden="true"><use href="#i-star"/></svg><span>Best GK</span><span class="amt">Rp 250.000</span></li>
+            </ul>
+          </div>
+          <img class="prize-art" src="assets/trophy2.jpg" alt="Trofi emas dan bola futsal" width="350" height="365">
+        </div>
+      </div>
+
+      <div class="hype">
+        <strong>Jangan lewatkan kesempatan ini!</strong>
+        <span>Tunjukkan kemampuan terbaik tim kamu dan raih gelar juara!</span>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ============ PENDAFTARAN ============ -->
+<section class="view" data-view="daftar" hidden aria-label="Pendaftaran">
+  <div class="page-hero">
+    <svg class="court-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#court-lines"/></svg>
+    <div class="wrap page-hero-grid">
+      <div>
+        <p class="eyebrow on-navy">Pendaftaran</p>
+        <h1 class="h1">Daftar Sekarang!</h1>
+        <p class="page-lead">Jadilah bagian dari SMK Tamansiswa Jetis Futsal Cup 2025. Isi form pendaftaran di bawah ini dengan data yang benar dan lengkap.</p>
+      </div>
+      <img class="page-art ball" src="assets/ball.png" alt="" width="150" height="150">
+    </div>
+  </div>
+
+  <section class="section-soft" aria-label="Form pendaftaran">
+    <div class="wrap">
+      <form id="reg-form" class="form-grid" novalidate>
+
+        <div class="card">
+          <h2 class="panel-title"><svg class="ico" aria-hidden="true"><use href="#i-users"/></svg>Data Tim</h2>
+
+          <div class="field">
+            <label for="teamName">Nama Tim <span class="req" aria-hidden="true">*</span></label>
+            <input id="teamName" name="teamName" type="text" placeholder="Contoh: SMPN 1 Yogyakarta" autocomplete="off" aria-describedby="err-teamName">
+            <p class="err" id="err-teamName" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label for="school">Asal Sekolah <span class="req" aria-hidden="true">*</span></label>
+            <select id="school" name="school" aria-describedby="err-school">
+              <option value="">Pilih Sekolah</option>
+              <option>SMPN 1 Yogyakarta</option>
+              <option>SMPN 5 Yogyakarta</option>
+              <option>SMP Tamansiswa Jetis</option>
+              <option>SMP Lainnya</option>
+            </select>
+            <p class="err" id="err-school" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label for="coachName">Nama Pelatih <span class="req" aria-hidden="true">*</span></label>
+            <input id="coachName" name="coachName" type="text" placeholder="Contoh: Budi Santoso" autocomplete="off" aria-describedby="err-coachName">
+            <p class="err" id="err-coachName" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label for="coachPhone">No. HP Pelatih <span class="req" aria-hidden="true">*</span></label>
+            <input id="coachPhone" name="coachPhone" type="tel" inputmode="tel" placeholder="Contoh: 081234567890" autocomplete="tel" aria-describedby="err-coachPhone">
+            <p class="err" id="err-coachPhone" aria-live="polite"></p>
+          </div>
+
+          <fieldset class="field" id="category">
+            <legend>Kategori <span class="req" aria-hidden="true">*</span></legend>
+            <div class="radio-row">
+              <label class="radio-chip"><input type="radio" name="category" value="Putra" checked> Putra</label>
+              <label class="radio-chip"><input type="radio" name="category" value="Putri"> Putri</label>
+            </div>
+            <p class="err" id="err-category" aria-live="polite"></p>
+          </fieldset>
+
+          <div class="field">
+            <label for="memberCount">Jumlah Anggota <span class="req" aria-hidden="true">*</span></label>
+            <select id="memberCount" name="memberCount" aria-describedby="err-memberCount">
+              <option value="">Pilih Jumlah Anggota</option>
+              <option>5 orang</option>
+              <option>6 orang</option>
+              <option>7 orang</option>
+              <option>8 orang</option>
+              <option>9 orang</option>
+              <option>10 orang</option>
+            </select>
+            <p class="err" id="err-memberCount" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <h2 class="panel-title"><svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>Upload Berkas</h2>
+
+            <div class="upload-field" id="up-logo">
+              <label class="upload" for="logo">
+                <span class="upload-icon"><svg class="ico" aria-hidden="true"><use href="#i-image"/></svg></span>
+                <span class="upload-text">
+                  <strong>Logo Tim (opsional)</strong>
+                  <small>Format: PNG/JPG (max 2MB)</small>
+                  <span class="file-name" id="name-logo">Belum ada file dipilih</span>
+                </span>
+                <input id="logo" name="logo" type="file" accept="image/png,image/jpeg">
+              </label>
+              <p class="err" id="err-logo" aria-live="polite"></p>
+            </div>
+
+            <div class="upload-field" id="up-letter">
+              <label class="upload" for="letter">
+                <span class="upload-icon"><svg class="ico" aria-hidden="true"><use href="#i-file"/></svg></span>
+                <span class="upload-text">
+                  <strong>Surat Pernyataan <span class="req" aria-hidden="true">*</span></strong>
+                  <small>Format: PDF (max 2MB)</small>
+                  <span class="file-name" id="name-letter">Belum ada file dipilih</span>
+                </span>
+                <input id="letter" name="letter" type="file" accept="application/pdf">
+              </label>
+              <p class="err" id="err-letter" aria-live="polite"></p>
+            </div>
+
+            <div class="upload-field" id="up-card">
+              <label class="upload" for="card">
+                <span class="upload-icon"><svg class="ico" aria-hidden="true"><use href="#i-id"/></svg></span>
+                <span class="upload-text">
+                  <strong>Kartu Pelajar <span class="req" aria-hidden="true">*</span></strong>
+                  <small>Format: PDF/JPG (max 2MB)</small>
+                  <span class="file-name" id="name-card">Belum ada file dipilih</span>
+                </span>
+                <input id="card" name="card" type="file" accept="application/pdf,image/jpeg">
+              </label>
+              <p class="err" id="err-card" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="members-head">
+              <h2 class="panel-title"><svg class="ico" aria-hidden="true"><use href="#i-users"/></svg>Data Anggota Tim</h2>
+              <button class="btn btn-navy btn-sm" type="button" id="add-member"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg>Tambah Anggota</button>
+            </div>
+            <div class="table-wrap">
+              <table class="members">
+                <caption class="sr-only">Daftar anggota tim</caption>
+                <thead>
+                  <tr><th scope="col">No</th><th scope="col">Nama</th><th scope="col">No. HP</th><th scope="col">Posisi</th></tr>
+                </thead>
+                <tbody id="members"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="submit-row" style="grid-column: 1 / -1;">
+          <div class="check-field" id="agree-field">
+            <label class="check" for="agree">
+              <input id="agree" name="agree" type="checkbox">
+              <span>Saya menyetujui semua persyaratan dan ketentuan yang berlaku.</span>
+            </label>
+            <p class="err" id="err-agree" aria-live="polite"></p>
+          </div>
+          <button class="btn btn-lime btn-block" type="submit">Kirim Pendaftaran <svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        </div>
+      </form>
+    </div>
+  </section>
+</section>
+
+<!-- ============ BERHASIL ============ -->
+<section class="view success" data-view="berhasil" hidden aria-label="Pendaftaran berhasil">
+  <img class="success-bg" src="assets/shoes.jpg" alt="">
+  <div class="wrap success-inner">
+    <span class="check-badge"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg></span>
+    <h1 class="success-title">Pendaftaran Berhasil!</h1>
+    <p class="success-lead">Terima kasih telah mendaftar! Data tim kamu telah kami terima dan akan segera kami verifikasi.</p>
+    <div class="detail-card" id="detail-card">
+      <h2>Detail Pendaftaran</h2>
+      <dl>
+        <dt>Nama Tim</dt><dd id="out-team">-</dd>
+        <dt>Kategori</dt><dd id="out-cat">-</dd>
+        <dt>Tanggal Daftar</dt><dd id="out-date">-</dd>
+      </dl>
+    </div>
+    <div class="success-actions">
+      <a class="btn btn-lime" href="#beranda" data-go="beranda">Kembali ke Beranda</a>
+      <button class="btn btn-ghost" type="button" id="see-detail">Lihat Detail Pendaftaran</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <a class="brand" href="#beranda" data-go="beranda" aria-label="SMK Tamansiswa Jetis Futsal Cup, ke beranda">
+        <img class="brand-logo" src="assets/logo.png" alt="SMK Tamansiswa Jetis Futsal Cup" width="191" height="200">
+      </a>
+      <nav aria-label="Footer">
+        <ul class="foot-nav">
+          <li><a href="#beranda" data-go="beranda">Beranda</a></li>
+          <li><a href="#tentang" data-go="tentang">Tentang</a></li>
+          <li><a href="#jadwal" data-go="jadwal">Jadwal</a></li>
+          <li><a href="#hadiah" data-go="hadiah">Hadiah</a></li>
+          <li><a href="#daftar" data-go="daftar">Pendaftaran</a></li>
+        </ul>
+      </nav>
+      <div class="socials">
+        <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="ico" aria-hidden="true"><use href="#i-ig"/></svg></a>
+        <a href="https://www.youtube.com/" target="_blank" rel="noopener" aria-label="YouTube"><svg class="ico" aria-hidden="true"><use href="#i-yt"/></svg></a>
+        <a href="https://www.tiktok.com/" target="_blank" rel="noopener" aria-label="TikTok"><svg class="ico" aria-hidden="true"><use href="#i-tt"/></svg></a>
+      </div>
+    </div>
+    <p class="copy">&copy; 2025 SMK Tamansiswa Jetis. All rights reserved.</p>
+  </div>
+</footer>
+<script>
+(function () {
+  'use strict';
+
+  var VIEWS = ['beranda', 'tentang', 'jadwal', 'daftar', 'berhasil'];
+  var ALIAS = { hadiah: 'jadwal' };
+  var MAX_MEMBERS = 15;
+  var FILE_MAX = 2 * 1024 * 1024;
+  var MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+  var header = document.querySelector('.site-header');
+  var menuBtn = document.querySelector('.menu-btn');
+  var form = document.getElementById('reg-form');
+  var membersBody = document.getElementById('members');
+  var addBtn = document.getElementById('add-member');
+  var seeBtn = document.getElementById('see-detail');
+  var lastSubmission = null;
+  var memberCount = 0;
+
+  /* ---------- Routing (hash views) ---------- */
+  function resolve(hash) {
+    var h = String(hash || '').replace(/^#/, '');
+    var target = null;
+    if (ALIAS[h]) { target = h; h = ALIAS[h]; }
+    if (VIEWS.indexOf(h) === -1) h = 'beranda';
+    if (h === 'berhasil' && !lastSubmission) h = 'daftar';
+    return { view: h, target: target };
+  }
+
+  function show(hash) {
+    var r = resolve(hash);
+    var views = document.querySelectorAll('[data-view]');
+    for (var i = 0; i < views.length; i++) {
+      views[i].hidden = views[i].getAttribute('data-view') !== r.view;
+    }
+    var links = document.querySelectorAll('.nav a[data-nav]');
+    for (var j = 0; j < links.length; j++) {
+      if (links[j].getAttribute('data-nav') === r.view) links[j].setAttribute('aria-current', 'page');
+      else links[j].removeAttribute('aria-current');
+    }
+    var el = r.target ? document.getElementById(r.target) : null;
+    if (el) el.scrollIntoView();
+    else window.scrollTo(0, 0);
+  }
+
+  function go(name) {
+    var n = String(name).replace(/^#/, '');
+    try { location.hash = n; } catch (e) { /* hash may be refused in some viewers */ }
+    show(n);
+  }
+
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest ? e.target.closest('a[data-go]') : null;
+    if (!a) return;
+    e.preventDefault();
+    if (header) header.classList.remove('is-open');
+    if (menuBtn) {
+      menuBtn.setAttribute('aria-expanded', 'false');
+      menuBtn.setAttribute('aria-label', 'Buka menu');
+    }
+    go(a.getAttribute('data-go'));
+  });
+
+  if (menuBtn) {
+    menuBtn.addEventListener('click', function () {
+      var open = header.classList.toggle('is-open');
+      menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      menuBtn.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+    });
+  }
+
+  if (seeBtn) {
+    seeBtn.addEventListener('click', function () {
+      var card = document.getElementById('detail-card');
+      if (card) card.scrollIntoView({ block: 'center' });
+    });
+  }
+
+  /* ---------- Members table ---------- */
+  function addMember() {
+    if (memberCount >= MAX_MEMBERS) return;
+    memberCount += 1;
+    var n = memberCount;
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + n + '</td>' +
+      '<td><input type="text" name="memberName" aria-label="Nama anggota ' + n + '" placeholder="Nama lengkap"></td>' +
+      '<td><input type="tel" name="memberPhone" aria-label="No. HP anggota ' + n + '" placeholder="08xxxxxxxxxx"></td>' +
+      '<td><select name="memberPos" aria-label="Posisi anggota ' + n + '">' +
+        '<option value="">Pilih</option><option>Kiper</option><option>Bertahan</option>' +
+        '<option>Pengatur</option><option>Penyerang</option>' +
+      '</select></td>';
+    membersBody.appendChild(tr);
+    if (memberCount >= MAX_MEMBERS) addBtn.disabled = true;
+  }
+
+  for (var k = 0; k < 5; k++) addMember();
+  if (addBtn) addBtn.addEventListener('click', addMember);
+
+  /* ---------- Upload file names ---------- */
+  ['logo', 'letter', 'card'].forEach(function (id) {
+    var input = document.getElementById(id);
+    var out = document.getElementById('name-' + id);
+    if (!input || !out) return;
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      out.textContent = f ? f.name : 'Belum ada file dipilih';
+    });
+  });
+
+  /* ---------- Validation ---------- */
+  function val(id) {
+    return (document.getElementById(id).value || '').trim();
+  }
+
+  function fileRule(required) {
+    return function (id) {
+      var input = document.getElementById(id);
+      var f = input.files && input.files[0];
+      if (!f) return required ? 'Unggah berkas ini.' : '';
+      return f.size > FILE_MAX ? 'Ukuran file maksimal 2 MB.' : '';
+    };
+  }
+
+  var RULES = {
+    teamName: function (id) { return val(id).length >= 3 ? '' : 'Nama tim minimal 3 karakter.'; },
+    school: function (id) { return val(id) ? '' : 'Pilih asal sekolah.'; },
+    coachName: function (id) { return val(id).length >= 3 ? '' : 'Isi nama pelatih.'; },
+    coachPhone: function (id) {
+      return /^[0-9+\-\s]{9,15}$/.test(val(id)) ? '' : 'Isi nomor HP yang aktif (9 sampai 15 digit).';
+    },
+    category: function () {
+      return form.elements.category && form.elements.category.value ? '' : 'Pilih kategori tim.';
+    },
+    memberCount: function (id) { return val(id) ? '' : 'Pilih jumlah anggota.'; },
+    logo: fileRule(false),
+    letter: fileRule(true),
+    card: fileRule(true),
+    agree: function (id) {
+      return document.getElementById(id).checked ? '' : 'Centang persetujuan untuk melanjutkan.';
+    }
+  };
+
+  var FIELD_IDS = ['teamName', 'school', 'coachName', 'coachPhone', 'category', 'memberCount', 'logo', 'letter', 'card', 'agree'];
+
+  function check(id) {
+    var msg = RULES[id](id);
+    var err = document.getElementById('err-' + id);
+    if (err) err.textContent = msg;
+    var ctl = document.getElementById(id);
+    var box = ctl && ctl.closest ? ctl.closest('.field, .upload-field, .check-field') : null;
+    if (box) box.classList.toggle('invalid', !!msg);
+    return !msg;
+  }
+
+  function onFieldChange(e) {
+    if (!form.dataset.tried) return;
+    var t = e.target;
+    if (!t || !t.name) return;
+    if (t.name.indexOf('member') === 0) return;
+    var id = t.name === 'category' ? 'category' : t.id;
+    if (id && RULES[id]) check(id);
+  }
+
+  form.addEventListener('input', onFieldChange);
+  form.addEventListener('change', onFieldChange);
+
+  /* ---------- Submit ---------- */
+  var MONTH_NAMES = MONTHS;
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+  function formatDate(d) {
+    return d.getDate() + ' ' + MONTH_NAMES[d.getMonth()] + ' ' + d.getFullYear() +
+      ' | ' + pad(d.getHours()) + '.' + pad(d.getMinutes());
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    form.dataset.tried = '1';
+    var firstBad = null;
+    FIELD_IDS.forEach(function (id) {
+      if (!check(id) && !firstBad) firstBad = id;
+    });
+    if (firstBad) {
+      var box = document.getElementById(firstBad);
+      var inner = box && box.querySelector ? box.querySelector('input, select') : null;
+      var focusEl = inner || box;
+      if (focusEl && focusEl.focus) focusEl.focus();
+      return;
+    }
+
+    lastSubmission = {
+      team: val('teamName'),
+      category: form.elements.category.value,
+      date: formatDate(new Date())
+    };
+    document.getElementById('out-team').textContent = lastSubmission.team;
+    document.getElementById('out-cat').textContent = lastSubmission.category;
+    document.getElementById('out-date').textContent = lastSubmission.date;
+    go('berhasil');
+  });
+
+  /* ---------- Boot ---------- */
+  window.addEventListener('hashchange', function () { show(location.hash); });
+  show(location.hash);
+})();
+</script>
+
+</body></html>
