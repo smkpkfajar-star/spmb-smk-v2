@@ -1,5 +1,9 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<meta name="claude:viewport-fit-sides" content="cover">
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Tamansiswa Jetis Futsal Cup</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,700;0,800;1,700;1,800;1,900&family=Roboto:wght@400;500;700;900&display=swap">
 <style>
@@ -580,7 +584,7 @@ button, input, select { font: inherit; color: inherit; }
 .sticker-img { position: absolute; right: 4%; bottom: 7%; width: 48%; height: auto; filter: drop-shadow(0 8px 14px rgba(0,0,0,.35)); }
 .page-art.ball { width: 190px; height: auto; border: 0; border-radius: 0; filter: drop-shadow(0 18px 22px rgba(0,0,0,.45)); }
 .prize-art { width: 120px; }
-.cta-band { background: linear-gradient(90deg, rgba(2,30,51,.95) 0%, rgba(3,42,70,.8) 60%, rgba(3,42,70,.55) 100%), url("assets/arena.jpg") center / cover; }
+.cta-band { background: linear-gradient(90deg, rgba(2,30,51,.95) 0%, rgba(3,42,70,.8) 60%, rgba(3,42,70,.55) 100%), url("/event/assets/arena.jpg") center / cover; }
 @media (max-width: 600px) { .brand-logo { height: 46px; } .feature-img { width: 62px; height: 62px; } }
 
 /* Photo assets */
@@ -596,7 +600,7 @@ button, input, select { font: inherit; color: inherit; }
 .goal-photo img { object-position: 28% center; }
 .prize-body { grid-template-columns: minmax(0, 1fr) 150px; }
 .prize-art { width: 150px; border-radius: 16px; filter: none; box-shadow: 0 12px 28px rgba(0,0,0,.4); }
-.cta-band { background: linear-gradient(90deg, rgba(2,30,51,.95) 0%, rgba(3,42,70,.8) 60%, rgba(3,42,70,.55) 100%), url("assets/court.jpg") center / cover; }
+.cta-band { background: linear-gradient(90deg, rgba(2,30,51,.95) 0%, rgba(3,42,70,.8) 60%, rgba(3,42,70,.55) 100%), url("/event/assets/court.jpg") center / cover; }
 .brand-logo { height: 56px; }
 @media (max-width: 960px) { .hero-bottom { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 600px) { .brand-logo { height: 48px; } .hero-stack { padding-block: 20px 36px; } }
@@ -622,6 +626,58 @@ button, input, select { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) { .hero-banner, .pill .dot, .ribbon-track { animation: none; } }
 @media (max-width: 960px) { .hero-bar { grid-template-columns: minmax(0, 1fr); padding: 22px; } .hero-bar-wrap { margin-top: -40px; } }
 @media (max-width: 600px) { .hero-badge-row { padding-top: 12px; } .pill { font-size: 11px; padding: 7px 12px; } .ribbon-track { font-size: 18px; } .hero-bar .btn { flex: 1 1 100%; } .hero-bar-wrap { margin-top: -28px; } }
+
+/* Hero: more compact on desktop */
+.hero-banner { aspect-ratio: 21 / 8; object-fit: cover; object-position: 50% 38%; }
+.hero-bar-wrap { margin-top: -72px; }
+.hero { padding-bottom: 32px; }
+.ribbon { margin-top: 32px; }
+@media (max-width: 960px) { .hero-banner { aspect-ratio: auto; } .hero-bar-wrap { margin-top: -40px; } }
+@media (max-width: 600px) { .hero-bar-wrap { margin-top: -28px; } }
+
+/* Hero: show the whole banner, smaller and centered with soft edges */
+.hero-media { display: flex; justify-content: center; }
+.hero-banner { aspect-ratio: auto; width: min(100%, 880px); object-fit: contain;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 14%, #000 86%, transparent 100%); }
+.hero-badge-row { left: 0; right: 0; }
+.hero-bar-wrap { margin-top: -64px; }
+@media (max-width: 960px) { .hero-banner { width: 100%; -webkit-mask-image: none; mask-image: none; } }
+
+/* Hero v3: split layout, tilted photo card, floating chips */
+.hero-split { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 56px; align-items: center; padding-block: 56px 28px; }
+.hero-split > * { min-width: 0; }
+.hero-text { display: grid; gap: 22px; justify-items: start; }
+.hero-h1 { display: grid; gap: 6px; }
+.hero-h1 .kick { font: italic 800 clamp(18px, 2.4vw, 24px)/1 var(--display); text-transform: uppercase; letter-spacing: .12em; color: var(--on-navy-muted); }
+.hero-h1 .big { font: italic 900 clamp(64px, 10vw, 128px)/.86 var(--display); text-transform: uppercase; letter-spacing: -.01em; background: linear-gradient(180deg, #fff 30%, #BFD9F5 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero-h1 .big em { font-style: italic; color: var(--lime); -webkit-text-fill-color: var(--lime); }
+.hero-text .hero-lead { margin: 0; max-width: 36ch; font-size: clamp(17px, 2vw, 20px); color: #E3EEFB; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.hero-meta li { display: flex; align-items: center; gap: 12px; padding: 10px 16px 10px 10px; border-radius: 16px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); min-width: 0; }
+.hero-meta .pic { width: 40px; height: 40px; }
+.hero-meta strong { display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--on-navy-muted); }
+.hero-meta span { font-size: 14px; font-weight: 700; line-height: 1.3; }
+.hero-visual { position: relative; width: 100%; max-width: 460px; justify-self: center; padding: 14px 18px 22px 14px; }
+.hero-visual::before { content: ""; position: absolute; inset: 0 0 8px 28px; border-radius: 32px; background: var(--lime); transform: rotate(4deg); }
+.hero-visual::after { content: ""; position: absolute; z-index: -1; inset: -12% -18%; background: radial-gradient(closest-side, rgba(27,127,209,.55), transparent); }
+.hero-card { position: relative; z-index: 1; border-radius: 28px; overflow: hidden; aspect-ratio: 337 / 366; border: 2px solid rgba(255,255,255,.25); box-shadow: 0 30px 60px rgba(0,0,0,.5); transform: rotate(-2deg); }
+.hero-card img { width: 100%; height: 100%; object-fit: cover; }
+.float { position: absolute; z-index: 2; display: flex; align-items: center; gap: 12px; padding: 10px 18px 10px 10px; border-radius: 18px; background: rgba(3,42,70,.82); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.2); box-shadow: 0 16px 34px rgba(0,0,0,.4); animation: bob 5s ease-in-out infinite; }
+.float img { width: 44px; height: 44px; border-radius: 50%; object-fit: contain; }
+.float small { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--on-navy-muted); }
+.float b { font: 800 17px/1.1 var(--body); font-variant-numeric: tabular-nums; }
+.float.f1 { left: -34px; bottom: 56px; }
+.float.f2 { right: -24px; top: 34px; animation-delay: -2.5s; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@media (prefers-reduced-motion: reduce) { .float { animation: none; } }
+@media (max-width: 960px) { .hero-split { grid-template-columns: minmax(0, 1fr); gap: 40px; padding-block: 40px 20px; } .hero-visual { max-width: 400px; } }
+@media (max-width: 600px) { .float.f1 { left: -6px; bottom: 36px; } .float.f2 { right: -6px; top: 18px; } .hero-meta li { flex: 1 1 100%; } .hero-text .btn { flex: 1 1 100%; } }
+.hero-split { padding-block: 40px 16px; gap: 48px; }
+.hero-text { gap: 20px; }
+.hero-h1 .big { font-size: clamp(60px, 9vw, 112px); }
+.hero-visual { max-width: 420px; }
+.ribbon { margin-top: 28px; }
 
 /* Phone and tablet widths */
 @media (max-width: 960px) {
@@ -685,6 +741,9 @@ button, input, select { font: inherit; color: inherit; }
   *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
 }
 </style>
+</head>
+<body>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
     <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1.5A3 3 0 0 0 7 10.5M17 6h3v1.5A3 3 0 0 1 17 10.5"/></symbol>
@@ -715,7 +774,7 @@ button, input, select { font: inherit; color: inherit; }
 <header class="site-header" id="top">
   <div class="wrap bar">
     <a class="brand" href="#beranda" data-go="beranda" aria-label="SMK Tamansiswa Jetis Futsal Cup, ke beranda">
-      <img class="brand-logo" src="assets/logo.png" alt="SMK Tamansiswa Jetis Futsal Cup" width="191" height="200">
+      <img class="brand-logo" src="/event/assets/logo.png" alt="SMK Tamansiswa Jetis Futsal Cup" width="191" height="200">
     </a>
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Buka menu">
       <svg class="ico ico-menu" aria-hidden="true"><use href="#i-menu"/></svg>
@@ -739,22 +798,24 @@ button, input, select { font: inherit; color: inherit; }
   <div class="hero">
     <svg class="court-art" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#court-lines"/></svg>
     <div class="hero-slash" aria-hidden="true"></div>
-    <div class="hero-media">
-      <img class="hero-banner" src="assets/herobanner.jpg" alt="Pemain futsal menendang bola di lapangan. SMK Tamansiswa Jetis Futsal Cup" width="689" height="366">
-      <div class="wrap hero-badge-row"><span class="pill"><i class="dot"></i>Pendaftaran Dibuka</span></div>
-    </div>
-    <h1 class="sr-only">SMK Tamansiswa Jetis Futsal Cup</h1>
-    <div class="wrap hero-bar-wrap">
-      <div class="hero-bar">
+    <div class="wrap hero-split">
+      <div class="hero-text">
+        <span class="pill"><i class="dot"></i>Pendaftaran Dibuka</span>
+        <h1 class="hero-h1"><span class="kick">SMK Tamansiswa Jetis</span><span class="big">Futsal <em>Cup</em></span></h1>
         <p class="hero-lead">Tunjukkan Skill Terbaikmu, Raih Kemenangan, dan Jadilah Juara di Lapangan!</p>
-        <ul class="info-row">
-          <li><img class="pic" src="assets/icony1.png" alt="" width="66" height="66"><div><strong>Pelaksanaan</strong><span>15 - 16 November 2025</span></div></li>
-          <li><img class="pic" src="assets/icony2.png" alt="" width="66" height="66"><div><strong>Lokasi</strong><span>GOR SMK Tamansiswa Jetis<br>Yogyakarta</span></div></li>
-        </ul>
         <div class="hero-actions">
           <a class="btn btn-lime" href="#daftar" data-go="daftar">Daftar Sekarang <svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></a>
           <a class="btn btn-ghost" href="#jadwal" data-go="jadwal">Lihat Detail</a>
         </div>
+        <ul class="hero-meta">
+          <li><img class="pic" src="/event/assets/icony1.png" alt="" width="66" height="66"><div><strong>Pelaksanaan</strong><span>15 - 16 November 2025</span></div></li>
+          <li><img class="pic" src="/event/assets/icony2.png" alt="" width="66" height="66"><div><strong>Lokasi</strong><span>GOR SMK Tamansiswa Jetis</span></div></li>
+        </ul>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card"><img src="/event/assets/herocrop.jpg" alt="Pemain futsal bernomor 10 menendang bola di lapangan" width="337" height="366"></div>
+        <div class="float f1"><img src="/event/assets/icon4.png" alt="" width="66" height="66"><div><small>Juara 1</small><b>Rp 1.500.000</b></div></div>
+        <div class="float f2"><img src="/event/assets/logo.png" alt="" width="191" height="200"><div><small>Total Hadiah</small><b>Rp 4.000.000</b></div></div>
       </div>
     </div>
     <div class="ribbon" aria-hidden="true"><div class="ribbon-track"><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b><span>Fair Play</span><b>★</b><span>Good Friends</span><b>★</b><span>Great Game</span><b>★</b></div></div>
@@ -763,22 +824,22 @@ button, input, select { font: inherit; color: inherit; }
   <section class="features" aria-label="Nilai kegiatan">
     <div class="wrap feature-row">
       <div class="feature">
-        <img class="feature-img" src="assets/icon1.png" alt="" width="66" height="66">
+        <img class="feature-img" src="/event/assets/icon1.png" alt="" width="66" height="66">
         <h3>Sportivitas</h3>
         <p>Menjunjung tinggi nilai sportivitas</p>
       </div>
       <div class="feature">
-        <img class="feature-img" src="assets/icon2.png" alt="" width="66" height="66">
+        <img class="feature-img" src="/event/assets/icon2.png" alt="" width="66" height="66">
         <h3>Persahabatan</h3>
         <p>Membangun relasi antar sekolah</p>
       </div>
       <div class="feature">
-        <img class="feature-img" src="assets/icon3.png" alt="" width="66" height="66">
+        <img class="feature-img" src="/event/assets/icon3.png" alt="" width="66" height="66">
         <h3>Pengembangan Bakat</h3>
         <p>Memberi ruang untuk potensi terbaikmu</p>
       </div>
       <div class="feature">
-        <img class="feature-img" src="assets/icon4.png" alt="" width="66" height="66">
+        <img class="feature-img" src="/event/assets/icon4.png" alt="" width="66" height="66">
         <h3>Jadi Juara</h3>
         <p>Raih pengalaman berharga &amp; prestasi</p>
       </div>
@@ -796,8 +857,8 @@ button, input, select { font: inherit; color: inherit; }
         </div>
       </div>
       <div class="court" role="img" aria-label="Lapangan futsal indoor">
-        <img class="court-photo" src="assets/court.jpg" alt="" width="413" height="365">
-        <img class="sticker-img" src="assets/sticker.png" alt="Fair Play, Good Friends, Great Game" width="158" height="75">
+        <img class="court-photo" src="/event/assets/court.jpg" alt="" width="413" height="365">
+        <img class="sticker-img" src="/event/assets/sticker.png" alt="Fair Play, Good Friends, Great Game" width="158" height="75">
       </div>
     </div>
   </section>
@@ -810,9 +871,9 @@ button, input, select { font: inherit; color: inherit; }
       <div class="two-up">
         <div class="card">
           <ul class="dl-list">
-            <li><img class="pic" src="assets/icony1.png" alt="" width="66" height="66"><div><strong>Pelaksanaan</strong><span>15 - 16 November 2025</span></div></li>
-            <li><img class="pic" src="assets/icony2.png" alt="" width="66" height="66"><div><strong>Lokasi</strong><span>GOR SMK Tamansiswa Jetis Yogyakarta</span></div></li>
-            <li><img class="pic" src="assets/icony3.png" alt="" width="66" height="66"><div><strong>Kategori</strong><span>SMP (Putra &amp; Putri)</span></div></li>
+            <li><img class="pic" src="/event/assets/icony1.png" alt="" width="66" height="66"><div><strong>Pelaksanaan</strong><span>15 - 16 November 2025</span></div></li>
+            <li><img class="pic" src="/event/assets/icony2.png" alt="" width="66" height="66"><div><strong>Lokasi</strong><span>GOR SMK Tamansiswa Jetis Yogyakarta</span></div></li>
+            <li><img class="pic" src="/event/assets/icony3.png" alt="" width="66" height="66"><div><strong>Kategori</strong><span>SMP (Putra &amp; Putri)</span></div></li>
           </ul>
         </div>
         <div class="prize-card">
@@ -828,7 +889,7 @@ button, input, select { font: inherit; color: inherit; }
                 <li><svg class="ico" aria-hidden="true"><use href="#i-star"/></svg><span>Best GK</span><span class="amt">Rp 250.000</span></li>
               </ul>
             </div>
-            <img class="prize-art" src="assets/trophy2.jpg" alt="Trofi emas dan bola futsal" width="350" height="365">
+            <img class="prize-art" src="/event/assets/trophy2.jpg" alt="Trofi emas dan bola futsal" width="350" height="365">
           </div>
         </div>
       </div>
@@ -859,22 +920,22 @@ button, input, select { font: inherit; color: inherit; }
   <section class="features" aria-label="Nilai kegiatan">
     <div class="wrap feature-row">
       <div class="feature">
-        <img class="feature-img" src="assets/icon1.png" alt="" width="66" height="66">
+        <img class="feature-img" src="/event/assets/icon1.png" alt="" width="66" height="66">
         <h3>Sportivitas</h3>
         <p>Menjunjung tinggi nilai sportivitas</p>
       </div>
       <div class="feature">
-        <img class="feature-img" src="assets/icon2.png" alt="" width="66" height="66">
+        <img class="feature-img" src="/event/assets/icon2.png" alt="" width="66" height="66">
         <h3>Persahabatan</h3>
         <p>Membangun relasi antar sekolah</p>
       </div>
       <div class="feature">
-        <img class="feature-img" src="assets/icon3.png" alt="" width="66" height="66">
+        <img class="feature-img" src="/event/assets/icon3.png" alt="" width="66" height="66">
         <h3>Pengembangan Bakat</h3>
         <p>Memberi ruang untuk potensi terbaikmu</p>
       </div>
       <div class="feature">
-        <img class="feature-img" src="assets/icon4.png" alt="" width="66" height="66">
+        <img class="feature-img" src="/event/assets/icon4.png" alt="" width="66" height="66">
         <h3>Prestasi</h3>
         <p>Mencetak generasi berprestasi</p>
       </div>
@@ -892,7 +953,7 @@ button, input, select { font: inherit; color: inherit; }
   <section class="section-soft" aria-labelledby="goal-h">
     <div class="wrap goals">
       <div class="goal-photo">
-        <img src="assets/shoes.jpg" alt="Bola futsal dan sepatu futsal di lapangan" width="542" height="233">
+        <img src="/event/assets/shoes.jpg" alt="Bola futsal dan sepatu futsal di lapangan" width="542" height="233">
       </div>
       <div>
         <h2 class="h2" id="goal-h">Tujuan Kegiatan</h2>
@@ -925,9 +986,9 @@ button, input, select { font: inherit; color: inherit; }
         <div class="card">
           <h3>Jadwal Pelaksanaan</h3>
           <ul class="dl-list">
-            <li><img class="pic" src="assets/icony1.png" alt="" width="66" height="66"><div><strong>Tanggal</strong><span>15 - 16 November 2025</span></div></li>
-            <li><img class="pic" src="assets/icony2.png" alt="" width="66" height="66"><div><strong>Lokasi</strong><span>GOR SMK Tamansiswa Jetis Yogyakarta</span></div></li>
-            <li><img class="pic" src="assets/icony3.png" alt="" width="66" height="66"><div><strong>Kategori</strong><span>SMP (Putra &amp; Putri)</span></div></li>
+            <li><img class="pic" src="/event/assets/icony1.png" alt="" width="66" height="66"><div><strong>Tanggal</strong><span>15 - 16 November 2025</span></div></li>
+            <li><img class="pic" src="/event/assets/icony2.png" alt="" width="66" height="66"><div><strong>Lokasi</strong><span>GOR SMK Tamansiswa Jetis Yogyakarta</span></div></li>
+            <li><img class="pic" src="/event/assets/icony3.png" alt="" width="66" height="66"><div><strong>Kategori</strong><span>SMP (Putra &amp; Putri)</span></div></li>
           </ul>
         </div>
         <div class="card">
@@ -955,7 +1016,7 @@ button, input, select { font: inherit; color: inherit; }
               <li><svg class="ico" aria-hidden="true"><use href="#i-star"/></svg><span>Best GK</span><span class="amt">Rp 250.000</span></li>
             </ul>
           </div>
-          <img class="prize-art" src="assets/trophy2.jpg" alt="Trofi emas dan bola futsal" width="350" height="365">
+          <img class="prize-art" src="/event/assets/trophy2.jpg" alt="Trofi emas dan bola futsal" width="350" height="365">
         </div>
       </div>
 
@@ -977,7 +1038,7 @@ button, input, select { font: inherit; color: inherit; }
         <h1 class="h1">Daftar Sekarang!</h1>
         <p class="page-lead">Jadilah bagian dari SMK Tamansiswa Jetis Futsal Cup 2025. Isi form pendaftaran di bawah ini dengan data yang benar dan lengkap.</p>
       </div>
-      <img class="page-art ball" src="assets/ball.png" alt="" width="150" height="150">
+      <img class="page-art ball" src="/event/assets/ball.png" alt="" width="150" height="150">
     </div>
   </div>
 
@@ -1120,7 +1181,7 @@ button, input, select { font: inherit; color: inherit; }
 
 <!-- ============ BERHASIL ============ -->
 <section class="view success" data-view="berhasil" hidden aria-label="Pendaftaran berhasil">
-  <img class="success-bg" src="assets/shoes.jpg" alt="">
+  <img class="success-bg" src="/event/assets/shoes.jpg" alt="">
   <div class="wrap success-inner">
     <span class="check-badge"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg></span>
     <h1 class="success-title">Pendaftaran Berhasil!</h1>
@@ -1146,7 +1207,7 @@ button, input, select { font: inherit; color: inherit; }
   <div class="wrap">
     <div class="foot-grid">
       <a class="brand" href="#beranda" data-go="beranda" aria-label="SMK Tamansiswa Jetis Futsal Cup, ke beranda">
-        <img class="brand-logo" src="assets/logo.png" alt="SMK Tamansiswa Jetis Futsal Cup" width="191" height="200">
+        <img class="brand-logo" src="/event/assets/logo.png" alt="SMK Tamansiswa Jetis Futsal Cup" width="191" height="200">
       </a>
       <nav aria-label="Footer">
         <ul class="foot-nav">
@@ -1373,4 +1434,5 @@ button, input, select { font: inherit; color: inherit; }
 })();
 </script>
 
-</body></html>
+</body>
+</html>
