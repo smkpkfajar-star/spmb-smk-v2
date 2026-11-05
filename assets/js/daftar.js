@@ -484,7 +484,7 @@ function handleRegistrationSuccess(data) {
 
   const btnWhatsApp = document.getElementById("btnWhatsApp");
   if (btnWhatsApp) {
-    const nomorAdmin = "6281332517626";
+    const nomorAdmin = "628823212784";
     const pesan = `Halo Panitia SPMB, saya telah mengisi formulir pendaftaran online.\n\n*Nama Lengkap:* ${data.namaLengkap}\n*No. Pendaftaran:* ${data.noPendaftaran}\n*Jurusan:* ${data.jurusan1 || "-"}\n\nBerikut saya kirimkan konfirmasi pendaftaran saya. Mohon verifikasi selanjutnya. Terima kasih.`;
     const whatsappUrl = `https://wa.me/${nomorAdmin}?text=${encodeURIComponent(pesan)}`;
 
