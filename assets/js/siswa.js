@@ -38,7 +38,7 @@
   }
   function msg(el, text, good) {
     el.textContent = text;
-    el.className = `mt-4 rounded-2xl p-3 text-[15px] font-semibold ${good ? "bg-ok-50 text-ok-700" : "bg-red-50 text-red-700"}`;
+    el.className = `mt-3 rounded-md p-3 text-[14.5px] font-medium ${good ? "bg-ok-50 text-ok-700" : "bg-red-50 text-red-700"}`;
   }
 
   async function loadHome(user) {
@@ -126,6 +126,11 @@
       pw.type = s ? "text" : "password";
       e.target.textContent = s ? "Sembunyikan" : "Lihat";
       e.target.setAttribute("aria-pressed", String(s));
+    });
+
+    $("lupaBtn").addEventListener("click", () => {
+      const open = $("lupaInfo").classList.toggle("hidden") === false;
+      $("lupaBtn").setAttribute("aria-expanded", String(open));
     });
 
     $("loginForm").addEventListener("submit", async (e) => {
