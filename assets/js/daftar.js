@@ -113,12 +113,25 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
   }
 
   if (regForm) {
+    initFormSteps(regForm, jurusan1, jurusan2, jurusanSamaWarning);
+
     regForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      // Enter di kolom langkah 1–3 berarti "Lanjut", bukan kirim.
+      if (currentStep < window.FormSteps.TOTAL_STEPS) {
+        tryNextStep(regForm, jurusan1, jurusan2, jurusanSamaWarning);
+        return;
+      }
+
       clearErrors(regForm);
 
-      if (!validateFormInputs(regForm, jurusan1, jurusan2, jurusanSamaWarning))
+      if (!validateFormInputs(regForm, jurusan1, jurusan2, jurusanSamaWarning, { scroll: false })) {
+        const step = window.FormSteps.firstErrorStep(collectErrorFieldIds(regForm));
+        if (step) goToStep(step, { focus: false });
+        scrollToFirstError(regForm);
         return;
+      }
 
       const nisnVal = document.getElementById("nisn").value.trim();
 
@@ -186,6 +199,90 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
   }
 
   setupCopyButton(noPendaftaranEl);
+}
+
+/* --- FORM 4 LANGKAH --- */
+let currentStep = 1;
+
+function initFormSteps(regForm, jurusan1, jurusan2, jurusanSamaWarning) {
+  regForm.querySelectorAll("[data-next]").forEach((btn) =>
+    btn.addEventListener("click", () => tryNextStep(regForm, jurusan1, jurusan2, jurusanSamaWarning))
+  );
+  regForm.querySelectorAll("[data-prev]").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      clearErrors(regForm);
+      goToStep(currentStep - 1);
+    })
+  );
+  goToStep(1, { scroll: false, focus: false });
+}
+
+// Periksa hanya kolom di langkah aktif; maju bila bersih.
+function tryNextStep(regForm, jurusan1, jurusan2, jurusanSamaWarning) {
+  clearErrors(regForm);
+  validateFormInputs(regForm, jurusan1, jurusan2, jurusanSamaWarning, { scroll: false });
+  const errors = window.FormSteps.errorsInStep(currentStep, collectErrorFieldIds(regForm));
+  hideErrorsOutsideStep(regForm, currentStep);
+  if (errors.length) {
+    scrollToFirstError(regForm);
+    return;
+  }
+  goToStep(currentStep + 1);
+}
+
+function goToStep(step, { scroll = true, focus = true } = {}) {
+  const FS = window.FormSteps;
+  currentStep = Math.min(Math.max(step, 1), FS.TOTAL_STEPS);
+  document.querySelectorAll("#regForm [data-step]").forEach((panel) => {
+    panel.classList.toggle("hidden", Number(panel.dataset.step) !== currentStep);
+  });
+  const label = document.getElementById("stepLabel");
+  if (label) label.textContent = `Langkah ${currentStep} dari ${FS.TOTAL_STEPS}: ${FS.STEP_TITLES[currentStep]}`;
+  const bar = document.getElementById("stepBar");
+  if (bar) bar.style.width = `${(currentStep / FS.TOTAL_STEPS) * 100}%`;
+
+  const regForm = document.getElementById("regForm");
+  if (scroll && regForm) regForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  const heading = document.querySelector(`#regForm [data-step="${currentStep}"] h2`);
+  if (focus && heading) {
+    heading.setAttribute("tabindex", "-1");
+    heading.focus({ preventScroll: true });
+  }
+}
+
+// id kolom yang pesan salahnya sedang tampil
+function collectErrorFieldIds(regForm) {
+  const ids = [];
+  regForm.querySelectorAll(".field-error:not(.hidden)").forEach((errEl) => {
+    const field = errEl.closest("div").querySelector("input, select, textarea");
+    if (field && field.id) ids.push(field.id);
+  });
+  const pernyataanError = document.getElementById("pernyataanError");
+  if (pernyataanError && !pernyataanError.classList.contains("hidden")) ids.push("pernyataan");
+  const sama = document.getElementById("jurusanSamaWarning");
+  if (sama && !sama.classList.contains("hidden")) ids.push("jurusan2");
+  return ids;
+}
+
+function hideErrorsOutsideStep(regForm, step) {
+  const FS = window.FormSteps;
+  regForm.querySelectorAll(".field-error").forEach((errEl) => {
+    const field = errEl.closest("div").querySelector("input, select, textarea");
+    if (field && FS.stepOfField(field.id) !== step) errEl.classList.add("hidden");
+  });
+  if (step !== 4) {
+    ["pernyataanError", "jurusanSamaWarning"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add("hidden");
+    });
+  }
+}
+
+function scrollToFirstError(regForm) {
+  const firstError = regForm.querySelector(
+    "[data-step]:not(.hidden) .field-error:not(.hidden), [data-step]:not(.hidden) #pernyataanError:not(.hidden), [data-step]:not(.hidden) #jurusanSamaWarning:not(.hidden)"
+  );
+  if (firstError) firstError.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 /* --- MODAL UPLOAD PROGRESS & TIPS INTERAKTIF --- */
@@ -284,7 +381,7 @@ function clearErrors(form) {
   if (pernyataanError) pernyataanError.classList.add("hidden");
 }
 
-function validateFormInputs(regForm, jurusan1, jurusan2, jurusanSamaWarning) {
+function validateFormInputs(regForm, jurusan1, jurusan2, jurusanSamaWarning, options = { scroll: true }) {
   let isValid = true;
 
   const fields = {
@@ -308,19 +405,19 @@ function validateFormInputs(regForm, jurusan1, jurusan2, jurusanSamaWarning) {
 
   const nisn = document.getElementById("nisn");
   if (nisn && !/^\d{10}$/.test(nisn.value.trim())) {
-    showFieldError(nisn, "NISN harus tepat 10 digit angka.");
+    showFieldError(nisn, "NISN harus 10 angka. Lihat di rapor atau tanya sekolah asal.");
     isValid = false;
   }
 
   const whatsapp = document.getElementById("whatsapp");
   if (whatsapp && !/^\d{9,13}$/.test(whatsapp.value.trim())) {
-    showFieldError(whatsapp, "Nomor WhatsApp tidak valid (9-13 digit).");
+    showFieldError(whatsapp, "Nomor WhatsApp harus 9–13 angka, contoh 081234567890.");
     isValid = false;
   }
 
   const waOrtu = document.getElementById("waOrtu");
   if (waOrtu && !/^\d{9,13}$/.test(waOrtu.value.trim())) {
-    showFieldError(waOrtu, "Nomor WA Orang Tua tidak valid.");
+    showFieldError(waOrtu, "Nomor WhatsApp orang tua harus 9–13 angka, contoh 081234567890.");
     isValid = false;
   }
 
@@ -331,7 +428,7 @@ function validateFormInputs(regForm, jurusan1, jurusan2, jurusanSamaWarning) {
       const maxAllowedSize = 5 * 1024 * 1024;
 
       if (file.size > maxAllowedSize) {
-        showFieldError(berkasFile, "Ukuran file terlalu besar! Maksimal 5MB.");
+        showFieldError(berkasFile, "Ukuran file lebih dari 5 MB. Pilih file yang lebih kecil atau kirim lewat WhatsApp.");
         isValid = false;
       }
     }
@@ -364,7 +461,7 @@ function validateFormInputs(regForm, jurusan1, jurusan2, jurusanSamaWarning) {
     isValid = false;
   }
 
-  if (!isValid) {
+  if (!isValid && options.scroll !== false) {
     const firstError = regForm.querySelector(
       ".field-error:not(.hidden), #pernyataanError:not(.hidden)"
     );
