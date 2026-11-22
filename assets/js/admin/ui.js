@@ -230,7 +230,11 @@
         <hr class="mini-show my-3 hidden border-hairline" />
         ${modules.map(link).join("")}
       </nav>
-      <button type="button" data-mini aria-controls="adminSidebar" class="sb-mini-row mx-3 mb-3 hidden items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-medium text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--hairline))] hover:bg-pink-50 hover:text-ink-900 hover:shadow-[inset_0_0_0_1px_rgb(var(--pink-200))] lg:flex"><svg class="mini-arah shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg><span class="mini-hide">Kecilkan menu</span></button>
+      <div class="sb-alat mx-3 mb-3 hidden items-center gap-1.5 lg:flex">
+        <button type="button" data-mini aria-controls="adminSidebar" class="sb-mini-row flex h-9 min-w-0 flex-1 items-center gap-2 whitespace-nowrap rounded-md px-3 text-[14px] font-medium text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--hairline))] hover:bg-pink-50 hover:text-ink-900 hover:shadow-[inset_0_0_0_1px_rgb(var(--pink-200))] lg:flex"><svg class="mini-arah shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg><span class="mini-hide">Kecilkan</span></button>
+        <button type="button" data-bunyi aria-pressed="false" class="grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand hover:text-ink-900 aria-pressed:text-pink-600 aria-pressed:shadow-[inset_0_0_0_1px_rgb(var(--pink-200))]"><svg class="ikon-bunyi-nyala" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg><svg class="ikon-bunyi-mati" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M16 9l5 6M21 9l-5 6"/></svg></button>
+        <button type="button" data-tema data-kiosk-hide class="btn grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand hover:text-ink-900" aria-label="Ganti ke mode gelap" title="Ganti ke mode gelap"><svg class="ikon-bulan" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="ikon-matahari" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      </div>
       <button type="button" data-mini aria-controls="adminSidebar" class="sb-handle absolute -right-3.5 top-[4.5rem] hidden h-7 w-7 place-items-center rounded-full border border-hairline bg-white text-ink-600 shadow-[0_2px_6px_rgba(0,0,0,0.12)] hover:border-pink-500 hover:bg-pink-500 hover:text-white lg:grid"><svg class="mini-arah shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button>
       <div class="sb-foot flex items-center gap-3 border-t border-hairline p-4">
         <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sand text-[13px] font-semibold text-ink-900" title="${esc(name)}">${esc(initials(name))}</span>
@@ -258,14 +262,14 @@
     setActiveNav(active, current.title);
     document.addEventListener("keydown", (e) => e.key === "Escape" && setOpen(false));
 
-    header.className = "sticky top-0 z-30 border-b border-hairline bg-white/85 backdrop-blur";
+    // Bar atas hanya untuk HP: tombol menu + nama panel + bunyi & tema.
+    // Di laptop semuanya sudah ada di sidebar (judul halaman ada di isi halaman).
+    header.className = "sticky top-0 z-30 border-b border-hairline bg-white/85 backdrop-blur lg:hidden";
     header.innerHTML = `
-      <div class="flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-8">
-        <button id="btnMenu" type="button" class="-ml-1 rounded-md px-2 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand lg:hidden" aria-label="Buka menu" aria-expanded="false" aria-controls="adminSidebar">Menu</button>
-        <nav class="min-w-0 flex-1 truncate text-[14px]" aria-label="Lokasi"><span class="text-ink-500">Admin</span><span class="px-1.5 text-ink-300">/</span><span id="crumbTitle" class="font-medium">${esc(current.title)}</span></nav>
-        <button type="button" data-tema data-kiosk-hide class="btn grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand hover:text-ink-900" aria-label="Ganti ke mode gelap" title="Ganti ke mode gelap"><svg class="ikon-bulan" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="ikon-matahari" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
-        <button id="btnBunyi" type="button" aria-pressed="false" class="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-ink-600 hover:bg-sand" title="Bunyi saat ada pendaftar baru">Bunyi: mati</button>
-        <span class="hidden font-mono text-[12px] text-ink-500 sm:inline">SPMB 2026/2027</span>
+      <div class="grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6">
+        <button id="btnMenu" type="button" class="grid h-9 w-9 place-items-center justify-self-start rounded-full shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand" aria-label="Buka menu" aria-expanded="false" aria-controls="adminSidebar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        <span id="crumbTitle" class="truncate text-[15px] font-semibold tracking-tight">${esc(current.title)}</span>
+        <div class="flex items-center gap-2 justify-self-end"><button type="button" data-bunyi aria-pressed="false" class="grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand hover:text-ink-900 aria-pressed:text-pink-600 aria-pressed:shadow-[inset_0_0_0_1px_rgb(var(--pink-200))]"><svg class="ikon-bunyi-nyala" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg><svg class="ikon-bunyi-mati" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" data-tema data-kiosk-hide class="btn grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand hover:text-ink-900" aria-label="Ganti ke mode gelap" title="Ganti ke mode gelap"><svg class="ikon-bulan" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="ikon-matahari" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></div>
       </div>`;
     document.getElementById("btnMenu").addEventListener("click", () => setOpen(!document.body.classList.contains("sidebar-open")));
     document.getElementById("btnLogout").addEventListener("click", () => A.logout());
@@ -279,7 +283,7 @@
         b.setAttribute("aria-label", teks);
         b.title = teks;
         const span = b.querySelector("span");
-        if (span) span.textContent = teks;
+        if (span) span.textContent = mini ? "Lebarkan" : "Kecilkan";
       });
       try { root.localStorage.setItem(MINI_KEY, mini ? "1" : "0"); } catch (_) {}
     };
@@ -287,16 +291,23 @@
     try { miniAwal = root.localStorage.getItem(MINI_KEY) === "1"; } catch (_) {}
     setMini(miniAwal);
     tombolMini.forEach((b) => b.addEventListener("click", () => setMini(!document.body.classList.contains("sidebar-mini"))));
-    const bunyi = document.getElementById("btnBunyi");
+    const tombolBunyi = document.querySelectorAll("[data-bunyi]");
     const paint = () => {
-      bunyi.textContent = soundOn() ? "Bunyi: nyala" : "Bunyi: mati";
-      bunyi.setAttribute("aria-pressed", String(soundOn()));
+      const on = soundOn();
+      const teks = on ? "Bunyi pendaftar baru: nyala (klik untuk mematikan)" : "Bunyi pendaftar baru: mati (klik untuk menyalakan)";
+      tombolBunyi.forEach((b) => {
+        b.setAttribute("aria-pressed", String(on));
+        b.setAttribute("aria-label", teks);
+        b.title = teks;
+      });
     };
-    bunyi.addEventListener("click", () => {
-      try { root.localStorage.setItem(SOUND_KEY, soundOn() ? "0" : "1"); } catch (_) {}
-      paint();
-      if (soundOn()) beep();
-    });
+    tombolBunyi.forEach((b) =>
+      b.addEventListener("click", () => {
+        try { root.localStorage.setItem(SOUND_KEY, soundOn() ? "0" : "1"); } catch (_) {}
+        paint();
+        if (soundOn()) beep();
+      })
+    );
     paint();
   }
 

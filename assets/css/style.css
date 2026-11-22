@@ -32,6 +32,9 @@ html.dark .hover\:bg-brand-700:hover, html.dark .aria-selected\:bg-ink-900[aria-
 html.dark .bg-red-50 { background-color: #2A1111; }
 html.dark .text-red-600, html.dark .text-red-700 { color: #F87171; }
 html.dark .bg-surface .bg-white\/25 { background-color: rgb(255 255 255 / .25); }
+/* Tombol bunyi (admin): ikon sesuai keadaan */
+[data-bunyi] .ikon-bunyi-nyala, [data-bunyi][aria-pressed="true"] .ikon-bunyi-mati { display: none; }
+[data-bunyi][aria-pressed="true"] .ikon-bunyi-nyala { display: block; }
 /* Tombol tema: ikon bulan (terang) / matahari (gelap) */
 .ikon-matahari { display: none; }
 html.dark .ikon-matahari { display: block; }
@@ -135,11 +138,11 @@ body {
   body.sidebar-open .admin-sidebar { transform: none; }
 }
 @media (min-width: 1024px) {
-  body.admin-shell #adminHeader, body.admin-shell main { margin-left: 16rem; transition: margin-left .2s ease; }
+  body.admin-shell main { margin-left: 16rem; transition: margin-left .2s ease; }
   .admin-sidebar { transition: width .2s ease; }
   /* Sidebar dikecilkan: hanya ikon, isi halaman lebih lebar */
   body.sidebar-mini .admin-sidebar { width: 4.25rem; }
-  body.sidebar-mini.admin-shell #adminHeader, body.sidebar-mini.admin-shell main { margin-left: 4.25rem; }
+  body.sidebar-mini.admin-shell main { margin-left: 4.25rem; }
   body.sidebar-mini .mini-hide { display: none; }
   body.sidebar-mini .mini-show { display: block; }
   body.sidebar-mini .admin-sidebar nav { padding-inline: .625rem; }
@@ -148,7 +151,8 @@ body {
   body.sidebar-mini .sb-foot { flex-direction: column; gap: .5rem; padding: .75rem .5rem; }
   .mini-arah { transition: transform .2s ease; }
   body.sidebar-mini .mini-arah { transform: scaleX(-1); }
-  body.sidebar-mini .sb-mini-row { justify-content: center; padding-inline: 0; margin-inline: .625rem; }
+  body.sidebar-mini .sb-alat { flex-direction: column; margin-inline: .625rem; }
+  body.sidebar-mini .sb-mini-row { justify-content: center; padding-inline: 0; width: 100%; flex: none; height: 2.25rem; }
 }
 
 /* Indikator proses (modal kirim) */
