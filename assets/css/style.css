@@ -103,6 +103,15 @@ body {
 .jurusan-in { animation: jurusanMasuk .35s ease-out; }
 @keyframes jurusanMasuk { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
+/* Kerangka saat data dimuat (menggantikan tulisan "Memuat…") */
+.skeleton { border-radius: 6px; background: linear-gradient(90deg, #F3F4F6 0%, #ECEDEF 50%, #F3F4F6 100%); background-size: 200% 100%; animation: kilau 1.3s ease-in-out infinite; }
+@keyframes kilau { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* Garis proses tipis di atas halaman saat memuat ulang (data lama tetap tampil) */
+.loadbar { position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 80; overflow: hidden; pointer-events: none; }
+.loadbar::after { content: ""; position: absolute; inset: 0; width: 40%; background: linear-gradient(90deg, transparent, #EC4899, transparent); animation: geserbar 1s ease-in-out infinite; }
+@keyframes geserbar { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+
 /* Panel geser kanan (admin) */
 .drawer { animation: geser .18s ease-out; }
 @keyframes geser { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }

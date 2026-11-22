@@ -424,8 +424,8 @@
         </div>
       </div>
       <div id="newSlot"></div>
-      <p id="count" class="mt-4 font-mono text-[12.5px] text-ink-500" aria-live="polite">Memuat data…</p>
-      <div id="list" class="mt-2"></div>
+      <p id="count" class="mt-4 h-5 font-mono text-[12.5px] text-ink-500" aria-live="polite"></p>
+      <div id="list" class="mt-2"><div class="space-y-2" aria-hidden="true">${'<div class="skeleton h-12"></div>'.repeat(8)}</div></div>
       <div id="pager" class="mt-4"></div>`;
 
     const page = { rows: [], reload: load, rerender: render };
@@ -585,14 +585,19 @@
     }
 
     async function load() {
-      $count.textContent = "Memuat data…";
+      const bar = document.createElement("div");
+      bar.className = "loadbar";
+      bar.setAttribute("aria-hidden", "true");
+      document.body.appendChild(bar);
       try {
         page.rows = await root.Sheetson.getRows(config.sheet);
         renderStats();
         render();
+        bar.remove();
         if (page.watcher) page.watcher.reset();
         if (typeof showNew === "function") showNew(0);
       } catch (err) {
+        bar.remove();
         $count.textContent = "";
         $list.innerHTML = `<div class="bg-red-50 p-6 text-[15px] font-semibold text-red-700">${esc(err.message)}. Periksa internet lalu tekan Muat ulang.</div>`;
       }

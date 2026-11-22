@@ -45,7 +45,7 @@
     show("homeView");
     const nisn = nisnFromEmail(user.email);
     $("homeNisn").textContent = nisn;
-    $("homeBody").innerHTML = `<p class="text-[15px] text-ink-600">Memuat data pendaftaran…</p>`;
+    $("homeBody").innerHTML = `<div aria-hidden="true"><div class="skeleton h-6 w-48"></div><div class="skeleton mt-3 h-4 w-72 max-w-full"></div><div class="mt-5 grid gap-3 sm:grid-cols-2"><div class="skeleton h-16"></div><div class="skeleton h-16"></div></div></div><span class="sr-only">Memuat data</span>`;
     let row = null;
     try {
       row = findMyRow(await root.Sheetson.getRows(SHEET), nisn);
