@@ -228,6 +228,8 @@
         <hr class="mini-show my-3 hidden border-hairline" />
         ${modules.map(link).join("")}
       </nav>
+      <button type="button" data-mini aria-controls="adminSidebar" class="sb-mini-row mx-3 mb-3 hidden items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-medium text-ink-600 shadow-[inset_0_0_0_1px_#E5E5E5] hover:bg-pink-50 hover:text-ink-900 hover:shadow-[inset_0_0_0_1px_#FBCFE8] lg:flex"><svg class="mini-arah shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg><span class="mini-hide">Kecilkan menu</span></button>
+      <button type="button" data-mini aria-controls="adminSidebar" class="sb-handle absolute -right-3.5 top-[4.5rem] hidden h-7 w-7 place-items-center rounded-full border border-hairline bg-white text-ink-600 shadow-[0_2px_6px_rgba(0,0,0,0.12)] hover:border-pink-500 hover:bg-pink-500 hover:text-white lg:grid"><svg class="mini-arah shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button>
       <div class="sb-foot flex items-center gap-3 border-t border-hairline p-4">
         <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sand text-[13px] font-semibold text-ink-900" title="${esc(name)}">${esc(initials(name))}</span>
         <span class="mini-hide min-w-0 flex-1 leading-tight">
@@ -258,7 +260,6 @@
     header.innerHTML = `
       <div class="flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-8">
         <button id="btnMenu" type="button" class="-ml-1 rounded-md px-2 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand lg:hidden" aria-label="Buka menu" aria-expanded="false" aria-controls="adminSidebar">Menu</button>
-        <button id="btnMini" type="button" class="-ml-2 hidden h-8 w-8 place-items-center rounded-md text-ink-600 hover:bg-sand hover:text-ink-900 lg:grid" aria-controls="adminSidebar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/><path class="mini-arah" d="M15.5 10l-2 2 2 2"/></svg></button>
         <nav class="min-w-0 flex-1 truncate text-[14px]" aria-label="Lokasi"><span class="text-ink-500">Admin</span><span class="px-1.5 text-ink-300">/</span><span id="crumbTitle" class="font-medium">${esc(current.title)}</span></nav>
         <button id="btnBunyi" type="button" aria-pressed="false" class="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-ink-600 hover:bg-sand" title="Bunyi saat ada pendaftar baru">Bunyi: mati</button>
         <span class="hidden font-mono text-[12px] text-ink-500 sm:inline">SPMB 2026/2027</span>
@@ -266,18 +267,23 @@
     document.getElementById("btnMenu").addEventListener("click", () => setOpen(!document.body.classList.contains("sidebar-open")));
     document.getElementById("btnLogout").addEventListener("click", () => A.logout());
     // Laptop: sidebar bisa dikecilkan jadi ikon saja (diingat di browser ini)
-    const btnMini = document.getElementById("btnMini");
+    const tombolMini = aside.querySelectorAll("[data-mini]");
     const setMini = (mini) => {
       document.body.classList.toggle("sidebar-mini", mini);
-      btnMini.setAttribute("aria-expanded", String(!mini));
-      btnMini.setAttribute("aria-label", mini ? "Lebarkan menu" : "Kecilkan menu");
-      btnMini.title = mini ? "Lebarkan menu" : "Kecilkan menu";
+      const teks = mini ? "Lebarkan menu" : "Kecilkan menu";
+      tombolMini.forEach((b) => {
+        b.setAttribute("aria-expanded", String(!mini));
+        b.setAttribute("aria-label", teks);
+        b.title = teks;
+        const span = b.querySelector("span");
+        if (span) span.textContent = teks;
+      });
       try { root.localStorage.setItem(MINI_KEY, mini ? "1" : "0"); } catch (_) {}
     };
     let miniAwal = false;
     try { miniAwal = root.localStorage.getItem(MINI_KEY) === "1"; } catch (_) {}
     setMini(miniAwal);
-    btnMini.addEventListener("click", () => setMini(!document.body.classList.contains("sidebar-mini")));
+    tombolMini.forEach((b) => b.addEventListener("click", () => setMini(!document.body.classList.contains("sidebar-mini"))));
     const bunyi = document.getElementById("btnBunyi");
     const paint = () => {
       bunyi.textContent = soundOn() ? "Bunyi: nyala" : "Bunyi: mati";
