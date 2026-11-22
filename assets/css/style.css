@@ -1,88 +1,33 @@
 /* ============================================================
-   style.css — Gaya kustom bersama untuk seluruh halaman SPMB
+   style.css — dasar bersama gaya "Hangat & Ramah"
    (pelengkap utility Tailwind, bukan pengganti)
    ============================================================ */
 
-html { scroll-padding-top: 88px; }
-body { font-family: 'Inter', sans-serif; }
-h1, h2, h3, h4, .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
-
-/* Motif blueprint/circuit untuk latar hero — pengganti gradient blob generik */
-.blueprint-grid {
-  background-image:
-    linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
-  background-size: 32px 32px;
+html { scroll-padding-top: 80px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  background: #FAF7F2;
+  color: #1C2A22;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Underline animasi pada link navbar */
-.nav-link { position: relative; }
-.nav-link::after {
-  content: '';
-  position: absolute;
-  left: 0; bottom: -4px;
-  width: 0; height: 2px;
-  background: #4F46E5;
-  transition: width .25s ease;
-}
-.nav-link:hover::after,
-.nav-link.active::after { width: 100%; }
+/* Fokus keyboard yang jelas */
+:focus-visible { outline: 3px solid #15803D; outline-offset: 2px; border-radius: 12px; }
 
-/* Garis putus-putus penghubung tahapan alur pendaftaran */
-.step-line {
-  background-image: repeating-linear-gradient(to bottom, #C7D2FE 0, #C7D2FE 6px, transparent 6px, transparent 12px);
-}
-@media (min-width: 768px) {
-  .step-line-h {
-    background-image: repeating-linear-gradient(to right, #C7D2FE 0, #C7D2FE 6px, transparent 6px, transparent 12px);
-  }
-}
+/* Geser kartu jurusan di HP tanpa scrollbar */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* Efek kartu jurusan saat hover */
-.jurusan-card:hover .jurusan-icon-wrap {
-  transform: translateY(-2px) rotate(-2deg);
-}
-.jurusan-icon-wrap { transition: transform .3s ease; }
+/* FAQ accordion (dipakai main.js) */
+.faq-item .faq-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease; }
+.faq-item .faq-body > div { overflow: hidden; }
+.faq-item.open .faq-body { grid-template-rows: 1fr; }
+.faq-item .faq-icon { transition: transform .25s ease; }
+.faq-item.open .faq-icon { transform: rotate(45deg); }
 
-/* Fokus keyboard yang jelas untuk aksesibilitas */
-input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible {
-  outline: 2px solid #4F46E5;
-  outline-offset: 2px;
-}
-
-/* Area upload berkas (drag & drop) */
-.dropzone.drag-over {
-  border-color: #4F46E5;
-  background-color: #EEF2FF;
-}
-
-/* Titik status pada fitur cek status pendaftaran */
-.status-dot { box-shadow: 0 0 0 4px rgba(79,70,229,0.12); }
-
-/* Animasi masuk halus untuk hero (satu momen saja, sesuai prinsip motion minimal) */
-.fade-in-up { animation: fadeInUp .7s ease both; }
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* FAQ accordion */
-.faq-answer {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height .35s ease;
-}
-.faq-item.open .faq-answer { max-height: 300px; }
-.faq-item.open .faq-chevron { transform: rotate(180deg); }
-.faq-chevron { transition: transform .25s ease; }
-
-/* Tab switcher di halaman daftar.html */
-.tab-btn.active {
-  background-color: #4F46E5;
-  color: #fff;
-}
-.tab-panel.hidden { display: none; }
+/* Tombol pilihan (jenis kelamin) */
+.choice[aria-pressed="true"] { border-color: #15803D; border-width: 2px; background: #F0FDF4; }
 
 @media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
