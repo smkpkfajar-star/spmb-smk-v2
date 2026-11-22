@@ -187,7 +187,18 @@
     el._t = setTimeout(() => el.remove(), 3500);
   }
 
-  // Panel admin: sidebar putih bergaris (laci di HP) + topbar
+  const MINI_KEY = "spmb-admin-menu-kecil";
+  const svg = (d) =>
+    `<svg class="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const NAV_ICON = {
+    dashboard: svg('<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>'),
+    verifikasi: svg('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/>'),
+    keuangan: svg('<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M16 15h2"/>'),
+    "tes-fisik": svg('<path d="M4 17L17 4l3 3L7 20z"/><path d="M8 13l2 2M11 10l2 2M14 7l2 2"/>'),
+    superadmin: svg('<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>'),
+  };
+
+  // Panel admin: sidebar putih bergaris (laci di HP, bisa dikecilkan di laptop) + topbar
   function renderShell(profile, activeId) {
     const A = root.AdminAuth;
     const header = document.getElementById("adminHeader");
@@ -197,7 +208,8 @@
     const modules = A.modulesFor(profile.role);
     const all = [{ id: "dashboard", href: "#dashboard", title: "Dashboard" }, ...modules];
     const current = all.find((m) => m.id === active) || all[0];
-    const link = (m) => `<a href="${m.href}" data-nav="${m.id}" class="block rounded-md px-3 py-2 text-[14.5px]">${esc(m.title)}</a>`;
+    const link = (m) =>
+      `<a href="${m.href}" data-nav="${m.id}" title="${esc(m.title)}" class="flex items-center gap-3 rounded-md px-3 py-2 text-[14.5px]">${NAV_ICON[m.id] || NAV_ICON.dashboard}<span class="mini-hide truncate">${esc(m.title)}</span></a>`;
     const name = profile.nama_lengkap || profile.email;
 
     const aside = document.createElement("aside");
@@ -205,23 +217,24 @@
     aside.className = "admin-sidebar fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-hairline bg-white";
     aside.setAttribute("aria-label", "Menu admin");
     aside.innerHTML = `
-      <div class="flex h-14 items-center gap-2.5 px-5">
-        <span class="grid h-7 w-7 place-items-center rounded-md bg-ink-900 font-mono text-[12px] font-medium text-white">TS</span>
-        <span class="text-[15px] font-semibold tracking-tight">SPMB <span class="font-normal text-ink-500">Admin</span></span>
+      <div class="sb-head flex h-14 items-center gap-2.5 px-5">
+        <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-ink-900 font-mono text-[12px] font-medium text-white">TS</span>
+        <span class="mini-hide whitespace-nowrap text-[15px] font-semibold tracking-tight">SPMB <span class="font-normal text-ink-500">Admin</span></span>
       </div>
-      <nav class="flex-1 overflow-y-auto px-3 py-4">
-        <p class="px-3 pb-1.5 font-mono text-[11.5px] uppercase tracking-wider text-ink-500">Ringkasan</p>
+      <nav class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4">
+        <p class="mini-hide px-3 pb-1.5 font-mono text-[11.5px] uppercase tracking-wider text-ink-500">Ringkasan</p>
         ${link(all[0])}
-        <p class="mt-5 px-3 pb-1.5 font-mono text-[11.5px] uppercase tracking-wider text-ink-500">Modul</p>
+        <p class="mini-hide mt-5 px-3 pb-1.5 font-mono text-[11.5px] uppercase tracking-wider text-ink-500">Modul</p>
+        <hr class="mini-show my-3 hidden border-hairline" />
         ${modules.map(link).join("")}
       </nav>
-      <div class="flex items-center gap-3 border-t border-hairline p-4">
-        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sand text-[13px] font-semibold text-ink-900">${esc(initials(name))}</span>
-        <span class="min-w-0 flex-1 leading-tight">
+      <div class="sb-foot flex items-center gap-3 border-t border-hairline p-4">
+        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sand text-[13px] font-semibold text-ink-900" title="${esc(name)}">${esc(initials(name))}</span>
+        <span class="mini-hide min-w-0 flex-1 leading-tight">
           <span class="block truncate text-[14px] font-medium">${esc(name)}</span>
           <span class="block truncate text-[12.5px] text-ink-500">${esc(A.ROLE_LABEL[profile.role])}</span>
         </span>
-        <button id="btnLogout" type="button" class="rounded-md px-2 py-1.5 text-[13px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900">Keluar</button>
+        <button id="btnLogout" type="button" title="Keluar" class="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900"><svg class="mini-show hidden" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l-5-5 5-5M5 12h11"/></svg><span class="mini-hide">Keluar</span><span class="mini-show sr-only">Keluar</span></button>
       </div>`;
     document.body.appendChild(aside);
 
@@ -245,12 +258,26 @@
     header.innerHTML = `
       <div class="flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-8">
         <button id="btnMenu" type="button" class="-ml-1 rounded-md px-2 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand lg:hidden" aria-label="Buka menu" aria-expanded="false" aria-controls="adminSidebar">Menu</button>
+        <button id="btnMini" type="button" class="-ml-2 hidden h-8 w-8 place-items-center rounded-md text-ink-600 hover:bg-sand hover:text-ink-900 lg:grid" aria-controls="adminSidebar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/><path class="mini-arah" d="M15.5 10l-2 2 2 2"/></svg></button>
         <nav class="min-w-0 flex-1 truncate text-[14px]" aria-label="Lokasi"><span class="text-ink-500">Admin</span><span class="px-1.5 text-ink-300">/</span><span id="crumbTitle" class="font-medium">${esc(current.title)}</span></nav>
         <button id="btnBunyi" type="button" aria-pressed="false" class="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-ink-600 hover:bg-sand" title="Bunyi saat ada pendaftar baru">Bunyi: mati</button>
         <span class="hidden font-mono text-[12px] text-ink-500 sm:inline">SPMB 2026/2027</span>
       </div>`;
     document.getElementById("btnMenu").addEventListener("click", () => setOpen(!document.body.classList.contains("sidebar-open")));
     document.getElementById("btnLogout").addEventListener("click", () => A.logout());
+    // Laptop: sidebar bisa dikecilkan jadi ikon saja (diingat di browser ini)
+    const btnMini = document.getElementById("btnMini");
+    const setMini = (mini) => {
+      document.body.classList.toggle("sidebar-mini", mini);
+      btnMini.setAttribute("aria-expanded", String(!mini));
+      btnMini.setAttribute("aria-label", mini ? "Lebarkan menu" : "Kecilkan menu");
+      btnMini.title = mini ? "Lebarkan menu" : "Kecilkan menu";
+      try { root.localStorage.setItem(MINI_KEY, mini ? "1" : "0"); } catch (_) {}
+    };
+    let miniAwal = false;
+    try { miniAwal = root.localStorage.getItem(MINI_KEY) === "1"; } catch (_) {}
+    setMini(miniAwal);
+    btnMini.addEventListener("click", () => setMini(!document.body.classList.contains("sidebar-mini")));
     const bunyi = document.getElementById("btnBunyi");
     const paint = () => {
       bunyi.textContent = soundOn() ? "Bunyi: nyala" : "Bunyi: mati";
