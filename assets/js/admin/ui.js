@@ -154,7 +154,7 @@
     return aktif.length ? rows.filter((r) => aktif.every((d) => d.get(r) === pilihan[d.id])) : rows;
   }
 
-  root.AdminUI = { URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
+  root.AdminUI = { polaBunyi: () => polaBunyi(), URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
   if (typeof document === "undefined") return;
 
   /* ---------- tampilan ---------- */
@@ -317,20 +317,50 @@
   const soundOn = () => {
     try { return root.localStorage.getItem(SOUND_KEY) === "1"; } catch (_) { return false; }
   };
+  // Bunyi pendaftar baru: lonceng tiga nada naik (G5–B5–E6), diputar 2x (±2 detik).
+  // f = frekuensi (Hz), t = mulai (detik), d = lama dengung, v = volume puncak.
+  function polaBunyi() {
+    const lonceng = [784, 988, 1319];
+    const nada = [];
+    [0, 1.05].forEach((mulai) =>
+      lonceng.forEach((f, i) => nada.push({ f, t: mulai + i * 0.17, d: i === 2 ? 0.9 : 0.55, v: i === 2 ? 0.34 : 0.26 }))
+    );
+    return nada;
+  }
+
+  let audioCtx = null;
   function beep() {
     try {
       const Ctx = root.AudioContext || root.webkitAudioContext;
-      const ac = new Ctx();
-      const o = ac.createOscillator();
-      const g = ac.createGain();
-      o.type = "sine";
-      o.frequency.value = 880;
-      g.gain.setValueAtTime(0.0001, ac.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.08, ac.currentTime + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.35);
-      o.connect(g).connect(ac.destination);
-      o.start();
-      o.stop(ac.currentTime + 0.4);
+      if (!Ctx) return;
+      audioCtx = audioCtx || new Ctx();
+      const ac = audioCtx;
+      if (ac.state === "suspended") ac.resume();
+      // limiter agar suara keras tetap jernih (tidak pecah)
+      const limiter = ac.createDynamicsCompressor();
+      limiter.threshold.value = -6;
+      limiter.ratio.value = 12;
+      limiter.connect(ac.destination);
+      const t0 = ac.currentTime + 0.05;
+      polaBunyi().forEach((n) => {
+        // nada dasar + dentang oktaf atas yang lebih pelan → terdengar seperti lonceng
+        [
+          [n.f, "triangle", n.v],
+          [n.f * 2, "sine", n.v * 0.35],
+        ].forEach(([f, type, v]) => {
+          const o = ac.createOscillator();
+          const g = ac.createGain();
+          o.type = type;
+          o.frequency.value = f;
+          const mulai = t0 + n.t;
+          g.gain.setValueAtTime(0.0001, mulai);
+          g.gain.exponentialRampToValueAtTime(v, mulai + 0.012);
+          g.gain.exponentialRampToValueAtTime(0.0001, mulai + n.d);
+          o.connect(g).connect(limiter);
+          o.start(mulai);
+          o.stop(mulai + n.d + 0.05);
+        });
+      });
     } catch (_) {}
   }
 

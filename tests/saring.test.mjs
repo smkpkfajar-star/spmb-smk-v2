@@ -55,3 +55,16 @@ test("opsiSaring: tanpa daftar tetap → nilai dari data, urut abjad; nilai tak 
   const def = { id: "x", get: (r) => r.jurusan1 || "?", options: ["RPL"] };
   assert.deepEqual(plain(UI.opsiSaring(rows, def)).map((o) => o.value), ["RPL", "?", "DKV"]);
 });
+
+/* ---------- bunyi notifikasi pendaftar baru ---------- */
+
+test("polaBunyi: lonceng tiga nada naik, diulang 2x, total ±2 detik, cukup keras", () => {
+  const nada = UI.polaBunyi();
+  assert.equal(nada.length, 6);
+  const naik = (a) => a.every((n, i) => i === 0 || n.f > a[i - 1].f);
+  assert.ok(naik(nada.slice(0, 3)) && naik(nada.slice(3)), "tiap putaran nadanya naik");
+  assert.deepEqual(nada.slice(0, 3).map((n) => n.f), nada.slice(3).map((n) => n.f), "putaran kedua sama");
+  const selesai = Math.max(...nada.map((n) => n.t + n.d));
+  assert.ok(selesai >= 1.8 && selesai <= 2.6, `durasi ${selesai}s`);
+  assert.ok(nada.every((n) => n.v >= 0.2 && n.v <= 0.5), "volume jelas tapi tidak pecah");
+});
