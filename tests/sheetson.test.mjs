@@ -75,3 +75,24 @@ test("rowsAfter: satu permintaan kecil mulai dari baris yang sudah diketahui", a
   assert.equal(urls.length, 1);
   assert.ok(/[?&]skip=10\b/.test(urls[0]) && /[?&]limit=50\b/.test(urls[0]) && /[?&]_=\d+/.test(urls[0]), urls[0]);
 });
+
+test("getRows memakai salinan sebentar agar pindah menu tidak mengunduh ulang; fresh memaksa unduh", async () => {
+  let n = 0;
+  const S = load(async () => (n++, { ok: true, json: async () => ({ results: [{ rowIndex: 2 }], hasNextPage: false }) }));
+  const a = await S.getRows("Data_Pendaftar");
+  const b = await S.getRows("Data_Pendaftar");
+  assert.equal(n, 1);
+  assert.equal(a, b);
+  await S.getRows("Data_Pendaftar", { fresh: true });
+  assert.equal(n, 2);
+  await S.getRows("Keuangan_Voucher");
+  assert.equal(n, 3);
+});
+
+test("getRows yang gagal tidak disimpan sebagai salinan", async () => {
+  let n = 0;
+  const S = load(async () => (++n === 1 ? { ok: false, status: 500 } : { ok: true, json: async () => ({ results: [], hasNextPage: false }) }));
+  await assert.rejects(() => S.getRows("X"), /500/);
+  assert.deepEqual([...(await S.getRows("X"))], []);
+  assert.equal(n, 2);
+});

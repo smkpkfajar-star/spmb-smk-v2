@@ -74,13 +74,47 @@
     });
   }
 
+  // Waktu daftar: format baru "2026-11-22 15:22:27" (WIB) atau ISO lama "2026-11-22T08:22:27Z"
+  function parseWaktu(v) {
+    const s = String(v ?? "").trim();
+    let d = null;
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$/.test(s)) d = new Date(s.replace(" ", "T") + "+07:00");
+    else if (/^\d{4}-\d{2}-\d{2}T/.test(s)) d = new Date(s);
+    return d && !isNaN(d) ? d : null;
+  }
+  const BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+  // → "22 Nov 2026, 15.22" (jam WIB, tidak bergantung zona waktu komputer)
+  function formatWaktu(v) {
+    const d = parseWaktu(v);
+    if (!d) return "-";
+    const w = new Date(d.getTime() + 7 * 3600 * 1000);
+    const two = (n) => String(n).padStart(2, "0");
+    return `${w.getUTCDate()} ${BULAN[w.getUTCMonth()]} ${w.getUTCFullYear()}, ${two(w.getUTCHours())}.${two(w.getUTCMinutes())}`;
+  }
+  const waktuKey = (v) => (parseWaktu(v) || { getTime: () => 0 }).getTime();
+
+  // Tombol nomor halaman: 1 … 9 10 11 … 20
+  function pageNumbers(page, pages) {
+    if (pages <= 7) return Array.from({ length: pages }, (_, i) => i + 1);
+    const set = new Set([1, pages, page - 1, page, page + 1]);
+    if (page <= 3) [2, 3].forEach((n) => set.add(n));
+    if (page >= pages - 2) [pages - 2, pages - 1].forEach((n) => set.add(n));
+    const nums = [...set].filter((n) => n >= 1 && n <= pages).sort((a, b) => a - b);
+    const out = [];
+    nums.forEach((n, i) => {
+      if (i && n - nums[i - 1] > 1) out.push("…");
+      out.push(n);
+    });
+    return out;
+  }
+
   // Judul tab dengan jumlah pendaftar baru, mis. "(3) Verifikasi — Admin SPMB"
   function tabTitle(title, n) {
     const base = String(title).replace(/^\(\d+\)\s*/, "");
     return n > 0 ? `(${n}) ${base}` : base;
   }
 
-  root.AdminUI = { filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle };
+  root.AdminUI = { filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers };
   if (typeof document === "undefined") return;
 
   /* ---------- tampilan ---------- */
@@ -430,8 +464,25 @@
                stats(rows) → [{label, value, tone, filter}],
                columns: [{label, render(row), sortKey?}], fields, editTitle(row),
                beforeSave(changes, row) → changes, actions: [{label, show(row), run(row, page)}] } */
-  const PAGE_SIZE = 25;
+  const PAGE_SIZES = [25, 50, 100];
+  const SIZE_KEY = "spmb-admin-per-halaman";
+  const savedSize = () => {
+    try {
+      const n = Number(localStorage.getItem(SIZE_KEY));
+      return PAGE_SIZES.includes(n) ? n : 25;
+    } catch {
+      return 25;
+    }
+  };
+  // Kolom "Waktu daftar" otomatis di setiap modul (diambil dari Data_Pendaftar)
+  const WAKTU_COL = {
+    label: "Waktu daftar",
+    sortKey: "_waktu",
+    render: (r) => `<span class="whitespace-nowrap font-mono text-[13px] text-ink-600">${esc(formatWaktu(r._waktuAsli))}</span>`,
+  };
+
   function modulePage(config) {
+    const columns = [config.columns[0], WAKTU_COL, ...config.columns.slice(1)];
     const app = document.getElementById("app");
     app.innerHTML = `
       <div class="flex flex-wrap items-end justify-between gap-4">
@@ -458,8 +509,9 @@
       <div id="list" class="mt-2"><div class="space-y-2" aria-hidden="true">${'<div class="skeleton h-12"></div>'.repeat(8)}</div></div>
       <div id="pager" class="mt-4"></div>`;
 
-    const page = { rows: [], reload: load, rerender: render };
-    const state = { page: 1, sortKey: null, sortDir: "asc" };
+    const page = { rows: [], reload: () => load(true), rerender: render };
+    // Bawaan: pendaftar terbaru di atas
+    const state = { page: 1, size: savedSize(), sortKey: "_waktu", sortDir: "desc" };
     const $q = app.querySelector("#q");
     const $f = app.querySelector("#f");
     const $count = app.querySelector("#count");
@@ -496,7 +548,7 @@
       renderTabs();
       let rows = filterRows(page.rows, $q.value, { [config.filter.field]: $f.value });
       if (state.sortKey) rows = sortRows(rows, state.sortKey, state.sortDir);
-      const pg = paginate(rows, state.page, PAGE_SIZE);
+      const pg = paginate(rows, state.page, state.size);
       state.page = pg.page;
       $count.textContent = `${rows.length} dari ${page.rows.length} pendaftar`;
       if (!rows.length) {
@@ -524,13 +576,13 @@
         <div class="hidden overflow-x-auto rounded-lg border border-hairline bg-white md:block">
           <table class="w-full text-left text-[14.5px]">
             <thead class="border-b border-hairline bg-brand-50 text-[12.5px] text-ink-500">
-              <tr>${config.columns.map(th).join("")}<th class="px-4 py-3"><span class="sr-only">Aksi</span></th></tr>
+              <tr>${columns.map(th).join("")}<th class="px-4 py-3"><span class="sr-only">Aksi</span></th></tr>
             </thead>
             <tbody class="divide-y divide-hairline">
               ${pg.items
                 .map(
                   (r) =>
-                    `<tr class="align-top hover:bg-brand-50">${config.columns.map((c) => `<td class="px-4 py-3">${c.render(r)}</td>`).join("")}<td class="px-4 py-2.5"><div class="flex flex-wrap justify-end gap-1">${actionsHtml(r)}</div></td></tr>`
+                    `<tr class="align-top hover:bg-brand-50">${columns.map((c) => `<td class="px-4 py-3">${c.render(r)}</td>`).join("")}<td class="px-4 py-2.5"><div class="flex flex-wrap justify-end gap-1">${actionsHtml(r)}</div></td></tr>`
                 )
                 .join("")}
             </tbody>
@@ -541,27 +593,49 @@
           ${pg.items
             .map(
               (r) => `<article class="p-4">
-                ${config.columns.map((c) => `<div class="flex justify-between gap-3 py-1.5"><span class="font-mono text-[12.8px] text-ink-500">${esc(c.label)}</span><span class="text-right text-[15px]">${c.render(r)}</span></div>`).join("")}
+                ${columns.map((c) => `<div class="flex justify-between gap-3 py-1.5"><span class="font-mono text-[12.8px] text-ink-500">${esc(c.label)}</span><span class="text-right text-[15px]">${c.render(r)}</span></div>`).join("")}
                 <div class="mt-3 flex flex-wrap gap-1">${actionsHtml(r)}</div>
               </article>`
             )
             .join("")}
         </div>`;
       $list.innerHTML = table + cards;
-      $pager.innerHTML =
-        pg.pages <= 1
-          ? ""
-          : `<nav class="flex items-center justify-between gap-3" aria-label="Halaman">
-              <button type="button" data-page="${pg.page - 1}" ${pg.page === 1 ? "disabled" : ""} class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand disabled:opacity-40">Sebelumnya</button>
-              <span class="font-mono text-[13px] text-ink-600">Halaman ${pg.page} dari ${pg.pages}</span>
-              <button type="button" data-page="${pg.page + 1}" ${pg.page === pg.pages ? "disabled" : ""} class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand disabled:opacity-40">Berikutnya</button>
-            </nav>`;
+      const from = (pg.page - 1) * state.size + 1;
+      const to = Math.min(pg.page * state.size, rows.length);
+      const btn = "min-w-9 rounded-md px-2.5 py-1.5 text-[14px] font-medium";
+      const nums = pageNumbers(pg.page, pg.pages)
+        .map((n) =>
+          n === "…"
+            ? `<span class="px-1 text-ink-500" aria-hidden="true">…</span>`
+            : n === pg.page
+              ? `<span class="${btn} bg-ink-900 text-center text-white" aria-current="page">${n}</span>`
+              : `<button type="button" data-page="${n}" class="${btn} text-ink-600 hover:bg-sand hover:text-ink-900" aria-label="Halaman ${n}">${n}</button>`
+        )
+        .join("");
+      $pager.innerHTML = `<nav class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" aria-label="Halaman">
+          <div class="flex items-center gap-2 font-mono text-[12.5px] text-ink-500">
+            <span>${from}–${to} dari ${rows.length}</span>
+            <label for="perPage" class="sr-only">Baris per halaman</label>
+            <select id="perPage" class="rounded-md border border-line/60 bg-white px-2 py-1 text-[13px] text-ink-900 focus:border-ink-900 focus:outline-none">
+              ${PAGE_SIZES.map((n) => `<option value="${n}" ${n === state.size ? "selected" : ""}>${n} / halaman</option>`).join("")}
+            </select>
+          </div>
+          ${
+            pg.pages <= 1
+              ? ""
+              : `<div class="flex flex-wrap items-center gap-1">
+              <button type="button" data-page="${pg.page - 1}" ${pg.page === 1 ? "disabled" : ""} class="${btn} shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand disabled:opacity-40" aria-label="Halaman sebelumnya">‹</button>
+              ${nums}
+              <button type="button" data-page="${pg.page + 1}" ${pg.page === pg.pages ? "disabled" : ""} class="${btn} shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand disabled:opacity-40" aria-label="Halaman berikutnya">›</button>
+            </div>`
+          }
+        </nav>`;
     }
 
     $list.addEventListener("click", (e) => {
       const sortBtn = e.target.closest("button[data-sort]");
       if (sortBtn) {
-        const key = config.columns[Number(sortBtn.dataset.sort)].sortKey;
+        const key = columns[Number(sortBtn.dataset.sort)].sortKey;
         state.sortDir = state.sortKey === key && state.sortDir === "asc" ? "desc" : "asc";
         state.sortKey = key;
         render();
@@ -581,6 +655,15 @@
       state.page = Number(b.dataset.page);
       render();
       $list.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    $pager.addEventListener("change", (e) => {
+      if (e.target.id !== "perPage") return;
+      state.size = Number(e.target.value);
+      state.page = 1;
+      try {
+        localStorage.setItem(SIZE_KEY, String(state.size));
+      } catch {}
+      render();
     });
     $tabs.addEventListener("click", (e) => {
       const b = e.target.closest("button[data-tab-value]");
@@ -614,13 +697,23 @@
       });
     }
 
-    async function load() {
+    async function load(fresh) {
       const bar = document.createElement("div");
       bar.className = "loadbar";
       bar.setAttribute("aria-hidden", "true");
       document.body.appendChild(bar);
       try {
-        page.rows = await root.Sheetson.getRows(config.sheet);
+        const opts = { fresh: fresh === true };
+        const [rows, daftar] = await Promise.all([
+          root.Sheetson.getRows(config.sheet, opts),
+          config.sheet === "Data_Pendaftar" ? null : root.Sheetson.getRows("Data_Pendaftar", opts).catch(() => []),
+        ]);
+        const waktu = new Map((daftar || rows).map((r) => [String(r.noPendaftaran), r.createdAt]));
+        rows.forEach((r) => {
+          r._waktuAsli = waktu.get(String(r.noPendaftaran)) || "";
+          r._waktu = waktuKey(r._waktuAsli);
+        });
+        page.rows = rows;
         renderStats();
         render();
         bar.remove();
@@ -633,13 +726,13 @@
       }
     }
 
-    const showNew = newBanner(app.querySelector("#newSlot"), () => load());
+    const showNew = newBanner(app.querySelector("#newSlot"), () => load(true));
     const watcher = watchNew(config.sheet, () => page.rows.length, showNew);
     page.watcher = watcher;
 
     $q.addEventListener("input", () => { state.page = 1; render(); });
     $f.addEventListener("change", () => { state.page = 1; render(); });
-    app.querySelector("#reload").addEventListener("click", load);
+    app.querySelector("#reload").addEventListener("click", () => load(true));
     load();
     return page;
   }

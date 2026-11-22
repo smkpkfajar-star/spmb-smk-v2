@@ -582,8 +582,49 @@ async function uploadFileToSupabase(file, akun, bucketName) {
   return publicUrlData.publicUrl;
 }
 
+/* --- NOMOR PENDAFTARAN & WAKTU DAFTAR --- */
+// Waktu Indonesia Barat (UTC+7) dalam bentuk "2026-11-22 15:22:27":
+// mudah dibaca panitia di Google Sheets dan tetap urut bila diurutkan.
+function waktuWIB(date) {
+  return new Date(date.getTime() + 7 * 3600 * 1000).toISOString().slice(0, 19).replace("T", " ");
+}
+
+const POLA_NOMOR = /^SPMB-\d{4}-[0-9A-Z]{4,}$/;
+
+// Cadangan bila database belum siap: waktu (milidetik) + 6 karakter acak.
+function nomorCadangan(date) {
+  const acak = Array.from({ length: 6 }, () => "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 36)]).join("");
+  return `SPMB-${waktuWIB(date).slice(0, 4)}-${date.getTime().toString(36).toUpperCase()}${acak}`;
+}
+
+// Nomor urut dari database Supabase (SPMB-2026-0001, 0002, ...). Database menjamin
+// tidak ada nomor yang sama (kolom unik + urutan otomatis), dan kiriman ulang oleh
+// akun yang sama mendapat nomor yang sama.
+async function ambilNomorPendaftaran(client, now = new Date()) {
+  try {
+    const { data, error } = await client.rpc("ambil_no_pendaftaran");
+    if (!error && typeof data === "string" && POLA_NOMOR.test(data)) return data;
+    console.warn("Nomor urut database belum tersedia, memakai nomor cadangan:", error && error.message);
+  } catch (err) {
+    console.warn("Nomor urut database gagal, memakai nomor cadangan:", err);
+  }
+  return nomorCadangan(now);
+}
+
+// "2026-11-22 15:22:27" atau ISO lama → "22-11-2026 pukul 15.22 WIB"
+function waktuDaftarTeks(v) {
+  let s = String(v || "").trim();
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
+    const d = new Date(s);
+    if (isNaN(d)) return "-";
+    s = waktuWIB(d);
+  }
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/);
+  return m ? `${m[3]}-${m[2]}-${m[1]} pukul ${m[4]}.${m[5]} WIB` : "-";
+}
+
 async function collectFormData(nisnVal, jurusan1, jurusan2, supabaseConfig, akun) {
-  const randomNum = Math.floor(100000 + Math.random() * 900000);
+  const noPendaftaran = await ambilNomorPendaftaran(akun.client);
   const fileInput = document.getElementById("berkasFile");
   let fileUrl = "-";
   let fileName = "-";
@@ -612,8 +653,8 @@ async function collectFormData(nisnVal, jurusan1, jurusan2, supabaseConfig, akun
   else if (uploadError) statusBerkas = "Gagal Unggah";
 
   return {
-    noPendaftaran: `SPMB-${randomNum}`,
-    createdAt: new Date().toISOString(),
+    noPendaftaran,
+    createdAt: waktuWIB(new Date()),
     namaLengkap: document.getElementById("namaLengkap").value.trim(),
     jenisKelamin: document.getElementById("jenisKelamin").value,
     nisn: nisnVal,
@@ -913,6 +954,7 @@ function buildPdfContent(data, siswaUrl) {
           ["Jurusan Utama", jurusan(data.jurusan1)],
           ["Jurusan Cadangan", jurusan(data.jurusan2)],
           ["Status Pendaftaran", v(data.statusPendaftaran)],
+          ["Waktu Pendaftaran", waktuDaftarTeks(data.createdAt)],
         ],
       },
     ],

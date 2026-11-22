@@ -16,8 +16,23 @@
     return h;
   }
 
+  // Salinan sebentar per sheet: pindah menu di admin tidak mengunduh ulang semuanya.
+  // Tombol "Muat ulang" & pemberitahuan pendaftar baru memakai { fresh: true }.
+  const CACHE_MS = 2 * 60 * 1000;
+  const cache = new Map();
+
+  function getRows(sheet, opts) {
+    const hit = cache.get(sheet);
+    if (hit && !(opts && opts.fresh) && Date.now() - hit.at < CACHE_MS) return hit.promise;
+    const promise = fetchAll(sheet);
+    const entry = { at: Date.now(), promise };
+    cache.set(sheet, entry);
+    promise.catch(() => cache.get(sheet) === entry && cache.delete(sheet));
+    return promise;
+  }
+
   // Semua baris sebuah sheet (semua halaman), selalu data terbaru.
-  async function getRows(sheet) {
+  async function fetchAll(sheet) {
     const rows = [];
     for (let skip = 0; ; ) {
       const url = `${BASE}/${encodeURIComponent(sheet)}?limit=${PAGE_SIZE}&skip=${skip}&_=${Date.now()}`;

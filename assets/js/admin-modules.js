@@ -45,9 +45,9 @@
 
         const val = (v, d) => (v && v !== "-" ? v : d);
         let jumlahDiketahui = 0;
-        const showNew = AdminUI.newBanner(document.getElementById("newSlot"), () => loadDash());
+        const showNew = AdminUI.newBanner(document.getElementById("newSlot"), () => loadDash(true));
         const watcher = AdminUI.watchNew("Data_Pendaftar", () => jumlahDiketahui, showNew);
-        async function loadDash() {
+        async function loadDash(fresh) {
           const $s = document.getElementById("dashStats");
           const $t = document.getElementById("terbaru");
           const bar = document.createElement("div");
@@ -55,7 +55,7 @@
           document.body.appendChild(bar);
           try {
             const [daftar, verif, uang, fisik] = await Promise.all(
-              ["Data_Pendaftar", "Verifikasi_Berkas", "Keuangan_Voucher", "Tes_Fisik_Seragam"].map((s) => Sheetson.getRows(s))
+              ["Data_Pendaftar", "Verifikasi_Berkas", "Keuangan_Voucher", "Tes_Fisik_Seragam"].map((s) => Sheetson.getRows(s, { fresh: fresh === true }))
             );
             jumlahDiketahui = daftar.length;
             watcher.reset();
@@ -69,7 +69,7 @@
               { label: "sudah tes fisik", value: fisik.filter((r) => val(r.statusTesFisik, "Belum Tes") !== "Belum Tes").length, tone: "ok" },
             ]);
             const status = new Map(verif.map((r) => [r.noPendaftaran, r.statusPendaftaran]));
-            const recent = AdminUI.sortRows(daftar, "createdAt", "desc").slice(0, 10);
+            const recent = [...daftar].sort((a, b) => AdminUI.waktuKey(b.createdAt) - AdminUI.waktuKey(a.createdAt)).slice(0, 10);
             $t.innerHTML = recent.length
               ? `<div class="overflow-x-auto rounded-lg border border-hairline bg-white"><table class="w-full text-left text-[14.5px]">
                   <thead class="border-b border-hairline bg-brand-50 text-[12.5px] text-ink-500"><tr>
@@ -79,7 +79,7 @@
                     .map(
                       (r) => `<tr><td class="px-4 py-3"><b class="font-semibold">${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.8px] text-ink-500">${esc(r.noPendaftaran || "")}</span></td>
                         <td class="px-4 py-3">${esc(r.jurusan1 || "-")}</td>
-                        <td class="px-4 py-3 font-mono text-[13px] text-ink-600">${esc(r.createdAt ? new Date(r.createdAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short" }) : "-")}</td>
+                        <td class="px-4 py-3 font-mono text-[13px] text-ink-600">${esc(AdminUI.formatWaktu(r.createdAt))}</td>
                         <td class="px-4 py-3">${AdminUI.badge(status.get(r.noPendaftaran) || "Pending")}</td></tr>`
                     )
                     .join("")}</tbody></table></div>`
@@ -90,7 +90,7 @@
             $s.innerHTML = `<p class="bg-red-50 p-4 text-[15px] font-semibold text-red-700">${esc(e.message)}. Periksa internet lalu tekan Muat ulang.</p>`;
           }
         }
-        document.getElementById("reloadDash").addEventListener("click", loadDash);
+        document.getElementById("reloadDash").addEventListener("click", () => loadDash(true));
         loadDash();
       
       },
@@ -327,11 +327,11 @@
           });
           return [...m.entries()].sort((a, b) => b[1] - a[1]);
         };
-        async function loadRekap() {
+        async function loadRekap(fresh) {
           const el = document.getElementById("rekap");
           document.body.classList.add("is-loading");
           try {
-            const [daftar, verif, uang] = await Promise.all(SHEETS.slice(0, 3).map((s) => Sheetson.getRows(s)));
+            const [daftar, verif, uang] = await Promise.all(SHEETS.slice(0, 3).map((s) => Sheetson.getRows(s, { fresh: fresh === true })));
             document.body.classList.remove("is-loading");
             el.innerHTML =
               `<div class="rounded-lg border border-hairline bg-white p-5"><h3 class="text-[13px] text-ink-500">Total pendaftar</h3><p class="mt-1 text-[40px] font-semibold leading-none tracking-tight tabular-nums">${daftar.length}</p></div>` +
@@ -342,7 +342,7 @@
             el.innerHTML = `<p class="rounded-2xl bg-red-50 p-4 text-[15px] font-semibold text-red-700">${esc(e.message)}</p>`;
           }
         }
-        document.getElementById("reloadRekap").addEventListener("click", loadRekap);
+        document.getElementById("reloadRekap").addEventListener("click", () => loadRekap(true));
         loadRekap();
 
         /* ---------- unduh CSV ---------- */
@@ -355,8 +355,9 @@
           b.addEventListener("click", async () => {
             b.disabled = true;
             try {
-              const rows = await Sheetson.getRows(s);
-              const keys = [...new Set(rows.flatMap((r) => Object.keys(r)))].filter((k) => k !== "rowIndex");
+              const rows = await Sheetson.getRows(s, { fresh: true });
+              // kolom bantu tampilan (_waktu, dst.) tidak ikut diunduh
+              const keys = [...new Set(rows.flatMap((r) => Object.keys(r)))].filter((k) => k !== "rowIndex" && !k.startsWith("_"));
               AdminUI.downloadFile(`${s}-${today}.csv`, AdminUI.toCsv(rows, keys.map((k) => ({ key: k, label: k }))));
               AdminUI.toast(`${rows.length} baris diunduh.`);
             } catch (e) {
