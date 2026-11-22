@@ -9,6 +9,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="../assets/js/tailwind-config.js"></script>
+    <script src="../assets/js/kiosk.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -31,6 +32,7 @@
           </span>
         </a>
         <button
+          data-kiosk-hide
           id="mobile-menu-btn"
           type="button"
           class="grid h-11 w-11 place-items-center rounded-full hover:bg-sand"
@@ -84,7 +86,7 @@
 
               <div>
                 <label for="namaLengkap" class="mb-1.5 block text-[15px] font-semibold">Nama lengkap <span class="text-red-600">*</span></label>
-                <input type="text" id="namaLengkap" autocomplete="name" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: Muhammad Rizky Pratama" />
+                <input type="text" id="namaLengkap" autocomplete="name" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: Muhammad Rizky Pratama" />
                 <p class="mt-1 text-[13px] text-ink-500">Tulis sesuai ijazah SMP.</p>
                 <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
@@ -97,15 +99,15 @@
                   <option value="Perempuan">Perempuan</option>
                 </select>
                 <div class="grid grid-cols-2 gap-2" role="group" aria-label="Jenis kelamin">
-                  <button type="button" class="choice rounded-xl border-[1.5px] border-line bg-white py-3 text-[15px] font-semibold" data-for="jenisKelamin" data-value="Laki-laki" aria-pressed="false">Laki-laki</button>
-                  <button type="button" class="choice rounded-xl border-[1.5px] border-line bg-white py-3 text-[15px] font-semibold" data-for="jenisKelamin" data-value="Perempuan" aria-pressed="false">Perempuan</button>
+                  <button type="button" class="choice rounded-xl border-2 border-line bg-white py-3 text-[15px] font-semibold" data-for="jenisKelamin" data-value="Laki-laki" aria-pressed="false">Laki-laki</button>
+                  <button type="button" class="choice rounded-xl border-2 border-line bg-white py-3 text-[15px] font-semibold" data-for="jenisKelamin" data-value="Perempuan" aria-pressed="false">Perempuan</button>
                 </div>
                 <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
 
               <div>
                 <label for="nisn" class="mb-1.5 block text-[15px] font-semibold">NISN <span class="text-red-600">*</span></label>
-                <input type="text" id="nisn" inputmode="numeric" maxlength="10" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 0098765432" />
+                <input type="text" id="nisn" inputmode="numeric" maxlength="10" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 0098765432" />
                 <p class="mt-1 text-[13px] text-ink-500">10 angka. Ada di rapor, atau tanyakan ke sekolah asal.</p>
                 <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
@@ -113,19 +115,19 @@
               <div class="grid gap-5 sm:grid-cols-2">
                 <div>
                   <label for="tempatLahir" class="mb-1.5 block text-[15px] font-semibold">Tempat lahir <span class="text-red-600">*</span></label>
-                  <input type="text" id="tempatLahir" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: Yogyakarta" />
+                  <input type="text" id="tempatLahir" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: Yogyakarta" />
                   <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
                 </div>
                 <div>
                   <label for="tanggalLahir" class="mb-1.5 block text-[15px] font-semibold">Tanggal lahir <span class="text-red-600">*</span></label>
-                  <input type="date" id="tanggalLahir" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none" />
+                  <input type="date" id="tanggalLahir" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none" />
                   <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
                 </div>
               </div>
 
               <div>
                 <label for="agama" class="mb-1.5 block text-[15px] font-semibold">Agama <span class="text-red-600">*</span></label>
-                <select id="agama" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none">
+                <select id="agama" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none">
                   <option value="">-- Pilih Agama --</option>
                   <option value="Islam">Islam</option>
                   <option value="Kristen">Kristen</option>
@@ -139,20 +141,20 @@
 
               <div>
                 <label for="whatsapp" class="mb-1.5 block text-[15px] font-semibold">Nomor WhatsApp siswa <span class="text-red-600">*</span></label>
-                <input type="tel" id="whatsapp" inputmode="numeric" autocomplete="tel" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 081234567890" />
+                <input type="tel" id="whatsapp" inputmode="numeric" autocomplete="tel" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 081234567890" />
                 <p class="mt-1 text-[13px] text-ink-500">Nomor yang aktif, panitia akan menghubungi lewat nomor ini.</p>
                 <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
 
               <div>
                 <label for="alamat" class="mb-1.5 block text-[15px] font-semibold">Alamat tempat tinggal <span class="text-red-600">*</span></label>
-                <textarea id="alamat" rows="3" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Jalan, RT/RW, Kelurahan/Desa, Kecamatan, Kota/Kabupaten"></textarea>
+                <textarea id="alamat" rows="3" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Jalan, RT/RW, Kelurahan/Desa, Kecamatan, Kota/Kabupaten"></textarea>
                 <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
 
               <div>
                 <label for="asalSekolah" class="mb-1.5 block text-[15px] font-semibold">Asal SMP / MTs <span class="text-red-600">*</span></label>
-                <input type="text" id="asalSekolah" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: SMP Negeri 1 Yogyakarta" />
+                <input type="text" id="asalSekolah" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: SMP Negeri 1 Yogyakarta" />
                 <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
             </div>
@@ -164,12 +166,12 @@
               <h2 class="text-lg font-extrabold">Data orang tua / wali</h2>
               <div>
                 <label for="namaOrtu" class="mb-1.5 block text-[15px] font-semibold">Nama orang tua / wali <span class="text-red-600">*</span></label>
-                <input type="text" id="namaOrtu" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Nama ayah / ibu / wali" />
+                <input type="text" id="namaOrtu" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Nama ayah / ibu / wali" />
                 <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
               <div>
                 <label for="waOrtu" class="mb-1.5 block text-[15px] font-semibold">Nomor WhatsApp orang tua / wali <span class="text-red-600">*</span></label>
-                <input type="tel" id="waOrtu" inputmode="numeric" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 081234567890" />
+                <input type="tel" id="waOrtu" inputmode="numeric" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 081234567890" />
                 <p class="mt-1 text-[13px] text-ink-500">Dipakai panitia untuk mengabarkan hasil seleksi.</p>
                 <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
@@ -208,7 +210,7 @@
               <h2 class="text-lg font-extrabold">Pilih jurusan</h2>
               <div>
                 <label for="jurusan1" class="mb-1.5 block text-[15px] font-semibold">Jurusan utama (pilihan 1) <span class="text-red-600">*</span></label>
-                <select id="jurusan1" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none">
+                <select id="jurusan1" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none">
                   <option value="">-- Pilih Jurusan Utama --</option>
                   <option value="TKR">🔧 Teknik Kendaraan Ringan (TKR)</option>
                   <option value="TSM">🏍️ Teknik Sepeda Motor (TSM)</option>
@@ -220,7 +222,7 @@
               </div>
               <div>
                 <label for="jurusan2" class="mb-1.5 block text-[15px] font-semibold">Jurusan cadangan (pilihan 2)</label>
-                <select id="jurusan2" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none">
+                <select id="jurusan2" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none">
                   <option value="">-- Boleh dikosongkan --</option>
                   <option value="TKR">🔧 Teknik Kendaraan Ringan (TKR)</option>
                   <option value="TSM">🏍️ Teknik Sepeda Motor (TSM)</option>
@@ -239,7 +241,7 @@
                 <div>
                   <label for="password" class="mb-1.5 block text-[15px] font-semibold">Password <span class="text-red-600">*</span></label>
                   <span class="relative block">
-                    <input type="password" id="password" autocomplete="new-password" class="w-full rounded-xl border-[1.5px] border-line bg-white py-3 pl-3.5 pr-28 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Minimal 8 karakter" />
+                    <input type="password" id="password" autocomplete="new-password" class="w-full rounded-xl border-2 border-line bg-white py-3 pl-3.5 pr-28 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Minimal 8 karakter" />
                     <button type="button" class="toggle-password absolute inset-y-0 right-1.5 my-1.5 rounded-lg px-3 text-[14px] font-semibold text-brand-700 hover:bg-brand-50" data-target="password" aria-pressed="false">Lihat</button>
                   </span>
                   <p class="mt-1 text-[13px] text-ink-500">Campuran huruf dan angka. Jangan beri tahu siapa pun.</p>
@@ -248,7 +250,7 @@
                 <div>
                   <label for="passwordUlang" class="mb-1.5 block text-[15px] font-semibold">Ulangi password <span class="text-red-600">*</span></label>
                   <span class="relative block">
-                    <input type="password" id="passwordUlang" autocomplete="new-password" class="w-full rounded-xl border-[1.5px] border-line bg-white py-3 pl-3.5 pr-28 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Ketik ulang password" />
+                    <input type="password" id="passwordUlang" autocomplete="new-password" class="w-full rounded-xl border-2 border-line bg-white py-3 pl-3.5 pr-28 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Ketik ulang password" />
                     <button type="button" class="toggle-password absolute inset-y-0 right-1.5 my-1.5 rounded-lg px-3 text-[14px] font-semibold text-brand-700 hover:bg-brand-50" data-target="passwordUlang" aria-pressed="false">Lihat</button>
                   </span>
                   <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
@@ -275,13 +277,14 @@
 
           <!-- Navigasi langkah -->
           <div class="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
-            <button type="button" data-prev class="step-prev rounded-full border-[1.5px] border-line bg-white px-6 py-3.5 text-base font-semibold hover:border-ink-500">← Kembali</button>
+            <button type="button" data-prev class="step-prev rounded-full border-2 border-line bg-white px-6 py-3.5 text-base font-semibold hover:border-ink-500">← Kembali</button>
             <button type="button" data-next class="step-next rounded-full bg-brand-600 px-8 py-4 text-base font-bold text-white hover:bg-brand-700 sm:ml-auto">Lanjut →</button>
           </div>
-          <p class="mt-4 text-center text-sm text-ink-500">
+          <p data-kiosk-hide class="mt-4 text-center text-sm text-ink-500">
             Butuh bantuan?
             <a href="https://wa.me/628823212784" target="_blank" rel="noopener" class="font-bold text-brand-700 underline">Chat panitia di WhatsApp</a>
           </p>
+          <p data-kiosk-only class="mt-4 text-center text-base font-bold">🙋 Butuh bantuan? Panggil petugas pendaftaran.</p>
         </form>
 
         <!-- ============ KARTU SUKSES ============ -->
@@ -290,7 +293,8 @@
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>
           </span>
           <h2 class="mt-4 text-2xl font-extrabold">Pendaftaran berhasil dikirim!</h2>
-          <p class="mx-auto mt-2 max-w-md text-[15px] text-ink-600">Simpan nomor pendaftaran ini, lalu konfirmasi ke WhatsApp panitia.</p>
+          <p data-kiosk-hide class="mx-auto mt-2 max-w-md text-[15px] text-ink-600">Simpan nomor pendaftaran ini, lalu konfirmasi ke WhatsApp panitia.</p>
+          <p data-kiosk-only class="mx-auto mt-2 max-w-md text-lg font-bold">📸 Foto nomor ini dengan HP Anda, atau tunjukkan ke petugas.</p>
 
           <div class="mx-auto mt-5 flex max-w-sm items-center justify-between gap-3 rounded-2xl bg-cream px-4 py-3 text-left">
             <div>
@@ -307,11 +311,16 @@
             <b class="text-ink-900">password</b> yang tadi dibuat. Jangan beri tahu password ke siapa pun.
           </p>
 
-          <div class="mx-auto mt-5 flex max-w-sm flex-col gap-3">
+          <div data-kiosk-only class="mx-auto mt-5 max-w-sm">
+            <button id="kioskNext" type="button" class="w-full rounded-full bg-brand-600 px-6 py-4 text-lg font-bold text-white">Pendaftar berikutnya →</button>
+            <p class="mt-3 text-base">Layar ini dikosongkan otomatis dalam <b id="kioskCountdown">60</b> detik.</p>
+          </div>
+
+          <div data-kiosk-hide class="mx-auto mt-5 flex max-w-sm flex-col gap-3">
             <a id="btnWhatsApp" href="#" class="flex items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-4 text-base font-bold text-white hover:bg-brand-700">
               Konfirmasi lewat WhatsApp
             </a>
-            <button type="button" onclick="triggerDownloadPDF()" class="rounded-full border-[1.5px] border-line bg-white px-6 py-3.5 text-base font-semibold hover:border-ink-500">Unduh Bukti (PDF)</button>
+            <button type="button" onclick="triggerDownloadPDF()" class="rounded-full border-2 border-line bg-white px-6 py-3.5 text-base font-semibold hover:border-ink-500">Unduh Bukti (PDF)</button>
             <a href="#cek-status" data-tab-link="cek-status" class="text-[15px] font-semibold text-brand-700 underline">Cek status pendaftaran</a>
           </div>
         </div>
@@ -327,7 +336,7 @@
         <form id="cekStatusForm" class="mt-5 rounded-3xl bg-white p-5 sm:p-6" novalidate>
           <label for="cekNisn" class="mb-1.5 block text-[15px] font-semibold">Nomor NISN</label>
           <div class="flex flex-col gap-3 sm:flex-row">
-            <input type="text" id="cekNisn" inputmode="numeric" maxlength="10" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 0098765432" />
+            <input type="text" id="cekNisn" inputmode="numeric" maxlength="10" class="w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 0098765432" />
             <button type="submit" class="shrink-0 rounded-full bg-brand-600 px-7 py-3.5 text-base font-bold text-white hover:bg-brand-700 disabled:opacity-60">Cek Status</button>
           </div>
           <p id="cekStatusError" class="mt-2 hidden text-[13px] font-semibold text-red-600"></p>
@@ -346,9 +355,21 @@
       </div>
     </main>
 
-    <footer class="border-t border-line/60 px-4 py-6 text-center text-sm text-ink-500">
+    <footer data-kiosk-hide class="border-t border-line/60 px-4 py-6 text-center text-sm text-ink-500">
       &copy; 2026 Panitia SPMB SMK Tamansiswa Jetis. Hak cipta dilindungi.
     </footer>
+
+    <!-- ======================= MODAL "MASIH MENGISI?" (mode kiosk) ======================= -->
+    <div id="kioskIdle" class="fixed inset-0 z-50 hidden bg-black/60 p-4" role="alertdialog" aria-modal="true" aria-labelledby="kioskIdleTitle">
+      <div class="flex min-h-full items-center justify-center">
+        <div class="w-full max-w-sm rounded-3xl border-2 border-black bg-white p-6 text-center">
+          <div class="text-5xl" aria-hidden="true">⏳</div>
+          <h2 id="kioskIdleTitle" class="mt-3 text-xl font-extrabold">Masih mengisi?</h2>
+          <p class="mt-1 text-base">Form akan dikosongkan dalam <b id="kioskIdleCountdown">30</b> detik agar data Anda tidak terlihat orang lain.</p>
+          <button id="kioskStay" type="button" class="mt-5 w-full rounded-full bg-brand-600 px-6 py-4 text-lg font-bold text-white">Ya, lanjut mengisi</button>
+        </div>
+      </div>
+    </div>
 
     <!-- ======================= MODAL UPLOAD ======================= -->
     <div id="uploadModal" class="fixed inset-0 z-50 hidden bg-ink-900/50 p-4" role="dialog" aria-modal="true" aria-labelledby="uploadModalTitle">

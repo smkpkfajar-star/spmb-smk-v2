@@ -7,12 +7,12 @@ tailwind.config = {
       colors: {
         cream: "#FAF7F2",
         sand: "#F1EFE9",
-        line: "#C9C5BB",
+        line: "#8F8A7E",
         ink: {
           900: "#1C2A22",
-          600: "#4B5A50",
-          500: "#6B7A70",
-          300: "#9AA69E",
+          600: "#2F3B33",
+          500: "#4B5A50",
+          300: "#6B7A70",
         },
         brand: {
           50: "#F0FDF4",

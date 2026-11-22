@@ -31,3 +31,29 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
+
+/* ============================================================
+   Mode Teras / Kiosk (html.kiosk, dinyalakan oleh kiosk.js)
+   Kontras sangat tinggi agar terbaca di bawah sinar matahari.
+   ============================================================ */
+[data-kiosk-only] { display: none !important; }
+.kiosk [data-kiosk-only] { display: block !important; }
+.kiosk [data-kiosk-hide] { display: none !important; }
+
+.kiosk body { zoom: 1.15; }
+.kiosk body { background: #FFFFFF; color: #000000; }
+.kiosk .bg-cream, .kiosk .bg-cream\/95 { background: #FFFFFF !important; }
+.kiosk .bg-sand { background: #E5E1D8 !important; }
+.kiosk .text-ink-900 { color: #000000 !important; }
+.kiosk .text-ink-600, .kiosk .text-ink-500, .kiosk .text-ink-300 { color: #111111 !important; }
+.kiosk ::placeholder { color: #555555 !important; }
+.kiosk input, .kiosk select, .kiosk textarea, .kiosk .choice {
+  border-color: #000000 !important;
+  border-width: 2.5px !important;
+  color: #000000;
+}
+.kiosk main .rounded-3xl.bg-white { border: 2.5px solid #000000; }
+.kiosk .bg-brand-600 { background: #14532D !important; }
+.kiosk .text-brand-700 { color: #14532D !important; }
+.kiosk .text-red-600 { color: #B91C1C !important; }
+.kiosk .choice[aria-pressed="true"] { background: #DCFCE7; outline: 3px solid #14532D; }

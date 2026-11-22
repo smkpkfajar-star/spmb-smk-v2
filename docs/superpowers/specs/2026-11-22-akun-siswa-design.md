@@ -36,3 +36,20 @@ terbuka di browser sehingga seluruh sheet bisa dibaca siapa pun.
   Semua GET ke Sheetson wajib memakai penanda waktu (`&_=<timestamp>`) + `cache: "no-store"`.
   Ini juga berlaku untuk halaman admin nanti.
 - Pencarian NISN: filter `where` (teks lalu angka), lalu pindai semua halaman sebagai cadangan.
+
+---
+
+# Kontras Luar Ruangan & Mode Teras (Kiosk)
+
+Status: disetujui pemilik ("ya silahkan"). Komputer pendaftaran ada di teras sekolah,
+bisa terkena sinar matahari langsung.
+
+- Semua halaman: teks abu-abu lebih gelap (`ink-600` #2F3B33, `ink-500` #4B5A50,
+  placeholder #6B7A70), garis `line` #8F8A7E, semua garis kolom/tombol 2px.
+- Mode kiosk: `daftar/?kiosk=1` (diingat di localStorage `spmb-kiosk`), `?kiosk=0` mematikan.
+  Latar putih, teks hitam, garis hitam 2.5px, hijau tua #14532D, tampilan diperbesar
+  (`zoom: 1.15`). Menu, link WhatsApp, tombol unduh PDF, dan footer disembunyikan.
+- Setelah sukses: "Foto nomor ini dengan HP Anda, atau tunjukkan ke petugas", tombol
+  "Pendaftar berikutnya", form dikosongkan otomatis setelah 60 detik.
+- Form berisi data tanpa aktivitas 180 detik: dialog "Masih mengisi?"; tanpa jawaban
+  30 detik, form dikosongkan.
