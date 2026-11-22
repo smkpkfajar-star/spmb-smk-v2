@@ -5,7 +5,7 @@ import vm from "node:vm";
 
 const ctx = { window: {}, URLSearchParams };
 vm.createContext(ctx);
-vm.runInContext(readFileSync(new URL("../assets/js/jurusan.js", import.meta.url), "utf8"), ctx);
+vm.runInContext(readFileSync(new URL("../assets/js/beranda/jurusan.js", import.meta.url), "utf8"), ctx);
 const { JURUSAN, daftarUrl, findJurusan, typeSteps } = ctx.window.Jurusan;
 
 test("kelima jurusan lengkap", () => {

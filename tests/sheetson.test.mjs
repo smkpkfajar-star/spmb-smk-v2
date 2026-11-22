@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
-const src = readFileSync(new URL("../assets/js/sheetson.js", import.meta.url), "utf8");
+const src = readFileSync(new URL("../assets/js/umum/sheetson.js", import.meta.url), "utf8");
 
 function load(fakeFetch) {
   const ctx = {

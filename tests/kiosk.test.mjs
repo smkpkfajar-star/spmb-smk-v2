@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
-const src = readFileSync(new URL("../assets/js/kiosk.js", import.meta.url), "utf8");
+const src = readFileSync(new URL("../assets/js/daftar/kiosk.js", import.meta.url), "utf8");
 const ctx = { window: {}, URLSearchParams };
 vm.createContext(ctx);
 vm.runInContext(src, ctx);

@@ -30,20 +30,20 @@
 ---
 
 ### Task 1: Konfigurasi & Sheetson bersama
-**Files:** Create `assets/js/app-config.js`, `assets/js/sheetson.js`, `tests/sheetson.test.mjs`; Modify `assets/js/daftar.js` (pakai `window.APP_CONFIG`), `daftar/index.html` (muat app-config.js), `tests/check-pages.mjs`; Delete `assets/js/config.js`, `assets/js/auth.js`.
+**Files:** Create `assets/js/umum/app-config.js`, `assets/js/umum/sheetson.js`, `tests/sheetson.test.mjs`; Modify `assets/js/daftar/daftar.js` (pakai `window.APP_CONFIG`), `daftar/index.html` (muat app-config.js), `tests/check-pages.mjs`; Delete `assets/js/config.js`, `assets/js/auth.js`.
 **Interfaces (Produces):** `window.APP_CONFIG = { sheetson: { apiKey, spreadsheetId }, supabase: { url, anonKey, bucketName } }`; `window.Sheetson = { getRows(sheet) → Promise<row[]>, patchRow(sheet, rowIndex, data) → Promise<row>, normNisn(v) → string, escapeHtml(s) → string }`.
 - [ ] Tes: `getRows` menggabungkan halaman sampai `hasNextPage=false` dan setiap URL memuat `_=`; `patchRow` memakai method PATCH ke `/Sheet/7` dengan body hanya data; `normNisn("0099")==="99"`; `escapeHtml('<a "b">')==='&lt;a &quot;b&quot;&gt;'`.
 - [ ] Jalankan → FAIL; implementasi → PASS; `npm test` hijau; uji simulasi daftar offline tetap sama; commit.
 
 ### Task 2: SQL Supabase, login & dashboard
-**Files:** Create `supabase/admin-setup.sql`, `assets/js/admin-auth.js`, `admin/index.html`, `admin/dashboard.html`.
+**Files:** Create `supabase/admin-setup.sql`, `assets/js/admin/auth.js`, `admin/index.html`, `admin/dashboard.html`.
 **Interfaces:** `AdminAuth.login(username, password) → {ok, role, error}`, `AdminAuth.logout()`, `AdminAuth.requireRole(roles) → Promise<{user, profile}>` (arahkan ke `index.html` bila belum login, ke `dashboard.html?ditolak=1` bila peran tak sesuai), `AdminAuth.MODULES` (daftar modul + peran).
 - [ ] SQL: `alter type public.user_role add value if not exists` ×4; `is_superadmin()`; RLS profiles (select sendiri / superadmin semua; update role oleh superadmin); `reset_password(target_email text, new_password text)`.
 - [ ] Tes `node:test`: `MODULES` menghasilkan modul yang benar untuk tiap peran.
 - [ ] Uji Chrome: login salah → pesan; login peran pendaftar → ditolak.
 
 ### Task 3: UI bersama + Verifikasi Berkas
-**Files:** Create `assets/js/admin-ui.js`, `admin/verifikasi.html`, `tests/admin-ui.test.mjs`.
+**Files:** Create `assets/js/admin/ui.js`, `admin/verifikasi.html`, `tests/admin-ui.test.mjs`.
 **Interfaces:** `AdminUI.filterRows(rows, query, field, value)`, `AdminUI.openDialog({title, fields, values, onSave})`, `AdminUI.toast(msg, type)`, `AdminUI.renderList(container, rows, columns, onEdit)`.
 - [ ] Tes `filterRows`: cari nama (tanpa beda huruf besar/kecil), no. pendaftaran, NISN angka vs teks ber-nol.
 - [ ] Halaman verifikasi sesuai spec; uji Chrome dengan fetch tiruan (simpan → PATCH berisi kolom yang diubah saja).
@@ -58,7 +58,7 @@
 - [ ] Rekap, unduh CSV, kelola petugas, reset password (dengan pesan cadangan bila ditolak).
 
 ### Task 6: Lengkapi Berkas siswa
-**Files:** Create `siswa/index.html`, `assets/js/siswa.js`.
+**Files:** Create `siswa/index.html`, `assets/js/siswa/siswa.js`.
 - [ ] Login NISN+password, status, daftar berkas, unggah → PATCH `namaBerkas`/`urlBerkas` ditambah baris baru, `statusBerkas` = Sudah Unggah.
 
 ### Task 7: Verifikasi live

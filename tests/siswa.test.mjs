@@ -5,8 +5,8 @@ import vm from "node:vm";
 
 const ctx = { window: {} };
 vm.createContext(ctx);
-vm.runInContext(readFileSync(new URL("../assets/js/sheetson.js", import.meta.url), "utf8"), ctx);
-vm.runInContext(readFileSync(new URL("../assets/js/siswa.js", import.meta.url), "utf8"), ctx);
+vm.runInContext(readFileSync(new URL("../assets/js/umum/sheetson.js", import.meta.url), "utf8"), ctx);
+vm.runInContext(readFileSync(new URL("../assets/js/siswa/siswa.js", import.meta.url), "utf8"), ctx);
 const { appendLine, findMyRow, nisnFromEmail } = ctx.window.Siswa;
 
 test("appendLine menambah baris baru, mengganti '-' atau kosong", () => {

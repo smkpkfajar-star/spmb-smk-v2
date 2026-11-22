@@ -13,13 +13,13 @@ const dctx = {
 };
 dctx.window.window = dctx.window;
 vm.createContext(dctx);
-vm.runInContext(read("../assets/js/daftar.js"), dctx);
+vm.runInContext(read("../assets/js/daftar/daftar.js"), dctx);
 
 // admin-ui.js
 const actx = { window: {} };
 vm.createContext(actx);
-vm.runInContext(read("../assets/js/sheetson.js"), actx);
-vm.runInContext(read("../assets/js/admin-ui.js"), actx);
+vm.runInContext(read("../assets/js/umum/sheetson.js"), actx);
+vm.runInContext(read("../assets/js/admin/ui.js"), actx);
 const UI = actx.window.AdminUI;
 
 /* ---------- waktu daftar ---------- */

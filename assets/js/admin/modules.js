@@ -449,7 +449,7 @@
             show(
               /not found|tidak ditemukan/i.test(error.message)
                 ? `Akun ${email.split("@")[0]} tidak ditemukan. Periksa lagi NISN/username.`
-                : `Gagal mereset: ${error.message}. Pastikan file admin-setup.sql sudah dijalankan di Supabase, atau hubungi pengelola teknis.`,
+                : `Gagal mereset: ${error.message}. Pastikan file 01-admin-setup.sql sudah dijalankan di Supabase, atau hubungi pengelola teknis.`,
               false
             );
           } else {

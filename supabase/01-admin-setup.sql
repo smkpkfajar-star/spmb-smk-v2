@@ -1,5 +1,5 @@
 -- ============================================================
--- admin-setup.sql — jalankan SEKALI di Supabase SQL Editor.
+-- 01-admin-setup.sql — jalankan SEKALI di Supabase SQL Editor.
 -- Aman dijalankan ulang.
 -- ============================================================
 

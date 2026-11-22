@@ -66,12 +66,12 @@ Panel ubah = dialog besar (bukan `prompt()`), tombol Simpan/Batal, pesan berhasi
 Simpan memakai `PATCH /v2/sheets/<Sheet>/<rowIndex>` hanya untuk kolom yang diubah.
 
 ## Kode bersama
-- `assets/js/app-config.js` — satu-satunya tempat konfigurasi Sheetson & Supabase
+- `assets/js/umum/app-config.js` — satu-satunya tempat konfigurasi Sheetson & Supabase
   (dipakai juga oleh `daftar.js`). `assets/js/config.js` lama dihapus.
-- `assets/js/sheetson.js` — `getRows(sheet)` (semua halaman, penanda waktu anti-cache),
+- `assets/js/umum/sheetson.js` — `getRows(sheet)` (semua halaman, penanda waktu anti-cache),
   `patchRow(sheet, rowIndex, data)`.
-- `assets/js/admin-auth.js` — login/logout petugas, ambil peran, `requireRole([...])`.
-- `assets/js/admin-ui.js` — tabel/kartu, pencarian, filter, dialog, toast.
+- `assets/js/admin/auth.js` — login/logout petugas, ambil peran, `requireRole([...])`.
+- `assets/js/admin/ui.js` — tabel/kartu, pencarian, filter, dialog, toast.
 - `assets/js/auth.js` lama (password tertulis) dihapus.
 
 ## Pengaturan Supabase oleh pemilik (satu file SQL + satu langkah dashboard)

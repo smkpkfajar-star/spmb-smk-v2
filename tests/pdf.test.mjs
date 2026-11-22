@@ -11,7 +11,7 @@ const ctx = {
 };
 ctx.window.window = ctx.window;
 vm.createContext(ctx);
-vm.runInContext(readFileSync(new URL("../assets/js/daftar.js", import.meta.url), "utf8"), ctx);
+vm.runInContext(readFileSync(new URL("../assets/js/daftar/daftar.js", import.meta.url), "utf8"), ctx);
 const { buildPdfContent } = ctx;
 
 const data = {

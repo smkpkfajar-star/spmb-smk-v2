@@ -5,8 +5,8 @@ import vm from "node:vm";
 
 const ctx = { window: {} };
 vm.createContext(ctx);
-vm.runInContext(readFileSync(new URL("../assets/js/sheetson.js", import.meta.url), "utf8"), ctx);
-vm.runInContext(readFileSync(new URL("../assets/js/admin-ui.js", import.meta.url), "utf8"), ctx);
+vm.runInContext(readFileSync(new URL("../assets/js/umum/sheetson.js", import.meta.url), "utf8"), ctx);
+vm.runInContext(readFileSync(new URL("../assets/js/admin/ui.js", import.meta.url), "utf8"), ctx);
 const { filterRows, changedFields, toCsv, badgeTone } = ctx.window.AdminUI;
 
 const rows = [
