@@ -141,6 +141,9 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
       }
 
       const nisnVal = document.getElementById("nisn").value.trim();
+      const passwordVal = document.getElementById("password").value;
+      const namaVal = document.getElementById("namaLengkap").value.trim();
+      let akun = null;
 
       setButtonLoading(submitBtn, true, "Memeriksa NISN...");
 
@@ -160,21 +163,26 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
         showUploadModal();
         startTipsRotator();
 
-        updateUploadProgress(25, "Menyiapkan data pendaftaran...");
-        await wait(500);
+        updateUploadProgress(25, "Membuat akun siswa...");
+        akun = await createStudentAccount(supabaseConfig, nisnVal, passwordVal, namaVal);
 
         updateUploadProgress(50, "Mengunggah berkas pendukung ke server aman...");
         const formData = await collectFormData(
           nisnVal,
           jurusan1,
           jurusan2,
-          supabaseConfig
+          supabaseConfig,
+          akun
         );
 
         updateUploadProgress(80, "Menyimpan data ke database pusat...");
         window.lastRegisteredData = formData;
 
         await sendDataToSheetson(sheetConfig, formData);
+        // Catat nomor pendaftaran di akun siswa agar kiriman ganda bisa ditolak
+        await akun.client.auth
+          .updateUser({ data: { no_pendaftaran: formData.noPendaftaran } })
+          .catch((err) => console.error("Gagal mencatat nomor di akun:", err));
 
         updateUploadProgress(100, "Pendaftaran Berhasil Dikirim!");
         await wait(600);
@@ -195,12 +203,20 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
         }
       } catch (error) {
         console.error("DETAIL ERROR:", error);
-        showUploadError(error.message || "Terjadi kesalahan jaringan atau server.");
+        if (error.userFacing) {
+          hideUploadModal();
+          alert(error.message);
+        } else {
+          showUploadError(error.message || "Terjadi kesalahan jaringan atau server.");
+        }
         setButtonLoading(
           submitBtn,
           false,
           SUBMIT_LABEL
         );
+      } finally {
+        // Jangan biarkan akun tetap masuk di HP yang mungkin dipakai bersama
+        if (akun && akun.client) akun.client.auth.signOut().catch(() => {});
       }
     });
   }
@@ -223,6 +239,7 @@ function initFormSteps(regForm, jurusan1, jurusan2, jurusanSamaWarning) {
   );
   initChoiceButtons();
   initBerkasInfo();
+  initPasswordToggles();
   goToStep(1, { scroll: false, focus: false });
 }
 
@@ -236,6 +253,20 @@ function initChoiceButtons() {
       document.querySelectorAll(`.choice[data-for="${btn.dataset.for}"]`).forEach((b) =>
         b.setAttribute("aria-pressed", String(b === btn))
       );
+    });
+  });
+}
+
+// Tombol "Lihat" untuk menampilkan/menyembunyikan password
+function initPasswordToggles() {
+  document.querySelectorAll(".toggle-password[data-target]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      btn.textContent = show ? "Sembunyikan" : "Lihat";
+      btn.setAttribute("aria-pressed", String(show));
     });
   });
 }
@@ -492,6 +523,16 @@ function validateFormInputs(regForm, jurusan1, jurusan2, jurusanSamaWarning, opt
     isValid = false;
   }
 
+  const password = document.getElementById("password");
+  const passwordUlang = document.getElementById("passwordUlang");
+  if (password && password.value.length < 8) {
+    showFieldError(password, "Password minimal 8 karakter.");
+    isValid = false;
+  } else if (password && passwordUlang && password.value !== passwordUlang.value) {
+    showFieldError(passwordUlang, "Password tidak sama. Ketik ulang password yang sama persis.");
+    isValid = false;
+  }
+
   const pernyataan = document.getElementById("pernyataan");
   const pernyataanError = document.getElementById("pernyataanError");
   if (pernyataan && !pernyataan.checked) {
@@ -528,39 +569,75 @@ function setButtonLoading(btn, isLoading, htmlContent) {
   btn.innerHTML = htmlContent;
 }
 
-async function uploadFileToSupabase(file, supabaseConfig) {
+/* --- AKUN SISWA (Supabase Auth) --- */
+// Login siswa memakai NISN; alamat ini hanya pengenal, tidak pernah dikirimi email.
+const STUDENT_EMAIL_DOMAIN = "siswa.spmb.local";
+
+function studentEmail(nisn) {
+  return `${nisn}@${STUDENT_EMAIL_DOMAIN}`;
+}
+
+function userError(message) {
+  const err = new Error(message);
+  err.userFacing = true;
+  return err;
+}
+
+// Membuat akun siswa. Bila akun NISN ini sudah ada dan password cocok
+// (kiriman ulang setelah gagal di tengah jalan), akun itu dipakai lagi.
+async function createStudentAccount(supabaseConfig, nisn, password, namaLengkap) {
   if (!window.supabase || typeof window.supabase.createClient !== "function") {
-    throw new Error(
-      "Library Supabase belum dimuat di HTML. Tambahkan script CDN Supabase."
+    throw new Error("Library Supabase belum dimuat. Muat ulang halaman lalu coba lagi.");
+  }
+  const client = window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const email = studentEmail(nisn);
+
+  const { data, error } = await client.auth.signUp({
+    email,
+    password,
+    options: { data: { nama_lengkap: namaLengkap } },
+  });
+  if (!error && data.session) return { client, userId: data.user.id, existing: false };
+  if (!error) throw new Error("Akun dibuat tetapi belum aktif (konfirmasi email masih menyala di Supabase)");
+
+  if (/already registered|already exists/i.test(error.message)) {
+    const login = await client.auth.signInWithPassword({ email, password });
+    if (!login.error) {
+      const sudah = (login.data.user.user_metadata || {}).no_pendaftaran;
+      if (sudah) {
+        await client.auth.signOut().catch(() => {});
+        throw userError(`NISN ini sudah terdaftar dengan nomor ${sudah}.\n\nCek perkembangannya di menu Cek Status.`);
+      }
+      return { client, userId: login.data.user.id, existing: true };
+    }
+    throw userError(
+      "NISN ini sudah punya akun pendaftaran.\n\nKalau Anda belum pernah mendaftar, hubungi panitia lewat WhatsApp."
     );
   }
+  if (/password/i.test(error.message)) {
+    throw userError("Password belum memenuhi syarat. Gunakan minimal 8 karakter, campuran huruf dan angka.");
+  }
+  throw new Error("Gagal membuat akun siswa: " + error.message);
+}
 
-  const supabase = window.supabase.createClient(
-    supabaseConfig.url,
-    supabaseConfig.anonKey
-  );
-
+async function uploadFileToSupabase(file, akun, bucketName) {
   const fileExt = file.name.split(".").pop().toLowerCase();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-  // Folder "public/" harus sama dengan policy upload di Supabase Storage.
-  const filePath = `public/${fileName}`;
+  // Folder "siswa/<id-akun>/" harus sama dengan policy upload di Supabase Storage.
+  const filePath = `siswa/${akun.userId}/${fileName}`;
 
-  const { data, error } = await supabase.storage
-    .from(supabaseConfig.bucketName)
-    .upload(filePath, file);
-
+  const { error } = await akun.client.storage.from(bucketName).upload(filePath, file);
   if (error) {
     throw new Error("Supabase Storage Error: " + error.message);
   }
 
-  const { data: publicUrlData } = supabase.storage
-    .from(supabaseConfig.bucketName)
-    .getPublicUrl(filePath);
-
+  const { data: publicUrlData } = akun.client.storage.from(bucketName).getPublicUrl(filePath);
   return publicUrlData.publicUrl;
 }
 
-async function collectFormData(nisnVal, jurusan1, jurusan2, supabaseConfig) {
+async function collectFormData(nisnVal, jurusan1, jurusan2, supabaseConfig, akun) {
   const randomNum = Math.floor(100000 + Math.random() * 900000);
   const fileInput = document.getElementById("berkasFile");
   let fileUrl = "-";
@@ -575,7 +652,7 @@ async function collectFormData(nisnVal, jurusan1, jurusan2, supabaseConfig) {
     // spreadsheet dengan statusBerkas "Gagal Unggah", dan siswa diminta
     // mengirim berkas lewat WhatsApp panitia.
     try {
-      fileUrl = await uploadFileToSupabase(file, supabaseConfig);
+      fileUrl = await uploadFileToSupabase(file, akun, supabaseConfig.bucketName);
     } catch (err) {
       console.error("Upload berkas gagal:", err);
       uploadError = err.message || "Unggah berkas gagal";
@@ -688,34 +765,45 @@ function setupCopyButton(noPendaftaranEl) {
 }
 
 /* --- FETCH DATA BERDASARKAN NISN --- */
+// Filter "where" Sheetson tidak bisa diandalkan untuk kolom NISN (teks vs angka,
+// dan baris baru kadang tidak ikut terfilter). Jadi: coba filter dulu, lalu bila
+// kosong pindai semua halaman dan cocokkan NISN tanpa memedulikan nol di depan.
+const SHEETSON_PAGE_SIZE = 100;
+
+function sameNisn(a, b) {
+  const norm = (v) => String(v ?? "").trim().replace(/^0+/, "");
+  return norm(a) !== "" && norm(a) === norm(b);
+}
+
+// Sheetson mengirim "cache-control: max-age=14400" (4 jam) dan jawabannya
+// di-cache Cloudflare. Tanpa penanda waktu, Cek Status & cek NISN membaca data basi.
+async function sheetsonGet(config, query) {
+  const res = await fetch(`https://api.sheetson.com/v2/sheets/Verifikasi_Berkas?${query}&_=${Date.now()}`, {
+    cache: "no-store",
+    headers: {
+      Authorization: `Bearer ${config.apiKey}`,
+      "X-Spreadsheet-Id": config.spreadsheetId,
+    },
+  });
+  if (!res.ok) throw new Error(`Sheetson HTTP ${res.status}`);
+  return res.json();
+}
+
 async function fetchRecordByNisn(config, nisn) {
-  // Sheetson v2: gunakan where untuk filter kolom
-  const whereClause = encodeURIComponent(JSON.stringify({ nisn: nisn }));
-  const url = `https://api.sheetson.com/v2/sheets/Verifikasi_Berkas?where=${whereClause}`;
-  console.log("🌐 Sedang mengambil data dari URL:", url);
+  const variants = [nisn];
+  if (/^\d+$/.test(nisn)) variants.push(Number(nisn));
+  for (const value of variants) {
+    const json = await sheetsonGet(config, `where=${encodeURIComponent(JSON.stringify({ nisn: value }))}`);
+    const rows = (json.results || []).filter((row) => sameNisn(row.nisn, nisn));
+    if (rows.length) return rows;
+  }
 
-  try {
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${config.apiKey}`,
-        "X-Spreadsheet-Id": config.spreadsheetId,
-      },
-    });
-
-    const textResponse = await res.text();
-    console.log("📥 Respon Mentah dari Sheetson:", textResponse);
-
-    const json = JSON.parse(textResponse);
-    console.log("📊 Objek JSON Parsed:", json);
-
-    // Sheetson v2 menggunakan 'results'
-    const records = json.results || json.data || [];
-    console.log("🔍 Data array yang ditemukan:", records);
-
-    return records;
-  } catch (error) {
-    console.error("❌ Gagal melakukan fetch ke Sheetson:", error);
-    return [];
+  for (let skip = 0; ; skip += SHEETSON_PAGE_SIZE) {
+    const json = await sheetsonGet(config, `limit=${SHEETSON_PAGE_SIZE}&skip=${skip}`);
+    const page = json.results || [];
+    const rows = page.filter((row) => sameNisn(row.nisn, nisn));
+    if (rows.length) return rows;
+    if (!json.hasNextPage || page.length === 0) return [];
   }
 }
 

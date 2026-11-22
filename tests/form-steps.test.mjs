@@ -12,7 +12,7 @@ const { STEP_FIELDS, stepOfField, firstErrorStep, errorsInStep } = ctx.window.Fo
 test("STEP_FIELDS sesuai spec", () => {
   assert.deepEqual([...STEP_FIELDS[2]], ["namaOrtu", "waOrtu"]);
   assert.deepEqual([...STEP_FIELDS[3]], ["berkasFile"]);
-  assert.deepEqual([...STEP_FIELDS[4]], ["jurusan1", "jurusan2", "pernyataan"]);
+  assert.deepEqual([...STEP_FIELDS[4]], ["jurusan1", "jurusan2", "password", "passwordUlang", "pernyataan"]);
   assert.equal(STEP_FIELDS[1].length, 9);
 });
 
@@ -21,6 +21,7 @@ test("stepOfField", () => {
   assert.equal(stepOfField("waOrtu"), 2);
   assert.equal(stepOfField("berkasFile"), 3);
   assert.equal(stepOfField("pernyataan"), 4);
+  assert.equal(stepOfField("passwordUlang"), 4);
   assert.equal(stepOfField("x"), null);
 });
 

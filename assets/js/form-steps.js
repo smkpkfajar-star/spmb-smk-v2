@@ -8,7 +8,7 @@
     1: Object.freeze(["namaLengkap", "jenisKelamin", "nisn", "tempatLahir", "tanggalLahir", "agama", "whatsapp", "alamat", "asalSekolah"]),
     2: Object.freeze(["namaOrtu", "waOrtu"]),
     3: Object.freeze(["berkasFile"]),
-    4: Object.freeze(["jurusan1", "jurusan2", "pernyataan"]),
+    4: Object.freeze(["jurusan1", "jurusan2", "password", "passwordUlang", "pernyataan"]),
   });
 
   const STEP_TITLES = Object.freeze({ 1: "Data Diri", 2: "Orang Tua / Wali", 3: "Berkas", 4: "Jurusan & Kirim" });
