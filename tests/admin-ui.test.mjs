@@ -77,3 +77,10 @@ test("sortRows: teks & angka, naik/turun, tidak mengubah aslinya", () => {
   assert.deepEqual([...sortRows(rows, "t", "desc").map((r) => r.t)], [160, 9, ""]);
   assert.equal(rows[0].n, "budi");
 });
+
+test("tabTitle menambahkan jumlah pendaftar baru", () => {
+  const { tabTitle } = ctx.window.AdminUI;
+  assert.equal(tabTitle("Verifikasi — Admin SPMB", 0), "Verifikasi — Admin SPMB");
+  assert.equal(tabTitle("Verifikasi — Admin SPMB", 3), "(3) Verifikasi — Admin SPMB");
+  assert.equal(tabTitle("(2) Verifikasi — Admin SPMB", 5), "(5) Verifikasi — Admin SPMB");
+});

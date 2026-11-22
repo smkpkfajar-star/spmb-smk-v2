@@ -62,3 +62,16 @@ test("normNisn & escapeHtml", () => {
   assert.equal(S.escapeHtml('<a "b">&'), "&lt;a &quot;b&quot;&gt;&amp;");
   assert.equal(S.escapeHtml(null), "");
 });
+
+test("rowsAfter: satu permintaan kecil mulai dari baris yang sudah diketahui", async () => {
+  const urls = [];
+  const S = load(async (url, opts) => {
+    urls.push(url);
+    assert.equal(opts.cache, "no-store");
+    return { ok: true, json: async () => ({ results: [{ rowIndex: 12 }, { rowIndex: 13 }], hasNextPage: false }) };
+  });
+  const rows = await S.rowsAfter("Data_Pendaftar", 10);
+  assert.equal(rows.length, 2);
+  assert.equal(urls.length, 1);
+  assert.ok(/[?&]skip=10\b/.test(urls[0]) && /[?&]limit=50\b/.test(urls[0]) && /[?&]_=\d+/.test(urls[0]), urls[0]);
+});

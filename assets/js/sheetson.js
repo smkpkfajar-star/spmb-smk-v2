@@ -31,6 +31,15 @@
     }
   }
 
+  // Baris setelah posisi tertentu — dipakai admin untuk cek "ada pendaftar baru?" (1 permintaan)
+  async function rowsAfter(sheet, knownCount, limit = 50) {
+    const url = `${BASE}/${encodeURIComponent(sheet)}?limit=${limit}&skip=${knownCount}&_=${Date.now()}`;
+    const res = await fetch(url, { cache: "no-store", headers: headers(false) });
+    if (!res.ok) throw new Error(`Gagal memeriksa ${sheet} (HTTP ${res.status})`);
+    const json = await res.json();
+    return json.results || [];
+  }
+
   // Ubah satu baris; kirim HANYA kolom yang berubah agar tidak menimpa isian petugas lain.
   async function patchRow(sheet, rowIndex, data) {
     const res = await fetch(`${BASE}/${encodeURIComponent(sheet)}/${rowIndex}`, {
@@ -56,5 +65,5 @@
       .replace(/'/g, "&#39;");
   }
 
-  root.Sheetson = { getRows, patchRow, normNisn, escapeHtml };
+  root.Sheetson = { getRows, rowsAfter, patchRow, normNisn, escapeHtml };
 })(typeof window !== "undefined" ? window : globalThis);

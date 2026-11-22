@@ -74,7 +74,13 @@
     });
   }
 
-  root.AdminUI = { filterRows, changedFields, toCsv, badgeTone, paginate, sortRows };
+  // Judul tab dengan jumlah pendaftar baru, mis. "(3) Verifikasi — Admin SPMB"
+  function tabTitle(title, n) {
+    const base = String(title).replace(/^\(\d+\)\s*/, "");
+    return n > 0 ? `(${n}) ${base}` : base;
+  }
+
+  root.AdminUI = { filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle };
   if (typeof document === "undefined") return;
 
   /* ---------- tampilan ---------- */
@@ -168,10 +174,91 @@
       <div class="flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-8">
         <button id="btnMenu" type="button" class="-ml-1 rounded-md px-2 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand lg:hidden" aria-label="Buka menu" aria-expanded="false" aria-controls="adminSidebar">Menu</button>
         <nav class="min-w-0 flex-1 truncate text-[14px]" aria-label="Lokasi"><span class="text-ink-500">Admin</span><span class="px-1.5 text-ink-300">/</span><span class="font-medium">${esc(current.title)}</span></nav>
+        <button id="btnBunyi" type="button" aria-pressed="false" class="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-ink-600 hover:bg-sand" title="Bunyi saat ada pendaftar baru">Bunyi: mati</button>
         <span class="hidden font-mono text-[12px] text-ink-500 sm:inline">SPMB 2026/2027</span>
       </div>`;
     document.getElementById("btnMenu").addEventListener("click", () => setOpen(!document.body.classList.contains("sidebar-open")));
     document.getElementById("btnLogout").addEventListener("click", () => A.logout());
+    const bunyi = document.getElementById("btnBunyi");
+    const paint = () => {
+      bunyi.textContent = soundOn() ? "Bunyi: nyala" : "Bunyi: mati";
+      bunyi.setAttribute("aria-pressed", String(soundOn()));
+    };
+    bunyi.addEventListener("click", () => {
+      try { root.localStorage.setItem(SOUND_KEY, soundOn() ? "0" : "1"); } catch (_) {}
+      paint();
+      if (soundOn()) beep();
+    });
+    paint();
+  }
+
+  /* ---------- pendaftar baru: cek berkala yang hemat ---------- */
+  const POLL_MS = 60000;
+  const SOUND_KEY = "spmb-bunyi";
+  const soundOn = () => {
+    try { return root.localStorage.getItem(SOUND_KEY) === "1"; } catch (_) { return false; }
+  };
+  function beep() {
+    try {
+      const Ctx = root.AudioContext || root.webkitAudioContext;
+      const ac = new Ctx();
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = "sine";
+      o.frequency.value = 880;
+      g.gain.setValueAtTime(0.0001, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.08, ac.currentTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.35);
+      o.connect(g).connect(ac.destination);
+      o.start();
+      o.stop(ac.currentTime + 0.4);
+    } catch (_) {}
+  }
+
+  // Cek tiap 60 detik selama tab terlihat; langsung cek saat tab kembali dibuka.
+  // getKnown() → jumlah baris yang sudah tampil; onNew(n) dipanggil bila ada baris baru.
+  function watchNew(sheet, getKnown, onNew) {
+    let busy = false;
+    let lastN = 0;
+    async function check() {
+      if (busy || document.visibilityState !== "visible") return;
+      busy = true;
+      try {
+        const rows = await root.Sheetson.rowsAfter(sheet, getKnown());
+        const n = rows.length;
+        if (n > lastN && soundOn()) beep();
+        lastN = n;
+        onNew(n);
+      } catch (_) {
+        // jaringan putus sesaat: coba lagi di putaran berikutnya
+      } finally {
+        busy = false;
+      }
+    }
+    const timer = setInterval(check, POLL_MS);
+    document.addEventListener("visibilitychange", () => document.visibilityState === "visible" && check());
+    return { check, reset: () => (lastN = 0), stop: () => clearInterval(timer) };
+  }
+
+  // Pemberitahuan di atas tabel + judul tab
+  function newBanner(container, onShow) {
+    const baseTitle = document.title;
+    const el = document.createElement("div");
+    el.className = "hidden";
+    el.setAttribute("role", "status");
+    container.appendChild(el);
+    return (n) => {
+      document.title = tabTitle(baseTitle, n);
+      if (!n) {
+        el.className = "hidden";
+        el.innerHTML = "";
+        return;
+      }
+      el.className = "mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-pink-100 bg-pink-50 px-4 py-3";
+      el.innerHTML = `<span class="flex items-center gap-2 text-[14.5px]"><span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-pink-400 opacity-60"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-pink-500"></span></span><b class="font-semibold">${n} pendaftar baru</b> sejak data terakhir dimuat</span>
+        <button type="button" class="rounded-md bg-ink-900 px-3 py-1.5 text-[14px] font-medium text-white hover:opacity-90">Tampilkan</button>`;
+      el.querySelector("button").addEventListener("click", onShow);
+    };
   }
 
   // Angka ringkasan. stats: [{label, value, tone?: ok|bad|wait|info}]
@@ -336,6 +423,7 @@
           </select>
         </div>
       </div>
+      <div id="newSlot"></div>
       <p id="count" class="mt-4 font-mono text-[12.5px] text-ink-500" aria-live="polite">Memuat data…</p>
       <div id="list" class="mt-2"></div>
       <div id="pager" class="mt-4"></div>`;
@@ -502,11 +590,17 @@
         page.rows = await root.Sheetson.getRows(config.sheet);
         renderStats();
         render();
+        if (page.watcher) page.watcher.reset();
+        if (typeof showNew === "function") showNew(0);
       } catch (err) {
         $count.textContent = "";
         $list.innerHTML = `<div class="bg-red-50 p-6 text-[15px] font-semibold text-red-700">${esc(err.message)}. Periksa internet lalu tekan Muat ulang.</div>`;
       }
     }
+
+    const showNew = newBanner(app.querySelector("#newSlot"), () => load());
+    const watcher = watchNew(config.sheet, () => page.rows.length, showNew);
+    page.watcher = watcher;
 
     $q.addEventListener("input", () => { state.page = 1; render(); });
     $f.addEventListener("change", () => { state.page = 1; render(); });
@@ -515,5 +609,5 @@
     return page;
   }
 
-  Object.assign(root.AdminUI, { badge, toast, renderShell, statCards, openDialog, downloadFile, modulePage });
+  Object.assign(root.AdminUI, { badge, toast, renderShell, statCards, openDialog, downloadFile, modulePage, watchNew, newBanner });
 })(typeof window !== "undefined" ? window : globalThis);
