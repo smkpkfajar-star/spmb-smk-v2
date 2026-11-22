@@ -5,10 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const SUPABASE_CONFIG = {
-    url: "https://ldozvlpdsobuyyccomfo.supabase.co",
-    anonKey:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxkb3p2bHBkc29idXl5Y2NvbWZvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDg0OTI2OCwiZXhwIjoyMTA2NDI1MjY4fQ.yL75HvLTDRD2AQr3CAUYDvpJstcqnEkUklTy16pTP8Q",
-    bucketName: "spmb-berkas",
+    url: "https://zfnkjntxxvckkgmqmfex.supabase.co",
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmbmtqbnR4eHZja2tnbXFtZmV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMzA1MTYsImV4cCI6MjEwNzkwNjUxNn0.lFaxG4TfrRbTPpgi3HxKnPPp9rxbUmusoIMidT3TSN4",
+    bucketName: "berkas-spmb",
   };
 
   window.lastRegisteredData = null;
@@ -167,6 +166,13 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
           '<i class="fa-solid fa-paper-plane"></i> Kirim Formulir Pendaftaran'
         );
         handleRegistrationSuccess(formData);
+
+        if (formData.uploadError) {
+          alert(
+            "Pendaftaran Anda BERHASIL tersimpan, tetapi berkas gagal diunggah.\n\n" +
+              "Silakan klik tombol WhatsApp di bawah dan kirimkan berkas Anda langsung ke panitia."
+          );
+        }
       } catch (error) {
         console.error("DETAIL ERROR:", error);
         showUploadError(error.message || "Terjadi kesalahan jaringan atau server.");
@@ -395,9 +401,10 @@ async function uploadFileToSupabase(file, supabaseConfig) {
     supabaseConfig.anonKey
   );
 
-  const fileExt = file.name.split(".").pop();
+  const fileExt = file.name.split(".").pop().toLowerCase();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-  const filePath = `uploads/${fileName}`;
+  // Folder "public/" harus sama dengan policy upload di Supabase Storage.
+  const filePath = `public/${fileName}`;
 
   const { data, error } = await supabase.storage
     .from(supabaseConfig.bucketName)
@@ -420,15 +427,28 @@ async function collectFormData(nisnVal, jurusan1, jurusan2, supabaseConfig) {
   let fileUrl = "-";
   let fileName = "-";
 
+  let uploadError = null;
+
   if (fileInput && fileInput.files && fileInput.files[0]) {
     const file = fileInput.files[0];
     fileName = file.name;
-    fileUrl = await uploadFileToSupabase(file, supabaseConfig);
+    // Gagal unggah TIDAK membatalkan pendaftaran: data tetap disimpan ke
+    // spreadsheet dengan statusBerkas "Gagal Unggah", dan siswa diminta
+    // mengirim berkas lewat WhatsApp panitia.
+    try {
+      fileUrl = await uploadFileToSupabase(file, supabaseConfig);
+    } catch (err) {
+      console.error("Upload berkas gagal:", err);
+      uploadError = err.message || "Unggah berkas gagal";
+    }
   }
 
   const kodeVoucherInput = document.getElementById("kodeVoucher");
   const kodeVoucherVal = kodeVoucherInput ? kodeVoucherInput.value.trim() : "";
   const isFileUploaded = fileUrl !== "-";
+  let statusBerkas = "Belum Unggah";
+  if (isFileUploaded) statusBerkas = "Sudah Unggah";
+  else if (uploadError) statusBerkas = "Gagal Unggah";
 
   return {
     noPendaftaran: `SPMB-${randomNum}`,
@@ -449,8 +469,9 @@ async function collectFormData(nisnVal, jurusan1, jurusan2, supabaseConfig) {
     namaBerkas: fileName,
     urlBerkas: fileUrl,
     statusPendaftaran: "Pending",
-    statusBerkas: isFileUploaded ? "Sudah Unggah" : "Belum Unggah",
-    catatanAdmin: "-",
+    statusBerkas: statusBerkas,
+    uploadError: uploadError,
+    catatanAdmin: uploadError ? `Berkas gagal diunggah otomatis: ${uploadError}` : "-",
     tglFollowUpWa: "-",
     kodeVoucher: kodeVoucherVal || "-",
     statusVoucher: kodeVoucherVal ? "Pending" : "Tidak Ada",
@@ -485,7 +506,10 @@ function handleRegistrationSuccess(data) {
   const btnWhatsApp = document.getElementById("btnWhatsApp");
   if (btnWhatsApp) {
     const nomorAdmin = "628823212784";
-    const pesan = `Halo Panitia SPMB, saya telah mengisi formulir pendaftaran online.\n\n*Nama Lengkap:* ${data.namaLengkap}\n*No. Pendaftaran:* ${data.noPendaftaran}\n*Jurusan:* ${data.jurusan1 || "-"}\n\nBerikut saya kirimkan konfirmasi pendaftaran saya. Mohon verifikasi selanjutnya. Terima kasih.`;
+    const catatanBerkas = data.uploadError
+      ? `\n\nBerkas *${data.namaBerkas}* gagal terunggah di website, jadi saya lampirkan lewat chat ini.`
+      : "";
+    const pesan = `Halo Panitia SPMB, saya telah mengisi formulir pendaftaran online.\n\n*Nama Lengkap:* ${data.namaLengkap}\n*No. Pendaftaran:* ${data.noPendaftaran}\n*Jurusan:* ${data.jurusan1 || "-"}${catatanBerkas}\n\nBerikut saya kirimkan konfirmasi pendaftaran saya. Mohon verifikasi selanjutnya. Terima kasih.`;
     const whatsappUrl = `https://wa.me/${nomorAdmin}?text=${encodeURIComponent(pesan)}`;
 
     const newBtnWA = btnWhatsApp.cloneNode(true);
@@ -564,99 +588,104 @@ function formatTanggalIndonesia(tanggalString) {
   return `${bagian[2]}-${bagian[1]}-${bagian[0]}`; // Menjadi DD-MM-YYYY
 }
 
+// fetch() tidak melempar error untuk status HTTP 4xx/5xx, jadi status dicek manual.
+// Error sementara (429 / 5xx) dicoba ulang dengan jeda bertahap.
+async function postToSheet(config, sheetName, body) {
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    let res;
+    try {
+      res = await fetch(`https://api.sheetson.com/v2/sheets/${sheetName}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${config.apiKey}`,
+          "X-Spreadsheet-Id": config.spreadsheetId,
+        },
+        body: JSON.stringify(body),
+      });
+    } catch (networkError) {
+      if (attempt === maxAttempts) {
+        throw new Error(`Gagal terhubung ke server saat menyimpan ${sheetName}`);
+      }
+      await wait(1000 * attempt);
+      continue;
+    }
+
+    if (res.ok) return res;
+
+    const retryable = res.status === 429 || res.status >= 500;
+    if (!retryable || attempt === maxAttempts) {
+      throw new Error(`Server menolak penyimpanan ${sheetName} (HTTP ${res.status})`);
+    }
+    await wait(1000 * attempt);
+  }
+}
+
 /* --- KIRIM DATA KE SHEETSON --- */
 async function sendDataToSheetson(config, data) {
-  var tanggalSimpan = formatTanggalIndonesia(data.lahir);
+  var tanggalSimpan = formatTanggalIndonesia(data.tanggalLahir);
 
+  // Verifikasi_Berkas dipakai untuk cek NISN dobel, jadi ditulis PALING AKHIR,
+  // setelah sheet lain sukses. Bila ada yang gagal, siswa masih bisa mengirim ulang
+  // tanpa terblokir pesan "NISN sudah terdaftar".
   await Promise.all([
-    fetch(`https://api.sheetson.com/v2/sheets/Data_Pendaftar`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${config.apiKey}`,
-        "X-Spreadsheet-Id": config.spreadsheetId,
-      },
-      body: JSON.stringify({
-        noPendaftaran: data.noPendaftaran,
-        createdAt: data.createdAt,
-        namaLengkap: data.namaLengkap,
-        jenisKelamin: data.jenisKelamin,
-        nisn: data.nisn,
-        tempatLahir: data.tempatLahir,
-        tanggalLahir: tanggalSimpan,
-        agama: data.agama,
-        whatsapp: data.whatsapp,
-        alamat: data.alamat,
-        asalSekolah: data.asalSekolah,
-        namaOrtu: data.namaOrtu,
-        waOrtu: data.waOrtu,
-        jurusan1: data.jurusan1,
-        jurusan2: data.jurusan2,
-      }),
+    postToSheet(config, "Data_Pendaftar", {
+      noPendaftaran: data.noPendaftaran,
+      createdAt: data.createdAt,
+      namaLengkap: data.namaLengkap,
+      jenisKelamin: data.jenisKelamin,
+      nisn: data.nisn,
+      tempatLahir: data.tempatLahir,
+      tanggalLahir: tanggalSimpan,
+      agama: data.agama,
+      whatsapp: data.whatsapp,
+      alamat: data.alamat,
+      asalSekolah: data.asalSekolah,
+      namaOrtu: data.namaOrtu,
+      waOrtu: data.waOrtu,
+      jurusan1: data.jurusan1,
+      jurusan2: data.jurusan2,
     }),
 
-    fetch(`https://api.sheetson.com/v2/sheets/Verifikasi_Berkas`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${config.apiKey}`,
-        "X-Spreadsheet-Id": config.spreadsheetId,
-      },
-      body: JSON.stringify({
-        noPendaftaran:     data.noPendaftaran,
-        namaLengkap:       data.namaLengkap,
-        nisn:              data.nisn,
-        jurusan1:          data.jurusan1,
-        jurusan2:          data.jurusan2,
-        namaBerkas:        data.namaBerkas,
-        urlBerkas:         data.urlBerkas,
-        statusBerkas:      data.statusBerkas,
-        catatanAdmin:      data.catatanAdmin,
-        waOrtu:            data.waOrtu,
-        tglFollowUpWa:     data.tglFollowUpWa,
-        statusPendaftaran: data.statusPendaftaran,
-      }),
+    postToSheet(config, "Keuangan_Voucher", {
+      noPendaftaran:     data.noPendaftaran,
+      namaLengkap:       data.namaLengkap,
+      kodeVoucher:       data.kodeVoucher,
+      statusVoucher:     data.statusVoucher,
+      potonganBiaya:     data.potonganBiaya,
+      statusBiayaDaftar: data.statusBiayaDaftar,
+      metodePembayaran:  data.metodePembayaran,
+      catatanBendahara:  data.catatanBendahara,
     }),
 
-    fetch(`https://api.sheetson.com/v2/sheets/Keuangan_Voucher`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${config.apiKey}`,
-        "X-Spreadsheet-Id": config.spreadsheetId,
-      },
-      body: JSON.stringify({
-        noPendaftaran:    data.noPendaftaran,
-        namaLengkap:      data.namaLengkap,
-        kodeVoucher:      data.kodeVoucher,
-        statusVoucher:    data.statusVoucher,
-        potonganBiaya:    data.potonganBiaya,
-        statusBiayaDaftar: data.statusBiayaDaftar,
-        metodePembayaran: data.metodePembayaran,
-        catatanBendahara: data.catatanBendahara,
-      }),
-    }),
-
-    fetch(`https://api.sheetson.com/v2/sheets/Tes_Fisik_Seragam`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${config.apiKey}`,
-        "X-Spreadsheet-Id": config.spreadsheetId,
-      },
-      body: JSON.stringify({
-        noPendaftaran:  data.noPendaftaran,
-        namaLengkap:    data.namaLengkap,
-        tinggiBadan:    data.tinggiBadan,
-        beratBadan:     data.beratBadan,
-        tatoTindik:     data.tatoTindik,
-        catatanTesFisik: data.catatanTesFisik,
-        statusTesFisik: data.statusTesFisik,
-        ukuranSeragam:  data.ukuranSeragam,
-        tglUkurSeragam: data.tglUkurSeragam,
-      }),
+    postToSheet(config, "Tes_Fisik_Seragam", {
+      noPendaftaran:   data.noPendaftaran,
+      namaLengkap:     data.namaLengkap,
+      tinggiBadan:     data.tinggiBadan,
+      beratBadan:      data.beratBadan,
+      tatoTindik:      data.tatoTindik,
+      catatanTesFisik: data.catatanTesFisik,
+      statusTesFisik:  data.statusTesFisik,
+      ukuranSeragam:   data.ukuranSeragam,
+      tglUkurSeragam:  data.tglUkurSeragam,
     }),
   ]);
+
+  await postToSheet(config, "Verifikasi_Berkas", {
+    noPendaftaran:     data.noPendaftaran,
+    namaLengkap:       data.namaLengkap,
+    nisn:              data.nisn,
+    jurusan1:          data.jurusan1,
+    jurusan2:          data.jurusan2,
+    namaBerkas:        data.namaBerkas,
+    urlBerkas:         data.urlBerkas,
+    statusBerkas:      data.statusBerkas,
+    catatanAdmin:      data.catatanAdmin,
+    waOrtu:            data.waOrtu,
+    tglFollowUpWa:     data.tglFollowUpWa,
+    statusPendaftaran: data.statusPendaftaran,
+  });
 }
 
 /* --- GENERATE PDF --- */
