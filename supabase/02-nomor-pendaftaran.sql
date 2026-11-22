@@ -1,11 +1,10 @@
 -- ============================================================
 -- Nomor pendaftaran berkode jurusan & dijamin tidak pernah sama
 --
---   DKV  → SPMB-2026-000 … 099
---   RPL  → SPMB-2026-100 … 199
---   TKR  → SPMB-2026-200 … 299
---   TSM  → SPMB-2026-300 … 399
---   TITL → SPMB-2026-400 … 499
+--   SPMB-2026-DKV-001   SPMB-2026-RPL-001   SPMB-2026-TITL-001
+--   SPMB-2026-TKR-001   SPMB-2026-TSM-001
+--
+--   Tiap jurusan urut mulai 001, kapasitas 999 pendaftar per jurusan.
 --
 -- Cara kerja:
 --  * Tiap jurusan punya penghitung sendiri per tahun. Baris penghitung dikunci
@@ -14,7 +13,7 @@
 --  * Kolom "nomor" UNIK: database menolak nomor kembar.
 --  * Satu akun siswa = satu nomor. Kirim ulang setelah gagal di tengah jalan
 --    (jurusan sama) mendapat nomor yang sama.
---  * Bila 100 nomor satu jurusan habis, pendaftar diberi pesan "kuota penuh".
+--  * Bila 999 nomor satu jurusan habis, pendaftar diberi pesan "kuota penuh".
 --
 -- Pengaman nomor dobel (bila penghitung pernah kembali ke awal sementara
 -- data lama masih ada di Google Sheets):
@@ -49,7 +48,7 @@ create table if not exists public.nomor_pendaftaran (
 alter table public.nomor_pendaftaran add column if not exists jurusan text;
 alter table public.nomor_pendaftaran enable row level security;
 
--- Bagian bersama: ambil nomor berikutnya di blok jurusan, melompati nomor
+-- Bagian bersama: ambil nomor berikutnya di jurusan itu, melompati nomor
 -- yang sudah tercatat di database atau ada di daftar p_terpakai.
 create or replace function public._nomor_berikut(p_jurusan text, p_terpakai text[] default '{}')
 returns text
@@ -59,15 +58,11 @@ set search_path = public
 as $$
 declare
   v_jurusan text := upper(trim(coalesce(p_jurusan, '')));
-  v_blok    int;
   v_tahun   text := to_char(now() at time zone 'Asia/Jakarta', 'YYYY');
   v_urut    int;
   v_nomor   text;
 begin
-  v_blok := case v_jurusan
-    when 'DKV' then 0 when 'RPL' then 1 when 'TKR' then 2 when 'TSM' then 3 when 'TITL' then 4
-  end;
-  if v_blok is null then
+  if v_jurusan not in ('DKV', 'RPL', 'TITL', 'TKR', 'TSM') then
     raise exception 'Jurusan tidak dikenal: %', p_jurusan;
   end if;
 
@@ -79,13 +74,13 @@ begin
     update public.penghitung_nomor
        set berikut = berikut + 1
      where tahun = v_tahun and jurusan = v_jurusan
-    returning berikut - 1 into v_urut;
+    returning berikut into v_urut;          -- nomor pertama = 001
 
-    if v_urut > 99 then
+    if v_urut > 999 then
       raise exception 'PENUH: kuota nomor % habis', v_jurusan;
     end if;
 
-    v_nomor := 'SPMB-' || v_tahun || '-' || lpad((v_blok * 100 + v_urut)::text, 3, '0');
+    v_nomor := 'SPMB-' || v_tahun || '-' || v_jurusan || '-' || lpad(v_urut::text, 3, '0');
     exit when not (v_nomor = any (coalesce(p_terpakai, '{}')))
           and not exists (select 1 from public.nomor_pendaftaran where nomor = v_nomor);
   end loop;
@@ -115,10 +110,11 @@ begin
   select nomor, jurusan into v_lama_nomor, v_lama_jurusan
   from public.nomor_pendaftaran where user_id = auth.uid();
   if v_lama_nomor is not null then
-    if v_lama_jurusan = v_jurusan and v_lama_nomor is distinct from p_lewati then
+    if v_lama_jurusan = v_jurusan and v_lama_nomor is distinct from p_lewati
+       and v_lama_nomor ~ ('^SPMB-[0-9]{4}-' || v_jurusan || '-[0-9]{3}$') then
       return v_lama_nomor;
     end if;
-    -- ganti jurusan, atau nomornya ternyata sudah dipakai orang lain di sheet
+    -- ganti jurusan, nomor format lama, atau nomornya ternyata sudah dipakai orang lain di sheet
     delete from public.nomor_pendaftaran where user_id = auth.uid();
   end if;
 
@@ -169,6 +165,6 @@ revoke all on function public.ganti_no_pendaftaran(text, text, text[]) from publ
 grant execute on function public.ganti_no_pendaftaran(text, text, text[]) to authenticated;
 
 -- Cek sisa kuota tiap jurusan:
--- select jurusan, berikut as terpakai, 100 - berikut as sisa from public.penghitung_nomor order by jurusan;
+-- select jurusan, berikut as terpakai, 999 - berikut as sisa from public.penghitung_nomor order by jurusan;
 -- Daftar nomor yang sudah dibagikan:
 -- select nomor, jurusan, dibuat from public.nomor_pendaftaran order by nomor;

@@ -65,20 +65,27 @@ test("pageNumbers: banyak halaman → awal, sekitar, akhir dengan …", () => {
 
 /* ---------- nomor pendaftaran ---------- */
 
-test("BLOK_JURUSAN: DKV 0–99, RPL 100–199, TKR 200–299, TSM 300–399, TITL 400–499", () => {
-  assert.deepEqual({ ...vm.runInContext("BLOK_JURUSAN", dctx) }, { DKV: 0, RPL: 1, TKR: 2, TSM: 3, TITL: 4 });
+test("nomorSah: SPMB-tahun-KODEJURUSAN-001, kode harus jurusan yang dipilih", () => {
+  assert.equal(dctx.nomorSah("SPMB-2026-DKV-001", "DKV"), true);
+  assert.equal(dctx.nomorSah("SPMB-2026-TITL-999", "TITL"), true);
+  assert.equal(dctx.nomorSah("SPMB-2026-RPL-001", "DKV"), false, "jurusan lain");
+  assert.equal(dctx.nomorSah("SPMB-2026-100", "RPL"), false, "format lama");
+  assert.equal(dctx.nomorSah("SPMB-2026-DKV-1", "DKV"), false, "harus 3 angka");
+  assert.equal(dctx.nomorSah(null, "DKV"), false);
 });
 
 test("ambilNomorPendaftaran: meminta nomor jurusan yang dipilih ke database", async () => {
   let args;
-  const client = { rpc: async (name, a) => (assert.equal(name, "ambil_no_pendaftaran"), (args = a), { data: "SPMB-2026-107", error: null }) };
-  assert.equal(await dctx.ambilNomorPendaftaran(client, "RPL"), "SPMB-2026-107");
+  const client = { rpc: async (name, a) => (assert.equal(name, "ambil_no_pendaftaran"), (args = a), { data: "SPMB-2026-RPL-007", error: null }) };
+  assert.equal(await dctx.ambilNomorPendaftaran(client, "RPL"), "SPMB-2026-RPL-007");
   assert.deepEqual({ ...args }, { p_jurusan: "RPL" });
 });
 
-test("ambilNomorPendaftaran: nomor dari blok jurusan lain tidak diterima", async () => {
-  const client = { rpc: async () => ({ data: "SPMB-2026-205", error: null }) };
-  assert.match(await dctx.ambilNomorPendaftaran(client, "RPL"), /^SPMB-2026-1[0-9A-Z]{9,}$/);
+test("ambilNomorPendaftaran: nomor jurusan lain / format lama tidak diterima", async () => {
+  const client = { rpc: async () => ({ data: "SPMB-2026-TKR-005", error: null }) };
+  assert.match(await dctx.ambilNomorPendaftaran(client, "RPL"), /^SPMB-2026-RPL-[0-9A-Z]{9,}$/);
+  const lama = { rpc: async () => ({ data: "SPMB-2026-105", error: null }) };
+  assert.match(await dctx.ambilNomorPendaftaran(lama, "RPL"), /^SPMB-2026-RPL-[0-9A-Z]{9,}$/);
 });
 
 test("ambilNomorPendaftaran: kuota jurusan penuh → pesan untuk pendaftar", async () => {
@@ -92,8 +99,8 @@ test("ambilNomorPendaftaran: kuota jurusan penuh → pesan untuk pendaftar", asy
 test("ambilNomorPendaftaran: database belum siap → nomor cadangan berawalan kode jurusan dan tetap unik", async () => {
   const client = { rpc: async () => ({ data: null, error: { message: "function not found" } }) };
   const at = new Date("2026-11-22T08:22:27.901Z");
-  assert.match(await dctx.ambilNomorPendaftaran(client, "TITL", at), /^SPMB-2026-4[0-9A-Z]{9,}$/);
-  assert.match(await dctx.ambilNomorPendaftaran(client, "DKV", at), /^SPMB-2026-0[0-9A-Z]{9,}$/);
+  assert.match(await dctx.ambilNomorPendaftaran(client, "TITL", at), /^SPMB-2026-TITL-[0-9A-Z]{9,}$/);
+  assert.match(await dctx.ambilNomorPendaftaran(client, "DKV", at), /^SPMB-2026-DKV-[0-9A-Z]{9,}$/);
   const banyak = new Set();
   for (let i = 0; i < 500; i++) banyak.add(dctx.nomorCadangan("TKR", at));
   assert.equal(banyak.size, 500, "nomor cadangan pada milidetik yang sama pun tidak boleh sama");
@@ -101,7 +108,7 @@ test("ambilNomorPendaftaran: database belum siap → nomor cadangan berawalan ko
 
 test("ambilNomorPendaftaran: balasan database aneh tidak dipakai", async () => {
   const client = { rpc: async () => ({ data: "<b>x</b>", error: null }) };
-  assert.match(await dctx.ambilNomorPendaftaran(client, "TSM"), /^SPMB-\d{4}-3[0-9A-Z]+$/);
+  assert.match(await dctx.ambilNomorPendaftaran(client, "TSM"), /^SPMB-\d{4}-TSM-[0-9A-Z]{9,}$/);
 });
 
 /* ---------- bukti PDF ---------- */
@@ -142,26 +149,26 @@ test("ambilNomorPendaftaran: nomor sudah dipakai NISN lain di sheet → minta no
   const client = {
     rpc: async (name, a) => {
       panggilan.push({ ...a });
-      return { data: a.p_lewati ? "SPMB-2026-101" : "SPMB-2026-100", error: null };
+      return { data: a.p_lewati ? "SPMB-2026-RPL-002" : "SPMB-2026-RPL-001", error: null };
     },
   };
-  const dipakai = async (no) => no === "SPMB-2026-100";
-  assert.equal(await dctx.ambilNomorPendaftaran(client, "RPL", new Date(), dipakai), "SPMB-2026-101");
-  assert.deepEqual(panggilan, [{ p_jurusan: "RPL" }, { p_jurusan: "RPL", p_lewati: "SPMB-2026-100" }]);
+  const dipakai = async (no) => no === "SPMB-2026-RPL-001";
+  assert.equal(await dctx.ambilNomorPendaftaran(client, "RPL", new Date(), dipakai), "SPMB-2026-RPL-002");
+  assert.deepEqual(panggilan, [{ p_jurusan: "RPL" }, { p_jurusan: "RPL", p_lewati: "SPMB-2026-RPL-001" }]);
 });
 
 test("ambilNomorPendaftaran: selalu bentrok → berhenti setelah 5x dan memakai nomor cadangan unik", async () => {
   let n = 0;
-  const client = { rpc: async () => ({ data: `SPMB-2026-1${String(n++).padStart(2, "0")}`, error: null }) };
+  const client = { rpc: async () => ({ data: `SPMB-2026-RPL-${String(++n).padStart(3, "0")}`, error: null }) };
   const hasil = await dctx.ambilNomorPendaftaran(client, "RPL", new Date(), async () => true);
   assert.equal(n, 5);
-  assert.match(hasil, /^SPMB-\d{4}-1[0-9A-Z]{9,}$/);
+  assert.match(hasil, /^SPMB-\d{4}-RPL-[0-9A-Z]{9,}$/);
 });
 
 test("ambilNomorPendaftaran: pemeriksaan sheet gagal (internet) → nomor tetap dipakai, pendaftaran jalan", async () => {
-  const client = { rpc: async () => ({ data: "SPMB-2026-007", error: null }) };
+  const client = { rpc: async () => ({ data: "SPMB-2026-DKV-007", error: null }) };
   const gagal = async () => { throw new Error("network"); };
-  assert.equal(await dctx.ambilNomorPendaftaran(client, "DKV", new Date(), gagal), "SPMB-2026-007");
+  assert.equal(await dctx.ambilNomorPendaftaran(client, "DKV", new Date(), gagal), "SPMB-2026-DKV-007");
 });
 
 test("nomorDipakaiOrangLain: nomor sama milik NISN lain = bentrok; milik NISN sendiri (kirim ulang) = aman", () => {

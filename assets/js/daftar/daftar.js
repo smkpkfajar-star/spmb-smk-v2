@@ -589,16 +589,20 @@ function waktuWIB(date) {
   return new Date(date.getTime() + 7 * 3600 * 1000).toISOString().slice(0, 19).replace("T", " ");
 }
 
-// Kode jurusan = angka pertama nomor urut (blok 100 nomor per jurusan):
-// DKV 000–099, RPL 100–199, TKR 200–299, TSM 300–399, TITL 400–499.
-const BLOK_JURUSAN = { DKV: 0, RPL: 1, TKR: 2, TSM: 3, TITL: 4 };
-const POLA_NOMOR = /^SPMB-\d{4}-\d{3}$/;
+// Nomor pendaftaran memuat kode jurusan, urut mulai 001 di tiap jurusan:
+// SPMB-2026-DKV-001, SPMB-2026-RPL-001, SPMB-2026-TITL-001, SPMB-2026-TKR-001, SPMB-2026-TSM-001.
+const KODE_JURUSAN = ["DKV", "RPL", "TITL", "TKR", "TSM"];
+const POLA_NOMOR = /^SPMB-\d{4}-(DKV|RPL|TITL|TKR|TSM)-\d{3}$/;
+function nomorSah(nomor, jurusan) {
+  return typeof nomor === "string" && POLA_NOMOR.test(nomor) && nomor.split("-")[2] === jurusan;
+}
 
 // Cadangan bila database belum siap: kode jurusan + waktu (milidetik) + 6 karakter acak.
+// Bentuknya jelas beda dari nomor urut (lebih dari 3 karakter, ada huruf).
 function nomorCadangan(jurusan, date) {
   const acak = Array.from({ length: 6 }, () => "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 36)]).join("");
-  const kode = BLOK_JURUSAN[jurusan] ?? 9;
-  return `SPMB-${waktuWIB(date).slice(0, 4)}-${kode}${date.getTime().toString(36).toUpperCase()}${acak}`;
+  const kode = KODE_JURUSAN.includes(jurusan) ? jurusan : "X";
+  return `SPMB-${waktuWIB(date).slice(0, 4)}-${kode}-${date.getTime().toString(36).toUpperCase()}${acak}`;
 }
 
 // Nomor urut per jurusan dari database Supabase. Database menjamin tidak ada nomor
@@ -625,8 +629,7 @@ async function ambilNomorPendaftaran(client, jurusan, now = new Date(), sudahDip
           "Silakan pilih jurusan lain, atau hubungi panitia lewat WhatsApp."
       );
     }
-    const blokCocok = typeof data === "string" && POLA_NOMOR.test(data) && Number(data.slice(-3, -2)) === BLOK_JURUSAN[jurusan];
-    if (error || !blokCocok) {
+    if (error || !nomorSah(data, jurusan)) {
       console.warn("Nomor urut database belum tersedia, memakai nomor cadangan:", (error && error.message) || data);
       break;
     }
