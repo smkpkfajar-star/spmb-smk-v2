@@ -9,16 +9,8 @@ const ICON_CHECK_SVG =
 const SUBMIT_LABEL = "Kirim Formulir Pendaftaran";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const SHEETSON_CONFIG = {
-    apiKey: "oGKHOLLKHVzlDAWCpD2zHUWGSj3G4o8l2vajRqzpBW6e3Ha1SgJWLRxwAPk",
-    spreadsheetId: "1vFCAMSse_I294GIaqVRKNP4L-Zpw8pr1EHgzJqxdYUs",
-  };
-
-  const SUPABASE_CONFIG = {
-    url: "https://zfnkjntxxvckkgmqmfex.supabase.co",
-    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmbmtqbnR4eHZja2tnbXFtZmV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzMzA1MTYsImV4cCI6MjEwNzkwNjUxNn0.lFaxG4TfrRbTPpgi3HxKnPPp9rxbUmusoIMidT3TSN4",
-    bucketName: "berkas-spmb",
-  };
+  const SHEETSON_CONFIG = window.APP_CONFIG.sheetson;
+  const SUPABASE_CONFIG = window.APP_CONFIG.supabase;
 
   window.lastRegisteredData = null;
 
@@ -571,7 +563,7 @@ function setButtonLoading(btn, isLoading, htmlContent) {
 
 /* --- AKUN SISWA (Supabase Auth) --- */
 // Login siswa memakai NISN; alamat ini hanya pengenal, tidak pernah dikirimi email.
-const STUDENT_EMAIL_DOMAIN = "siswa.spmb.local";
+const STUDENT_EMAIL_DOMAIN = window.APP_CONFIG.emailDomain.siswa;
 
 function studentEmail(nisn) {
   return `${nisn}@${STUDENT_EMAIL_DOMAIN}`;
