@@ -61,7 +61,7 @@ for (const dir of ["admin", "siswa"]) {
     const name = `${dir}/${file}`;
     const html = read(name);
     if (/http-equiv="refresh"/.test(html)) continue; // halaman pengalih
-    if (/font-awesome|class="[^"]*fa-/.test(html)) problems.push(`${name}: masih memakai Font Awesome`);
+    if (/font-awesome|class="[^"]*\bfa-/.test(html)) problems.push(`${name}: masih memakai Font Awesome`);
     if (!/<meta name="robots" content="noindex"/.test(html)) problems.push(`${name}: tambahkan meta robots noindex`);
     const cdn = html.indexOf("cdn.tailwindcss.com"), cfg = html.indexOf("../assets/js/umum/tailwind-config.js");
     if (cdn < 0 || cfg < cdn) problems.push(`${name}: tailwind-config.js harus dimuat sesudah cdn.tailwindcss.com`);
@@ -83,6 +83,21 @@ for (const name of waFiles) {
     if (m[1] !== WA_PANITIA) problems.push(`${name}: nomor WhatsApp ${m[1]} berbeda dari nomor panitia ${WA_PANITIA}`);
   }
 }
+
+// Urutan jurusan di mana pun: DKV, RPL, TITL, TKR, TSM
+const URUTAN_JURUSAN = "DKV,RPL,TITL,TKR,TSM";
+const urutan = (teks, re) => [...new Set([...teks.matchAll(re)].map((m) => m[1]))].join(",");
+const cekUrutan = (nama, teks, re) => {
+  const u = urutan(teks, re);
+  if (u !== URUTAN_JURUSAN) problems.push(`${nama}: urutan jurusan ${u}, seharusnya ${URUTAN_JURUSAN}`);
+};
+cekUrutan("index.html (tab jurusan)", pages["index.html"], /data-jurusan="([A-Z]+)"/g);
+cekUrutan("index.html (deskripsi)", pages["index.html"].match(/<meta\s+name="description"[\s\S]*?>/)[0], /\b(DKV|RPL|TITL|TKR|TSM)\b/g);
+cekUrutan("daftar/index.html (jurusan utama)", pages["daftar/index.html"], /data-for="jurusan1" data-value="([A-Z]+)"/g);
+cekUrutan("daftar/index.html (jurusan cadangan)", pages["daftar/index.html"], /data-for="jurusan2" data-value="([A-Z]+)"/g);
+cekUrutan("daftar/index.html (pilihan jurusan1)", pages["daftar/index.html"].split('id="jurusan1"')[1].split("</select>")[0], /value="([A-Z]+)"/g);
+cekUrutan("daftar/index.html (pilihan jurusan2)", pages["daftar/index.html"].split('id="jurusan2"')[1].split("</select>")[0], /value="([A-Z]+)"/g);
+cekUrutan("admin/ui.js (URUTAN_JURUSAN)", read("assets/js/admin/ui.js").match(/const URUTAN_JURUSAN = [^\n]*/)[0], /"(DKV|RPL|TITL|TKR|TSM)"/g);
 
 // Setiap script/stylesheet lokal yang dimuat halaman harus benar-benar ada
 const semuaHalaman = ["index.html"];

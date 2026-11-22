@@ -9,7 +9,7 @@ vm.runInContext(readFileSync(new URL("../assets/js/beranda/jurusan.js", import.m
 const { JURUSAN, daftarUrl, findJurusan, typeSteps } = ctx.window.Jurusan;
 
 test("kelima jurusan lengkap", () => {
-  assert.deepEqual([...JURUSAN.map((j) => j.id)], ["TKR", "TSM", "TITL", "RPL", "DKV"]);
+  assert.deepEqual([...JURUSAN.map((j) => j.id)], ["DKV", "RPL", "TITL", "TKR", "TSM"]);
   for (const j of JURUSAN) {
     assert.ok(j.nama && j.ringkas && j.deskripsi, j.id);
     assert.ok(j.belajar.length >= 3, j.id + " belajar");

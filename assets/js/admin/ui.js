@@ -130,8 +130,10 @@
 
   // Saringan tambahan (dropdown). def = { id, label, get(row) → teks, options?: [urutan tetap] }
   const isi = (v, kosong) => (v != null && String(v).trim() !== "" && String(v).trim() !== "-" ? String(v).trim() : kosong);
+  // Urutan jurusan di seluruh situs
+  const URUTAN_JURUSAN = ["DKV", "RPL", "TITL", "TKR", "TSM"];
   const SARING_UMUM = [
-    { id: "jurusan", label: "Jurusan", get: (r) => isi(r.jurusan1, isi(r._jurusan, "Belum diisi")), options: ["DKV", "RPL", "TKR", "TSM", "TITL"] },
+    { id: "jurusan", label: "Jurusan", get: (r) => isi(r.jurusan1, isi(r._jurusan, "Belum diisi")), options: URUTAN_JURUSAN },
     { id: "jk", label: "Jenis kelamin", get: (r) => isi(r._jk, "Belum diisi") },
     { id: "asal", label: "Asal sekolah", get: (r) => isi(r._asal, "Belum diisi") },
   ];
@@ -152,7 +154,7 @@
     return aktif.length ? rows.filter((r) => aktif.every((d) => d.get(r) === pilihan[d.id])) : rows;
   }
 
-  root.AdminUI = { SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
+  root.AdminUI = { URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
   if (typeof document === "undefined") return;
 
   /* ---------- tampilan ---------- */

@@ -332,13 +332,15 @@
         const card = (title, items) =>
           `<div class="rounded-lg border border-hairline bg-white p-5"><h3 class="text-[13px] text-ink-500">${esc(title)}</h3>
            <ul class="mt-2 space-y-1">${items.map(([k, v]) => `<li class="flex justify-between gap-3 text-[15px]"><span>${esc(k)}</span><b>${esc(v)}</b></li>`).join("")}</ul></div>`;
-        const countBy = (rows, field, fallback) => {
-          const m = new Map();
+        // urutan: daftar tetap bila diberikan (jurusan selalu tampil semua), selain itu terbanyak dulu
+        const countBy = (rows, field, fallback, urutan) => {
+          const m = new Map((urutan || []).map((k) => [k, 0]));
           rows.forEach((r) => {
             const k = r[field] && r[field] !== "-" ? r[field] : fallback;
             m.set(k, (m.get(k) || 0) + 1);
           });
-          return [...m.entries()].sort((a, b) => b[1] - a[1]);
+          const e = [...m.entries()];
+          return urutan ? e : e.sort((a, b) => b[1] - a[1]);
         };
         async function loadRekap(fresh) {
           const el = document.getElementById("rekap");
@@ -348,7 +350,7 @@
             document.body.classList.remove("is-loading");
             el.innerHTML =
               `<div class="rounded-lg border border-hairline bg-white p-5"><h3 class="text-[13px] text-ink-500">Total pendaftar</h3><p class="mt-1 text-[40px] font-semibold leading-none tracking-tight tabular-nums">${daftar.length}</p></div>` +
-              card("Per jurusan (pilihan 1)", countBy(daftar, "jurusan1", "-")) +
+              card("Per jurusan (pilihan 1)", countBy(daftar, "jurusan1", "-", AdminUI.URUTAN_JURUSAN)) +
               card("Status pendaftaran", countBy(verif, "statusPendaftaran", "Pending")) +
               card("Pembayaran", countBy(uang, "statusBiayaDaftar", "Belum Bayar"));
           } catch (e) {

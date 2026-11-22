@@ -927,11 +927,11 @@ window.triggerDownloadPDF = function () {
 };
 
 const NAMA_JURUSAN = {
+  DKV: "Desain Komunikasi Visual (DKV)",
+  RPL: "Rekayasa Perangkat Lunak (RPL)",
+  TITL: "Teknik Instalasi Tenaga Listrik (TITL)",
   TKR: "Teknik Kendaraan Ringan (TKR)",
   TSM: "Teknik Sepeda Motor (TSM)",
-  TITL: "Teknik Instalasi Tenaga Listrik (TITL)",
-  RPL: "Rekayasa Perangkat Lunak (RPL)",
-  DKV: "Desain Komunikasi Visual (DKV)",
 };
 
 // Isi bukti pendaftaran (tanpa jsPDF, agar bisa dites)

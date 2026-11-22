@@ -9,6 +9,36 @@
 (function (root) {
   const JURUSAN = Object.freeze([
     {
+      id: "DKV",
+      nama: "Desain Komunikasi Visual",
+      dot: "#0369A1",
+      ringkas: "Branding, ilustrasi, foto, dan video.",
+      deskripsi:
+        "Branding, ilustrasi digital, fotografi, videografi, dan motion graphic dengan standar industri kreatif.",
+      belajar: ["Desain grafis & branding", "Ilustrasi digital", "Fotografi & videografi", "Motion graphic"],
+      prospek: ["Desainer grafis", "Content creator", "Fotografer/videografer", "Ilustrator lepas"],
+    },
+    {
+      id: "RPL",
+      nama: "Rekayasa Perangkat Lunak",
+      dot: "#16523A",
+      ringkas: "Web, mobile, basis data, dan deploy.",
+      deskripsi:
+        "Pengembangan aplikasi web & mobile modern, basis data, hingga deploy ke server — dikerjakan seperti tim developer sungguhan.",
+      belajar: ["Pemrograman web & mobile", "Basis data & backend API", "Git & kerja tim", "Desain antarmuka (UI/UX)"],
+      prospek: ["Web/mobile developer", "Programmer", "Tester / QA", "Freelancer & startup"],
+    },
+    {
+      id: "TITL",
+      nama: "Teknik Instalasi Tenaga Listrik",
+      dot: "#F2B53A",
+      ringkas: "Instalasi bangunan, panel, dan energi terbarukan.",
+      deskripsi:
+        "Instalasi listrik bangunan, panel dan kontrol motor industri, serta dasar sistem energi terbarukan.",
+      belajar: ["Instalasi listrik bangunan", "Panel & kontrol motor listrik", "Gambar teknik listrik", "Dasar panel surya"],
+      prospek: ["Teknisi instalasi listrik", "Teknisi panel industri", "Teknisi perawatan gedung", "Instalatir mandiri"],
+    },
+    {
       id: "TKR",
       nama: "Teknik Kendaraan Ringan",
       dot: "#171717",
@@ -27,36 +57,6 @@
         "Servis mesin injeksi, perbaikan motor matic/manual, serta pengenalan konversi dan perawatan motor listrik.",
       belajar: ["Servis mesin & sistem injeksi", "Perbaikan motor matic/manual", "Kelistrikan sepeda motor", "Dasar motor listrik"],
       prospek: ["Mekanik dealer/bengkel motor", "Teknisi motor listrik", "Quality control perakitan", "Usaha bengkel motor"],
-    },
-    {
-      id: "TITL",
-      nama: "Teknik Instalasi Tenaga Listrik",
-      dot: "#F2B53A",
-      ringkas: "Instalasi bangunan, panel, dan energi terbarukan.",
-      deskripsi:
-        "Instalasi listrik bangunan, panel dan kontrol motor industri, serta dasar sistem energi terbarukan.",
-      belajar: ["Instalasi listrik bangunan", "Panel & kontrol motor listrik", "Gambar teknik listrik", "Dasar panel surya"],
-      prospek: ["Teknisi instalasi listrik", "Teknisi panel industri", "Teknisi perawatan gedung", "Instalatir mandiri"],
-    },
-    {
-      id: "RPL",
-      nama: "Rekayasa Perangkat Lunak",
-      dot: "#16523A",
-      ringkas: "Web, mobile, basis data, dan deploy.",
-      deskripsi:
-        "Pengembangan aplikasi web & mobile modern, basis data, hingga deploy ke server — dikerjakan seperti tim developer sungguhan.",
-      belajar: ["Pemrograman web & mobile", "Basis data & backend API", "Git & kerja tim", "Desain antarmuka (UI/UX)"],
-      prospek: ["Web/mobile developer", "Programmer", "Tester / QA", "Freelancer & startup"],
-    },
-    {
-      id: "DKV",
-      nama: "Desain Komunikasi Visual",
-      dot: "#0369A1",
-      ringkas: "Branding, ilustrasi, foto, dan video.",
-      deskripsi:
-        "Branding, ilustrasi digital, fotografi, videografi, dan motion graphic dengan standar industri kreatif.",
-      belajar: ["Desain grafis & branding", "Ilustrasi digital", "Fotografi & videografi", "Motion graphic"],
-      prospek: ["Desainer grafis", "Content creator", "Fotografer/videografer", "Ilustrator lepas"],
     },
   ]);
 
