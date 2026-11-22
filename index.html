@@ -1,1199 +1,328 @@
 <!doctype html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SPMB SMK Tamansiswa Jetis — Penerimaan Murid Baru</title>
     <meta
       name="description"
-      content="Portal Penerimaan Murid Baru (SPMB) SMK Tamansiswa Jetis. Kenali 5 program keahlian, alur pendaftaran, lalu daftar online."
+      content="Pendaftaran murid baru SMK Tamansiswa Jetis 2026/2027. Daftar online langsung dari HP: TKR, TSM, TITL, RPL, DKV."
     />
+    <meta name="theme-color" content="#FAF7F2" />
 
-    <!-- Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- FontAwesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    />
-
-    <!-- Tailwind CDN + Konfigurasi Kustom -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/tailwind-config.js"></script>
 
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/main.js" defer></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- CSS Kustom -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="assets/js/main.js" defer></script>
   </head>
 
-  <body
-    class="bg-slate-900/5 text-slate-800 antialiased selection:bg-brand-500 selection:text-white"
-  >
-    <!-- ======================= NAVBAR (STANDARD NON-FLOATING) ======================= -->
-
-    <!-- ======================= NAVBAR (NON-FLOATING DENGAN JS ASLI) ======================= -->
-    <header
-      id="navbar"
-      class="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-all duration-300"
-    >
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div
-          id="navInner"
-          class="flex items-center justify-between h-16 md:h-20"
-        >
-          <!-- Logo & Title -->
-          <a
-            href="index.html"
-            class="flex items-center gap-2.5 sm:gap-3 min-w-0 shrink transition-opacity hover:opacity-90"
-          >
-            <div
-              class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-tr from-brand-700 to-brand-500 text-white grid place-items-center font-display font-bold text-sm sm:text-lg shadow-md shadow-brand-500/20 shrink-0"
-            >
-              TN
-            </div>
-            <div class="leading-tight min-w-0">
-              <p
-                class="font-display font-extrabold text-slate-900 text-xs sm:text-sm md:text-base tracking-tight truncate"
-              >
-                SMK Tamansiswa Jetis
-              </p>
-              <p
-                class="text-[10px] sm:text-[11px] font-semibold text-brand-600 truncate"
-              >
-                Portal SPMB 2026/2027
-              </p>
-            </div>
+  <body class="bg-cream text-ink-900 antialiased">
+    <!-- ======================= NAVBAR ======================= -->
+    <header id="navbar" class="sticky top-0 z-50 bg-cream/95 backdrop-blur-sm">
+      <div id="navInner" class="transition-shadow">
+        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+          <a href="index.html" class="flex items-center gap-2.5">
+            <span class="grid h-10 w-10 place-items-center rounded-2xl bg-brand-600 text-sm font-extrabold text-white">TN</span>
+            <span class="leading-tight">
+              <span class="block text-[15px] font-extrabold">SMK Tamansiswa Jetis</span>
+              <span class="block text-xs text-ink-500">Portal SPMB 2026/2027</span>
+            </span>
           </a>
 
-          <!-- Desktop Navigation -->
-          <nav
-            class="hidden lg:flex items-center gap-8 font-semibold text-sm text-slate-600"
-          >
-            <a href="index.html" class="nav-link text-brand-600">Beranda</a>
-            <a
-              href="index.html#jurusan"
-              class="nav-link hover:text-brand-600 transition-colors"
-              >Program Keahlian</a
-            >
-            <a
-              href="index.html#alur"
-              class="nav-link hover:text-brand-600 transition-colors"
-              >Alur Pendaftaran</a
-            >
-            <a
-              href="index.html#faq"
-              class="nav-link hover:text-brand-600 transition-colors"
-              >FAQ</a
-            >
-            <a
-              href="daftar/index.html#cek-status"
-              class="nav-link hover:text-brand-600 transition-colors"
-              >Cek Status</a
-            >
+          <nav class="hidden items-center gap-7 text-[15px] font-semibold text-ink-600 lg:flex" aria-label="Menu utama">
+            <a href="#jurusan" class="hover:text-brand-600">Jurusan</a>
+            <a href="#alur" class="hover:text-brand-600">Cara Daftar</a>
+            <a href="#faq" class="hover:text-brand-600">FAQ</a>
+            <a href="daftar/index.html#cek-status" class="hover:text-brand-600">Cek Status</a>
           </nav>
 
-          <!-- Action Buttons -->
-          <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div class="flex items-center gap-2">
             <a
               href="daftar/index.html"
-              class="hidden sm:inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white text-xs md:text-sm font-bold px-4 py-2 sm:py-2.5 rounded-xl shadow-md shadow-brand-600/20 transition-all duration-200"
+              class="hidden rounded-full bg-brand-600 px-5 py-2.5 text-[15px] font-semibold text-white hover:bg-brand-700 sm:inline-flex"
+              >Daftar</a
             >
-              <span>Daftar Sekarang</span>
-              <i class="fa-solid fa-arrow-right text-xs"></i>
-            </a>
             <button
               id="menuBtn"
+              type="button"
+              class="grid h-11 w-11 place-items-center rounded-full text-ink-900 hover:bg-sand lg:hidden"
               aria-label="Buka menu"
               aria-expanded="false"
-              class="lg:hidden h-9 w-9 sm:h-10 sm:w-10 grid place-items-center rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-colors shrink-0"
+              aria-controls="mobileMenu"
             >
-              <i class="fa-solid fa-bars text-sm sm:text-base"></i>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
             </button>
           </div>
         </div>
-      </div>
 
-      <!-- Mobile Menu Dropdown (Menggunakan animasi class asal agar JS main.js berfungsi normal) -->
-      <div
-        id="mobileMenu"
-        class="lg:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 shadow-xl overflow-hidden origin-top scale-y-0 opacity-0 pointer-events-none transition-all duration-200 ease-out z-50"
-      >
-        <a
-          href="index.html"
-          class="mobile-link block px-6 py-3.5 text-sm font-semibold text-slate-800 border-b border-slate-100 hover:bg-slate-50"
-          >Beranda</a
+        <!-- Menu HP (dibuka/tutup oleh main.js) -->
+        <div
+          id="mobileMenu"
+          class="pointer-events-none absolute inset-x-0 top-full origin-top scale-y-0 opacity-0 transition duration-200 lg:hidden"
         >
-        <a
-          href="index.html#jurusan"
-          class="mobile-link block px-6 py-3.5 text-sm font-semibold text-slate-700 border-b border-slate-100 hover:bg-slate-50"
-          >Program Keahlian</a
-        >
-        <a
-          href="index.html#alur"
-          class="mobile-link block px-6 py-3.5 text-sm font-semibold text-slate-700 border-b border-slate-100 hover:bg-slate-50"
-          >Alur Pendaftaran</a
-        >
-        <a
-          href="index.html#faq"
-          class="mobile-link block px-6 py-3.5 text-sm font-semibold text-slate-700 border-b border-slate-100 hover:bg-slate-50"
-          >FAQ</a
-        >
-        <a
-          href="daftar/index.html#cek-status"
-          class="mobile-link block px-6 py-3.5 text-sm font-semibold text-slate-700 border-b border-slate-100 hover:bg-slate-50"
-          >Cek Status</a
-        >
-        <div class="p-4 bg-slate-50/60">
-          <a
-            href="daftar/index.html"
-            class="mobile-link block px-4 py-3 text-sm font-bold text-center text-white bg-brand-600 hover:bg-brand-700 active:scale-95 rounded-xl transition-all shadow-sm"
-            >Daftar Sekarang</a
-          >
+          <div class="mx-4 mt-1 rounded-3xl bg-white p-3 shadow-soft">
+            <a href="#jurusan" class="mobile-link block rounded-2xl px-4 py-3 text-base font-semibold hover:bg-cream">Jurusan</a>
+            <a href="#alur" class="mobile-link block rounded-2xl px-4 py-3 text-base font-semibold hover:bg-cream">Cara Daftar</a>
+            <a href="#faq" class="mobile-link block rounded-2xl px-4 py-3 text-base font-semibold hover:bg-cream">FAQ</a>
+            <a href="daftar/index.html#cek-status" class="mobile-link block rounded-2xl px-4 py-3 text-base font-semibold hover:bg-cream">Cek Status</a>
+            <a href="daftar/index.html" class="mobile-link mt-2 block rounded-full bg-brand-600 px-4 py-3.5 text-center text-base font-bold text-white">Daftar Sekarang</a>
+          </div>
         </div>
       </div>
     </header>
 
-    <!-- ======================= HERO ======================= -->
-    <section
-      class="relative overflow-hidden bg-slate-950 pt-20 sm:pt-28 pb-16 lg:pt-36 lg:pb-32"
-    >
-      <!-- Ambient Glows (Diringankan ukurannya untuk mobile) -->
-      <div
-        class="absolute inset-0 blueprint-grid opacity-15 pointer-events-none"
-      ></div>
-      <div
-        class="absolute -top-20 -right-20 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-brand-600/15 rounded-full blur-[80px] sm:blur-[130px] pointer-events-none"
-      ></div>
-      <div
-        class="absolute bottom-0 -left-20 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-spark-500/10 rounded-full blur-[70px] sm:blur-[110px] pointer-events-none"
-      ></div>
-
-      <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-          <!-- Hero Left Column -->
-          <div class="lg:col-span-7 text-center lg:text-left">
-            <div
-              class="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-spark-400 text-xs sm:text-sm font-semibold px-3.5 py-1.5 rounded-full mb-5"
-            >
-              <span class="relative flex h-2 w-2">
-                <span
-                  class="animate-ping absolute inline-flex h-full w-full rounded-full bg-spark-400 opacity-75"
-                ></span>
-                <span
-                  class="relative inline-flex rounded-full h-2 w-2 bg-spark-400"
-                ></span>
-              </span>
-              <span>
-                Tahun Ajaran 2026/2027 —
-                <span class="text-white">SPMB Resmi Dibuka</span>
-              </span>
-            </div>
-
-            <h1
-              class="font-display font-extrabold text-white text-3xl sm:text-5xl lg:text-[3.5rem] leading-[1.12] tracking-tight mb-5"
-            >
-              Rakit masa depanmu,<br class="hidden sm:block" />
-              mulai dari
-              <span
-                class="text-transparent bg-clip-text bg-gradient-to-r from-spark-400 via-brand-300 to-white"
-                >bengkel & lab kami.</span
-              >
-            </h1>
-
-            <p
-              class="text-slate-300 text-sm sm:text-lg max-w-2xl mx-auto lg:mx-0 mb-7 leading-relaxed font-normal"
-            >
-              SMK Tamansiswa Jetis menyiapkan lulusan siap kerja dan wirausaha
-              lewat 5 program keahlian unggulan dengan praktik nyata berbasis
-              standar industri.
-            </p>
-
-            <div
-              class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 mb-10"
-            >
-              <a
-                href="daftar/"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-spark-400 hover:bg-spark-300 text-slate-950 font-bold px-7 py-3.5 rounded-xl sm:rounded-2xl shadow-md shadow-spark-400/20 transition-all duration-200"
-              >
-                Daftar Sekarang
-                <i class="fa-solid fa-arrow-right text-xs"></i>
-              </a>
-              <a
-                href="#alur"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 text-white font-semibold px-6 py-3.5 rounded-xl sm:rounded-2xl border border-white/15 bg-white/5 hover:bg-white/10 transition-all duration-200"
-              >
-                <i
-                  class="fa-regular fa-circle-play text-spark-400 text-base"
-                ></i>
-                Lihat Alur Pendaftaran
-              </a>
-            </div>
-
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-3 gap-3 max-w-xl mx-auto lg:mx-0">
-              <div
-                class="bg-slate-900/60 border border-white/10 rounded-2xl p-3 sm:p-4 text-left"
-              >
-                <p
-                  class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-0.5"
-                  data-target="5"
-                  data-suffix=""
-                >
-                  5
-                </p>
-                <p
-                  class="text-slate-400 text-[11px] sm:text-sm font-medium leading-snug"
-                >
-                  Program Keahlian
-                </p>
-              </div>
-              <div
-                class="bg-slate-900/60 border border-white/10 rounded-2xl p-3 sm:p-4 text-left"
-              >
-                <p
-                  class="font-display font-extrabold text-2xl sm:text-3xl text-spark-400 mb-0.5"
-                  data-target="92"
-                  data-suffix="%"
-                >
-                  92%
-                </p>
-                <p
-                  class="text-slate-400 text-[11px] sm:text-sm font-medium leading-snug"
-                >
-                  Terserap Kerja
-                </p>
-              </div>
-              <div
-                class="bg-slate-900/60 border border-white/10 rounded-2xl p-3 sm:p-4 text-left"
-              >
-                <p
-                  class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-0.5"
-                  data-target="40"
-                  data-suffix="+"
-                >
-                  40+
-                </p>
-                <p
-                  class="text-slate-400 text-[11px] sm:text-sm font-medium leading-snug"
-                >
-                  Mitra DUDI
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Hero Right Column (Schedule Card) -->
-          <div class="lg:col-span-5">
-            <div
-              class="relative rounded-2xl sm:rounded-3xl border border-white/15 bg-slate-900/90 p-5 sm:p-7 shadow-xl shadow-black/40"
-            >
-              <!-- Header Card -->
-              <div
-                class="flex items-center justify-between border-b border-white/10 pb-4 mb-4"
-              >
-                <div>
-                  <h3
-                    class="font-display font-bold text-white text-base sm:text-lg flex items-center gap-2"
-                  >
-                    <span class="h-2 w-2 rounded-full bg-spark-400"></span>
-                    Jadwal Penting SPMB
-                  </h3>
-                  <p class="text-xs text-slate-400 mt-0.5 font-medium">
-                    Agenda Pendaftaran 2026/2027
-                  </p>
-                </div>
-                <span
-                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/15 text-spark-400 text-[11px] font-semibold"
-                >
-                  <i class="fa-solid fa-clock-rotate-left text-[10px]"></i>
-                  Terbaru
-                </span>
-              </div>
-
-              <!-- List Jadwal -->
-              <ul class="space-y-3">
-                <!-- Item 1 -->
-                <li
-                  class="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl bg-white/5 border border-white/10"
-                >
-                  <div
-                    class="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white font-medium text-sm sm:text-base shadow-md"
-                  >
-                    <i class="fa-regular fa-calendar-check"></i>
-                  </div>
-                  <div>
-                    <p
-                      class="text-xs sm:text-sm font-bold text-white leading-tight"
-                    >
-                      Pendaftaran Online
-                    </p>
-                  </div>
-                </li>
-
-                <!-- Item 2 -->
-                <li
-                  class="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl bg-white/5 border border-white/10"
-                >
-                  <div
-                    class="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl bg-brand-600 text-white font-medium text-sm sm:text-base shadow-md"
-                  >
-                    <i class="fa-regular fa-folder-open"></i>
-                  </div>
-                  <div>
-                    <p
-                      class="text-xs sm:text-sm font-bold text-white leading-tight"
-                    >
-                      Verifikasi Berkas
-                    </p>
-                  </div>
-                </li>
-
-                <!-- Item 3 (Highlight Pengumuman) -->
-                <li
-                  class="flex items-center gap-3 p-2.5 sm:p-3 rounded-xl bg-brand-500/10 border border-brand-500/30"
-                >
-                  <div
-                    class="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl bg-spark-400 text-slate-950 font-medium text-sm sm:text-base shadow-md"
-                  >
-                    <i class="fa-regular fa-bell"></i>
-                  </div>
-                  <div>
-                    <p
-                      class="text-xs sm:text-sm font-bold text-white leading-tight"
-                    >
-                      Pengumuman Kelulusan
-                    </p>
-                    <p
-                      class="mt-1 text-[11px] sm:text-xs font-bold text-slate-950 bg-spark-400 px-2 py-0.5 rounded inline-block"
-                    >
-                      Menunggu Update
-                    </p>
-                  </div>
-                </li>
-              </ul>
-
-              <!-- Footer Note -->
-              <div
-                class="mt-5 pt-3.5 border-t border-white/10 flex items-center justify-between text-[11px] sm:text-xs text-slate-400 font-medium"
-              >
-                <span>
-                  <i class="fa-solid fa-circle-info text-spark-400 mr-1"></i>
-                  Jadwal dapat berubah sewaktu-waktu
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================= PROGRAM KEAHLIAN (COMPACT SLIDER) ======================= -->
-    <section id="jurusan" class="py-16 lg:py-28 bg-slate-50 overflow-hidden">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div
-          class="flex flex-col md:flex-row md:items-end justify-between mb-10 lg:mb-14 gap-4"
-        >
-          <div class="max-w-xl">
-            <span
-              class="text-brand-600 text-xs font-bold uppercase tracking-wider bg-brand-50 px-3 py-1 rounded-full border border-brand-100"
-            >
-              Pilihan Masa Depan
-            </span>
-            <h2
-              class="font-display font-extrabold text-2xl sm:text-3xl lg:text-4xl text-slate-900 mt-3"
-            >
-              5 Jurusan Unggulan Siap Kerja
-            </h2>
-          </div>
-          <p class="text-slate-500 text-sm max-w-sm leading-relaxed">
-            Dirancang bersama praktisi industri dengan porsi praktik nyata yang
-            lebih mendalam.
+    <main>
+      <!-- ======================= HERO ======================= -->
+      <section class="mx-auto grid max-w-6xl gap-8 px-4 pb-12 pt-6 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-12 lg:pb-20 lg:pt-14">
+        <div>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1.5 text-[13px] font-semibold text-brand-700">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>
+            Pendaftaran 2026/2027 sudah dibuka
+          </span>
+          <h1 class="mt-4 text-[28px] font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl">
+            Rakit masa depanmu, mulai dari <span class="text-brand-600">bengkel &amp; lab kami.</span>
+          </h1>
+          <p class="mt-4 max-w-xl text-base leading-relaxed text-ink-600 sm:text-lg">
+            SMK Tamansiswa Jetis menyiapkan lulusan siap kerja dan wirausaha lewat 5 program keahlian dengan praktik
+            nyata berstandar industri. Daftar online langsung dari HP, sekitar 10 menit.
           </p>
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+            <a
+              href="daftar/index.html"
+              class="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-7 py-4 text-base font-bold text-white hover:bg-brand-700"
+            >
+              Daftar Sekarang
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a
+              href="daftar/index.html#cek-status"
+              class="inline-flex items-center justify-center rounded-full border-[1.5px] border-line bg-white px-7 py-[15px] text-base font-semibold hover:border-ink-500"
+              >Cek Status Pendaftaran</a
+            >
+          </div>
         </div>
 
-        <!-- Grid Kartu -->
-        <div
-          class="flex lg:grid lg:grid-cols-3 gap-4 sm:gap-5 overflow-x-auto lg:overflow-visible pb-6 lg:pb-0 snap-x snap-mandatory scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
-        >
-          <!-- DKV -->
-          <div
-            class="min-w-[270px] sm:min-w-[300px] lg:min-w-0 snap-center bg-white rounded-2xl border border-slate-200 hover:border-fuchsia-300 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
-          >
-            <div class="p-5 flex-1">
-              <div class="flex items-center justify-between mb-4">
-                <div
-                  class="h-11 w-11 rounded-xl bg-fuchsia-50 text-fuchsia-600 grid place-items-center text-lg"
-                >
-                  <i class="fa-solid fa-palette"></i>
-                </div>
-                <span
-                  class="text-[11px] font-bold text-fuchsia-600 bg-fuchsia-50 border border-fuchsia-100 px-2.5 py-1 rounded-lg tracking-wide"
-                  >DKV</span
-                >
-              </div>
-              <h3
-                class="font-display font-bold text-base text-slate-900 mb-1.5"
-              >
-                Desain Komunikasi Visual
-              </h3>
-              <p class="text-xs text-slate-500 leading-relaxed">
-                Branding, ilustrasi digital, videografi, dan motion graphic
-                standar industri kreatif.
-              </p>
+        <!-- Kartu jadwal -->
+        <aside class="rounded-3xl bg-white p-5 shadow-soft sm:p-6" aria-labelledby="jadwal-judul">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h2 id="jadwal-judul" class="text-lg font-extrabold">Jadwal Penting SPMB</h2>
+              <p class="text-sm text-ink-500">Agenda Pendaftaran 2026/2027</p>
             </div>
-            <div
-              class="px-5 py-3.5 bg-slate-50 border-t border-slate-100 flex flex-col gap-1.5"
-            >
-              <div class="flex items-center gap-2 text-xs text-slate-600">
-                <i
-                  class="fa-solid fa-check text-fuchsia-500 text-[10px] w-3"
-                ></i>
-                Desain Grafis & Branding
-              </div>
-              <div class="flex items-center gap-2 text-xs text-slate-600">
-                <i
-                  class="fa-solid fa-check text-fuchsia-500 text-[10px] w-3"
-                ></i>
-                Fotografi & Videografi
-              </div>
-            </div>
+            <span class="rounded-full bg-sand px-3 py-1 text-xs font-semibold text-ink-600">Terbaru</span>
           </div>
+          <ol class="mt-4 space-y-2.5">
+            <li class="flex items-center gap-3 rounded-2xl bg-cream p-3">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-600 text-sm font-bold text-white">1</span>
+              <span class="text-[15px] font-semibold">Pendaftaran Online</span>
+            </li>
+            <li class="flex items-center gap-3 rounded-2xl bg-cream p-3">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-600 text-sm font-bold text-white">2</span>
+              <span class="text-[15px] font-semibold">Verifikasi Berkas</span>
+            </li>
+            <li class="flex items-center gap-3 rounded-2xl bg-brand-50 p-3 ring-1 ring-brand-100">
+              <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-sm font-bold text-brand-700 ring-1 ring-brand-100">3</span>
+              <span>
+                <span class="block text-[15px] font-semibold">Pengumuman Kelulusan</span>
+                <span class="text-[13px] font-semibold text-brand-700">Menunggu update</span>
+              </span>
+            </li>
+          </ol>
+          <p class="mt-4 text-[13px] text-ink-500">Jadwal dapat berubah sewaktu-waktu.</p>
+        </aside>
+      </section>
 
-          <!-- RPL -->
-          <div
-            class="min-w-[270px] sm:min-w-[300px] lg:min-w-0 snap-center bg-white rounded-2xl border border-slate-200 hover:border-sky-300 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
+      <!-- ======================= CARA DAFTAR ======================= -->
+      <section id="alur" class="bg-white py-14 lg:py-20">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+          <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Cara daftar, 3 langkah</h2>
+          <p class="mt-2 max-w-xl text-base text-ink-600">Semuanya online. Siapkan data diri dan foto berkas, lalu ikuti langkah berikut.</p>
+          <ol class="mt-8 grid gap-3 md:grid-cols-3 md:gap-5">
+            <li class="flex gap-4 rounded-3xl bg-cream p-5 md:flex-col">
+              <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-600 text-lg font-extrabold text-white">1</span>
+              <div>
+                <h3 class="text-base font-extrabold">Isi formulir</h3>
+                <p class="mt-1 text-[15px] text-ink-600">Data diri, data orang tua, sekolah asal, dan pilihan jurusan.</p>
+              </div>
+            </li>
+            <li class="flex gap-4 rounded-3xl bg-cream p-5 md:flex-col">
+              <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-600 text-lg font-extrabold text-white">2</span>
+              <div>
+                <h3 class="text-base font-extrabold">Unggah berkas</h3>
+                <p class="mt-1 text-[15px] text-ink-600">Foto KK atau ijazah/SKL (PDF, JPG, PNG). Boleh menyusul lewat WhatsApp.</p>
+              </div>
+            </li>
+            <li class="flex gap-4 rounded-3xl bg-cream p-5 md:flex-col">
+              <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-600 text-lg font-extrabold text-white">3</span>
+              <div>
+                <h3 class="text-base font-extrabold">Konfirmasi via WhatsApp</h3>
+                <p class="mt-1 text-[15px] text-ink-600">Simpan nomor pendaftaran, lalu konfirmasi ke panitia. Pantau hasilnya di Cek Status.</p>
+              </div>
+            </li>
+          </ol>
+          <a
+            href="daftar/index.html"
+            class="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-7 py-4 text-base font-bold text-white hover:bg-brand-700 sm:w-auto"
           >
-            <div class="p-5 flex-1">
-              <div class="flex items-center justify-between mb-4">
-                <div
-                  class="h-11 w-11 rounded-xl bg-sky-50 text-sky-600 grid place-items-center text-lg"
-                >
-                  <i class="fa-solid fa-code"></i>
-                </div>
-                <span
-                  class="text-[11px] font-bold text-sky-600 bg-sky-50 border border-sky-100 px-2.5 py-1 rounded-lg tracking-wide"
-                  >RPL</span
-                >
-              </div>
-              <h3
-                class="font-display font-bold text-base text-slate-900 mb-1.5"
-              >
-                Rekayasa Perangkat Lunak
-              </h3>
-              <p class="text-xs text-slate-500 leading-relaxed">
-                Pengembangan aplikasi web & mobile modern, basis data, hingga
-                cloud server deployment.
-              </p>
-            </div>
-            <div
-              class="px-5 py-3.5 bg-slate-50 border-t border-slate-100 flex flex-col gap-1.5"
-            >
-              <div class="flex items-center gap-2 text-xs text-slate-600">
-                <i class="fa-solid fa-check text-sky-500 text-[10px] w-3"></i>
-                Pemrograman Web & Mobile
-              </div>
-              <div class="flex items-center gap-2 text-xs text-slate-600">
-                <i class="fa-solid fa-check text-sky-500 text-[10px] w-3"></i>
-                Basis Data & Backend API
-              </div>
-            </div>
-          </div>
+            Mulai Daftar
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+      </section>
 
-          <!-- TITL -->
-          <div
-            class="min-w-[270px] sm:min-w-[300px] lg:min-w-0 snap-center bg-white rounded-2xl border border-slate-200 hover:border-amber-300 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
-          >
-            <div class="p-5 flex-1">
-              <div class="flex items-center justify-between mb-4">
-                <div
-                  class="h-11 w-11 rounded-xl bg-amber-50 text-amber-600 grid place-items-center text-lg"
-                >
-                  <i class="fa-solid fa-bolt"></i>
-                </div>
-                <span
-                  class="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-lg tracking-wide"
-                  >TITL</span
-                >
-              </div>
-              <h3
-                class="font-display font-bold text-base text-slate-900 mb-1.5"
-              >
-                Teknik Instalasi Tenaga Listrik
-              </h3>
-              <p class="text-xs text-slate-500 leading-relaxed">
-                Instalasi listrik bangunan, panel kontrol industri, dan dasar
-                sistem energi terbarukan.
-              </p>
-            </div>
-            <div
-              class="px-5 py-3.5 bg-slate-50 border-t border-slate-100 flex flex-col gap-1.5"
-            >
-              <div class="flex items-center gap-2 text-xs text-slate-600">
-                <i class="fa-solid fa-check text-amber-500 text-[10px] w-3"></i>
-                Instalasi Listrik Bangunan
-              </div>
-              <div class="flex items-center gap-2 text-xs text-slate-600">
-                <i class="fa-solid fa-check text-amber-500 text-[10px] w-3"></i>
-                Panel & Kontrol Motor
-              </div>
-            </div>
-          </div>
+      <!-- ======================= JURUSAN ======================= -->
+      <section id="jurusan" class="py-14 lg:py-20">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+          <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">5 jurusan unggulan siap kerja</h2>
+          <p class="mt-2 max-w-xl text-base text-ink-600">Dirancang bersama praktisi industri, dengan porsi praktik nyata yang lebih banyak.</p>
 
-          <!-- TSM -->
-          <div
-            class="min-w-[270px] sm:min-w-[300px] lg:min-w-0 snap-center bg-white rounded-2xl border border-slate-200 hover:border-rose-300 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
-          >
-            <div class="p-5 flex-1">
-              <div class="flex items-center justify-between mb-4">
-                <div
-                  class="h-11 w-11 rounded-xl bg-rose-50 text-rose-500 grid place-items-center text-lg"
-                >
-                  <i class="fa-solid fa-motorcycle"></i>
-                </div>
-                <span
-                  class="text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-100 px-2.5 py-1 rounded-lg tracking-wide"
-                  >TSM</span
-                >
-              </div>
-              <h3
-                class="font-display font-bold text-base text-slate-900 mb-1.5"
-              >
-                Teknik Sepeda Motor
-              </h3>
-              <p class="text-xs text-slate-500 leading-relaxed">
-                Servis mesin injeksi, perbaikan matic/manual, serta pengenalan
-                konversi motor listrik.
-              </p>
-            </div>
-            <div
-              class="px-5 py-3.5 bg-slate-50 border-t border-slate-100 flex flex-col gap-1.5"
-            >
-              <div class="flex items-center gap-2 text-xs text-slate-600">
-                <i class="fa-solid fa-check text-rose-500 text-[10px] w-3"></i>
-                Servis Mesin & Injeksi
-              </div>
-              <div class="flex items-center gap-2 text-xs text-slate-600">
-                <i class="fa-solid fa-check text-rose-500 text-[10px] w-3"></i>
-                Perawatan Motor Listrik
-              </div>
-            </div>
-          </div>
-
-          <!-- TKR -->
-          <div
-            class="min-w-[270px] sm:min-w-[300px] lg:min-w-0 snap-center bg-white rounded-2xl border border-slate-200 hover:border-slate-400 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
-          >
-            <div class="p-5 flex-1">
-              <div class="flex items-center justify-between mb-4">
-                <div
-                  class="h-11 w-11 rounded-xl bg-slate-100 text-slate-700 grid place-items-center text-lg"
-                >
-                  <i class="fa-solid fa-car-side"></i>
-                </div>
-                <span
-                  class="text-[11px] font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg tracking-wide"
-                  >TKR</span
-                >
-              </div>
-              <h3
-                class="font-display font-bold text-base text-slate-900 mb-1.5"
-              >
-                Teknik Kendaraan Ringan
-              </h3>
-              <p class="text-xs text-slate-500 leading-relaxed">
-                Pemeliharaan mesin mobil, sasis, kelistrikan bodi, dan diagnosa
-                menggunakan scan tool.
-              </p>
-            </div>
-            <div
-              class="px-5 py-3.5 bg-slate-50 border-t border-slate-100 flex flex-col gap-1.5"
-            >
-              <div class="flex items-center gap-2 text-xs text-slate-600">
-                <i class="fa-solid fa-check text-slate-600 text-[10px] w-3"></i>
-                Pemeliharaan Mesin Mobil
-              </div>
-              <div class="flex items-center gap-2 text-xs text-slate-600">
-                <i class="fa-solid fa-check text-slate-600 text-[10px] w-3"></i>
-                Diagnosa Engine Scan Tool
-              </div>
-            </div>
-          </div>
-
-          <!-- Konsultasi BK -->
-          <div
-            class="min-w-[270px] sm:min-w-[300px] lg:min-w-0 snap-center rounded-2xl bg-brand-700 flex flex-col justify-between overflow-hidden hover:-translate-y-1 transition-all duration-300 shadow-lg shadow-brand-700/20 relative"
-          >
-            <div class="p-5 flex-1">
-              <!-- Dekorasi -->
-              <div
-                class="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10 pointer-events-none"
-              ></div>
-
-              <div class="flex items-center justify-between mb-4">
-                <div
-                  class="h-11 w-11 rounded-xl bg-white/15 text-spark-400 grid place-items-center text-lg"
-                >
-                  <i class="fa-solid fa-comments"></i>
-                </div>
-                <span
-                  class="text-[11px] font-bold text-slate-900 bg-spark-400 px-2.5 py-1 rounded-lg tracking-wide"
-                  >Konsultasi BK</span
-                >
-              </div>
-              <h3 class="font-display font-bold text-base text-white mb-2">
-                Bingung Pilih Jurusan?
-              </h3>
-              <p class="text-xs text-brand-200 leading-relaxed">
-                Konsultasikan minat dan bakatmu langsung bersama tim Bimbingan
-                Konseling kami — gratis!
-              </p>
-
-              <ul class="mt-4 flex flex-col gap-2">
-                <li class="flex items-center gap-2 text-xs text-white/80">
-                  <i
-                    class="fa-solid fa-check w-3 text-spark-400 text-[10px]"
-                  ></i>
-                  Tes minat & bakat online
-                </li>
-                <li class="flex items-center gap-2 text-xs text-white/80">
-                  <i
-                    class="fa-solid fa-check w-3 text-spark-400 text-[10px]"
-                  ></i>
-                  Sesi 1-on-1 dengan guru BK
-                </li>
-                <li class="flex items-center gap-2 text-xs text-white/80">
-                  <i
-                    class="fa-solid fa-check w-3 text-spark-400 text-[10px]"
-                  ></i>
-                  Info prospek karier tiap jurusan
-                </li>
-              </ul>
-            </div>
-
-            <div class="px-5 py-4 border-t border-white/10">
+          <div class="no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-5 lg:overflow-visible lg:px-0">
+            <article class="w-[85%] shrink-0 snap-center rounded-3xl bg-white p-5 shadow-soft sm:w-[46%] lg:w-auto">
+              <div class="flex items-center justify-between"><span class="text-3xl" aria-hidden="true">🔧</span><span class="rounded-full bg-sand px-3 py-1 text-xs font-bold">TKR</span></div>
+              <h3 class="mt-4 text-lg font-extrabold">Teknik Kendaraan Ringan</h3>
+              <p class="mt-1.5 text-[15px] text-ink-600">Pemeliharaan mesin mobil, sasis, kelistrikan bodi, dan diagnosa menggunakan scan tool.</p>
+              <ul class="mt-4 space-y-1.5 text-sm font-semibold text-ink-600"><li>✓ Pemeliharaan Mesin Mobil</li><li>✓ Diagnosa Engine Scan Tool</li></ul>
+            </article>
+            <article class="w-[85%] shrink-0 snap-center rounded-3xl bg-white p-5 shadow-soft sm:w-[46%] lg:w-auto">
+              <div class="flex items-center justify-between"><span class="text-3xl" aria-hidden="true">🏍️</span><span class="rounded-full bg-sand px-3 py-1 text-xs font-bold">TSM</span></div>
+              <h3 class="mt-4 text-lg font-extrabold">Teknik Sepeda Motor</h3>
+              <p class="mt-1.5 text-[15px] text-ink-600">Servis mesin injeksi, perbaikan matic/manual, serta pengenalan konversi motor listrik.</p>
+              <ul class="mt-4 space-y-1.5 text-sm font-semibold text-ink-600"><li>✓ Servis Mesin &amp; Injeksi</li><li>✓ Perawatan Motor Listrik</li></ul>
+            </article>
+            <article class="w-[85%] shrink-0 snap-center rounded-3xl bg-white p-5 shadow-soft sm:w-[46%] lg:w-auto">
+              <div class="flex items-center justify-between"><span class="text-3xl" aria-hidden="true">⚡</span><span class="rounded-full bg-sand px-3 py-1 text-xs font-bold">TITL</span></div>
+              <h3 class="mt-4 text-lg font-extrabold">Teknik Instalasi Tenaga Listrik</h3>
+              <p class="mt-1.5 text-[15px] text-ink-600">Instalasi listrik bangunan, panel kontrol industri, dan dasar sistem energi terbarukan.</p>
+              <ul class="mt-4 space-y-1.5 text-sm font-semibold text-ink-600"><li>✓ Instalasi Listrik Bangunan</li><li>✓ Panel &amp; Kontrol Motor</li></ul>
+            </article>
+            <article class="w-[85%] shrink-0 snap-center rounded-3xl bg-white p-5 shadow-soft sm:w-[46%] lg:w-auto">
+              <div class="flex items-center justify-between"><span class="text-3xl" aria-hidden="true">💻</span><span class="rounded-full bg-sand px-3 py-1 text-xs font-bold">RPL</span></div>
+              <h3 class="mt-4 text-lg font-extrabold">Rekayasa Perangkat Lunak</h3>
+              <p class="mt-1.5 text-[15px] text-ink-600">Pengembangan aplikasi web &amp; mobile modern, basis data, hingga cloud server deployment.</p>
+              <ul class="mt-4 space-y-1.5 text-sm font-semibold text-ink-600"><li>✓ Pemrograman Web &amp; Mobile</li><li>✓ Basis Data &amp; Backend API</li></ul>
+            </article>
+            <article class="w-[85%] shrink-0 snap-center rounded-3xl bg-white p-5 shadow-soft sm:w-[46%] lg:w-auto">
+              <div class="flex items-center justify-between"><span class="text-3xl" aria-hidden="true">🎨</span><span class="rounded-full bg-sand px-3 py-1 text-xs font-bold">DKV</span></div>
+              <h3 class="mt-4 text-lg font-extrabold">Desain Komunikasi Visual</h3>
+              <p class="mt-1.5 text-[15px] text-ink-600">Branding, ilustrasi digital, videografi, dan motion graphic standar industri kreatif.</p>
+              <ul class="mt-4 space-y-1.5 text-sm font-semibold text-ink-600"><li>✓ Desain Grafis &amp; Branding</li><li>✓ Fotografi &amp; Videografi</li></ul>
+            </article>
+            <article class="w-[85%] shrink-0 snap-center rounded-3xl bg-brand-600 p-5 text-white sm:w-[46%] lg:w-auto">
+              <div class="flex items-center justify-between"><span class="text-3xl" aria-hidden="true">💬</span><span class="rounded-full bg-white/20 px-3 py-1 text-xs font-bold">Konsultasi BK</span></div>
+              <h3 class="mt-4 text-lg font-extrabold">Bingung pilih jurusan?</h3>
+              <p class="mt-1.5 text-[15px] text-white/90">Konsultasikan minat dan bakatmu langsung bersama tim Bimbingan Konseling kami — gratis!</p>
+              <ul class="mt-4 space-y-1.5 text-sm font-semibold text-white/90"><li>✓ Tes minat &amp; bakat online</li><li>✓ Sesi 1-on-1 dengan guru BK</li><li>✓ Info prospek karier tiap jurusan</li></ul>
               <a
                 href="https://wa.me/628232128784"
                 target="_blank"
-                class="flex items-center justify-center gap-2 bg-white text-brand-700 text-xs font-bold px-4 py-3 rounded-xl hover:bg-spark-300 transition-colors"
+                rel="noopener"
+                class="mt-5 flex items-center justify-center gap-2 rounded-full bg-white px-4 py-3 text-[15px] font-bold text-brand-700 hover:bg-brand-50"
+                >Hubungi via WhatsApp</a
               >
-                <i class="fa-brands fa-whatsapp text-sm"></i>
-                Hubungi via WhatsApp
-              </a>
+            </article>
+          </div>
+          <p class="mt-3 text-center text-sm text-ink-500 lg:hidden">← Geser untuk melihat jurusan lainnya →</p>
+        </div>
+      </section>
+
+      <!-- ======================= FAQ ======================= -->
+      <section id="faq" class="bg-white py-14 lg:py-20">
+        <div class="mx-auto max-w-3xl px-4 sm:px-6">
+          <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Pertanyaan yang sering diajukan</h2>
+          <p class="mt-2 text-base text-ink-600">Jawaban cepat seputar pendaftaran SPMB 2026/2027.</p>
+
+          <div class="mt-8 space-y-3">
+            <div class="faq-item rounded-3xl bg-cream">
+              <button type="button" class="faq-trigger flex w-full items-center justify-between gap-4 p-5 text-left text-base font-bold">
+                Apakah pendaftaran SPMB ini dikenakan biaya?
+                <span class="faq-icon grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-xl leading-none" aria-hidden="true">+</span>
+              </button>
+              <div class="faq-body"><div><p class="px-5 pb-5 text-[15px] leading-relaxed text-ink-600">
+                Proses pendaftaran online melalui portal ini <b class="text-ink-900">100% gratis</b> tanpa dipungut biaya apa pun. Hati-hati terhadap segala bentuk penipuan yang mengatasnamakan panitia sekolah.
+              </p></div></div>
+            </div>
+            <div class="faq-item rounded-3xl bg-cream">
+              <button type="button" class="faq-trigger flex w-full items-center justify-between gap-4 p-5 text-left text-base font-bold">
+                Apakah bisa mendaftar dua pilihan jurusan sekaligus?
+                <span class="faq-icon grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-xl leading-none" aria-hidden="true">+</span>
+              </button>
+              <div class="faq-body"><div><p class="px-5 pb-5 text-[15px] leading-relaxed text-ink-600">
+                Ya, calon siswa boleh memilih <b class="text-ink-900">Jurusan Utama (Pilihan 1)</b> dan <b class="text-ink-900">Jurusan Cadangan (Pilihan 2)</b> pada formulir pendaftaran.
+              </p></div></div>
+            </div>
+            <div class="faq-item rounded-3xl bg-cream">
+              <button type="button" class="faq-trigger flex w-full items-center justify-between gap-4 p-5 text-left text-base font-bold">
+                Bagaimana jika Ijazah atau SKL belum keluar dari sekolah asal?
+                <span class="faq-icon grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-xl leading-none" aria-hidden="true">+</span>
+              </button>
+              <div class="faq-body"><div><p class="px-5 pb-5 text-[15px] leading-relaxed text-ink-600">
+                Tenang saja! Kamu tetap bisa mendaftar di awal. Setelah mengisi formulir, sistem otomatis membuat <b class="text-ink-900">Akun Portal Siswa</b> yang dapat digunakan untuk <b class="text-ink-900">menyusulkan unggahan berkas</b> (seperti Ijazah/SKL) kapan saja.
+              </p></div></div>
+            </div>
+            <div class="faq-item rounded-3xl bg-cream">
+              <button type="button" class="faq-trigger flex w-full items-center justify-between gap-4 p-5 text-left text-base font-bold">
+                Bagaimana cara mengecek status pendaftaran saya?
+                <span class="faq-icon grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-xl leading-none" aria-hidden="true">+</span>
+              </button>
+              <div class="faq-body"><div><p class="px-5 pb-5 text-[15px] leading-relaxed text-ink-600">
+                Kamu bisa cek status kelulusan &amp; verifikasi melalui menu <a href="daftar/index.html#cek-status" class="font-bold text-brand-700 underline">Cek Status</a> dengan memasukkan Nomor NISN terdaftar atau login menggunakan akun siswa.
+              </p></div></div>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- Petunjuk Swipe HP -->
-        <div
-          class="flex lg:hidden items-center justify-center gap-2 mt-5 text-xs text-slate-400"
-        >
-          <i class="fa-solid fa-arrow-left-long"></i>
-          <span>Geser untuk melihat jurusan lainnya</span>
-          <i class="fa-solid fa-arrow-right-long"></i>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================= ALUR PENDAFTARAN ======================= -->
-    <section id="alur" class="py-20 lg:py-32 bg-white relative">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="max-w-3xl mx-auto text-center mb-16">
-          <span
-            class="text-brand-600 text-xs sm:text-sm font-bold uppercase tracking-wider bg-brand-50 px-3.5 py-1.5 rounded-full border border-brand-100"
-          >
-            Langkah Mudah
-          </span>
-          <h2
-            class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 mt-4 mb-4"
-          >
-            Alur Pendaftaran Online
-          </h2>
-          <p class="text-slate-600 text-base leading-relaxed">
-            Proses praktis 100% online. Siapkan dokumen persyaratan dan ikuti 4
-            langkah sederhana berikut.
-          </p>
-        </div>
-
-        <!-- Timeline Mobile (Vertical) -->
-        <div class="md:hidden space-y-6">
-          <div
-            class="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100"
-          >
-            <div
-              class="h-11 w-11 shrink-0 rounded-xl bg-brand-600 text-white grid place-items-center font-display font-bold text-lg shadow-md"
-            >
-              1
-            </div>
-            <div>
-              <h3 class="font-display font-bold text-slate-900 mb-1">
-                Isi Formulir & Dapat Akun
-              </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
-                Daftar online, pilih jurusan, dan dapatkan akses Akun Siswa.
-              </p>
-            </div>
-          </div>
-          <div
-            class="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100"
-          >
-            <div
-              class="h-11 w-11 shrink-0 rounded-xl bg-brand-600 text-white grid place-items-center font-display font-bold text-lg shadow-md"
-            >
-              2
-            </div>
-            <div>
-              <h3 class="font-display font-bold text-slate-900 mb-1">
-                Unggah Berkas (Bisa Disusulkan)
-              </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
-                Upload KK/Foto sekarang. Ijazah/SKL dapat diunggah menyusul via
-                akun.
-              </p>
-            </div>
-          </div>
-          <div
-            class="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100"
-          >
-            <div
-              class="h-11 w-11 shrink-0 rounded-xl bg-brand-600 text-white grid place-items-center font-display font-bold text-lg shadow-md"
-            >
-              3
-            </div>
-            <div>
-              <h3 class="font-display font-bold text-slate-900 mb-1">
-                Verifikasi Panitia
-              </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
-                Tim pendaftaran memvalidasi kelengkapan berkas yang diunggah.
-              </p>
-            </div>
-          </div>
-          <div
-            class="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100"
-          >
-            <div
-              class="h-11 w-11 shrink-0 rounded-xl bg-spark-400 text-slate-950 grid place-items-center font-display font-bold text-lg shadow-md"
-            >
-              4
-            </div>
-            <div>
-              <h3 class="font-display font-bold text-slate-900 mb-1">
-                Pengumuman Kelulusan
-              </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
-                Cek hasil seleksi dan status penerimaan langsung melalui portal.
-              </p>
-            </div>
+      <!-- ======================= AJAKAN AKHIR ======================= -->
+      <section class="px-4 py-14 sm:px-6 lg:py-20">
+        <div class="mx-auto max-w-3xl rounded-3xl bg-brand-600 px-6 py-10 text-center text-white sm:px-10">
+          <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Siap bergabung?</h2>
+          <p class="mx-auto mt-2 max-w-md text-base text-white/90">Daftar sekarang. Masih ada pertanyaan? Tim kami siap membantu lewat WhatsApp.</p>
+          <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+            <a href="daftar/index.html" class="rounded-full bg-white px-7 py-4 text-base font-bold text-brand-700 hover:bg-brand-50">Daftar Sekarang</a>
+            <a href="https://wa.me/628232128784" target="_blank" rel="noopener" class="rounded-full border-[1.5px] border-white/60 px-7 py-[15px] text-base font-semibold hover:bg-white/10">Hubungi Kami</a>
           </div>
         </div>
-
-        <!-- Timeline Desktop (Horizontal Steps) -->
-        <div class="hidden md:block max-w-5xl mx-auto">
-          <div class="grid grid-cols-4 gap-6 relative">
-            <div
-              class="bg-slate-50 border border-slate-200/80 p-6 rounded-3xl relative hover:border-brand-300 transition-colors"
-            >
-              <div
-                class="h-12 w-12 rounded-2xl bg-brand-600 text-white grid place-items-center font-display font-bold text-lg shadow-md mb-4"
-              >
-                1
-              </div>
-              <h3 class="font-display font-bold text-slate-900 mb-2 text-base">
-                Isi Formulir & Dapat Akun
-              </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
-                Daftar online, pilih jurusan, dan dapatkan akses Akun Siswa.
-              </p>
-            </div>
-
-            <div
-              class="bg-slate-50 border border-slate-200/80 p-6 rounded-3xl relative hover:border-brand-300 transition-colors"
-            >
-              <div
-                class="h-12 w-12 rounded-2xl bg-brand-600 text-white grid place-items-center font-display font-bold text-lg shadow-md mb-4"
-              >
-                2
-              </div>
-              <h3 class="font-display font-bold text-slate-900 mb-2 text-base">
-                Lengkapi Berkas (Bisa Disusulkan)
-              </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
-                Upload KK/Foto sekarang. Berkas ijazah bisa di-upload menyusul
-                via akun.
-              </p>
-            </div>
-
-            <div
-              class="bg-slate-50 border border-slate-200/80 p-6 rounded-3xl relative hover:border-brand-300 transition-colors"
-            >
-              <div
-                class="h-12 w-12 rounded-2xl bg-brand-600 text-white grid place-items-center font-display font-bold text-lg shadow-md mb-4"
-              >
-                3
-              </div>
-              <h3 class="font-display font-bold text-slate-900 mb-2 text-base">
-                Verifikasi Panitia
-              </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
-                Panitia memproses & memvalidasi kevalidan dokumen.
-              </p>
-            </div>
-
-            <div
-              class="bg-slate-50 border border-slate-200/80 p-6 rounded-3xl relative hover:border-brand-300 transition-colors"
-            >
-              <div
-                class="h-12 w-12 rounded-2xl bg-spark-400 text-slate-950 grid place-items-center font-display font-bold text-lg shadow-md mb-4"
-              >
-                4
-              </div>
-              <h3 class="font-display font-bold text-slate-900 mb-2 text-base">
-                Hasil & Daftar Ulang
-              </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
-                Pengumuman hasil kelulusan langsung di portal resmi.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-14 text-center">
-          <a
-            href="daftar/"
-            class="inline-flex items-center gap-3 bg-brand-600 hover:bg-brand-700 text-white font-bold px-8 py-4 rounded-2xl shadow-lg shadow-brand-600/20 hover:shadow-brand-600/30 transition-all duration-300"
-          >
-            Mulai Pendaftaran <i class="fa-solid fa-arrow-right"></i>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ======================= FAQ ======================= -->
-    <section
-      id="faq"
-      class="py-20 lg:py-32 bg-gradient-to-br from-slate-50 to-slate-100 relative overflow-hidden"
-    >
-      <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 relative z-10">
-        <!-- Header -->
-        <div class="text-center mb-12">
-          <span
-            class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-widest border border-indigo-200 rounded-full px-3.5 py-1.5 mb-4"
-          >
-            <i class="fa-regular fa-circle-question text-xs"></i>
-            Bantuan
-          </span>
-          <h2
-            class="font-display font-extrabold text-3xl sm:text-4xl text-slate-900 mb-3"
-          >
-            Pertanyaan yang <span class="text-brand-600">Sering Diajukan</span>
-          </h2>
-          <p class="text-slate-500 text-base">
-            Temukan jawaban cepat seputar proses pendaftaran SPMB 2026/2027.
-          </p>
-        </div>
-
-        <!-- FAQ Items -->
-        <div class="space-y-3">
-          <!-- Item 1 -->
-          <details
-            class="group bg-white rounded-2xl border-[1.5px] border-slate-200 overflow-hidden transition-all duration-300 open:border-indigo-400 open:shadow-lg open:shadow-indigo-500/10"
-          >
-            <summary
-              class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer select-none list-none"
-            >
-              <div class="flex items-center gap-3.5">
-                <span
-                  class="w-8 h-8 rounded-xl bg-indigo-50 group-open:bg-indigo-600 text-indigo-600 group-open:text-white text-xs font-bold flex items-center justify-center shrink-0 transition-all duration-300"
-                  >01</span
-                >
-                <span class="text-sm sm:text-base font-bold text-slate-900"
-                  >Apakah pendaftaran SPMB ini dikenakan biaya?</span
-                >
-              </div>
-              <span
-                class="w-8 h-8 rounded-xl bg-slate-50 group-open:bg-indigo-50 group-open:text-indigo-600 flex items-center justify-center text-slate-400 text-sm shrink-0 transition-all duration-300 group-open:rotate-180"
-              >
-                <i class="fa-solid fa-chevron-down"></i>
-              </span>
-            </summary>
-            <div
-              class="px-6 pb-5 pt-3 border-t border-slate-100 text-sm text-slate-500 leading-relaxed"
-            >
-              Proses pendaftaran online melalui portal ini
-              <strong class="text-slate-700">100% gratis</strong> tanpa dipungut
-              biaya apapun. Hati-hati terhadap segala bentuk penipuan yang
-              mengatasnamakan panitia sekolah.
-            </div>
-          </details>
-
-          <!-- Item 2 -->
-          <details
-            class="group bg-white rounded-2xl border-[1.5px] border-slate-200 overflow-hidden transition-all duration-300 open:border-indigo-400 open:shadow-lg open:shadow-indigo-500/10"
-          >
-            <summary
-              class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer select-none list-none"
-            >
-              <div class="flex items-center gap-3.5">
-                <span
-                  class="w-8 h-8 rounded-xl bg-indigo-50 group-open:bg-indigo-600 text-indigo-600 group-open:text-white text-xs font-bold flex items-center justify-center shrink-0 transition-all duration-300"
-                  >02</span
-                >
-                <span class="text-sm sm:text-base font-bold text-slate-900"
-                  >Apakah bisa mendaftar dua pilihan jurusan sekaligus?</span
-                >
-              </div>
-              <span
-                class="w-8 h-8 rounded-xl bg-slate-50 group-open:bg-indigo-50 group-open:text-indigo-600 flex items-center justify-center text-slate-400 text-sm shrink-0 transition-all duration-300 group-open:rotate-180"
-              >
-                <i class="fa-solid fa-chevron-down"></i>
-              </span>
-            </summary>
-            <div
-              class="px-6 pb-5 pt-3 border-t border-slate-100 text-sm text-slate-500 leading-relaxed"
-            >
-              Ya, calon siswa diperbolehkan memilih
-              <strong class="text-slate-700">Jurusan Utama (Pilihan 1)</strong>
-              dan
-              <strong class="text-slate-700"
-                >Jurusan Cadangan (Pilihan 2)</strong
-              >
-              pada formulir pendaftaran.
-            </div>
-          </details>
-
-          <!-- Item 3 -->
-          <details
-            class="group bg-white rounded-2xl border-[1.5px] border-slate-200 overflow-hidden transition-all duration-300 open:border-indigo-400 open:shadow-lg open:shadow-indigo-500/10"
-          >
-            <summary
-              class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer select-none list-none"
-            >
-              <div class="flex items-center gap-3.5">
-                <span
-                  class="w-8 h-8 rounded-xl bg-indigo-50 group-open:bg-indigo-600 text-indigo-600 group-open:text-white text-xs font-bold flex items-center justify-center shrink-0 transition-all duration-300"
-                  >03</span
-                >
-                <span class="text-sm sm:text-base font-bold text-slate-900"
-                  >Bagaimana jika Ijazah atau SKL belum keluar dari sekolah
-                  asal?</span
-                >
-              </div>
-              <span
-                class="w-8 h-8 rounded-xl bg-slate-50 group-open:bg-indigo-50 group-open:text-indigo-600 flex items-center justify-center text-slate-400 text-sm shrink-0 transition-all duration-300 group-open:rotate-180"
-              >
-                <i class="fa-solid fa-chevron-down"></i>
-              </span>
-            </summary>
-            <div
-              class="px-6 pb-5 pt-3 border-t border-slate-100 text-sm text-slate-500 leading-relaxed"
-            >
-              Tenang saja! Kamu tetap bisa mendaftar di awal. Setelah mengisi
-              formulir, sistem otomatis membuat
-              <strong class="text-slate-700">Akun Portal Siswa</strong> yang
-              dapat digunakan untuk
-              <strong class="text-slate-700"
-                >menyusulkan unggahan berkas</strong
-              >
-              (seperti Ijazah/SKL) kapan saja.
-            </div>
-          </details>
-
-          <!-- Item 4 -->
-          <details
-            class="group bg-white rounded-2xl border-[1.5px] border-slate-200 overflow-hidden transition-all duration-300 open:border-indigo-400 open:shadow-lg open:shadow-indigo-500/10"
-          >
-            <summary
-              class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer select-none list-none"
-            >
-              <div class="flex items-center gap-3.5">
-                <span
-                  class="w-8 h-8 rounded-xl bg-indigo-50 group-open:bg-indigo-600 text-indigo-600 group-open:text-white text-xs font-bold flex items-center justify-center shrink-0 transition-all duration-300"
-                  >04</span
-                >
-                <span class="text-sm sm:text-base font-bold text-slate-900"
-                  >Bagaimana cara mengecek status pendaftaran saya?</span
-                >
-              </div>
-              <span
-                class="w-8 h-8 rounded-xl bg-slate-50 group-open:bg-indigo-50 group-open:text-indigo-600 flex items-center justify-center text-slate-400 text-sm shrink-0 transition-all duration-300 group-open:rotate-180"
-              >
-                <i class="fa-solid fa-chevron-down"></i>
-              </span>
-            </summary>
-            <div
-              class="px-6 pb-5 pt-3 border-t border-slate-100 text-sm text-slate-500 leading-relaxed"
-            >
-              Kamu bisa cek status kelulusan &amp; verifikasi melalui menu
-              <strong class="text-slate-700">Cek Status</strong> dengan
-              memasukkan Nomor NISN terdaftar atau login menggunakan akun siswa.
-            </div>
-          </details>
-        </div>
-
-        <!-- CTA Bottom -->
-        <div
-          class="mt-10 bg-gradient-to-r from-indigo-700 to-indigo-500 rounded-2xl p-7 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 relative overflow-hidden"
-        >
-          <div
-            class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 pointer-events-none"
-          ></div>
-          <div>
-            <h3 class="text-white font-bold text-lg mb-1">
-              Masih ada pertanyaan lain?
-            </h3>
-            <p class="text-indigo-200 text-sm">
-              Hubungi tim kami langsung — kami siap membantu kamu.
-            </p>
-          </div>
-          <a
-            href="https://wa.me/628232128784"
-            target="_blank"
-            class="inline-flex items-center gap-2 bg-white text-indigo-700 font-bold text-sm rounded-xl px-5 py-3 hover:bg-indigo-50 transition-colors whitespace-nowrap shrink-0"
-          >
-            <i class="fa-brands fa-whatsapp text-base"></i>
-            Hubungi Kami
-          </a>
-        </div>
-      </div>
-    </section>
+      </section>
+    </main>
 
     <!-- ======================= FOOTER ======================= -->
-    <footer
-      class="bg-slate-950 text-slate-400 pt-16 pb-8 border-t border-slate-900"
-    >
-      <div
-        class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-slate-900"
-      >
-        <div class="space-y-4">
-          <div class="flex items-center gap-3">
-            <div
-              class="h-10 w-10 rounded-xl bg-brand-600 text-white grid place-items-center font-display font-bold"
-            >
-              TN
-            </div>
-            <p class="font-display font-extrabold text-white text-lg">
-              SMK Tamansiswa Jetis
-            </p>
-          </div>
-          <p class="text-sm leading-relaxed text-slate-400">
-            Mencetak lulusan vokasi yang unggul, terampil, berkarakter, dan siap
-            bersaing di dunia industri global.
-          </p>
-        </div>
-
+    <footer class="border-t border-line/60 bg-cream">
+      <div class="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-3">
         <div>
-          <p
-            class="font-display font-bold text-white mb-4 text-sm uppercase tracking-wider"
-          >
-            Tautan Penting
-          </p>
-          <ul class="space-y-2.5 text-sm">
-            <li>
-              <a
-                href="index.html#jurusan"
-                class="hover:text-white transition-colors"
-                >Program Keahlian</a
-              >
-            </li>
-            <li>
-              <a
-                href="index.html#alur"
-                class="hover:text-white transition-colors"
-                >Alur Pendaftaran</a
-              >
-            </li>
-            <li>
-              <a href="daftar/" class="hover:text-white transition-colors"
-                >Formulir Pendaftaran</a
-              >
-            </li>
-            <li>
-              <a
-                href="daftar/index.html#cek-status"
-                class="hover:text-white transition-colors"
-                >Cek Status Berkas</a
-              >
-            </li>
+          <div class="flex items-center gap-2.5">
+            <span class="grid h-10 w-10 place-items-center rounded-2xl bg-brand-600 text-sm font-extrabold text-white">TN</span>
+            <span class="text-[15px] font-extrabold">SMK Tamansiswa Jetis</span>
+          </div>
+          <p class="mt-3 text-[15px] text-ink-600">Mencetak lulusan vokasi yang unggul, terampil, berkarakter, dan siap bersaing di dunia industri global.</p>
+        </div>
+        <div>
+          <h2 class="text-sm font-extrabold uppercase tracking-wide text-ink-500">Tautan penting</h2>
+          <ul class="mt-3 space-y-2 text-[15px] font-semibold">
+            <li><a href="#jurusan" class="hover:text-brand-600">Program Keahlian</a></li>
+            <li><a href="#alur" class="hover:text-brand-600">Cara Daftar</a></li>
+            <li><a href="daftar/index.html" class="hover:text-brand-600">Formulir Pendaftaran</a></li>
+            <li><a href="daftar/index.html#cek-status" class="hover:text-brand-600">Cek Status Berkas</a></li>
           </ul>
         </div>
-
         <div>
-          <p
-            class="font-display font-bold text-white mb-4 text-sm uppercase tracking-wider"
-          >
-            Kontak Panitia
-          </p>
-          <ul class="space-y-3 text-sm">
-            <li class="flex items-start gap-3">
-              <i class="fa-solid fa-location-dot mt-1 text-brand-400"></i>
-              <span
-                >Jl. Pakuningratan No.34 A, Cokrodiningratan, Jetis,
-                Yogyakarta</span
-              >
-            </li>
-            <li class="flex items-center gap-3">
-              <i class="fa-solid fa-phone text-brand-400"></i>
-              <span>(0274) 515836</span>
-            </li>
-            <li class="flex items-center gap-3">
-              <i class="fa-brands fa-whatsapp text-brand-400"></i>
-              <span>+62 823-2128-784</span>
-            </li>
+          <h2 class="text-sm font-extrabold uppercase tracking-wide text-ink-500">Kontak panitia</h2>
+          <ul class="mt-3 space-y-2 text-[15px] text-ink-600">
+            <li>Jl. Pakuningratan No.34 A, Cokrodiningratan, Jetis, Yogyakarta</li>
+            <li><a href="tel:0274515836" class="hover:text-brand-600">(0274) 515836</a></li>
+            <li><a href="https://wa.me/628232128784" target="_blank" rel="noopener" class="hover:text-brand-600">+62 823-2128-784 (WhatsApp)</a></li>
           </ul>
         </div>
-
-        <div>
-          <p
-            class="font-display font-bold text-white mb-4 text-sm uppercase tracking-wider"
-          >
-            Media Sosial
-          </p>
-          <div class="flex gap-3 mb-4">
-            <a
-              href="#"
-              aria-label="Instagram"
-              class="h-10 w-10 rounded-xl bg-slate-900 border border-slate-800 hover:bg-brand-600 hover:text-white grid place-items-center transition-all"
-              ><i class="fa-brands fa-instagram"></i
-            ></a>
-            <a
-              href="#"
-              aria-label="YouTube"
-              class="h-10 w-10 rounded-xl bg-slate-900 border border-slate-800 hover:bg-brand-600 hover:text-white grid place-items-center transition-all"
-              ><i class="fa-brands fa-youtube"></i
-            ></a>
-            <a
-              href="#"
-              aria-label="TikTok"
-              class="h-10 w-10 rounded-xl bg-slate-900 border border-slate-800 hover:bg-brand-600 hover:text-white grid place-items-center transition-all"
-              ><i class="fa-brands fa-tiktok"></i
-            ></a>
-          </div>
-          <p class="text-xs text-slate-500">
-            Dapatkan informasi & kegiatan terbaru sekolah kami.
-          </p>
-        </div>
       </div>
-
-      <div
-        class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500"
-      >
-        <p>
-          &copy; <span id="year"></span> SMK Tamansiswa Jetis. Hak Cipta
-          Dilindungi.
-        </p>
-        <p>Portal SPMB Terintegrasi</p>
-      </div>
+      <p class="border-t border-line/60 px-4 py-5 text-center text-sm text-ink-500">
+        &copy; <span id="year">2026</span> SMK Tamansiswa Jetis. Hak cipta dilindungi.
+      </p>
     </footer>
   </body>
 </html>

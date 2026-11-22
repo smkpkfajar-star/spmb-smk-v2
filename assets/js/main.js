@@ -2,6 +2,11 @@
    main.js — Perilaku bersama seluruh halaman
    ============================================================ */
 
+const ICON_MENU =
+  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+const ICON_CLOSE =
+  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
 document.addEventListener("DOMContentLoaded", () => {
   // Tahun berjalan di footer
   const yearEl = document.getElementById("year");
@@ -19,13 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       mobileMenu.classList.add("scale-y-100", "opacity-100");
       menuBtn.setAttribute("aria-expanded", "true");
-      menuBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+      menuBtn.innerHTML = ICON_CLOSE;
     };
     const closeMenu = () => {
       mobileMenu.classList.add("scale-y-0", "opacity-0", "pointer-events-none");
       mobileMenu.classList.remove("scale-y-100", "opacity-100");
       menuBtn.setAttribute("aria-expanded", "false");
-      menuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+      menuBtn.innerHTML = ICON_MENU;
     };
 
     menuBtn.addEventListener("click", (e) => {
@@ -50,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const navInner = document.getElementById("navInner");
   if (navInner) {
     window.addEventListener("scroll", () => {
-      navInner.classList.toggle("shadow-card", window.scrollY > 12);
+      navInner.classList.toggle("shadow-soft", window.scrollY > 12);
     });
   }
 
@@ -66,44 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!wasOpen) item.classList.add("open");
     });
   });
-
-  // Counter animasi (Hanya dijalankan jika lebar layar >= 768px agar HP tidak berat)
-  if (window.innerWidth >= 768) {
-    const counters = document.querySelectorAll("[data-target]");
-    const observer = new IntersectionObserver(
-      (entries, obs) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const counter = entry.target;
-          const target = +counter.getAttribute("data-target");
-          const suffix = counter.getAttribute("data-suffix") || "";
-          let count = 0;
-          const speed = 200;
-          const updateCount = () => {
-            count += target / speed;
-            if (count < target) {
-              counter.innerText = Math.ceil(count) + suffix;
-              setTimeout(updateCount, 15);
-            } else {
-              counter.innerText = target + suffix;
-            }
-          };
-          updateCount();
-          obs.unobserve(counter);
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    counters.forEach((counter) => observer.observe(counter));
-  } else {
-    // Langsung tampilkan angka maksimal di HP agar ringan dan tidak lag
-    document.querySelectorAll("[data-target]").forEach((counter) => {
-      const target = counter.getAttribute("data-target");
-      const suffix = counter.getAttribute("data-suffix") || "";
-      counter.innerText = target + suffix;
-    });
-  }
 });
 
 /* Toast notifikasi */

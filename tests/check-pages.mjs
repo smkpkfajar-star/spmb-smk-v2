@@ -32,7 +32,7 @@ if (/data-target=/.test(pages["index.html"])) problems.push("index.html: statist
 
 for (const [name, html] of Object.entries(pages)) {
   if (/font-awesome|class="[^"]*\bfa-/.test(html)) problems.push(`${name}: masih memakai Font Awesome`);
-  if (/config\.js/.test(html)) problems.push(`${name}: masih memuat config.js`);
+  if (/["/]config\.js/.test(html)) problems.push(`${name}: masih memuat config.js`);
   const cdn = html.indexOf("cdn.tailwindcss.com");
   const cfg = html.indexOf("tailwind-config.js");
   if (cdn < 0 || cfg < 0 || cfg < cdn) problems.push(`${name}: tailwind-config.js harus dimuat sesudah cdn.tailwindcss.com`);
