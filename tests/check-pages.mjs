@@ -71,6 +71,18 @@ for (const dir of ["admin", "siswa"]) {
 if (/src="\.\/assets\//.test(pages["daftar/index.html"])) problems.push('daftar/index.html: path "./assets/" salah, pakai "../assets/"');
 if (/supabase-js/.test(pages["index.html"])) problems.push("index.html: supabase-js tidak dipakai di beranda");
 
+// Semua nomor WhatsApp panitia yang tertulis harus sama
+const WA_PANITIA = "628823212784";
+const waFiles = ["index.html", "daftar/index.html", "assets/js/daftar.js"];
+for (const dir of ["admin", "siswa"]) {
+  if (existsSync(join(root, dir))) readdirSync(join(root, dir)).filter((f) => f.endsWith(".html")).forEach((f) => waFiles.push(`${dir}/${f}`));
+}
+for (const name of waFiles) {
+  for (const m of read(name).matchAll(/wa\.me\/(\d{9,15})/g)) {
+    if (m[1] !== WA_PANITIA) problems.push(`${name}: nomor WhatsApp ${m[1]} berbeda dari nomor panitia ${WA_PANITIA}`);
+  }
+}
+
 if (problems.length) {
   console.log(problems.join("\n"));
   console.log(`\n${problems.length} pelanggaran`);

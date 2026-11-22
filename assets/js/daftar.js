@@ -1226,7 +1226,7 @@ function renderStatusResult(found, statusResultEl) {
         `*Status Saat Ini:* ${currentStatusText}\n\n` +
         `Mohon bantuannya, terima kasih.`
     );
-    btnWhatsAppStatus.href = `https://wa.me/6281332517626?text=${waMessage}`;
+    btnWhatsAppStatus.href = `https://wa.me/628823212784?text=${waMessage}`;
   }
 
   if (statusResultEl) {
