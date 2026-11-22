@@ -22,6 +22,7 @@
     />
     <link rel="stylesheet" href="assets/css/style.css" />
     <script src="assets/js/main.js" defer></script>
+    <script src="assets/js/jurusan.js" defer></script>
   </head>
 
   <body class="bg-white text-ink-900 antialiased">
@@ -83,7 +84,7 @@
           <span aria-hidden="true">↗</span>
         </a>
         <h1 class="display mx-auto mt-6 max-w-3xl text-[40px] sm:text-[56px] lg:text-[72px]">
-          Rakit Masa Depanmu, Mulai dari Bengkel &amp; Lab Kami.
+          Rakit Masa Depanmu, Mulai dari <span id="heroWord" class="caret text-ink-900" data-words="Bengkel|Lab|Studio">Bengkel</span> Kami.
         </h1>
         <p class="mx-auto mt-6 max-w-2xl text-[17px] leading-relaxed text-ink-600 sm:text-lg">
           SMK Tamansiswa Jetis menyiapkan lulusan siap kerja dan wirausaha lewat 5 program keahlian dengan praktik
@@ -106,14 +107,16 @@
             <span class="h-2.5 w-2.5 rounded-full bg-white/25"></span><span class="h-2.5 w-2.5 rounded-full bg-white/25"></span><span class="h-2.5 w-2.5 rounded-full bg-gold-500"></span>
             <span class="ml-2">~/spmb-2026</span>
           </div>
-          <p><span class="text-gold-500">$</span> spmb daftar --online</p>
-          <p class="text-white/75">✓ formulir 1 halaman · ±10 menit</p>
-          <p class="text-white/75">✓ unggah berkas PDF/JPG/PNG</p>
-          <p class="text-white/75">✓ dapat nomor &amp; bukti PDF</p>
-          <p class="mt-3"><span class="text-gold-500">$</span> spmb biaya</p>
-          <p class="text-gold-400">Pendaftaran online 100% gratis.</p>
-          <p class="mt-3"><span class="text-gold-500">$</span> git log --format="%an" | head -1</p>
-          <p class="text-white/75">Pakdhe.dev RPL</p>
+          <div id="termLines" class="min-h-[13.5rem]">
+            <p><span class="text-gold-500">$ </span><span data-type="cmd">spmb daftar --online</span></p>
+            <p class="text-white/75" data-type="out">✓ formulir 1 halaman · ±10 menit</p>
+            <p class="text-white/75" data-type="out">✓ unggah berkas PDF/JPG/PNG</p>
+            <p class="text-white/75" data-type="out">✓ dapat nomor &amp; bukti PDF</p>
+            <p class="mt-3"><span class="text-gold-500">$ </span><span data-type="cmd">spmb biaya</span></p>
+            <p class="text-gold-400" data-type="out">Pendaftaran online 100% gratis.</p>
+            <p class="mt-3"><span class="text-gold-500">$ </span><span data-type="cmd">git log --format="%an" | head -1</span></p>
+            <p class="text-pink-400" data-type="out">Pakdhe.dev RPL</p>
+          </div>
         </div>
         <div class="p-6 sm:p-8">
           <h2 class="heading text-xl">Jadwal penting SPMB</h2>
@@ -161,48 +164,82 @@
       <section id="jurusan" class="rule">
         <div class="px-4 pb-8 pt-12 sm:px-10 sm:pt-16">
           <h2 class="display text-[32px] sm:text-[44px]">5 jurusan unggulan siap kerja</h2>
-          <p class="mt-3 max-w-xl text-[17px] text-ink-600">Dirancang bersama praktisi industri, dengan porsi praktik nyata yang lebih banyak.</p>
+          <p class="mt-3 max-w-xl text-[17px] text-ink-600">Pilih jurusan untuk melihat apa yang dipelajari dan prospek kerjanya.</p>
         </div>
-        <div class="no-scrollbar flex snap-x snap-mandatory overflow-x-auto border-t border-hairline md:grid md:grid-cols-3 md:overflow-visible">
-          <article class="w-[85%] shrink-0 snap-start border-b border-r border-hairline p-6 sm:p-8 md:w-auto">
-            <span class="tag" style="--dot:#171717">jurusan/tkr</span>
-            <h3 class="heading mt-4 text-lg">Teknik Kendaraan Ringan</h3>
-            <p class="mt-1.5 text-[15px] leading-relaxed text-ink-600">Pemeliharaan mesin mobil, sasis, kelistrikan bodi, dan diagnosa menggunakan scan tool.</p>
-            <ul class="mt-4 space-y-1 font-mono text-[13px] text-ink-600"><li>+ Pemeliharaan Mesin Mobil</li><li>+ Diagnosa Engine Scan Tool</li></ul>
-          </article>
-          <article class="w-[85%] shrink-0 snap-start border-b border-r border-hairline p-6 sm:p-8 md:w-auto">
-            <span class="tag" style="--dot:#DC2626">jurusan/tsm</span>
-            <h3 class="heading mt-4 text-lg">Teknik Sepeda Motor</h3>
-            <p class="mt-1.5 text-[15px] leading-relaxed text-ink-600">Servis mesin injeksi, perbaikan matic/manual, serta pengenalan konversi motor listrik.</p>
-            <ul class="mt-4 space-y-1 font-mono text-[13px] text-ink-600"><li>+ Servis Mesin &amp; Injeksi</li><li>+ Perawatan Motor Listrik</li></ul>
-          </article>
-          <article class="w-[85%] shrink-0 snap-start border-b border-hairline p-6 sm:p-8 md:w-auto">
-            <span class="tag" style="--dot:#F2B53A">jurusan/titl</span>
-            <h3 class="heading mt-4 text-lg">Teknik Instalasi Tenaga Listrik</h3>
-            <p class="mt-1.5 text-[15px] leading-relaxed text-ink-600">Instalasi listrik bangunan, panel kontrol industri, dan dasar sistem energi terbarukan.</p>
-            <ul class="mt-4 space-y-1 font-mono text-[13px] text-ink-600"><li>+ Instalasi Listrik Bangunan</li><li>+ Panel &amp; Kontrol Motor</li></ul>
-          </article>
-          <article class="w-[85%] shrink-0 snap-start border-b border-r border-hairline p-6 sm:p-8 md:w-auto">
-            <span class="tag" style="--dot:#16523A">jurusan/rpl</span>
-            <h3 class="heading mt-4 text-lg">Rekayasa Perangkat Lunak</h3>
-            <p class="mt-1.5 text-[15px] leading-relaxed text-ink-600">Pengembangan aplikasi web &amp; mobile modern, basis data, hingga cloud server deployment.</p>
-            <ul class="mt-4 space-y-1 font-mono text-[13px] text-ink-600"><li>+ Pemrograman Web &amp; Mobile</li><li>+ Basis Data &amp; Backend API</li></ul>
-          </article>
-          <article class="w-[85%] shrink-0 snap-start border-b border-r border-hairline p-6 sm:p-8 md:w-auto">
-            <span class="tag" style="--dot:#0369A1">jurusan/dkv</span>
-            <h3 class="heading mt-4 text-lg">Desain Komunikasi Visual</h3>
-            <p class="mt-1.5 text-[15px] leading-relaxed text-ink-600">Branding, ilustrasi digital, videografi, dan motion graphic standar industri kreatif.</p>
-            <ul class="mt-4 space-y-1 font-mono text-[13px] text-ink-600"><li>+ Desain Grafis &amp; Branding</li><li>+ Fotografi &amp; Videografi</li></ul>
-          </article>
-          <article class="w-[85%] shrink-0 snap-start border-b border-hairline bg-surface p-6 text-white sm:p-8 md:w-auto">
-            <span class="tag text-white/75" style="--dot:#F2B53A">konsultasi/bk</span>
-            <h3 class="heading mt-4 text-lg">Bingung pilih jurusan?</h3>
-            <p class="mt-1.5 text-[15px] leading-relaxed text-white/85">Konsultasikan minat dan bakatmu langsung bersama tim Bimbingan Konseling kami — gratis!</p>
-            <ul class="mt-4 space-y-1 font-mono text-[13px] text-white/85"><li>+ Tes minat &amp; bakat online</li><li>+ Sesi 1-on-1 dengan guru BK</li><li>+ Info prospek karier tiap jurusan</li></ul>
-            <a href="https://wa.me/628823212784" target="_blank" rel="noopener" class="btn mt-5 flex h-11 items-center justify-center rounded-full bg-gold-500 px-5 text-[15px] font-semibold text-black">Hubungi via WhatsApp</a>
-          </article>
+
+        <div class="grid border-t border-hairline lg:grid-cols-[320px_1fr]">
+          <!-- daftar jurusan (tab) -->
+          <div class="min-w-0 border-hairline lg:border-r">
+            <div class="no-scrollbar flex snap-x gap-2 overflow-x-auto px-4 py-4 sm:px-10 lg:block lg:p-0" role="tablist" aria-label="Pilih jurusan">
+            <button type="button" role="tab" data-jurusan="TKR" aria-selected="false" aria-controls="jurusanDetail" class="group flex shrink-0 snap-start items-center gap-3 rounded-full px-4 py-2.5 text-left shadow-[inset_0_0_0_1px_#E5E7EB] transition aria-selected:bg-ink-900 aria-selected:text-white aria-selected:shadow-none lg:w-full lg:rounded-none lg:border-b lg:border-hairline lg:px-6 lg:py-4 lg:shadow-none lg:aria-selected:bg-pink-50 lg:aria-selected:text-ink-900 lg:aria-selected:shadow-[inset_3px_0_0_#EC4899]">
+              <span class="h-2 w-2 shrink-0 rounded-full" style="background:#171717" aria-hidden="true"></span>
+              <span class="min-w-0">
+                <span class="block font-mono text-[13px] lg:text-[12.5px] lg:text-ink-500">jurusan/tkr</span>
+                <span class="hidden text-[15px] font-medium lg:block">Teknik Kendaraan Ringan</span>
+                <span class="hidden text-[13px] text-ink-500 lg:block">Mesin, sasis, kelistrikan mobil</span>
+              </span>
+              <span class="ml-auto hidden text-ink-300 transition group-aria-selected:translate-x-0.5 group-aria-selected:text-pink-500 lg:block" aria-hidden="true">→</span>
+            </button>
+            <button type="button" role="tab" data-jurusan="TSM" aria-selected="false" aria-controls="jurusanDetail" class="group flex shrink-0 snap-start items-center gap-3 rounded-full px-4 py-2.5 text-left shadow-[inset_0_0_0_1px_#E5E7EB] transition aria-selected:bg-ink-900 aria-selected:text-white aria-selected:shadow-none lg:w-full lg:rounded-none lg:border-b lg:border-hairline lg:px-6 lg:py-4 lg:shadow-none lg:aria-selected:bg-pink-50 lg:aria-selected:text-ink-900 lg:aria-selected:shadow-[inset_3px_0_0_#EC4899]">
+              <span class="h-2 w-2 shrink-0 rounded-full" style="background:#DC2626" aria-hidden="true"></span>
+              <span class="min-w-0">
+                <span class="block font-mono text-[13px] lg:text-[12.5px] lg:text-ink-500">jurusan/tsm</span>
+                <span class="hidden text-[15px] font-medium lg:block">Teknik Sepeda Motor</span>
+                <span class="hidden text-[13px] text-ink-500 lg:block">Injeksi, matic, motor listrik</span>
+              </span>
+              <span class="ml-auto hidden text-ink-300 transition group-aria-selected:translate-x-0.5 group-aria-selected:text-pink-500 lg:block" aria-hidden="true">→</span>
+            </button>
+            <button type="button" role="tab" data-jurusan="TITL" aria-selected="false" aria-controls="jurusanDetail" class="group flex shrink-0 snap-start items-center gap-3 rounded-full px-4 py-2.5 text-left shadow-[inset_0_0_0_1px_#E5E7EB] transition aria-selected:bg-ink-900 aria-selected:text-white aria-selected:shadow-none lg:w-full lg:rounded-none lg:border-b lg:border-hairline lg:px-6 lg:py-4 lg:shadow-none lg:aria-selected:bg-pink-50 lg:aria-selected:text-ink-900 lg:aria-selected:shadow-[inset_3px_0_0_#EC4899]">
+              <span class="h-2 w-2 shrink-0 rounded-full" style="background:#F2B53A" aria-hidden="true"></span>
+              <span class="min-w-0">
+                <span class="block font-mono text-[13px] lg:text-[12.5px] lg:text-ink-500">jurusan/titl</span>
+                <span class="hidden text-[15px] font-medium lg:block">Instalasi Tenaga Listrik</span>
+                <span class="hidden text-[13px] text-ink-500 lg:block">Bangunan, panel, energi</span>
+              </span>
+              <span class="ml-auto hidden text-ink-300 transition group-aria-selected:translate-x-0.5 group-aria-selected:text-pink-500 lg:block" aria-hidden="true">→</span>
+            </button>
+            <button type="button" role="tab" data-jurusan="RPL" aria-selected="false" aria-controls="jurusanDetail" class="group flex shrink-0 snap-start items-center gap-3 rounded-full px-4 py-2.5 text-left shadow-[inset_0_0_0_1px_#E5E7EB] transition aria-selected:bg-ink-900 aria-selected:text-white aria-selected:shadow-none lg:w-full lg:rounded-none lg:border-b lg:border-hairline lg:px-6 lg:py-4 lg:shadow-none lg:aria-selected:bg-pink-50 lg:aria-selected:text-ink-900 lg:aria-selected:shadow-[inset_3px_0_0_#EC4899]">
+              <span class="h-2 w-2 shrink-0 rounded-full" style="background:#16523A" aria-hidden="true"></span>
+              <span class="min-w-0">
+                <span class="block font-mono text-[13px] lg:text-[12.5px] lg:text-ink-500">jurusan/rpl</span>
+                <span class="hidden text-[15px] font-medium lg:block">Rekayasa Perangkat Lunak</span>
+                <span class="hidden text-[13px] text-ink-500 lg:block">Web, mobile, basis data</span>
+              </span>
+              <span class="ml-auto hidden text-ink-300 transition group-aria-selected:translate-x-0.5 group-aria-selected:text-pink-500 lg:block" aria-hidden="true">→</span>
+            </button>
+            <button type="button" role="tab" data-jurusan="DKV" aria-selected="false" aria-controls="jurusanDetail" class="group flex shrink-0 snap-start items-center gap-3 rounded-full px-4 py-2.5 text-left shadow-[inset_0_0_0_1px_#E5E7EB] transition aria-selected:bg-ink-900 aria-selected:text-white aria-selected:shadow-none lg:w-full lg:rounded-none lg:border-b lg:border-hairline lg:px-6 lg:py-4 lg:shadow-none lg:aria-selected:bg-pink-50 lg:aria-selected:text-ink-900 lg:aria-selected:shadow-[inset_3px_0_0_#EC4899]">
+              <span class="h-2 w-2 shrink-0 rounded-full" style="background:#0369A1" aria-hidden="true"></span>
+              <span class="min-w-0">
+                <span class="block font-mono text-[13px] lg:text-[12.5px] lg:text-ink-500">jurusan/dkv</span>
+                <span class="hidden text-[15px] font-medium lg:block">Desain Komunikasi Visual</span>
+                <span class="hidden text-[13px] text-ink-500 lg:block">Branding, ilustrasi, video</span>
+              </span>
+              <span class="ml-auto hidden text-ink-300 transition group-aria-selected:translate-x-0.5 group-aria-selected:text-pink-500 lg:block" aria-hidden="true">→</span>
+            </button>
+            </div>
+            <div class="hidden bg-surface p-6 text-white lg:block">
+              <span class="tag text-white/70" style="--dot:#EC4899">konsultasi/bk</span>
+              <p class="mt-3 text-[16px] font-semibold">Bingung pilih jurusan?</p>
+              <p class="mt-1 text-[14px] leading-relaxed text-white/80">Konsultasikan minat dan bakatmu bersama guru BK — gratis.</p>
+              <a href="https://wa.me/628823212784?text=Halo%2C%20saya%20ingin%20konsultasi%20memilih%20jurusan." target="_blank" rel="noopener" class="btn mt-4 inline-flex h-10 items-center rounded-full bg-gold-500 px-5 text-[14px] font-semibold text-black">Konsultasi via WhatsApp</a>
+            </div>
+          </div>
+
+          <!-- panel detail -->
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 border-b border-hairline bg-surface px-4 py-3 font-mono text-[13px] text-white sm:px-8">
+              <span class="h-2.5 w-2.5 rounded-full bg-white/25" aria-hidden="true"></span><span class="h-2.5 w-2.5 rounded-full bg-white/25" aria-hidden="true"></span><span class="h-2.5 w-2.5 rounded-full bg-pink-500" aria-hidden="true"></span>
+              <span class="ml-2 truncate"><span class="text-gold-500">$ </span><span id="jurusanCmd">cd jurusan/rpl &amp;&amp; cat README.md</span><span class="caret" aria-hidden="true"></span></span>
+            </div>
+            <div id="jurusanDetail" role="tabpanel" aria-live="polite" class="px-4 py-8 sm:px-10 sm:py-10"></div>
+          </div>
         </div>
-        <p class="px-4 py-3 text-center font-mono text-[13px] text-ink-500 md:hidden">← geser untuk melihat jurusan lain →</p>
+
+        <div class="border-t border-hairline bg-surface p-5 text-white lg:hidden">
+          <p class="text-[15px] font-semibold">Bingung pilih jurusan?</p>
+          <p class="mt-1 text-[14px] text-white/80">Konsultasi gratis bersama guru BK.</p>
+          <a href="https://wa.me/628823212784?text=Halo%2C%20saya%20ingin%20konsultasi%20memilih%20jurusan." target="_blank" rel="noopener" class="btn mt-3 inline-flex h-10 items-center rounded-full bg-gold-500 px-5 text-[14px] font-semibold text-black">Konsultasi via WhatsApp</a>
+        </div>
       </section>
 
       <!-- ======================= FAQ ======================= -->

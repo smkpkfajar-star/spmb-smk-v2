@@ -95,6 +95,14 @@ body {
 .spinner-error::after { content: "!"; position: absolute; inset: 0; display: grid; place-items: center; font: 600 22px/1 "Geist", sans-serif; color: #DC2626; }
 @keyframes putar { to { transform: rotate(360deg); } }
 
+/* Kursor ketik */
+.caret::after { content: ""; display: inline-block; width: .08em; height: .9em; margin-left: .06em; vertical-align: -.08em; background: #EC4899; animation: kedip 1s steps(1) infinite; }
+@keyframes kedip { 50% { opacity: 0; } }
+
+/* Panel detail jurusan masuk */
+.jurusan-in { animation: jurusanMasuk .35s ease-out; }
+@keyframes jurusanMasuk { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
 /* Panel geser kanan (admin) */
 .drawer { animation: geser .18s ease-out; }
 @keyframes geser { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -113,6 +121,7 @@ body {
 
 .kiosk body { zoom: 1.15; background: #FFFFFF; color: #000000; }
 .kiosk .hero-bg { background-image: none; }
+.kiosk .caret::after { display: none; }
 .kiosk .bg-sand { background: #E5E5E5 !important; }
 .kiosk .text-ink-900 { color: #000000 !important; }
 .kiosk .text-ink-600, .kiosk .text-ink-500, .kiosk .text-ink-300 { color: #111111 !important; }

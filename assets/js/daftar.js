@@ -182,6 +182,12 @@ function initLongForm(regForm) {
   initChoiceButtons();
   initBerkasInfo();
   initPasswordToggles();
+  // ?jurusan=RPL dari beranda → kartu jurusan langsung terpilih
+  const pilihan = new URLSearchParams(window.location.search).get("jurusan");
+  if (pilihan) {
+    const tile = document.querySelector(`.choice[data-for="jurusan1"][data-value="${pilihan.toUpperCase().replace(/[^A-Z]/g, "")}"]`);
+    if (tile) tile.click();
+  }
   const update = () => updateFormProgress(regForm);
   regForm.addEventListener("input", update);
   regForm.addEventListener("change", update);
