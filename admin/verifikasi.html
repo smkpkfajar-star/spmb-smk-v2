@@ -2,96 +2,11 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
-    <title>Verifikasi Berkas — Admin SPMB</title>
-    <meta name="theme-color" content="#FAF7F2" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="../assets/js/tailwind-config.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../assets/css/style.css" />
+    <title>Admin SPMB</title>
+    <!-- Semua modul admin kini satu halaman: dashboard.html#verifikasi -->
+    <meta http-equiv="refresh" content="0; url=dashboard.html#verifikasi" />
+    <script>location.replace("dashboard.html#verifikasi");</script>
   </head>
-  <body class="bg-cream text-ink-900 antialiased">
-    <header id="adminHeader" class="sticky top-0 z-40 bg-cream/95 backdrop-blur-sm"></header>
-    <main id="app" class="max-w-[1200px] px-4 pb-16 pt-6 sm:px-6 lg:px-8"><div aria-hidden="true"><div class="skeleton h-7 w-56"></div><div class="skeleton mt-3 h-4 w-80 max-w-full"></div><div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4"><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div></div><div class="mt-8 space-y-2"><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div></div></div><span class="sr-only">Memuat data</span></main>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../assets/js/app-config.js"></script>
-    <script src="../assets/js/sheetson.js"></script>
-    <script src="../assets/js/admin-auth.js"></script>
-    <script src="../assets/js/admin-ui.js"></script>
-    <script>
-      (async () => {
-        const profile = await AdminAuth.requireRole(["verifikasi"]);
-        AdminUI.renderShell(profile, "verifikasi");
-        const esc = Sheetson.escapeHtml;
-
-        const links = (row) => {
-          const urls = String(row.urlBerkas || "").split(/\r?\n/).map((s) => s.trim()).filter((s) => /^https?:\/\//.test(s));
-          if (!urls.length) return `<span class="text-ink-500">Belum ada</span>`;
-          return urls
-            .map((u, i) => `<a href="${esc(u)}" target="_blank" rel="noopener" class="mr-2 inline-block font-bold text-brand-700 underline">Berkas ${i + 1}</a>`)
-            .join("");
-        };
-        const toWa = (n) => {
-          const d = String(n || "").replace(/\D/g, "");
-          return d.startsWith("0") ? "62" + d.slice(1) : d.startsWith("62") ? d : d ? "62" + d : "";
-        };
-        const today = () => new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "-");
-
-        const hitung = (rows, field, value, fallback) => rows.filter((r) => (r[field] && r[field] !== "-" ? r[field] : fallback) === value).length;
-        AdminUI.modulePage({
-          sheet: "Verifikasi_Berkas",
-          stats: (rows) => [
-            { label: "total", value: rows.length, filter: "" },
-            { label: "pending", value: hitung(rows, "statusPendaftaran", "Pending", "Pending"), tone: "wait", filter: "Pending" },
-            { label: "diverifikasi", value: hitung(rows, "statusPendaftaran", "Diverifikasi", "Pending"), tone: "info", filter: "Diverifikasi" },
-            { label: "diterima", value: hitung(rows, "statusPendaftaran", "Diterima", "Pending"), tone: "ok", filter: "Diterima" },
-            { label: "ditolak", value: hitung(rows, "statusPendaftaran", "Ditolak", "Pending"), tone: "bad", filter: "Ditolak" },
-          ],
-          title: "Verifikasi Berkas",
-          intro: "Periksa berkas, ubah status, dan hubungi orang tua bila ada yang kurang.",
-          filter: { field: "statusPendaftaran", label: "Status pendaftaran", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak"] },
-          columns: [
-            { label: "Siswa", sortKey: "namaLengkap", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="text-[13px] text-ink-500">${esc(r.noPendaftaran || "")} · NISN ${esc(r.nisn || "-")}</span>` },
-            { label: "Jurusan", sortKey: "jurusan1", render: (r) => esc(r.jurusan1 || "-") + (r.jurusan2 && r.jurusan2 !== "-" ? `<br><span class="text-[13px] text-ink-500">Cadangan: ${esc(r.jurusan2)}</span>` : "") },
-            { label: "Berkas", render: links },
-            { label: "Status berkas", sortKey: "statusBerkas", render: (r) => AdminUI.badge(r.statusBerkas) },
-            { label: "Status daftar", sortKey: "statusPendaftaran", render: (r) => AdminUI.badge(r.statusPendaftaran || "Pending") },
-            { label: "Catatan", render: (r) => esc(r.catatanAdmin && r.catatanAdmin !== "-" ? r.catatanAdmin : "") + (r.tglFollowUpWa && r.tglFollowUpWa !== "-" ? `<br><span class="text-[13px] text-ink-500">WA ortu: ${esc(r.tglFollowUpWa)}</span>` : "") },
-          ],
-          editTitle: (r) => `Verifikasi: ${r.namaLengkap || r.noPendaftaran}`,
-          fields: [
-            { name: "statusBerkas", label: "Status berkas", type: "select", options: ["Belum Unggah", "Sudah Unggah", "Gagal Unggah", "Berkas Terverifikasi", "Berkas Ditolak"] },
-            { name: "statusPendaftaran", label: "Status pendaftaran", type: "select", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak"], help: "Siswa melihat status ini di menu Cek Status." },
-            { name: "catatanAdmin", label: "Catatan untuk siswa", type: "textarea", help: "Contoh: Foto KK buram, mohon unggah ulang." },
-          ],
-          actions: [
-            {
-              label: "Chat ortu",
-              show: (r) => !!toWa(r.waOrtu),
-              run: async (r, page) => {
-                const pesan =
-                  `Assalamualaikum / Selamat siang Bapak/Ibu orang tua dari *${r.namaLengkap}*.\n\n` +
-                  `Kami dari Panitia SPMB SMK Tamansiswa Jetis terkait pendaftaran nomor *${r.noPendaftaran}*.\n` +
-                  (r.catatanAdmin && r.catatanAdmin !== "-" ? `Catatan: ${r.catatanAdmin}\n` : "") +
-                  `\nTerima kasih.`;
-                window.open(`https://wa.me/${toWa(r.waOrtu)}?text=${encodeURIComponent(pesan)}`, "_blank", "noopener");
-                try {
-                  const tgl = today();
-                  await Sheetson.patchRow("Verifikasi_Berkas", r.rowIndex, { tglFollowUpWa: tgl });
-                  r.tglFollowUpWa = tgl;
-                  page.rerender();
-                } catch (e) {
-                  AdminUI.toast("WhatsApp dibuka, tapi tanggal follow-up gagal disimpan.", "error");
-                }
-              },
-            },
-          ],
-        });
-      })();
-    </script>
-  </body>
+  <body><p>Mengalihkan ke <a href="dashboard.html#verifikasi">halaman admin</a>…</p></body>
 </html>

@@ -49,3 +49,17 @@ test("folderUrl: /admin tanpa garis miring diarahkan ke /admin/", () => {
   assert.equal(folderUrl("/admin/dashboard.html", "", ""), null);
   assert.equal(folderUrl("/admin/index.html", "", ""), null);
 });
+
+test("routeFromHash: modul dikenal, selain itu dashboard", () => {
+  const { routeFromHash } = ctx.window.AdminAuth;
+  assert.equal(routeFromHash("#verifikasi"), "verifikasi");
+  assert.equal(routeFromHash("#tes-fisik"), "tes-fisik");
+  assert.equal(routeFromHash("#superadmin"), "superadmin");
+  assert.equal(routeFromHash(""), "dashboard");
+  assert.equal(routeFromHash("#entah"), "dashboard");
+});
+
+test("link menu memakai #modul (satu halaman)", () => {
+  const { MODULES } = ctx.window.AdminAuth;
+  assert.deepEqual([...MODULES.map((m) => m.href)], ["#verifikasi", "#keuangan", "#tes-fisik", "#superadmin"]);
+});

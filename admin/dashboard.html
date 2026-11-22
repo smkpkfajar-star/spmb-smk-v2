@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
-    <title>Dashboard — Admin SPMB</title>
+    <title>Admin SPMB</title>
     <meta name="theme-color" content="#FAF7F2" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="../assets/js/tailwind-config.js"></script>
@@ -24,94 +24,6 @@
     <script src="../assets/js/sheetson.js"></script>
     <script src="../assets/js/admin-auth.js"></script>
     <script src="../assets/js/admin-ui.js"></script>
-    <script>
-      (async () => {
-        const profile = await AdminAuth.requireRole([]);
-        AdminUI.renderShell(profile, "");
-        const esc = Sheetson.escapeHtml;
-        const ditolak = new URLSearchParams(location.search).get("ditolak");
-        const cards = AdminAuth.modulesFor(profile.role)
-          .map(
-            (m) => `<a href="${m.href}" class="group block px-4 py-3.5 hover:bg-brand-50">
-              <span class="flex items-center justify-between text-[15px] font-medium">${esc(m.title)}<span aria-hidden="true" class="text-ink-300 transition group-hover:translate-x-0.5 group-hover:text-ink-900">→</span></span>
-              <span class="mt-0.5 block text-[13.5px] text-ink-500">${esc(m.desc)}</span></a>`
-          )
-          .join("");
-        const app = document.getElementById("app");
-        app.innerHTML = `
-          ${ditolak ? `<p class="mb-4 bg-warn-50 p-4 text-[15px] font-semibold text-warn-700" role="alert">Anda tidak punya akses ke halaman itu. Pilih modul sesuai tugas Anda.</p>` : ""}
-          <div class="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h1 class="text-[26px] font-semibold tracking-tight">Halo, ${esc(profile.nama_lengkap || "Petugas")}</h1>
-              <p class="mt-1 text-[15px] text-ink-600">Ringkasan pendaftaran SPMB 2026/2027.</p>
-            </div>
-            <button id="reloadDash" type="button" class="btn rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4]">Muat ulang</button>
-          </div>
-          <div id="newSlot"></div>
-          <div id="dashStats" class="mt-6"><div class="grid grid-cols-2 gap-4 sm:grid-cols-5" aria-hidden="true"><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div></div></div>
-
-          <div class="mt-8 grid gap-6 xl:grid-cols-[1fr_360px]">
-            <section aria-labelledby="terbaruJudul">
-              <h2 id="terbaruJudul" class="text-[15px] font-semibold">Pendaftar terbaru</h2>
-              <div id="terbaru" class="mt-3"><div class="space-y-2" aria-hidden="true"><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div></div></div>
-            </section>
-            <section aria-labelledby="modulJudul">
-              <h2 id="modulJudul" class="text-[15px] font-semibold">Modul tugas Anda</h2>
-              <div class="mt-3 divide-y divide-hairline rounded-lg border border-hairline bg-white">${cards}</div>
-              <p class="mt-3 text-[13px] text-ink-500">Perubahan langsung tersimpan di Google Sheets panitia, yang tetap bisa dibuka seperti biasa.</p>
-            </section>
-          </div>`;
-
-        const val = (v, d) => (v && v !== "-" ? v : d);
-        let jumlahDiketahui = 0;
-        const showNew = AdminUI.newBanner(document.getElementById("newSlot"), () => loadDash());
-        const watcher = AdminUI.watchNew("Data_Pendaftar", () => jumlahDiketahui, showNew);
-        async function loadDash() {
-          const $s = document.getElementById("dashStats");
-          const $t = document.getElementById("terbaru");
-          const bar = document.createElement("div");
-          bar.className = "loadbar";
-          document.body.appendChild(bar);
-          try {
-            const [daftar, verif, uang, fisik] = await Promise.all(
-              ["Data_Pendaftar", "Verifikasi_Berkas", "Keuangan_Voucher", "Tes_Fisik_Seragam"].map((s) => Sheetson.getRows(s))
-            );
-            jumlahDiketahui = daftar.length;
-            watcher.reset();
-            showNew(0);
-            const count = (rows, f, v, d) => rows.filter((r) => val(r[f], d) === v).length;
-            $s.innerHTML = AdminUI.statCards([
-              { label: "total pendaftar", value: daftar.length },
-              { label: "pending", value: count(verif, "statusPendaftaran", "Pending", "Pending"), tone: "wait" },
-              { label: "diterima", value: count(verif, "statusPendaftaran", "Diterima", "Pending"), tone: "ok" },
-              { label: "sudah lunas", value: count(uang, "statusBiayaDaftar", "Lunas", "Belum Bayar"), tone: "info" },
-              { label: "sudah tes fisik", value: fisik.filter((r) => val(r.statusTesFisik, "Belum Tes") !== "Belum Tes").length, tone: "ok" },
-            ]);
-            const status = new Map(verif.map((r) => [r.noPendaftaran, r.statusPendaftaran]));
-            const recent = AdminUI.sortRows(daftar, "createdAt", "desc").slice(0, 10);
-            $t.innerHTML = recent.length
-              ? `<div class="overflow-x-auto rounded-lg border border-hairline bg-white"><table class="w-full text-left text-[14.5px]">
-                  <thead class="border-b border-hairline bg-brand-50 text-[12.5px] text-ink-500"><tr>
-                    <th scope="col" class="px-4 py-3 font-medium">Siswa</th><th scope="col" class="px-4 py-3 font-medium">Jurusan</th>
-                    <th scope="col" class="px-4 py-3 font-medium">Daftar</th><th scope="col" class="px-4 py-3 font-medium">Status</th></tr></thead>
-                  <tbody class="divide-y divide-hairline">${recent
-                    .map(
-                      (r) => `<tr><td class="px-4 py-3"><b class="font-semibold">${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.8px] text-ink-500">${esc(r.noPendaftaran || "")}</span></td>
-                        <td class="px-4 py-3">${esc(r.jurusan1 || "-")}</td>
-                        <td class="px-4 py-3 font-mono text-[13px] text-ink-600">${esc(r.createdAt ? new Date(r.createdAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short" }) : "-")}</td>
-                        <td class="px-4 py-3">${AdminUI.badge(status.get(r.noPendaftaran) || "Pending")}</td></tr>`
-                    )
-                    .join("")}</tbody></table></div>`
-              : `<div class="rounded-lg border border-dashed border-hairline p-10 text-center text-[15px] text-ink-500">Belum ada pendaftar.</div>`;
-            bar.remove();
-          } catch (e) {
-            bar.remove();
-            $s.innerHTML = `<p class="bg-red-50 p-4 text-[15px] font-semibold text-red-700">${esc(e.message)}. Periksa internet lalu tekan Muat ulang.</p>`;
-          }
-        }
-        document.getElementById("reloadDash").addEventListener("click", loadDash);
-        loadDash();
-      })();
-    </script>
+    <script src="../assets/js/admin-modules.js"></script>
   </body>
 </html>

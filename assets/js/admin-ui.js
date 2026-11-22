@@ -123,12 +123,9 @@
     document.body.classList.add("admin-shell");
     const active = activeId || "dashboard";
     const modules = A.modulesFor(profile.role);
-    const all = [{ id: "dashboard", href: "dashboard.html", title: "Dashboard" }, ...modules];
+    const all = [{ id: "dashboard", href: "#dashboard", title: "Dashboard" }, ...modules];
     const current = all.find((m) => m.id === active) || all[0];
-    const link = (m) =>
-      `<a href="${m.href}" class="block rounded-md px-3 py-2 text-[14.5px] ${
-        m.id === active ? "bg-pink-50 font-medium text-ink-900 shadow-[inset_2px_0_0_#EC4899]" : "text-ink-600 hover:bg-brand-50 hover:text-ink-900"
-      }" ${m.id === active ? 'aria-current="page"' : ""}>${esc(m.title)}</a>`;
+    const link = (m) => `<a href="${m.href}" data-nav="${m.id}" class="block rounded-md px-3 py-2 text-[14.5px]">${esc(m.title)}</a>`;
     const name = profile.nama_lengkap || profile.email;
 
     const aside = document.createElement("aside");
@@ -167,13 +164,16 @@
       if (t) t.setAttribute("aria-expanded", String(open));
     };
     overlay.addEventListener("click", () => setOpen(false));
+    // HP: tutup laci setelah memilih menu
+    aside.addEventListener("click", (e) => e.target.closest("a[data-nav]") && setOpen(false));
+    setActiveNav(active, current.title);
     document.addEventListener("keydown", (e) => e.key === "Escape" && setOpen(false));
 
     header.className = "sticky top-0 z-30 border-b border-hairline bg-white/85 backdrop-blur";
     header.innerHTML = `
       <div class="flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-8">
         <button id="btnMenu" type="button" class="-ml-1 rounded-md px-2 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand lg:hidden" aria-label="Buka menu" aria-expanded="false" aria-controls="adminSidebar">Menu</button>
-        <nav class="min-w-0 flex-1 truncate text-[14px]" aria-label="Lokasi"><span class="text-ink-500">Admin</span><span class="px-1.5 text-ink-300">/</span><span class="font-medium">${esc(current.title)}</span></nav>
+        <nav class="min-w-0 flex-1 truncate text-[14px]" aria-label="Lokasi"><span class="text-ink-500">Admin</span><span class="px-1.5 text-ink-300">/</span><span id="crumbTitle" class="font-medium">${esc(current.title)}</span></nav>
         <button id="btnBunyi" type="button" aria-pressed="false" class="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-ink-600 hover:bg-sand" title="Bunyi saat ada pendaftar baru">Bunyi: mati</button>
         <span class="hidden font-mono text-[12px] text-ink-500 sm:inline">SPMB 2026/2027</span>
       </div>`;
@@ -215,6 +215,9 @@
     } catch (_) {}
   }
 
+  const ACTIVE_WATCHERS = new Set();
+  const stopAllWatchers = () => [...ACTIVE_WATCHERS].forEach((w) => w.stop());
+
   // Cek tiap 60 detik selama tab terlihat; langsung cek saat tab kembali dibuka.
   // getKnown() → jumlah baris yang sudah tampil; onNew(n) dipanggil bila ada baris baru.
   function watchNew(sheet, getKnown, onNew) {
@@ -236,8 +239,19 @@
       }
     }
     const timer = setInterval(check, POLL_MS);
-    document.addEventListener("visibilitychange", () => document.visibilityState === "visible" && check());
-    return { check, reset: () => (lastN = 0), stop: () => clearInterval(timer) };
+    const onVisible = () => document.visibilityState === "visible" && check();
+    document.addEventListener("visibilitychange", onVisible);
+    const handle = {
+      check,
+      reset: () => (lastN = 0),
+      stop: () => {
+        clearInterval(timer);
+        document.removeEventListener("visibilitychange", onVisible);
+        ACTIVE_WATCHERS.delete(handle);
+      },
+    };
+    ACTIVE_WATCHERS.add(handle);
+    return handle;
   }
 
   // Pemberitahuan di atas tabel + judul tab
@@ -261,6 +275,21 @@
     };
   }
 
+  // Tandai menu aktif & judul lokasi tanpa merender ulang kerangka
+  const NAV_ON = ["bg-pink-50", "font-medium", "text-ink-900", "shadow-[inset_2px_0_0_#EC4899]"];
+  const NAV_OFF = ["text-ink-600", "hover:bg-brand-50", "hover:text-ink-900"];
+  function setActiveNav(id, title) {
+    document.querySelectorAll("#adminSidebar a[data-nav]").forEach((a) => {
+      const on = a.dataset.nav === id;
+      NAV_ON.forEach((c) => a.classList.toggle(c, on));
+      NAV_OFF.forEach((c) => a.classList.toggle(c, !on));
+      if (on) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    });
+    const crumb = document.getElementById("crumbTitle");
+    if (crumb && title) crumb.textContent = title;
+  }
+
   // Angka ringkasan. stats: [{label, value, tone?: ok|bad|wait|info}]
   function statCards(stats) {
     return `<dl class="grid grid-cols-2 border-y border-hairline sm:grid-cols-3 lg:grid-cols-${Math.min(stats.length, 5)}">${stats
@@ -277,6 +306,7 @@
   function openDialog({ title, subtitle, fields, values, onSave }) {
     const overlay = document.createElement("div");
     overlay.className = "fixed inset-0 z-[60] bg-black/30";
+    overlay.setAttribute("data-admin-overlay", "");
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
     const box = document.createElement("form");
@@ -614,5 +644,5 @@
     return page;
   }
 
-  Object.assign(root.AdminUI, { badge, toast, renderShell, statCards, openDialog, downloadFile, modulePage, watchNew, newBanner });
+  Object.assign(root.AdminUI, { badge, toast, renderShell, setActiveNav, statCards, openDialog, downloadFile, modulePage, watchNew, newBanner, stopAllWatchers });
 })(typeof window !== "undefined" ? window : globalThis);

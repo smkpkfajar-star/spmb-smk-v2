@@ -2,66 +2,11 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
-    <title>Keuangan & Voucher — Admin SPMB</title>
-    <meta name="theme-color" content="#FAF7F2" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="../assets/js/tailwind-config.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../assets/css/style.css" />
+    <title>Admin SPMB</title>
+    <!-- Semua modul admin kini satu halaman: dashboard.html#keuangan -->
+    <meta http-equiv="refresh" content="0; url=dashboard.html#keuangan" />
+    <script>location.replace("dashboard.html#keuangan");</script>
   </head>
-  <body class="bg-cream text-ink-900 antialiased">
-    <header id="adminHeader" class="sticky top-0 z-40 bg-cream/95 backdrop-blur-sm"></header>
-    <main id="app" class="max-w-[1200px] px-4 pb-16 pt-6 sm:px-6 lg:px-8"><div aria-hidden="true"><div class="skeleton h-7 w-56"></div><div class="skeleton mt-3 h-4 w-80 max-w-full"></div><div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4"><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div></div><div class="mt-8 space-y-2"><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div></div></div><span class="sr-only">Memuat data</span></main>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../assets/js/app-config.js"></script>
-    <script src="../assets/js/sheetson.js"></script>
-    <script src="../assets/js/admin-auth.js"></script>
-    <script src="../assets/js/admin-ui.js"></script>
-    <script>
-      (async () => {
-        const profile = await AdminAuth.requireRole(["keuangan"]);
-        AdminUI.renderShell(profile, "keuangan");
-        const esc = Sheetson.escapeHtml;
-        const rupiah = (v) => {
-          const n = Number(v);
-          return Number.isFinite(n) && n > 0 ? "Rp " + n.toLocaleString("id-ID") : "-";
-        };
-
-        const hitung = (rows, field, value, fallback) => rows.filter((r) => (r[field] && r[field] !== "-" ? r[field] : fallback) === value).length;
-        AdminUI.modulePage({
-          sheet: "Keuangan_Voucher",
-          stats: (rows) => [
-            { label: "total", value: rows.length, filter: "" },
-            { label: "lunas", value: hitung(rows, "statusBiayaDaftar", "Lunas", "Belum Bayar"), tone: "ok", filter: "Lunas" },
-            { label: "belum bayar", value: hitung(rows, "statusBiayaDaftar", "Belum Bayar", "Belum Bayar"), tone: "wait", filter: "Belum Bayar" },
-            { label: "voucher pending", value: hitung(rows, "statusVoucher", "Pending", "Tidak Ada"), tone: "info" },
-          ],
-          title: "Keuangan & Voucher",
-          intro: "Catat pembayaran, metode bayar, dan validasi kode voucher.",
-          filter: { field: "statusBiayaDaftar", label: "Status bayar", options: ["Belum Bayar", "Lunas"] },
-          columns: [
-            { label: "Siswa", sortKey: "namaLengkap", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="text-[13px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
-            { label: "Voucher", render: (r) => (r.kodeVoucher && r.kodeVoucher !== "-" ? `<b>${esc(r.kodeVoucher)}</b> ` : "") + AdminUI.badge(r.statusVoucher || "Tidak Ada") },
-            { label: "Potongan", sortKey: "potonganBiaya", render: (r) => esc(rupiah(r.potonganBiaya)) },
-            { label: "Status bayar", sortKey: "statusBiayaDaftar", render: (r) => AdminUI.badge(r.statusBiayaDaftar || "Belum Bayar") },
-            { label: "Metode", render: (r) => esc(r.metodePembayaran || "-") },
-            { label: "Catatan", render: (r) => esc(r.catatanBendahara && r.catatanBendahara !== "-" ? r.catatanBendahara : "") },
-          ],
-          editTitle: (r) => `Keuangan: ${r.namaLengkap || r.noPendaftaran}`,
-          fields: [
-            { name: "statusBiayaDaftar", label: "Status pembayaran", type: "select", options: ["Belum Bayar", "Lunas"] },
-            { name: "metodePembayaran", label: "Metode pembayaran", type: "select", options: ["-", "Tunai", "Transfer"] },
-            { name: "statusVoucher", label: "Status voucher", type: "select", options: ["Tidak Ada", "Pending", "Valid", "Tidak Valid"] },
-            { name: "potonganBiaya", label: "Potongan biaya (Rp)", type: "number", help: "Angka saja, tanpa titik. Contoh: 250000" },
-            { name: "catatanBendahara", label: "Catatan bendahara", type: "textarea" },
-          ],
-        });
-      })();
-    </script>
-  </body>
+  <body><p>Mengalihkan ke <a href="dashboard.html#keuangan">halaman admin</a>…</p></body>
 </html>

@@ -2,70 +2,11 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
-    <title>Tes Fisik & Seragam — Admin SPMB</title>
-    <meta name="theme-color" content="#FAF7F2" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="../assets/js/tailwind-config.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../assets/css/style.css" />
+    <title>Admin SPMB</title>
+    <!-- Semua modul admin kini satu halaman: dashboard.html#tes-fisik -->
+    <meta http-equiv="refresh" content="0; url=dashboard.html#tes-fisik" />
+    <script>location.replace("dashboard.html#tes-fisik");</script>
   </head>
-  <body class="bg-cream text-ink-900 antialiased">
-    <header id="adminHeader" class="sticky top-0 z-40 bg-cream/95 backdrop-blur-sm"></header>
-    <main id="app" class="max-w-[1200px] px-4 pb-16 pt-6 sm:px-6 lg:px-8"><div aria-hidden="true"><div class="skeleton h-7 w-56"></div><div class="skeleton mt-3 h-4 w-80 max-w-full"></div><div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4"><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div></div><div class="mt-8 space-y-2"><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div></div></div><span class="sr-only">Memuat data</span></main>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../assets/js/app-config.js"></script>
-    <script src="../assets/js/sheetson.js"></script>
-    <script src="../assets/js/admin-auth.js"></script>
-    <script src="../assets/js/admin-ui.js"></script>
-    <script>
-      (async () => {
-        const profile = await AdminAuth.requireRole(["tes_fisik"]);
-        AdminUI.renderShell(profile, "tes-fisik");
-        const esc = Sheetson.escapeHtml;
-        const num = (v, unit) => (Number(v) > 0 ? `${esc(v)} ${unit}` : "-");
-        const today = () => new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "-");
-
-        const hitung = (rows, field, value, fallback) => rows.filter((r) => (r[field] && r[field] !== "-" ? r[field] : fallback) === value).length;
-        AdminUI.modulePage({
-          sheet: "Tes_Fisik_Seragam",
-          stats: (rows) => [
-            { label: "total", value: rows.length, filter: "" },
-            { label: "belum tes", value: hitung(rows, "statusTesFisik", "Belum Tes", "Belum Tes"), tone: "wait", filter: "Belum Tes" },
-            { label: "lulus tes", value: hitung(rows, "statusTesFisik", "Lulus Tes", "Belum Tes"), tone: "ok", filter: "Lulus Tes" },
-            { label: "tidak lulus", value: hitung(rows, "statusTesFisik", "Tidak Lulus", "Belum Tes"), tone: "bad", filter: "Tidak Lulus" },
-            { label: "sudah ukur seragam", value: rows.filter((r) => r.ukuranSeragam && r.ukuranSeragam !== "-").length, tone: "info" },
-          ],
-          title: "Tes Fisik & Seragam",
-          intro: "Isi hasil pengukuran, tes fisik, dan ukuran seragam.",
-          filter: { field: "statusTesFisik", label: "Status tes", options: ["Belum Tes", "Lulus Tes", "Tidak Lulus"] },
-          columns: [
-            { label: "Siswa", sortKey: "namaLengkap", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="text-[13px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
-            { label: "Tinggi / Berat", sortKey: "tinggiBadan", render: (r) => `${num(r.tinggiBadan, "cm")} / ${num(r.beratBadan, "kg")}` },
-            { label: "Tato/Tindik", render: (r) => esc(r.tatoTindik || "-") },
-            { label: "Status tes", sortKey: "statusTesFisik", render: (r) => AdminUI.badge(r.statusTesFisik || "Belum Tes") },
-            { label: "Seragam", sortKey: "ukuranSeragam", render: (r) => `<b>${esc(r.ukuranSeragam || "-")}</b>` + (r.tglUkurSeragam && r.tglUkurSeragam !== "-" ? `<br><span class="text-[13px] text-ink-500">${esc(r.tglUkurSeragam)}</span>` : "") },
-            { label: "Catatan", render: (r) => esc(r.catatanTesFisik && r.catatanTesFisik !== "-" ? r.catatanTesFisik : "") },
-          ],
-          editTitle: (r) => `Tes fisik: ${r.namaLengkap || r.noPendaftaran}`,
-          fields: [
-            { name: "tinggiBadan", label: "Tinggi badan (cm)", type: "number" },
-            { name: "beratBadan", label: "Berat badan (kg)", type: "number" },
-            { name: "tatoTindik", label: "Tato / tindik", type: "select", options: ["-", "Tidak Ada", "Ada"] },
-            { name: "statusTesFisik", label: "Hasil tes fisik", type: "select", options: ["Belum Tes", "Lulus Tes", "Tidak Lulus"] },
-            { name: "ukuranSeragam", label: "Ukuran seragam", type: "select", options: ["-", "S", "M", "L", "XL", "XXL"], help: "Tanggal ukur terisi otomatis saat ukuran diubah." },
-            { name: "catatanTesFisik", label: "Catatan", type: "textarea" },
-          ],
-          beforeSave: (changes) => {
-            if (changes.ukuranSeragam && changes.ukuranSeragam !== "-") changes.tglUkurSeragam = today();
-            return changes;
-          },
-        });
-      })();
-    </script>
-  </body>
+  <body><p>Mengalihkan ke <a href="dashboard.html#tes-fisik">halaman admin</a>…</p></body>
 </html>

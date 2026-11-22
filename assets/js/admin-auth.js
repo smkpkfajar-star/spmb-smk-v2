@@ -22,11 +22,17 @@
   });
 
   const MODULES = Object.freeze([
-    { id: "verifikasi", href: "verifikasi.html", title: "Verifikasi Berkas", desc: "Periksa berkas, ubah status pendaftaran, hubungi orang tua.", roles: ["verifikasi"] },
-    { id: "keuangan", href: "keuangan.html", title: "Keuangan & Voucher", desc: "Catat pembayaran, potongan, dan status voucher.", roles: ["keuangan"] },
-    { id: "tes-fisik", href: "tes-fisik.html", title: "Tes Fisik & Seragam", desc: "Isi tinggi/berat, hasil tes fisik, dan ukuran seragam.", roles: ["tes_fisik"] },
-    { id: "superadmin", href: "superadmin.html", title: "Superadmin", desc: "Rekap, unduh data, kelola akun petugas, reset password.", roles: [] },
+    { id: "verifikasi", href: "#verifikasi", title: "Verifikasi Berkas", desc: "Periksa berkas, ubah status pendaftaran, hubungi orang tua.", roles: ["verifikasi"] },
+    { id: "keuangan", href: "#keuangan", title: "Keuangan & Voucher", desc: "Catat pembayaran, potongan, dan status voucher.", roles: ["keuangan"] },
+    { id: "tes-fisik", href: "#tes-fisik", title: "Tes Fisik & Seragam", desc: "Isi tinggi/berat, hasil tes fisik, dan ukuran seragam.", roles: ["tes_fisik"] },
+    { id: "superadmin", href: "#superadmin", title: "Superadmin", desc: "Rekap, unduh data, kelola akun petugas, reset password.", roles: [] },
   ]);
+
+  // "#keuangan" → "keuangan"; selain modul yang dikenal → "dashboard"
+  function routeFromHash(hash) {
+    const id = String(hash || "").replace(/^#\/?/, "");
+    return MODULES.some((m) => m.id === id) ? id : "dashboard";
+  }
 
   const isStaffRole = (role) => Object.prototype.hasOwnProperty.call(ROLE_LABEL, role || "");
 
@@ -89,11 +95,11 @@
       return new Promise(() => {});
     }
     if (!canOpen(profile.role, allowed)) {
-      root.location.replace("dashboard.html?ditolak=1");
+      root.location.replace("dashboard.html#dashboard");
       return new Promise(() => {});
     }
     return profile;
   }
 
-  root.AdminAuth = { folderUrl, ROLE_LABEL, MODULES, isStaffRole, canOpen, modulesFor, usernameToEmail, getClient, getProfile, login, logout, requireRole };
+  root.AdminAuth = { folderUrl, routeFromHash, ROLE_LABEL, MODULES, isStaffRole, canOpen, modulesFor, usernameToEmail, getClient, getProfile, login, logout, requireRole };
 })(typeof window !== "undefined" ? window : globalThis);
