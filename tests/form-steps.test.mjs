@@ -35,3 +35,30 @@ test("errorsInStep", () => {
   assert.deepEqual([...errorsInStep(1, ["nisn", "waOrtu"])], ["nisn"]);
   assert.deepEqual([...errorsInStep(3, ["nisn"])], []);
 });
+
+test("sectionProgress: bagian lengkap & persentase kolom wajib", () => {
+  const { sectionProgress, REQUIRED_FIELDS } = ctx.window.FormSteps;
+  const filled = Object.fromEntries(REQUIRED_FIELDS.map((id) => [id, false]));
+  let p = sectionProgress(filled);
+  assert.equal(p.percent, 0);
+  assert.equal(p.sections[1], false);
+  assert.equal(p.sections[3], true); // berkas opsional → selalu dianggap lengkap
+
+  ["namaLengkap", "jenisKelamin", "nisn", "tempatLahir", "tanggalLahir", "agama", "whatsapp", "alamat", "asalSekolah"].forEach((id) => (filled[id] = true));
+  p = sectionProgress(filled);
+  assert.equal(p.sections[1], true);
+  assert.equal(p.sections[2], false);
+  assert.equal(p.percent, Math.round((9 / REQUIRED_FIELDS.length) * 100));
+
+  REQUIRED_FIELDS.forEach((id) => (filled[id] = true));
+  p = sectionProgress(filled);
+  assert.equal(p.percent, 100);
+  assert.deepEqual([1, 2, 3, 4].map((s) => p.sections[s]), [true, true, true, true]);
+});
+
+test("REQUIRED_FIELDS tidak memuat kolom opsional", () => {
+  const { REQUIRED_FIELDS } = ctx.window.FormSteps;
+  assert.ok(!REQUIRED_FIELDS.includes("berkasFile"));
+  assert.ok(!REQUIRED_FIELDS.includes("jurusan2"));
+  assert.ok(REQUIRED_FIELDS.includes("pernyataan"));
+});
