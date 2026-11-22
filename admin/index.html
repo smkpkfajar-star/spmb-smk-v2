@@ -40,6 +40,7 @@
             <button type="button" id="togglePw" class="absolute inset-y-0 right-1.5 my-1.5 rounded-lg px-3 text-[14px] font-semibold text-brand-700 hover:bg-brand-50" aria-pressed="false">Lihat</button>
           </span>
 
+          <p id="loginInfo" class="mt-4 hidden rounded-2xl bg-sand p-3 text-[15px] font-medium text-ink-900" role="status"></p>
           <p id="loginError" class="mt-4 hidden rounded-2xl bg-red-50 p-3 text-[15px] font-semibold text-red-700" role="alert"></p>
 
           <button id="loginBtn" type="submit" class="mt-5 w-full rounded-full bg-brand-600 px-6 py-4 text-base font-bold text-white hover:bg-brand-700 disabled:opacity-60">Masuk</button>
@@ -54,6 +55,12 @@
     <script src="../assets/js/admin/auth.js"></script>
     <script>
       (async () => {
+        if (new URLSearchParams(location.search).get("sesi") === "habis") {
+          const info = document.getElementById("loginInfo");
+          info.textContent = "Anda keluar otomatis karena tidak ada aktivitas selama 20 menit. Silakan masuk lagi.";
+          info.classList.remove("hidden");
+          history.replaceState(null, "", location.pathname);
+        }
         // Sudah login sebagai petugas? langsung ke dashboard
         const existing = await AdminAuth.getProfile().catch(() => null);
         if (existing && AdminAuth.isStaffRole(existing.role)) return location.replace("dashboard.html");

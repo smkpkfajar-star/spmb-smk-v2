@@ -63,3 +63,17 @@ test("link menu memakai #modul (satu halaman)", () => {
   const { MODULES } = ctx.window.AdminAuth;
   assert.deepEqual([...MODULES.map((m) => m.href)], ["#verifikasi", "#keuangan", "#tes-fisik", "#superadmin"]);
 });
+
+test("sesi diam: keluar setelah 20 menit tanpa aktivitas", () => {
+  const { BATAS_DIAM, sesiHabis, sisaDiam } = ctx.window.AdminAuth;
+  assert.equal(BATAS_DIAM, 20 * 60 * 1000);
+  const t0 = 1_000_000;
+  assert.equal(sesiHabis(t0, t0 + 19 * 60 * 1000), false);
+  assert.equal(sesiHabis(t0, t0 + 20 * 60 * 1000), true);
+  assert.equal(sesiHabis(t0, t0 + 60 * 60 * 1000), true);
+  // belum pernah tercatat (sesi lama sebelum fitur ini) → tidak langsung dikeluarkan
+  assert.equal(sesiHabis(null, t0), false);
+  assert.equal(sesiHabis(NaN, t0), false);
+  assert.equal(sisaDiam(t0, t0 + 19 * 60 * 1000), 60 * 1000);
+  assert.equal(sisaDiam(t0, t0 + 25 * 60 * 1000), 0);
+});

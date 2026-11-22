@@ -60,6 +60,113 @@
     return client;
   }
 
+  // ---------- Keluar otomatis bila diam 20 menit ----------
+  // Waktu aktivitas terakhir disimpan di localStorage supaya semua tab admin
+  // berbagi hitungan yang sama (bekerja di satu tab menjaga tab lain tetap masuk).
+  const BATAS_DIAM = 20 * 60 * 1000;
+  const PERINGATAN_DIAM = 60 * 1000;
+  const KUNCI_AKTIF = "spmb-admin-aktif";
+
+  // Belum pernah tercatat (mis. sesi dari sebelum fitur ini) → jangan langsung keluar.
+  const sesiHabis = (terakhir, sekarang, batas = BATAS_DIAM) =>
+    Number.isFinite(terakhir) && terakhir > 0 && sekarang - terakhir >= batas;
+  const sisaDiam = (terakhir, sekarang, batas = BATAS_DIAM) => Math.max(0, terakhir + batas - sekarang);
+
+  function bacaAktif() {
+    try {
+      return Number(root.localStorage.getItem(KUNCI_AKTIF)) || null;
+    } catch (_) {
+      return null;
+    }
+  }
+  function catatAktif(waktu = Date.now()) {
+    try {
+      root.localStorage.setItem(KUNCI_AKTIF, String(waktu));
+    } catch (_) {}
+  }
+  function hapusAktif() {
+    try {
+      root.localStorage.removeItem(KUNCI_AKTIF);
+    } catch (_) {}
+  }
+
+  let pantauanDiam = false;
+  function pantauDiam() {
+    if (pantauanDiam || !root.document) return;
+    pantauanDiam = true;
+    const doc = root.document;
+    let tulisTerakhir = 0;
+    let keluar = false;
+    let kotak = null;
+
+    const aktif = () => {
+      if (keluar) return;
+      const now = Date.now();
+      // Kembali dari laptop tidur lewat 20 menit: aktivitas pertama tidak boleh menghidupkan sesi lagi.
+      if (sesiHabis(bacaAktif(), now)) return periksa();
+      // dibatasi sekali per 5 detik, kecuali saat peringatan tampil (harus langsung tertutup)
+      if (kotak || now - tulisTerakhir > 5000) {
+        tulisTerakhir = now;
+        catatAktif(now);
+      }
+      if (kotak) periksa();
+    };
+
+    function tampilPeringatan(detik) {
+      if (!kotak) {
+        kotak = doc.createElement("div");
+        kotak.setAttribute("role", "alertdialog");
+        kotak.setAttribute("aria-live", "assertive");
+        kotak.setAttribute("aria-labelledby", "diamJudul");
+        kotak.className =
+          "fixed bottom-5 left-1/2 z-[80] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-hairline bg-white p-5 shadow-soft";
+        kotak.innerHTML = `<p id="diamJudul" class="text-[16px] font-semibold tracking-tight">Masih di sana?</p>
+          <p class="mt-1 text-[15px] text-ink-600">Tidak ada aktivitas hampir 20 menit. Anda akan keluar otomatis dalam <b data-diam-detik class="tabular-nums text-ink-900"></b> detik.</p>
+          <div class="mt-4 flex justify-end gap-2">
+            <button type="button" data-diam-keluar class="rounded-full px-4 py-2 text-[14px] font-medium text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand hover:text-ink-900">Keluar sekarang</button>
+            <button type="button" data-diam-lanjut class="rounded-full bg-ink-900 px-4 py-2 text-[14px] font-medium text-white">Tetap masuk</button>
+          </div>`;
+        kotak.querySelector("[data-diam-lanjut]").addEventListener("click", () => {
+          tulisTerakhir = 0;
+          aktif();
+        });
+        kotak.querySelector("[data-diam-keluar]").addEventListener("click", () => logout());
+        doc.body.appendChild(kotak);
+        kotak.querySelector("[data-diam-lanjut]").focus();
+      }
+      kotak.querySelector("[data-diam-detik]").textContent = String(detik);
+    }
+    function tutupPeringatan() {
+      if (kotak) kotak.remove();
+      kotak = null;
+    }
+
+    function periksa() {
+      if (keluar) return;
+      const terakhir = bacaAktif();
+      if (!terakhir) return catatAktif();
+      const now = Date.now();
+      if (sesiHabis(terakhir, now)) {
+        keluar = true;
+        return logout("habis");
+      }
+      const sisa = sisaDiam(terakhir, now);
+      if (sisa <= PERINGATAN_DIAM) tampilPeringatan(Math.ceil(sisa / 1000));
+      else tutupPeringatan();
+    }
+
+    ["pointerdown", "keydown", "wheel", "touchstart", "scroll", "mousemove"].forEach((ev) =>
+      doc.addEventListener(ev, aktif, { passive: true, capture: true })
+    );
+    // Laptop bangun dari tidur / tab dibuka lagi: timer mungkin tertunda, periksa langsung.
+    doc.addEventListener("visibilitychange", () => doc.visibilityState === "visible" && periksa());
+    root.addEventListener("focus", periksa);
+    // Tab lain mencatat aktivitas / keluar
+    root.addEventListener("storage", (e) => e.key === KUNCI_AKTIF && periksa());
+    root.setInterval(periksa, 1000);
+    periksa();
+  }
+
   async function getProfile() {
     const c = getClient();
     const { data } = await c.auth.getSession();
@@ -79,12 +186,15 @@
       await c.auth.signOut();
       return { ok: false, error: "Akun ini bukan akun petugas. Hubungi superadmin." };
     }
+    catatAktif();
     return { ok: true, role: profile.role };
   }
 
-  async function logout() {
+  // alasan "habis" → halaman login menjelaskan sesi berakhir karena diam 20 menit
+  async function logout(alasan) {
+    hapusAktif();
     await getClient().auth.signOut().catch(() => {});
-    root.location.replace("index.html");
+    root.location.replace(alasan === "habis" ? "index.html?sesi=habis" : "index.html");
   }
 
   // Dipanggil di awal setiap halaman admin. Tidak pernah selesai bila diarahkan.
@@ -94,6 +204,13 @@
       root.location.replace("index.html");
       return new Promise(() => {});
     }
+    // Halaman dibuka lagi setelah ditinggal lebih dari 20 menit
+    if (sesiHabis(bacaAktif(), Date.now())) {
+      await logout("habis");
+      return new Promise(() => {});
+    }
+    catatAktif();
+    pantauDiam();
     if (!canOpen(profile.role, allowed)) {
       root.location.replace("dashboard.html#dashboard");
       return new Promise(() => {});
@@ -101,5 +218,5 @@
     return profile;
   }
 
-  root.AdminAuth = { folderUrl, routeFromHash, ROLE_LABEL, MODULES, isStaffRole, canOpen, modulesFor, usernameToEmail, getClient, getProfile, login, logout, requireRole };
+  root.AdminAuth = { folderUrl, routeFromHash, ROLE_LABEL, MODULES, isStaffRole, canOpen, modulesFor, usernameToEmail, getClient, getProfile, login, logout, requireRole, BATAS_DIAM, sesiHabis, sisaDiam };
 })(typeof window !== "undefined" ? window : globalThis);
