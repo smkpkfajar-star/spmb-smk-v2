@@ -93,6 +93,20 @@
   }
   const waktuKey = (v) => (parseWaktu(v) || { getTime: () => 0 }).getTime();
 
+  // Tanggal kalender WIB "2026-11-22" dari angka waktu (ms); 0 → ""
+  const tanggalWIB = (ms) => (ms ? new Date(ms + 7 * 3600 * 1000).toISOString().slice(0, 10) : "");
+
+  // Saring baris menurut tanggal daftar (dari/sampai "YYYY-MM-DD", boleh kosong)
+  function filterTanggal(rows, dari, sampai) {
+    let a = dari || "", b = sampai || "";
+    if (!a && !b) return rows;
+    if (a && b && a > b) [a, b] = [b, a];
+    return rows.filter((r) => {
+      const t = tanggalWIB(r._waktu);
+      return t && (!a || t >= a) && (!b || t <= b);
+    });
+  }
+
   // Tombol nomor halaman: 1 … 9 10 11 … 20
   function pageNumbers(page, pages) {
     if (pages <= 7) return Array.from({ length: pages }, (_, i) => i + 1);
@@ -114,7 +128,7 @@
     return n > 0 ? `(${n}) ${base}` : base;
   }
 
-  root.AdminUI = { filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers };
+  root.AdminUI = { filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
   if (typeof document === "undefined") return;
 
   /* ---------- tampilan ---------- */
@@ -504,6 +518,19 @@
           </select>
         </div>
       </div>
+      <div id="tglBar" class="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Cari berdasarkan tanggal daftar">
+        <span class="mr-1 text-[13px] font-medium text-ink-600">Tanggal daftar</span>
+        <label for="tglDari" class="sr-only">Dari tanggal</label>
+        <input id="tglDari" type="date" class="rounded-md border border-line/60 bg-white px-2.5 py-1.5 text-[14px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30" />
+        <span class="text-ink-500" aria-hidden="true">–</span>
+        <label for="tglSampai" class="sr-only">Sampai tanggal</label>
+        <input id="tglSampai" type="date" class="rounded-md border border-line/60 bg-white px-2.5 py-1.5 text-[14px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30" />
+        <span class="mx-1 hidden h-5 w-px bg-hairline sm:block" aria-hidden="true"></span>
+        <button type="button" data-tgl="hari" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Hari ini</button>
+        <button type="button" data-tgl="kemarin" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Kemarin</button>
+        <button type="button" data-tgl="7" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">7 hari</button>
+        <button type="button" data-tgl="reset" id="tglReset" class="hidden rounded-full px-3 py-1.5 text-[13.5px] font-medium text-pink-600 hover:bg-pink-50">Hapus tanggal</button>
+      </div>
       <div id="newSlot"></div>
       <p id="count" class="mt-4 h-5 font-mono text-[12.5px] text-ink-500" aria-live="polite"></p>
       <div id="list" class="mt-2"><div class="space-y-2" aria-hidden="true">${'<div class="skeleton h-12"></div>'.repeat(8)}</div></div>
@@ -513,6 +540,8 @@
     // Bawaan: pendaftar terbaru di atas
     const state = { page: 1, size: savedSize(), sortKey: "_waktu", sortDir: "desc" };
     const $q = app.querySelector("#q");
+    const $dari = app.querySelector("#tglDari");
+    const $sampai = app.querySelector("#tglSampai");
     const $f = app.querySelector("#f");
     const $count = app.querySelector("#count");
     const $list = app.querySelector("#list");
@@ -546,11 +575,20 @@
 
     function render() {
       renderTabs();
-      let rows = filterRows(page.rows, $q.value, { [config.filter.field]: $f.value });
+      let rows = filterTanggal(filterRows(page.rows, $q.value, { [config.filter.field]: $f.value }), $dari.value, $sampai.value);
+      const adaTanggal = !!($dari.value || $sampai.value);
+      app.querySelector("#tglReset").classList.toggle("hidden", !adaTanggal);
       if (state.sortKey) rows = sortRows(rows, state.sortKey, state.sortDir);
       const pg = paginate(rows, state.page, state.size);
       state.page = pg.page;
-      $count.textContent = `${rows.length} dari ${page.rows.length} pendaftar`;
+      const tglTeks = (v) => formatWaktu(v + " 12:00:00").replace(/, .*$/, "");
+      const [t1, t2] = [$dari.value, $sampai.value].filter(Boolean).sort();
+      const rentang = !adaTanggal
+        ? ""
+        : t2 && t1 !== t2
+          ? ` · ${tglTeks(t1)} – ${tglTeks(t2)}`
+          : ` · ${$dari.value && $sampai.value ? "tanggal" : $dari.value ? "sejak" : "sampai"} ${tglTeks(t1)}`;
+      $count.textContent = `${rows.length} dari ${page.rows.length} pendaftar${rentang}`;
       if (!rows.length) {
         $list.innerHTML = `<div class="rounded-lg border border-dashed border-hairline p-10 text-center text-[15px] text-ink-500">Tidak ada data yang cocok.</div>`;
         $pager.innerHTML = "";
@@ -565,24 +603,31 @@
               `<button type="button" data-action="${i}" data-row="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900">${esc(a.label)}</button>`
           )
           .join("");
+      // Kolom pertama (nama) & kolom aksi dibekukan; judul kolom menempel di atas.
+      const STICKY_L = "sticky left-0 z-[1] shadow-[1px_0_0_#E5E5E5]";
+      const STICKY_R = "sticky right-0 z-[1] shadow-[-1px_0_0_#E5E5E5]";
+      const thCls = (i) =>
+        `sticky top-0 border-b border-hairline bg-brand-50 px-4 py-3 font-medium whitespace-nowrap ${i === 0 ? "left-0 z-[3] min-w-[230px] shadow-[1px_0_0_#E5E5E5]" : "z-[2]"}`;
       const th = (c, i) => {
-        if (!c.sortKey) return `<th scope="col" class="px-4 py-2.5 font-medium">${esc(c.label)}</th>`;
+        if (!c.sortKey) return `<th scope="col" class="${thCls(i)}">${esc(c.label)}</th>`;
         const on = state.sortKey === c.sortKey;
         const arrow = on ? (state.sortDir === "asc" ? "↑" : "↓") : "↕";
-        return `<th scope="col" class="px-4 py-2.5 font-medium" aria-sort="${on ? (state.sortDir === "asc" ? "ascending" : "descending") : "none"}">
+        return `<th scope="col" class="${thCls(i)}" aria-sort="${on ? (state.sortDir === "asc" ? "ascending" : "descending") : "none"}">
           <button type="button" data-sort="${i}" class="inline-flex items-center gap-1 hover:text-ink-900">${esc(c.label)} <span aria-hidden="true">${arrow}</span></button></th>`;
       };
       const table = `
-        <div class="hidden overflow-x-auto rounded-lg border border-hairline bg-white md:block">
-          <table class="w-full text-left text-[14.5px]">
-            <thead class="border-b border-hairline bg-brand-50 text-[12.5px] text-ink-500">
-              <tr>${columns.map(th).join("")}<th class="px-4 py-3"><span class="sr-only">Aksi</span></th></tr>
+        <div class="hidden max-h-[calc(100vh-12rem)] overflow-auto rounded-lg border border-hairline bg-white md:block">
+          <table class="w-full border-separate border-spacing-0 text-left text-[14px] leading-snug">
+            <thead class="text-[12.5px] text-ink-500">
+              <tr>${columns.map(th).join("")}<th scope="col" class="sticky right-0 top-0 z-[3] border-b border-hairline bg-brand-50 px-4 py-3 shadow-[-1px_0_0_#E5E5E5]"><span class="sr-only">Aksi</span></th></tr>
             </thead>
-            <tbody class="divide-y divide-hairline">
+            <tbody>
               ${pg.items
                 .map(
                   (r) =>
-                    `<tr class="align-top hover:bg-brand-50">${columns.map((c) => `<td class="px-4 py-3">${c.render(r)}</td>`).join("")}<td class="px-4 py-2.5"><div class="flex flex-wrap justify-end gap-1">${actionsHtml(r)}</div></td></tr>`
+                    `<tr class="bg-white even:bg-[#FAFAFA] hover:bg-[#FDF2F8]">${columns
+                      .map((c, i) => `<td class="border-b border-hairline bg-inherit px-4 py-2.5 align-middle ${i === 0 ? STICKY_L : c.wrap ? "min-w-[180px] max-w-[280px]" : "whitespace-nowrap"}">${c.render(r)}</td>`)
+                      .join("")}<td class="border-b border-hairline bg-inherit px-3 py-2 align-middle ${STICKY_R}"><div class="flex justify-end gap-1 whitespace-nowrap">${actionsHtml(r)}</div></td></tr>`
                 )
                 .join("")}
             </tbody>
@@ -731,6 +776,16 @@
     page.watcher = watcher;
 
     $q.addEventListener("input", () => { state.page = 1; render(); });
+    [$dari, $sampai].forEach((el) => el.addEventListener("change", () => { state.page = 1; render(); }));
+    app.querySelector("#tglBar").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-tgl]");
+      if (!b) return;
+      const hari = (mundur) => tanggalWIB(Date.now() - mundur * 86400000);
+      const pilih = { hari: [hari(0), hari(0)], kemarin: [hari(1), hari(1)], 7: [hari(6), hari(0)], reset: ["", ""] }[b.dataset.tgl];
+      [$dari.value, $sampai.value] = pilih;
+      state.page = 1;
+      render();
+    });
     $f.addEventListener("change", () => { state.page = 1; render(); });
     app.querySelector("#reload").addEventListener("click", () => load(true));
     load();

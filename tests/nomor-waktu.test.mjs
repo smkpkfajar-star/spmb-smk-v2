@@ -111,3 +111,26 @@ test("bukti PDF mencantumkan waktu pendaftaran", () => {
   const rows = c.sections.flatMap((s) => s.rows);
   assert.deepEqual([...rows.find((r) => r[0] === "Waktu Pendaftaran")], ["Waktu Pendaftaran", "22-11-2026 pukul 15.22 WIB"]);
 });
+
+/* ---------- cari berdasarkan tanggal daftar ---------- */
+
+test("tanggalWIB: tanggal kalender WIB dari waktu daftar", () => {
+  assert.equal(UI.tanggalWIB(UI.waktuKey("2026-11-22T17:30:00Z")), "2026-11-23"); // 00.30 WIB
+  assert.equal(UI.tanggalWIB(0), "");
+});
+
+test("filterTanggal: dari–sampai (termasuk kedua ujung), salah satu boleh kosong", () => {
+  const rows = [
+    { n: "a", _waktu: UI.waktuKey("2026-11-20 08:00:00") },
+    { n: "b", _waktu: UI.waktuKey("2026-11-21 23:59:00") },
+    { n: "c", _waktu: UI.waktuKey("2026-11-22 00:01:00") },
+    { n: "d", _waktu: 0 },
+  ];
+  const n = (r) => r.map((x) => x.n).join("");
+  assert.equal(n(UI.filterTanggal(rows, "", "")), "abcd");
+  assert.equal(n(UI.filterTanggal(rows, "2026-11-21", "2026-11-21")), "b");
+  assert.equal(n(UI.filterTanggal(rows, "2026-11-21", "")), "bc");
+  assert.equal(n(UI.filterTanggal(rows, "", "2026-11-21")), "ab");
+  // tertukar → tetap benar
+  assert.equal(n(UI.filterTanggal(rows, "2026-11-22", "2026-11-20")), "abc");
+});
