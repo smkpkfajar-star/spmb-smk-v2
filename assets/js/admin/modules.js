@@ -128,6 +128,11 @@
           title: "Verifikasi Berkas",
           intro: "Periksa berkas, ubah status, dan hubungi orang tua bila ada yang kurang.",
           filter: { field: "statusPendaftaran", label: "Status pendaftaran", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak"] },
+          saring: [
+            { id: "berkas", label: "Status berkas", get: (r) => AdminUI.isi(r.statusBerkas, "Belum diisi"), options: ["Belum Unggah", "Sudah Unggah", "Gagal Unggah", "Berkas Terverifikasi", "Berkas Ditolak"] },
+            { id: "catatan", label: "Catatan", get: (r) => (AdminUI.isi(r.catatanAdmin, "") ? "Ada catatan" : "Tanpa catatan"), options: ["Ada catatan", "Tanpa catatan"] },
+            { id: "wa", label: "Chat ortu", get: (r) => (AdminUI.isi(r.tglFollowUpWa, "") ? "Sudah dihubungi" : "Belum dihubungi"), options: ["Belum dihubungi", "Sudah dihubungi"] },
+          ],
           columns: [
             { label: "Siswa", sortKey: "namaLengkap", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.5px] text-ink-500">${esc(r.noPendaftaran || "")}<br>NISN ${esc(r.nisn || "-")}</span>` },
             { label: "Jurusan", sortKey: "jurusan1", render: (r) => esc(r.jurusan1 || "-") + (r.jurusan2 && r.jurusan2 !== "-" ? `<br><span class="text-[13px] text-ink-500">Cadangan: ${esc(r.jurusan2)}</span>` : "") },
@@ -191,6 +196,10 @@
           title: "Keuangan & Voucher",
           intro: "Catat pembayaran, metode bayar, dan validasi kode voucher.",
           filter: { field: "statusBiayaDaftar", label: "Status bayar", options: ["Belum Bayar", "Lunas"] },
+          saring: [
+            { id: "voucher", label: "Voucher", get: (r) => AdminUI.isi(r.statusVoucher, "Tidak Ada"), options: ["Tidak Ada", "Pending", "Valid", "Tidak Valid"] },
+            { id: "metode", label: "Metode", get: (r) => AdminUI.isi(r.metodePembayaran, "Belum diisi"), options: ["Belum diisi", "Tunai", "Transfer"] },
+          ],
           columns: [
             { label: "Siswa", sortKey: "namaLengkap", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.5px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
             { label: "Voucher", render: (r) => (r.kodeVoucher && r.kodeVoucher !== "-" ? `<b>${esc(r.kodeVoucher)}</b> ` : "") + AdminUI.badge(r.statusVoucher || "Tidak Ada") },
@@ -233,6 +242,10 @@
           title: "Tes Fisik & Seragam",
           intro: "Isi hasil pengukuran, tes fisik, dan ukuran seragam.",
           filter: { field: "statusTesFisik", label: "Status tes", options: ["Belum Tes", "Lulus Tes", "Tidak Lulus"] },
+          saring: [
+            { id: "seragam", label: "Seragam", get: (r) => AdminUI.isi(r.ukuranSeragam, "Belum diukur"), options: ["Belum diukur", "S", "M", "L", "XL", "XXL"] },
+            { id: "tato", label: "Tato/tindik", get: (r) => AdminUI.isi(r.tatoTindik, "Belum diisi"), options: ["Belum diisi", "Tidak Ada", "Ada"] },
+          ],
           columns: [
             { label: "Siswa", sortKey: "namaLengkap", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.5px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
             { label: "Tinggi / Berat", sortKey: "tinggiBadan", render: (r) => `${num(r.tinggiBadan, "cm")} / ${num(r.beratBadan, "kg")}` },

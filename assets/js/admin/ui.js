@@ -128,7 +128,31 @@
     return n > 0 ? `(${n}) ${base}` : base;
   }
 
-  root.AdminUI = { filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
+  // Saringan tambahan (dropdown). def = { id, label, get(row) → teks, options?: [urutan tetap] }
+  const isi = (v, kosong) => (v != null && String(v).trim() !== "" && String(v).trim() !== "-" ? String(v).trim() : kosong);
+  const SARING_UMUM = [
+    { id: "jurusan", label: "Jurusan", get: (r) => isi(r.jurusan1, isi(r._jurusan, "Belum diisi")), options: ["DKV", "RPL", "TKR", "TSM", "TITL"] },
+    { id: "jk", label: "Jenis kelamin", get: (r) => isi(r._jk, "Belum diisi") },
+    { id: "asal", label: "Asal sekolah", get: (r) => isi(r._asal, "Belum diisi") },
+  ];
+
+  function opsiSaring(rows, def) {
+    const n = new Map();
+    rows.forEach((r) => {
+      const v = def.get(r);
+      n.set(v, (n.get(v) || 0) + 1);
+    });
+    const tetap = def.options || [];
+    const lain = [...n.keys()].filter((v) => !tetap.includes(v)).sort((a, b) => a.localeCompare(b, "id"));
+    return [...tetap, ...lain].map((value) => ({ value, n: n.get(value) || 0 }));
+  }
+
+  function saringTambahan(rows, defs, pilihan) {
+    const aktif = defs.filter((d) => pilihan && pilihan[d.id]);
+    return aktif.length ? rows.filter((r) => aktif.every((d) => d.get(r) === pilihan[d.id])) : rows;
+  }
+
+  root.AdminUI = { SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
   if (typeof document === "undefined") return;
 
   /* ---------- tampilan ---------- */
@@ -518,7 +542,12 @@
           </select>
         </div>
       </div>
-      <div id="tglBar" class="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Cari berdasarkan tanggal daftar">
+      <div id="saringBar" class="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Saring daftar">
+        <span class="mr-1 text-[13px] font-medium text-ink-600">Saring</span>
+        <span id="saringSel" class="contents"></span>
+        <button type="button" id="saringReset" class="hidden rounded-full px-3 py-1.5 text-[13.5px] font-medium text-pink-600 hover:bg-pink-50">Hapus semua saringan</button>
+      </div>
+      <div id="tglBar" class="mt-3 flex flex-wrap items-center gap-2" role="group" aria-label="Cari berdasarkan tanggal daftar">
         <span class="mr-1 text-[13px] font-medium text-ink-600">Tanggal daftar</span>
         <label for="tglDari" class="sr-only">Dari tanggal</label>
         <input id="tglDari" type="date" class="rounded-md border border-line/60 bg-white px-2.5 py-1.5 text-[14px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30" />
@@ -548,7 +577,26 @@
     const $pager = app.querySelector("#pager");
     const $stats = app.querySelector("#stats");
     const $tabs = app.querySelector("#tabs");
+    const $saring = app.querySelector("#saringSel");
+    const saringDefs = [...SARING_UMUM, ...(config.saring || [])];
+    const pilihan = {};
     let currentStats = [];
+
+    // Dropdown saringan; jumlah tiap pilihan dihitung dari semua data
+    function renderSaring() {
+      $saring.innerHTML = saringDefs
+        .map((d) => {
+          const on = !!pilihan[d.id];
+          const opsi = opsiSaring(page.rows, d);
+          if (on && !opsi.some((o) => o.value === pilihan[d.id])) opsi.push({ value: pilihan[d.id], n: 0 });
+          return `<select data-saring="${esc(d.id)}" aria-label="${esc(d.label)}" class="max-w-[18rem] rounded-md border bg-white px-2.5 py-1.5 text-[14px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30 ${
+            on ? "border-pink-500 font-medium text-ink-900" : "border-line/60 text-ink-600"
+          }"><option value="">${esc(d.label)}: semua</option>${opsi
+            .map((o) => `<option value="${esc(o.value)}" ${o.value === pilihan[d.id] ? "selected" : ""}>${esc(d.label)}: ${esc(o.value)} (${o.n})</option>`)
+            .join("")}</select>`;
+        })
+        .join("");
+    }
 
     function renderStats() {
       if (!config.stats) return;
@@ -576,7 +624,10 @@
     function render() {
       renderTabs();
       let rows = filterTanggal(filterRows(page.rows, $q.value, { [config.filter.field]: $f.value }), $dari.value, $sampai.value);
+      rows = saringTambahan(rows, saringDefs, pilihan);
       const adaTanggal = !!($dari.value || $sampai.value);
+      const saringAktif = saringDefs.filter((d) => pilihan[d.id]);
+      app.querySelector("#saringReset").classList.toggle("hidden", !saringAktif.length && !adaTanggal);
       app.querySelector("#tglReset").classList.toggle("hidden", !adaTanggal);
       if (state.sortKey) rows = sortRows(rows, state.sortKey, state.sortDir);
       const pg = paginate(rows, state.page, state.size);
@@ -588,7 +639,8 @@
         : t2 && t1 !== t2
           ? ` · ${tglTeks(t1)} – ${tglTeks(t2)}`
           : ` · ${$dari.value && $sampai.value ? "tanggal" : $dari.value ? "sejak" : "sampai"} ${tglTeks(t1)}`;
-      $count.textContent = `${rows.length} dari ${page.rows.length} pendaftar${rentang}`;
+      const teksSaring = saringAktif.map((d) => ` · ${d.label}: ${pilihan[d.id]}`).join("");
+      $count.textContent = `${rows.length} dari ${page.rows.length} pendaftar${rentang}${teksSaring}`;
       if (!rows.length) {
         $list.innerHTML = `<div class="rounded-lg border border-dashed border-hairline p-10 text-center text-[15px] text-ink-500">Tidak ada data yang cocok.</div>`;
         $pager.innerHTML = "";
@@ -736,6 +788,7 @@
           await root.Sheetson.patchRow(config.sheet, row.rowIndex, changes);
           Object.assign(row, changes);
           renderStats();
+          renderSaring();
           render();
           toast(`Tersimpan: ${row.namaLengkap || row.noPendaftaran}`);
         },
@@ -753,13 +806,19 @@
           root.Sheetson.getRows(config.sheet, opts),
           config.sheet === "Data_Pendaftar" ? null : root.Sheetson.getRows("Data_Pendaftar", opts).catch(() => []),
         ]);
-        const waktu = new Map((daftar || rows).map((r) => [String(r.noPendaftaran), r.createdAt]));
+        // Data diri dari Data_Pendaftar: waktu daftar, jurusan, jenis kelamin, asal sekolah
+        const diri = new Map((daftar || rows).map((r) => [String(r.noPendaftaran), r]));
         rows.forEach((r) => {
-          r._waktuAsli = waktu.get(String(r.noPendaftaran)) || "";
+          const d = diri.get(String(r.noPendaftaran)) || {};
+          r._waktuAsli = d.createdAt || "";
           r._waktu = waktuKey(r._waktuAsli);
+          r._jurusan = d.jurusan1 || "";
+          r._jk = d.jenisKelamin || "";
+          r._asal = d.asalSekolah || "";
         });
         page.rows = rows;
         renderStats();
+        renderSaring();
         render();
         bar.remove();
         if (page.watcher) page.watcher.reset();
@@ -787,6 +846,23 @@
       render();
     });
     $f.addEventListener("change", () => { state.page = 1; render(); });
+    $saring.addEventListener("change", (e) => {
+      const id = e.target.dataset.saring;
+      if (!id) return;
+      pilihan[id] = e.target.value;
+      state.page = 1;
+      renderSaring();
+      render();
+      const el = $saring.querySelector(`[data-saring="${id}"]`);
+      if (el) el.focus();
+    });
+    app.querySelector("#saringReset").addEventListener("click", () => {
+      Object.keys(pilihan).forEach((k) => (pilihan[k] = ""));
+      $dari.value = $sampai.value = "";
+      state.page = 1;
+      renderSaring();
+      render();
+    });
     app.querySelector("#reload").addEventListener("click", () => load(true));
     load();
     return page;
