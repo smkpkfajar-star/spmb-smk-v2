@@ -625,7 +625,7 @@
               ${pg.items
                 .map(
                   (r) =>
-                    `<tr class="bg-white even:bg-[#FAFAFA] hover:bg-[#FDF2F8]">${columns
+                    `<tr class="bg-white even:bg-sand hover:bg-pink-50">${columns
                       .map((c, i) => `<td class="border-b border-hairline bg-inherit px-4 py-2.5 align-middle ${i === 0 ? STICKY_L : c.wrap ? "min-w-[180px] max-w-[280px]" : "whitespace-nowrap"}">${c.render(r)}</td>`)
                       .join("")}<td class="border-b border-hairline bg-inherit px-3 py-2 align-middle ${STICKY_R}"><div class="flex justify-end gap-1 whitespace-nowrap">${actionsHtml(r)}</div></td></tr>`
                 )
