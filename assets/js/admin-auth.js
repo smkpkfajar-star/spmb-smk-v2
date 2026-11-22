@@ -11,10 +11,10 @@
   });
 
   const MODULES = Object.freeze([
-    { id: "verifikasi", href: "verifikasi.html", icon: "📂", title: "Verifikasi Berkas", desc: "Periksa berkas, ubah status pendaftaran, hubungi orang tua.", roles: ["verifikasi"] },
-    { id: "keuangan", href: "keuangan.html", icon: "💰", title: "Keuangan & Voucher", desc: "Catat pembayaran, potongan, dan status voucher.", roles: ["keuangan"] },
-    { id: "tes-fisik", href: "tes-fisik.html", icon: "📏", title: "Tes Fisik & Seragam", desc: "Isi tinggi/berat, hasil tes fisik, dan ukuran seragam.", roles: ["tes_fisik"] },
-    { id: "superadmin", href: "superadmin.html", icon: "🛡️", title: "Superadmin", desc: "Rekap, unduh data, kelola akun petugas, reset password.", roles: [] },
+    { id: "verifikasi", href: "verifikasi.html", title: "Verifikasi Berkas", desc: "Periksa berkas, ubah status pendaftaran, hubungi orang tua.", roles: ["verifikasi"] },
+    { id: "keuangan", href: "keuangan.html", title: "Keuangan & Voucher", desc: "Catat pembayaran, potongan, dan status voucher.", roles: ["keuangan"] },
+    { id: "tes-fisik", href: "tes-fisik.html", title: "Tes Fisik & Seragam", desc: "Isi tinggi/berat, hasil tes fisik, dan ukuran seragam.", roles: ["tes_fisik"] },
+    { id: "superadmin", href: "superadmin.html", title: "Superadmin", desc: "Rekap, unduh data, kelola akun petugas, reset password.", roles: [] },
   ]);
 
   const isStaffRole = (role) => Object.prototype.hasOwnProperty.call(ROLE_LABEL, role || "");

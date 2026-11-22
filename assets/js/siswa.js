@@ -73,7 +73,7 @@
       <h3 class="mt-5 text-base font-semibold">Berkas yang sudah diunggah</h3>
       ${
         urls.length
-          ? `<ul class="mt-2 space-y-1.5">${urls.map((u, i) => `<li><a href="${esc(u.trim())}" target="_blank" rel="noopener" class="font-semibold text-brand-700 underline">📄 ${esc(names[i] && names[i] !== "-" ? names[i] : "Berkas " + (i + 1))}</a></li>`).join("")}</ul>`
+          ? `<ul class="mt-2 space-y-1.5">${urls.map((u, i) => `<li><a href="${esc(u.trim())}" target="_blank" rel="noopener" class="font-semibold text-brand-700 underline">${esc(names[i] && names[i] !== "-" ? names[i] : "Berkas " + (i + 1))}</a></li>`).join("")}</ul>`
           : `<p class="mt-1 text-[15px] text-ink-600">Belum ada berkas.</p>`
       }`;
     $("uploadBox").dataset.row = row.rowIndex;

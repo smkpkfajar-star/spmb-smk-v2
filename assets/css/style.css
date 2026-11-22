@@ -87,6 +87,17 @@ body {
   body.admin-shell #adminHeader, body.admin-shell main { margin-left: 16rem; }
 }
 
+/* Indikator proses (modal kirim) */
+.spinner, .spinner-error { width: 44px; height: 44px; border-radius: 999px; border: 3px solid #E5E7EB; }
+.spinner { border-top-color: #171717; animation: putar .8s linear infinite; }
+.spinner-error { border-color: #DC2626; position: relative; }
+.spinner-error::after { content: "!"; position: absolute; inset: 0; display: grid; place-items: center; font: 600 22px/1 "Geist", sans-serif; color: #DC2626; }
+@keyframes putar { to { transform: rotate(360deg); } }
+
+/* Panel geser kanan (admin) */
+.drawer { animation: geser .18s ease-out; }
+@keyframes geser { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }

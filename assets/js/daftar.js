@@ -337,7 +337,7 @@ function showUploadModal() {
   if (modal) {
     modal.classList.remove("hidden");
     if (actionBtn) actionBtn.classList.add("hidden");
-    document.getElementById("uploadModalIcon").textContent = "📤";
+    document.getElementById("uploadModalIcon").className = "spinner mx-auto";
     const bar = document.getElementById("uploadProgressBar");
     if (bar) bar.className = "h-2.5 rounded-full bg-brand-600 transition-all duration-300";
     document.getElementById("uploadModalTitle").textContent =
@@ -369,7 +369,7 @@ function showUploadError(errorMessage) {
   const actionBtn = document.getElementById("uploadModalAction");
 
   if (icon)
-    icon.textContent = "⚠️";
+    icon.className = "spinner-error mx-auto";
   if (title) title.textContent = "Pendaftaran belum terkirim";
   if (desc)
     desc.textContent = `Penyebab: ${errorMessage}. Silakan periksa koneksi internet Anda dan coba lagi.`;
@@ -387,11 +387,10 @@ function showUploadError(errorMessage) {
 
 function startTipsRotator() {
   const tips = [
-    "💡 Tips: Pastikan dokumen yang diunggah terbaca jelas agar verifikasi lebih cepat.",
-    "🚀 Tahukah kamu? Sekolah kami memiliki fasilitas laboratorium komputer berstandar industri.",
-    "⭐ Sabar ya, sistem sedang mengenkripsi data kamu agar aman sampai ke panitia.",
-    "🎯 Jangan lupa catat Nomor Pendaftaran setelah sukses terkirim untuk cek status secara berkala!",
-    "📱 Kamu juga bisa langsung konfirmasi ke WhatsApp panitia setelah form berhasil terkirim.",
+    "Tips: pastikan dokumen terbaca jelas agar verifikasi lebih cepat.",
+    "Tips: simpan nomor pendaftaran untuk cek status secara berkala.",
+    "Tips: berkas yang belum ada bisa disusulkan dari halaman siswa.",
+    "Tips: setelah terkirim, konfirmasi ke WhatsApp panitia.",
   ];
   let index = 0;
   const tipEl = document.getElementById("uploadTipText");
@@ -1130,7 +1129,7 @@ function renderStatusResult(found, statusResultEl) {
     statusResultEl.appendChild(timelineContainer);
   }
 
-  // ✅ Hanya 4 status yang dipakai
+  // Hanya 4 status yang dipakai
   const status = found.statusPendaftaran
     ? found.statusPendaftaran.trim()
     : "Pending";
@@ -1193,7 +1192,7 @@ function renderStatusResult(found, statusResultEl) {
 
           ${timelineStep(
             step1Done, isPending,
-            "📋 Pendaftaran Diterima",
+            "Pendaftaran diterima",
             step1Done
               ? "Formulir pendaftaran Anda telah berhasil diterima sistem."
               : "Pendaftaran belum masuk ke sistem."
@@ -1201,7 +1200,7 @@ function renderStatusResult(found, statusResultEl) {
 
           ${timelineStep(
             step2Done, step1Done && !step2Done,
-            "🔎 Verifikasi Berkas",
+            "Verifikasi berkas",
             step2Done
               ? `Berkas <strong>${found.namaBerkas || "dokumen"}</strong> telah diverifikasi panitia.${
                   found.catatanAdmin && found.catatanAdmin !== "-"
@@ -1213,7 +1212,7 @@ function renderStatusResult(found, statusResultEl) {
 
           ${timelineStep(
             step3Done, step2Done && !step3Done,
-            isDitolak ? "❌ Tidak Diterima" : "🏆 Pengumuman Hasil",
+            isDitolak ? "Tidak diterima" : "Pengumuman hasil",
             step3Done
               ? isDiterima
                 ? "Selamat! Anda dinyatakan <strong class='text-ok-700'>LULUS</strong> seleksi."
@@ -1224,7 +1223,7 @@ function renderStatusResult(found, statusResultEl) {
 
           ${timelineStep(
             step4Done, isDiterima && !step4Done,
-            "📝 Daftar Ulang",
+            "Daftar ulang",
             step4Done
               ? "Selamat bergabung! Proses daftar ulang telah selesai."
               : isDitolak

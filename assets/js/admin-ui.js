@@ -79,15 +79,19 @@
 
   /* ---------- tampilan ---------- */
 
-  const TONE_CLASS = {
-    ok: "bg-ok-50 text-ok-700",
-    bad: "bg-red-100 text-red-700",
-    wait: "bg-warn-50 text-warn-700",
-  };
+  const TONE_DOT = { ok: "#16A34A", bad: "#DC2626", wait: "#D97706", info: "#0369A1" };
   function badge(text) {
     const t = text === undefined || text === null || text === "" ? "-" : text;
-    return `<span class="inline-block whitespace-nowrap rounded-full px-3 py-1 text-[13px] font-bold ${TONE_CLASS[badgeTone(t)]}">${esc(t)}</span>`;
+    return `<span class="inline-flex items-center gap-1.5 whitespace-nowrap text-[14px]"><span class="h-1.5 w-1.5 rounded-full" style="background:${TONE_DOT[badgeTone(t)]}" aria-hidden="true"></span>${esc(t)}</span>`;
   }
+
+  const initials = (name) =>
+    String(name || "?")
+      .split(/[\s@._-]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0].toUpperCase())
+      .join("");
 
   function toast(message, type = "ok") {
     let el = document.getElementById("adminToast");
@@ -105,45 +109,49 @@
     el._t = setTimeout(() => el.remove(), 3500);
   }
 
-  // Panel admin: sidebar gelap kiri (laci di HP) + topbar
+  // Panel admin: sidebar putih bergaris (laci di HP) + topbar
   function renderShell(profile, activeId) {
     const A = root.AdminAuth;
     const header = document.getElementById("adminHeader");
     if (!header) return;
     document.body.classList.add("admin-shell");
     const active = activeId || "dashboard";
-    const items = [{ id: "dashboard", href: "dashboard.html", icon: "🏠", title: "Dashboard" }, ...A.modulesFor(profile.role)];
-    const current = items.find((m) => m.id === active) || items[0];
+    const modules = A.modulesFor(profile.role);
+    const all = [{ id: "dashboard", href: "dashboard.html", title: "Dashboard" }, ...modules];
+    const current = all.find((m) => m.id === active) || all[0];
+    const link = (m) =>
+      `<a href="${m.href}" class="block rounded-md px-3 py-2 text-[14.5px] ${
+        m.id === active ? "bg-sand font-medium text-ink-900" : "text-ink-600 hover:bg-brand-50 hover:text-ink-900"
+      }" ${m.id === active ? 'aria-current="page"' : ""}>${esc(m.title)}</a>`;
+    const name = profile.nama_lengkap || profile.email;
 
     const aside = document.createElement("aside");
     aside.id = "adminSidebar";
-    aside.className = "admin-sidebar fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-ink-900 text-white";
+    aside.className = "admin-sidebar fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-hairline bg-white";
     aside.setAttribute("aria-label", "Menu admin");
     aside.innerHTML = `
-      <div class="flex h-16 items-center gap-2.5 border-b border-white/10 px-5">
-        <span class="grid h-8 w-8 place-items-center rounded-lg bg-ok-700 font-mono text-[13px] font-medium text-white">TS</span>
-        <span class="leading-tight"><span class="block text-[15px] font-semibold">SPMB Admin</span>
-        <span class="block font-mono text-[12px] text-white/60">tamansiswa jetis</span></span>
+      <div class="flex h-14 items-center gap-2.5 px-5">
+        <span class="grid h-7 w-7 place-items-center rounded-md bg-ink-900 font-mono text-[12px] font-medium text-white">TS</span>
+        <span class="text-[15px] font-semibold tracking-tight">SPMB <span class="font-normal text-ink-500">Admin</span></span>
       </div>
-      <nav class="flex-1 space-y-1 overflow-y-auto p-3">
-        <p class="px-3 pb-1 pt-2 font-mono text-[12px] uppercase tracking-wide text-white/50">Menu</p>
-        ${items
-          .map(
-            (m) => `<a href="${m.href}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] ${
-              m.id === active ? "bg-white/10 font-semibold text-white shadow-[inset_3px_0_0_#F2B53A]" : "text-white/75 hover:bg-white/5 hover:text-white"
-            }" ${m.id === active ? 'aria-current="page"' : ""}><span aria-hidden="true">${m.icon}</span>${esc(m.title)}</a>`
-          )
-          .join("")}
+      <nav class="flex-1 overflow-y-auto px-3 py-4">
+        <p class="px-3 pb-1.5 font-mono text-[11.5px] uppercase tracking-wider text-ink-500">Ringkasan</p>
+        ${link(all[0])}
+        <p class="mt-5 px-3 pb-1.5 font-mono text-[11.5px] uppercase tracking-wider text-ink-500">Modul</p>
+        ${modules.map(link).join("")}
       </nav>
-      <div class="border-t border-white/10 p-4">
-        <p class="truncate text-[15px] font-semibold">${esc(profile.nama_lengkap || profile.email)}</p>
-        <p class="font-mono text-[12px] text-gold-500">${esc(A.ROLE_LABEL[profile.role])}</p>
-        <button id="btnLogout" type="button" class="btn mt-3 w-full rounded-full bg-white/10 px-4 py-2.5 text-[15px] font-semibold text-white hover:bg-white/15">Keluar</button>
+      <div class="flex items-center gap-3 border-t border-hairline p-4">
+        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sand text-[13px] font-semibold text-ink-900">${esc(initials(name))}</span>
+        <span class="min-w-0 flex-1 leading-tight">
+          <span class="block truncate text-[14px] font-medium">${esc(name)}</span>
+          <span class="block truncate text-[12.5px] text-ink-500">${esc(A.ROLE_LABEL[profile.role])}</span>
+        </span>
+        <button id="btnLogout" type="button" class="rounded-md px-2 py-1.5 text-[13px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900">Keluar</button>
       </div>`;
     document.body.appendChild(aside);
 
     const overlay = document.createElement("div");
-    overlay.className = "fixed inset-0 z-40 hidden bg-black/40 lg:hidden";
+    overlay.className = "fixed inset-0 z-40 hidden bg-black/30 lg:hidden";
     overlay.id = "sidebarOverlay";
     document.body.appendChild(overlay);
     const setOpen = (open) => {
@@ -155,50 +163,53 @@
     overlay.addEventListener("click", () => setOpen(false));
     document.addEventListener("keydown", (e) => e.key === "Escape" && setOpen(false));
 
-    header.className = "sticky top-0 z-30 border-b border-hairline bg-white/90 backdrop-blur";
+    header.className = "sticky top-0 z-30 border-b border-hairline bg-white/85 backdrop-blur";
     header.innerHTML = `
-      <div class="flex h-16 items-center gap-3 px-4 sm:px-6">
-        <button id="btnMenu" type="button" class="grid h-10 w-10 place-items-center rounded-full shadow-[inset_0_0_0_1px_#D4D4D4] lg:hidden" aria-label="Buka menu" aria-expanded="false" aria-controls="adminSidebar">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-        </button>
-        <p class="min-w-0 flex-1 truncate text-[15px]"><span class="text-ink-500">Admin /</span> <span class="font-semibold">${esc(current.title)}</span></p>
-        <span class="hidden items-center gap-2 rounded-full px-3 py-1.5 text-[14px] shadow-[inset_0_0_0_1px_#EAEAEA] sm:inline-flex">
-          <span class="h-2 w-2 rounded-full bg-ok-600" aria-hidden="true"></span>${esc(profile.nama_lengkap || profile.email)}
-        </span>
+      <div class="flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-8">
+        <button id="btnMenu" type="button" class="-ml-1 rounded-md px-2 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand lg:hidden" aria-label="Buka menu" aria-expanded="false" aria-controls="adminSidebar">Menu</button>
+        <nav class="min-w-0 flex-1 truncate text-[14px]" aria-label="Lokasi"><span class="text-ink-500">Admin</span><span class="px-1.5 text-ink-300">/</span><span class="font-medium">${esc(current.title)}</span></nav>
+        <span class="hidden font-mono text-[12px] text-ink-500 sm:inline">SPMB 2026/2027</span>
       </div>`;
     document.getElementById("btnMenu").addEventListener("click", () => setOpen(!document.body.classList.contains("sidebar-open")));
     document.getElementById("btnLogout").addEventListener("click", () => A.logout());
   }
 
-  // Kartu angka. stats: [{label, value, tone?: ok|bad|wait|info, filter?}]
-  const STAT_DOT = { ok: "#16A34A", bad: "#DC2626", wait: "#F2B53A", info: "#0369A1" };
+  // Angka ringkasan. stats: [{label, value, tone?: ok|bad|wait|info}]
   function statCards(stats) {
-    return `<div class="grid grid-cols-2 gap-px overflow-hidden border border-hairline bg-hairline sm:grid-cols-3 lg:grid-cols-${Math.min(stats.length, 5)}">${stats
+    return `<dl class="grid grid-cols-2 border-y border-hairline sm:grid-cols-3 lg:grid-cols-${Math.min(stats.length, 5)}">${stats
       .map(
-        (st, i) => `<button type="button" data-stat="${i}" class="bg-white p-4 text-left hover:bg-brand-50 ${st.filter === undefined ? "cursor-default" : ""}">
-          <span class="tag" style="--dot:${STAT_DOT[st.tone] || "#171717"}">${esc(st.label)}</span>
-          <span class="mt-2 block text-[32px] font-semibold leading-none tracking-tight">${esc(st.value)}</span>
-        </button>`
+        (st) => `<div class="border-hairline py-4 pr-4 [&:not(:first-child)]:sm:border-l [&:not(:first-child)]:sm:pl-5">
+          <dt class="flex items-center gap-1.5 text-[13px] text-ink-500">${st.tone ? `<span class="h-1.5 w-1.5 rounded-full" style="background:${TONE_DOT[st.tone]}" aria-hidden="true"></span>` : ""}${esc(st.label)}</dt>
+          <dd class="mt-1 text-[28px] font-semibold leading-none tracking-tight tabular-nums">${esc(st.value)}</dd>
+        </div>`
       )
-      .join("")}</div>`;
+      .join("")}</dl>`;
   }
 
   // Dialog ubah data. fields: [{name, label, type: select|text|number|textarea|date, options, help}]
   function openDialog({ title, subtitle, fields, values, onSave }) {
     const overlay = document.createElement("div");
-    overlay.className = "fixed inset-0 z-[60] overflow-y-auto bg-black/50 p-4";
+    overlay.className = "fixed inset-0 z-[60] bg-black/30";
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
     const box = document.createElement("form");
-    box.className = "mx-auto my-6 w-full max-w-lg rounded-3xl border border-hairline bg-white p-5 sm:p-6";
+    box.className = "drawer absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-hairline bg-white shadow-soft";
     box.noValidate = true;
-    box.innerHTML = `<h2 class="text-xl font-semibold">${esc(title)}</h2>${
-      subtitle ? `<p class="mt-1 text-[15px] text-ink-600">${esc(subtitle)}</p>` : ""
-    }<div class="mt-5 space-y-4" data-fields></div>
-      <p data-error class="mt-4 hidden rounded-2xl bg-red-50 p-3 text-[15px] font-semibold text-red-700"></p>
-      <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <button type="button" data-cancel class="rounded-full border-2 border-line bg-white px-6 py-3.5 text-base font-semibold">Batal</button>
-        <button type="submit" data-save class="rounded-full bg-brand-600 px-8 py-3.5 text-base font-bold text-white disabled:opacity-60">Simpan</button>
+    box.innerHTML = `
+      <div class="flex items-start justify-between gap-3 border-b border-hairline px-5 py-4">
+        <div class="min-w-0">
+          <h2 class="truncate text-[17px] font-semibold tracking-tight">${esc(title)}</h2>
+          ${subtitle ? `<p class="mt-0.5 font-mono text-[12.5px] text-ink-500">${esc(subtitle)}</p>` : ""}
+        </div>
+        <button type="button" data-cancel class="rounded-md px-2 py-1 text-[13px] font-medium text-ink-600 hover:bg-sand" aria-label="Tutup">Tutup</button>
+      </div>
+      <div class="flex-1 space-y-5 overflow-y-auto px-5 py-5" data-fields></div>
+      <div class="border-t border-hairline px-5 py-4">
+        <p data-error class="mb-3 hidden bg-red-50 p-3 text-[14px] font-medium text-red-700"></p>
+        <div class="flex justify-end gap-2">
+          <button type="button" data-cancel class="btn rounded-full px-5 py-2.5 text-[14.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4]">Batal</button>
+          <button type="submit" data-save class="btn rounded-full bg-ink-900 px-6 py-2.5 text-[14.5px] font-medium text-white disabled:opacity-60">Simpan</button>
+        </div>
       </div>`;
     const wrap = box.querySelector("[data-fields]");
     const inputs = {};
@@ -207,7 +218,7 @@
       const div = document.createElement("div");
       const label = document.createElement("label");
       label.htmlFor = id;
-      label.className = "mb-1.5 block text-[15px] font-semibold";
+      label.className = "mb-1.5 block text-[14px] font-medium";
       label.textContent = f.label;
       div.appendChild(label);
       let input;
@@ -230,9 +241,10 @@
         if (f.type === "number") input.inputMode = "decimal";
       }
       input.id = id;
-      input.className = "w-full rounded-xl border-2 border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none";
+      input.className = "w-full rounded-md border border-line/60 bg-white px-3 py-2.5 text-[15px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-gold-500/40";
       const v = values[f.name];
-      input.value = v === undefined || v === null || (f.type === "number" && v === "-") ? "" : String(v);
+      // "-" adalah tanda sel kosong di sheet; tampilkan sebagai kosong (kecuali pilihan yang memang berisi "-")
+      input.value = v === undefined || v === null || (v === "-" && f.type !== "select") ? "" : String(v);
       div.appendChild(input);
       if (f.help) {
         const p = document.createElement("p");
@@ -256,7 +268,7 @@
       if (e.key === "Escape") close();
     };
     document.addEventListener("keydown", onKey);
-    box.querySelector("[data-cancel]").addEventListener("click", close);
+    box.querySelectorAll("[data-cancel]").forEach((b) => b.addEventListener("click", close));
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) close();
     });
@@ -305,26 +317,27 @@
   function modulePage(config) {
     const app = document.getElementById("app");
     app.innerHTML = `
-      <div class="flex flex-col gap-1">
-        <h1 class="heading text-[28px] sm:text-[34px]">${esc(config.title)}</h1>
-        <p class="text-[15px] text-ink-600">${esc(config.intro)}</p>
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 class="text-[26px] font-semibold tracking-tight">${esc(config.title)}</h1>
+          <p class="mt-1 text-[15px] text-ink-600">${esc(config.intro)}</p>
+        </div>
+        <button id="reload" type="button" class="btn rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4]">Muat ulang</button>
       </div>
       <div id="stats" class="mt-6"></div>
-      <div class="mt-6 grid gap-3 border border-hairline bg-white p-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
-        <div>
-          <label for="q" class="mb-1.5 block text-[15px] font-semibold">Cari</label>
-          <input id="q" type="search" class="w-full rounded-xl border-[1.5px] border-line px-3.5 py-2.5 text-base focus:border-brand-600 focus:outline-none" placeholder="Nama, NISN, atau no. pendaftaran" />
-        </div>
-        <div>
-          <label for="f" class="mb-1.5 block text-[15px] font-semibold">${esc(config.filter.label)}</label>
-          <select id="f" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-2.5 text-base focus:border-brand-600 focus:outline-none">
+      <div class="mt-6 flex flex-col gap-3 border-b border-hairline lg:flex-row lg:items-end lg:justify-between">
+        <div id="tabs" class="no-scrollbar -mb-px flex gap-5 overflow-x-auto" role="tablist" aria-label="${esc(config.filter.label)}"></div>
+        <div class="pb-3">
+          <label for="q" class="sr-only">Cari</label>
+          <input id="q" type="search" class="w-full rounded-md border border-line/60 bg-white px-3 py-2 text-[14.5px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-gold-500/40 lg:w-80" placeholder="Cari nama, NISN, atau no. pendaftaran" />
+          <label for="f" class="sr-only">${esc(config.filter.label)}</label>
+          <select id="f" class="sr-only" tabindex="-1">
             <option value="">Semua</option>${config.filter.options.map((o) => `<option>${esc(o)}</option>`).join("")}
           </select>
         </div>
-        <button id="reload" type="button" class="btn h-11 rounded-full px-5 text-base font-semibold shadow-[inset_0_0_0_1px_#D4D4D4]">↻ Muat ulang</button>
       </div>
-      <p id="count" class="mt-4 text-[15px] font-semibold text-ink-600" aria-live="polite">Memuat data…</p>
-      <div id="list" class="mt-3"></div>
+      <p id="count" class="mt-4 font-mono text-[12.5px] text-ink-500" aria-live="polite">Memuat data…</p>
+      <div id="list" class="mt-2"></div>
       <div id="pager" class="mt-4"></div>`;
 
     const page = { rows: [], reload: load, rerender: render };
@@ -335,64 +348,83 @@
     const $list = app.querySelector("#list");
     const $pager = app.querySelector("#pager");
     const $stats = app.querySelector("#stats");
+    const $tabs = app.querySelector("#tabs");
     let currentStats = [];
 
     function renderStats() {
       if (!config.stats) return;
-      currentStats = config.stats(page.rows);
-      $stats.innerHTML = statCards(currentStats);
+      currentStats = config.stats(page.rows).filter((st) => st.filter === undefined);
+      $stats.innerHTML = currentStats.length ? statCards(currentStats) : "";
+    }
+
+    function renderTabs() {
+      const counts = new Map();
+      page.rows.forEach((r) => {
+        const v = r[config.filter.field] && r[config.filter.field] !== "-" ? r[config.filter.field] : config.filter.options[0];
+        counts.set(v, (counts.get(v) || 0) + 1);
+      });
+      const tabs = [["", "Semua", page.rows.length], ...config.filter.options.map((o) => [o, o, counts.get(o) || 0])];
+      $tabs.innerHTML = tabs
+        .map(([value, label, n]) => {
+          const on = $f.value === value;
+          return `<button type="button" role="tab" aria-selected="${on}" data-tab-value="${esc(value)}" class="whitespace-nowrap border-b-2 pb-3 text-[14.5px] ${
+            on ? "border-ink-900 font-medium text-ink-900" : "border-transparent text-ink-500 hover:text-ink-900"
+          }">${esc(label)} <span class="ml-1 rounded-full bg-sand px-1.5 py-0.5 font-mono text-[11.5px] text-ink-600">${n}</span></button>`;
+        })
+        .join("");
     }
 
     function render() {
+      renderTabs();
       let rows = filterRows(page.rows, $q.value, { [config.filter.field]: $f.value });
       if (state.sortKey) rows = sortRows(rows, state.sortKey, state.sortDir);
       const pg = paginate(rows, state.page, PAGE_SIZE);
       state.page = pg.page;
       $count.textContent = `${rows.length} dari ${page.rows.length} pendaftar`;
       if (!rows.length) {
-        $list.innerHTML = `<div class="border border-hairline bg-white p-8 text-center text-[15px] text-ink-600">Tidak ada data yang cocok.</div>`;
+        $list.innerHTML = `<div class="rounded-lg border border-dashed border-hairline p-10 text-center text-[15px] text-ink-500">Tidak ada data yang cocok.</div>`;
         $pager.innerHTML = "";
         return;
       }
       const actionsHtml = (row) =>
-        `<button type="button" data-edit="${esc(row.rowIndex)}" class="btn rounded-full bg-brand-600 px-5 py-2 text-[15px] font-semibold text-white">Ubah</button>` +
+        `<button type="button" data-edit="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Ubah</button>` +
         (config.actions || [])
           .filter((a) => !a.show || a.show(row))
           .map(
             (a, i) =>
-              `<button type="button" data-action="${i}" data-row="${esc(row.rowIndex)}" class="btn rounded-full px-4 py-2 text-[15px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4]">${esc(a.label)}</button>`
+              `<button type="button" data-action="${i}" data-row="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900">${esc(a.label)}</button>`
           )
           .join("");
       const th = (c, i) => {
-        if (!c.sortKey) return `<th scope="col" class="px-4 py-3 font-medium">${esc(c.label)}</th>`;
+        if (!c.sortKey) return `<th scope="col" class="px-4 py-2.5 font-medium">${esc(c.label)}</th>`;
         const on = state.sortKey === c.sortKey;
         const arrow = on ? (state.sortDir === "asc" ? "↑" : "↓") : "↕";
-        return `<th scope="col" class="px-4 py-3 font-medium" aria-sort="${on ? (state.sortDir === "asc" ? "ascending" : "descending") : "none"}">
+        return `<th scope="col" class="px-4 py-2.5 font-medium" aria-sort="${on ? (state.sortDir === "asc" ? "ascending" : "descending") : "none"}">
           <button type="button" data-sort="${i}" class="inline-flex items-center gap-1 hover:text-ink-900">${esc(c.label)} <span aria-hidden="true">${arrow}</span></button></th>`;
       };
       const table = `
-        <div class="hidden overflow-x-auto border border-hairline bg-white md:block">
-          <table class="w-full text-left text-[15px]">
-            <thead class="border-b border-hairline bg-sand font-mono text-[12.8px] text-ink-600">
+        <div class="hidden overflow-x-auto rounded-lg border border-hairline bg-white md:block">
+          <table class="w-full text-left text-[14.5px]">
+            <thead class="border-b border-hairline bg-brand-50 text-[12.5px] text-ink-500">
               <tr>${config.columns.map(th).join("")}<th class="px-4 py-3"><span class="sr-only">Aksi</span></th></tr>
             </thead>
             <tbody class="divide-y divide-hairline">
               ${pg.items
                 .map(
                   (r) =>
-                    `<tr class="align-top hover:bg-brand-50">${config.columns.map((c) => `<td class="px-4 py-3">${c.render(r)}</td>`).join("")}<td class="px-4 py-3"><div class="flex flex-wrap justify-end gap-2">${actionsHtml(r)}</div></td></tr>`
+                    `<tr class="align-top hover:bg-brand-50">${config.columns.map((c) => `<td class="px-4 py-3">${c.render(r)}</td>`).join("")}<td class="px-4 py-2.5"><div class="flex flex-wrap justify-end gap-1">${actionsHtml(r)}</div></td></tr>`
                 )
                 .join("")}
             </tbody>
           </table>
         </div>`;
       const cards = `
-        <div class="divide-y divide-hairline border border-hairline bg-white md:hidden">
+        <div class="divide-y divide-hairline rounded-lg border border-hairline bg-white md:hidden">
           ${pg.items
             .map(
               (r) => `<article class="p-4">
                 ${config.columns.map((c) => `<div class="flex justify-between gap-3 py-1.5"><span class="font-mono text-[12.8px] text-ink-500">${esc(c.label)}</span><span class="text-right text-[15px]">${c.render(r)}</span></div>`).join("")}
-                <div class="mt-3 flex flex-wrap gap-2">${actionsHtml(r)}</div>
+                <div class="mt-3 flex flex-wrap gap-1">${actionsHtml(r)}</div>
               </article>`
             )
             .join("")}
@@ -402,9 +434,9 @@
         pg.pages <= 1
           ? ""
           : `<nav class="flex items-center justify-between gap-3" aria-label="Halaman">
-              <button type="button" data-page="${pg.page - 1}" ${pg.page === 1 ? "disabled" : ""} class="btn rounded-full px-4 py-2 text-[15px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] disabled:opacity-40">‹ Sebelumnya</button>
+              <button type="button" data-page="${pg.page - 1}" ${pg.page === 1 ? "disabled" : ""} class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand disabled:opacity-40">Sebelumnya</button>
               <span class="font-mono text-[13px] text-ink-600">Halaman ${pg.page} dari ${pg.pages}</span>
-              <button type="button" data-page="${pg.page + 1}" ${pg.page === pg.pages ? "disabled" : ""} class="btn rounded-full px-4 py-2 text-[15px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] disabled:opacity-40">Berikutnya ›</button>
+              <button type="button" data-page="${pg.page + 1}" ${pg.page === pg.pages ? "disabled" : ""} class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand disabled:opacity-40">Berikutnya</button>
             </nav>`;
     }
 
@@ -432,11 +464,10 @@
       render();
       $list.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-    $stats.addEventListener("click", (e) => {
-      const b = e.target.closest("button[data-stat]");
-      const st = b && currentStats[Number(b.dataset.stat)];
-      if (!st || st.filter === undefined) return;
-      $f.value = st.filter;
+    $tabs.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-tab-value]");
+      if (!b) return;
+      $f.value = b.dataset.tabValue;
       state.page = 1;
       render();
     });
