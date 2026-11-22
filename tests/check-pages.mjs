@@ -99,6 +99,13 @@ cekUrutan("daftar/index.html (pilihan jurusan1)", pages["daftar/index.html"].spl
 cekUrutan("daftar/index.html (pilihan jurusan2)", pages["daftar/index.html"].split('id="jurusan2"')[1].split("</select>")[0], /value="([A-Z]+)"/g);
 cekUrutan("admin/ui.js (URUTAN_JURUSAN)", read("assets/js/admin/ui.js").match(/const URUTAN_JURUSAN = [^\n]*/)[0], /"(DKV|RPL|TITL|TKR|TSM)"/g);
 
+// Setiap latar .hero-bg punya lapisan cahaya bergerak sebagai anak pertama
+for (const name of ["index.html", "daftar/index.html", "admin/index.html"]) {
+  for (const m of read(name).matchAll(/<(?:section|main|label|div)[^>]*\bhero-bg\b[^>]*>(.{0,40})/g)) {
+    if (!m[1].startsWith('<span class="cahaya"')) problems.push(`${name}: .hero-bg tanpa <span class="cahaya"> di awal`);
+  }
+}
+
 // Setiap script/stylesheet lokal yang dimuat halaman harus benar-benar ada
 const semuaHalaman = ["index.html"];
 for (const dir of ["daftar", "siswa", "admin"]) {
