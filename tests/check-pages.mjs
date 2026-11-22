@@ -1,6 +1,6 @@
 // Pemeriksa kontrak halaman: id yang dipakai JS, larangan Font Awesome,
 // path script, dan pembungkus .field-error. Jalankan: node tests/check-pages.mjs
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -52,6 +52,20 @@ for (const [name, html] of Object.entries(pages)) {
     const block = html.slice(divStart, m.index);
     if (!/<(input|select|textarea)\b/.test(block) && !/<label[^>]*for=/.test(block))
       problems.push(`${name}: .field-error dekat posisi ${m.index} tidak satu <div> dengan kolomnya`);
+  }
+}
+// Halaman admin & siswa: tema bersama, tanpa Font Awesome, tidak diindeks, tanpa password tertulis
+for (const dir of ["admin", "siswa"]) {
+  if (!existsSync(join(root, dir))) continue;
+  for (const file of readdirSync(join(root, dir)).filter((f) => f.endsWith(".html"))) {
+    const name = `${dir}/${file}`;
+    const html = read(name);
+    if (/font-awesome|class="[^"]*fa-/.test(html)) problems.push(`${name}: masih memakai Font Awesome`);
+    if (!/<meta name="robots" content="noindex"/.test(html)) problems.push(`${name}: tambahkan meta robots noindex`);
+    const cdn = html.indexOf("cdn.tailwindcss.com"), cfg = html.indexOf("../assets/js/tailwind-config.js");
+    if (cdn < 0 || cfg < cdn) problems.push(`${name}: tailwind-config.js harus dimuat sesudah cdn.tailwindcss.com`);
+    if (/supabase-js/.test(html) && !/app-config\.js/.test(html)) problems.push(`${name}: memakai Supabase tanpa app-config.js`);
+    if (/pass\s*:\s*"|password\s*:\s*"[^"]+"/.test(html)) problems.push(`${name}: ada password tertulis`);
   }
 }
 if (/src="\.\/assets\//.test(pages["daftar/index.html"])) problems.push('daftar/index.html: path "./assets/" salah, pakai "../assets/"');
