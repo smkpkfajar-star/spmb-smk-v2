@@ -115,7 +115,7 @@
       </div>
       <div class="mt-8 flex flex-col gap-3 sm:flex-row">
         <a href="${daftarUrl(j.id)}" class="btn inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ink-900 px-6 text-[15px] font-semibold text-white">Daftar jurusan ${j.id} <span aria-hidden="true">→</span></a>
-        <a href="https://wa.me/628823212784?text=${encodeURIComponent(`Halo panitia SPMB, saya ingin bertanya tentang jurusan ${j.nama}.`)}" target="_blank" rel="noopener" class="btn inline-flex h-12 items-center justify-center rounded-full px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_#D4D4D4]">Tanya jurusan ini</a>
+        <a href="https://wa.me/628823212784?text=${encodeURIComponent(`Halo, saya ingin konsultasi dengan guru kejuruan ${j.nama} (${j.id}).`)}" target="_blank" rel="noopener" class="btn inline-flex h-12 items-center justify-center rounded-full px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_#D4D4D4]">Tanya guru ${j.id}</a>
       </div>`;
     panel.classList.add("jurusan-in");
   }
