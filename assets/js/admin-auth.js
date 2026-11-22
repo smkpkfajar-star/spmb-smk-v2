@@ -3,6 +3,17 @@
    tabel public.profiles. Tidak ada password di file ini.
    ============================================================ */
 (function (root) {
+  // Hosting seperti Vercel melayani "/admin" TANPA garis miring akhir. Tanpa "/",
+  // peramban membaca "dashboard.html" sebagai "/dashboard.html" (404). Arahkan ke "/admin/".
+  function folderUrl(pathname, search, hash) {
+    if (/\/[^/.]+$/.test(pathname) && /admin$/.test(pathname)) return `${pathname}/${search}${hash}`;
+    return null;
+  }
+  if (root.location && root.location.replace) {
+    const fixed = folderUrl(root.location.pathname, root.location.search, root.location.hash);
+    if (fixed) root.location.replace(fixed);
+  }
+
   const ROLE_LABEL = Object.freeze({
     superadmin: "Superadmin",
     verifikasi: "Petugas Verifikasi",
@@ -84,5 +95,5 @@
     return profile;
   }
 
-  root.AdminAuth = { ROLE_LABEL, MODULES, isStaffRole, canOpen, modulesFor, usernameToEmail, getClient, getProfile, login, logout, requireRole };
+  root.AdminAuth = { folderUrl, ROLE_LABEL, MODULES, isStaffRole, canOpen, modulesFor, usernameToEmail, getClient, getProfile, login, logout, requireRole };
 })(typeof window !== "undefined" ? window : globalThis);

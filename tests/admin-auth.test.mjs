@@ -39,3 +39,13 @@ test("username menjadi alamat login", () => {
   assert.equal(usernameToEmail("  Bendahara1 "), "bendahara1@petugas.spmb.local");
   assert.equal(usernameToEmail("x@y.z"), "x@y.z");
 });
+
+test("folderUrl: /admin tanpa garis miring diarahkan ke /admin/", () => {
+  const { folderUrl } = ctx.window.AdminAuth;
+  assert.equal(folderUrl("/admin", "", ""), "/admin/");
+  assert.equal(folderUrl("/admin", "?a=1", "#x"), "/admin/?a=1#x");
+  assert.equal(folderUrl("/sekolah/admin", "", ""), "/sekolah/admin/");
+  assert.equal(folderUrl("/admin/", "", ""), null);
+  assert.equal(folderUrl("/admin/dashboard.html", "", ""), null);
+  assert.equal(folderUrl("/admin/index.html", "", ""), null);
+});
