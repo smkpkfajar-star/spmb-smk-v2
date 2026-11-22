@@ -589,26 +589,38 @@ function waktuWIB(date) {
   return new Date(date.getTime() + 7 * 3600 * 1000).toISOString().slice(0, 19).replace("T", " ");
 }
 
-const POLA_NOMOR = /^SPMB-\d{4}-[0-9A-Z]{4,}$/;
+// Kode jurusan = angka pertama nomor urut (blok 100 nomor per jurusan):
+// DKV 000–099, RPL 100–199, TKR 200–299, TSM 300–399, TITL 400–499.
+const BLOK_JURUSAN = { DKV: 0, RPL: 1, TKR: 2, TSM: 3, TITL: 4 };
+const POLA_NOMOR = /^SPMB-\d{4}-\d{3}$/;
 
-// Cadangan bila database belum siap: waktu (milidetik) + 6 karakter acak.
-function nomorCadangan(date) {
+// Cadangan bila database belum siap: kode jurusan + waktu (milidetik) + 6 karakter acak.
+function nomorCadangan(jurusan, date) {
   const acak = Array.from({ length: 6 }, () => "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 36)]).join("");
-  return `SPMB-${waktuWIB(date).slice(0, 4)}-${date.getTime().toString(36).toUpperCase()}${acak}`;
+  const kode = BLOK_JURUSAN[jurusan] ?? 9;
+  return `SPMB-${waktuWIB(date).slice(0, 4)}-${kode}${date.getTime().toString(36).toUpperCase()}${acak}`;
 }
 
-// Nomor urut dari database Supabase (SPMB-2026-0001, 0002, ...). Database menjamin
-// tidak ada nomor yang sama (kolom unik + urutan otomatis), dan kiriman ulang oleh
-// akun yang sama mendapat nomor yang sama.
-async function ambilNomorPendaftaran(client, now = new Date()) {
+// Nomor urut per jurusan dari database Supabase. Database menjamin tidak ada nomor
+// yang sama (kolom unik + penghitung yang dikunci), dan kiriman ulang oleh akun
+// yang sama untuk jurusan yang sama mendapat nomor yang sama.
+async function ambilNomorPendaftaran(client, jurusan, now = new Date()) {
   try {
-    const { data, error } = await client.rpc("ambil_no_pendaftaran");
-    if (!error && typeof data === "string" && POLA_NOMOR.test(data)) return data;
-    console.warn("Nomor urut database belum tersedia, memakai nomor cadangan:", error && error.message);
+    const { data, error } = await client.rpc("ambil_no_pendaftaran", { p_jurusan: jurusan });
+    if (error && /PENUH/.test(error.message || "")) {
+      throw userError(
+        `Maaf, kuota nomor pendaftaran jurusan ${jurusan} sudah penuh.\n\n` +
+          "Silakan pilih jurusan lain, atau hubungi panitia lewat WhatsApp."
+      );
+    }
+    const blokCocok = typeof data === "string" && POLA_NOMOR.test(data) && Number(data.slice(-3, -2)) === BLOK_JURUSAN[jurusan];
+    if (!error && blokCocok) return data;
+    console.warn("Nomor urut database belum tersedia, memakai nomor cadangan:", (error && error.message) || data);
   } catch (err) {
+    if (err.userFacing) throw err;
     console.warn("Nomor urut database gagal, memakai nomor cadangan:", err);
   }
-  return nomorCadangan(now);
+  return nomorCadangan(jurusan, now);
 }
 
 // "2026-11-22 15:22:27" atau ISO lama → "22-11-2026 pukul 15.22 WIB"
@@ -624,7 +636,7 @@ function waktuDaftarTeks(v) {
 }
 
 async function collectFormData(nisnVal, jurusan1, jurusan2, supabaseConfig, akun) {
-  const noPendaftaran = await ambilNomorPendaftaran(akun.client);
+  const noPendaftaran = await ambilNomorPendaftaran(akun.client, jurusan1.value);
   const fileInput = document.getElementById("berkasFile");
   let fileUrl = "-";
   let fileName = "-";
