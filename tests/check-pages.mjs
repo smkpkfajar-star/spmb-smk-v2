@@ -40,8 +40,15 @@ for (const [name, html] of Object.entries(pages)) {
   const re = /<span[^>]*class="[^"]*\bfield-error\b/g;
   let m;
   while ((m = re.exec(html))) {
-    const before = html.slice(0, m.index);
-    const divStart = before.lastIndexOf("<div");
+    // cari <div> yang benar-benar membungkus span (lewati div yang sudah ditutup)
+    let depth = 0;
+    let divStart = -1;
+    const tags = [...html.slice(0, m.index).matchAll(/<\/?div\b/g)].reverse();
+    for (const t of tags) {
+      if (t[0] === "</div") depth++;
+      else if (depth === 0) { divStart = t.index; break; }
+      else depth--;
+    }
     const block = html.slice(divStart, m.index);
     if (!/<(input|select|textarea)\b/.test(block) && !/<label[^>]*for=/.test(block))
       problems.push(`${name}: .field-error dekat posisi ${m.index} tidak satu <div> dengan kolomnya`);

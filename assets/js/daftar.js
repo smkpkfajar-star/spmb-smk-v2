@@ -1,3 +1,13 @@
+const ICON_MENU_SVG =
+  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+const ICON_CLOSE_SVG =
+  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+const ICON_COPY_SVG =
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+const ICON_CHECK_SVG =
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>';
+const SUBMIT_LABEL = "Kirim Formulir Pendaftaran";
+
 document.addEventListener("DOMContentLoaded", () => {
   const SHEETSON_CONFIG = {
     apiKey: "oGKHOLLKHVzlDAWCpD2zHUWGSj3G4o8l2vajRqzpBW6e3Ha1SgJWLRxwAPk",
@@ -34,10 +44,10 @@ function initTabSwitcher() {
         btn.getAttribute("data-tab-link") === targetId;
       if (match) {
         btn.classList.add("active", "text-white", "bg-brand-600");
-        btn.classList.remove("text-slate-600");
+        btn.classList.remove("text-ink-600");
       } else {
         btn.classList.remove("active", "text-white", "bg-brand-600");
-        btn.classList.add("text-slate-600");
+        btn.classList.add("text-ink-600");
       }
     });
 
@@ -74,20 +84,17 @@ function initMobileMenu() {
       const isHidden = mobileMenu.classList.contains("hidden");
       if (isHidden) {
         mobileMenu.classList.remove("hidden");
-        menuIcon.classList.remove("fa-bars");
-        menuIcon.classList.add("fa-xmark");
+        menuIcon.innerHTML = ICON_CLOSE_SVG;
       } else {
         mobileMenu.classList.add("hidden");
-        menuIcon.classList.remove("fa-xmark");
-        menuIcon.classList.add("fa-bars");
+        menuIcon.innerHTML = ICON_MENU_SVG;
       }
     });
 
     mobileMenu.querySelectorAll("button, a").forEach((el) => {
       el.addEventListener("click", () => {
         mobileMenu.classList.add("hidden");
-        menuIcon.classList.remove("fa-xmark");
-        menuIcon.classList.add("fa-bars");
+        menuIcon.innerHTML = ICON_MENU_SVG;
       });
     });
   }
@@ -145,7 +152,7 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
           setButtonLoading(
             submitBtn,
             false,
-            '<i class="fa-solid fa-paper-plane"></i> Kirim Formulir Pendaftaran'
+            SUBMIT_LABEL
           );
           return;
         }
@@ -176,7 +183,7 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
         setButtonLoading(
           submitBtn,
           false,
-          '<i class="fa-solid fa-paper-plane"></i> Kirim Formulir Pendaftaran'
+          SUBMIT_LABEL
         );
         handleRegistrationSuccess(formData);
 
@@ -192,7 +199,7 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
         setButtonLoading(
           submitBtn,
           false,
-          '<i class="fa-solid fa-paper-plane"></i> Kirim Formulir Pendaftaran'
+          SUBMIT_LABEL
         );
       }
     });
@@ -214,7 +221,40 @@ function initFormSteps(regForm, jurusan1, jurusan2, jurusanSamaWarning) {
       goToStep(currentStep - 1);
     })
   );
+  initChoiceButtons();
+  initBerkasInfo();
   goToStep(1, { scroll: false, focus: false });
+}
+
+// Tombol pilihan besar yang mengisi <select> tersembunyi (mis. jenisKelamin)
+function initChoiceButtons() {
+  document.querySelectorAll(".choice[data-for]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const select = document.getElementById(btn.dataset.for);
+      if (!select) return;
+      select.value = btn.dataset.value;
+      document.querySelectorAll(`.choice[data-for="${btn.dataset.for}"]`).forEach((b) =>
+        b.setAttribute("aria-pressed", String(b === btn))
+      );
+    });
+  });
+}
+
+// Tampilkan nama & ukuran berkas yang dipilih
+function initBerkasInfo() {
+  const input = document.getElementById("berkasFile");
+  const info = document.getElementById("berkasInfo");
+  if (!input || !info) return;
+  input.addEventListener("change", () => {
+    const file = input.files && input.files[0];
+    if (!file) {
+      info.classList.add("hidden");
+      return;
+    }
+    const size = file.size >= 1024 * 1024 ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(file.size / 1024))} KB`;
+    info.textContent = `✓ ${file.name} (${size})`;
+    info.classList.remove("hidden");
+  });
 }
 
 // Periksa hanya kolom di langkah aktif; maju bila bersih.
@@ -240,6 +280,8 @@ function goToStep(step, { scroll = true, focus = true } = {}) {
   if (label) label.textContent = `Langkah ${currentStep} dari ${FS.TOTAL_STEPS}: ${FS.STEP_TITLES[currentStep]}`;
   const bar = document.getElementById("stepBar");
   if (bar) bar.style.width = `${(currentStep / FS.TOTAL_STEPS) * 100}%`;
+  document.querySelectorAll("#regForm [data-prev]").forEach((b) => b.classList.toggle("hidden", currentStep === 1));
+  document.querySelectorAll("#regForm [data-next]").forEach((b) => b.classList.toggle("hidden", currentStep === FS.TOTAL_STEPS));
 
   const regForm = document.getElementById("regForm");
   if (scroll && regForm) regForm.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -294,10 +336,11 @@ function showUploadModal() {
   if (modal) {
     modal.classList.remove("hidden");
     if (actionBtn) actionBtn.classList.add("hidden");
-    document.getElementById("uploadModalIcon").className =
-      "fa-solid fa-cloud-arrow-up animate-bounce text-brand-600";
+    document.getElementById("uploadModalIcon").textContent = "📤";
+    const bar = document.getElementById("uploadProgressBar");
+    if (bar) bar.className = "h-2.5 rounded-full bg-brand-600 transition-all duration-300";
     document.getElementById("uploadModalTitle").textContent =
-      "Sedang Mengunggah Berkas & Data";
+      "Sedang mengirim pendaftaran";
     document.getElementById("uploadModalDesc").textContent =
       "Mohon jangan menutup atau merefresh halaman ini agar pendaftaran Anda sukses tercatat.";
   }
@@ -325,14 +368,13 @@ function showUploadError(errorMessage) {
   const actionBtn = document.getElementById("uploadModalAction");
 
   if (icon)
-    icon.className =
-      "fa-solid fa-triangle-exclamation text-rose-600 animate-pulse";
-  if (title) title.textContent = "Gagal Mengunggah Berkas / Data!";
+    icon.textContent = "⚠️";
+  if (title) title.textContent = "Pendaftaran belum terkirim";
   if (desc)
     desc.textContent = `Penyebab: ${errorMessage}. Silakan periksa koneksi internet Anda dan coba lagi.`;
   if (progressBar)
     progressBar.className =
-      "bg-rose-600 h-2.5 rounded-full transition-all duration-300 w-full";
+      "h-2.5 w-full rounded-full bg-red-600 transition-all duration-300";
   if (actionBtn) {
     actionBtn.classList.remove("hidden");
     const closeBtn = document.getElementById("closeUploadModalBtn");
@@ -637,9 +679,9 @@ function setupCopyButton(noPendaftaranEl) {
     copyNoBtn.addEventListener("click", () => {
       navigator.clipboard.writeText(noPendaftaranEl.textContent);
       copyNoBtn.innerHTML =
-        '<i class="fa-solid fa-check text-emerald-600"></i>';
+        ICON_CHECK_SVG;
       setTimeout(() => {
-        copyNoBtn.innerHTML = '<i class="fa-regular fa-copy text-base"></i>';
+        copyNoBtn.innerHTML = ICON_COPY_SVG;
       }, 2000);
     });
   }
@@ -913,7 +955,7 @@ function initStatusChecker(config) {
     setButtonLoading(
       cekBtn,
       true,
-      '<i class="fa-solid fa-spinner animate-spin"></i> Memeriksa...'
+      'Memeriksa…'
     );
 
     try {
@@ -968,7 +1010,7 @@ function renderStatusResult(found, statusResultEl) {
 
   if (resBadge) {
     resBadge.className =
-      "self-start sm:self-auto text-xs font-bold px-4 py-2 rounded-full";
+      "self-start rounded-full px-4 py-2 text-xs font-bold";
   }
 
   let timelineContainer = document.getElementById("timelineContainer");
@@ -999,13 +1041,13 @@ function renderStatusResult(found, statusResultEl) {
   if (resBadge) {
     if (isDiterima) {
       resBadge.textContent = "Diterima";
-      resBadge.classList.add("bg-emerald-100", "text-emerald-700");
+      resBadge.classList.add("bg-brand-100", "text-brand-700");
     } else if (isDitolak) {
       resBadge.textContent = "Tidak Diterima";
-      resBadge.classList.add("bg-rose-100", "text-rose-700");
+      resBadge.classList.add("bg-red-100", "text-red-700");
     } else if (isDiverifikasi) {
       resBadge.textContent = "Diverifikasi";
-      resBadge.classList.add("bg-blue-100", "text-blue-700");
+      resBadge.classList.add("bg-sky-100", "text-sky-800");
     } else {
       resBadge.textContent = "Menunggu Verifikasi";
       resBadge.classList.add("bg-amber-100", "text-amber-800");
@@ -1013,10 +1055,10 @@ function renderStatusResult(found, statusResultEl) {
   }
 
   function dotClass(isDone, isActive, isRed = false) {
-    if (isDone && isRed) return "bg-rose-500";
-    if (isDone)          return "bg-emerald-500";
-    if (isActive)        return "bg-brand-500 animate-pulse";
-    return "bg-slate-300";
+    if (isDone && isRed) return "bg-red-600";
+    if (isDone)          return "bg-brand-600";
+    if (isActive)        return "bg-amber-400";
+    return "bg-line";
   }
 
   function timelineStep(dotDone, isActive, title, desc, isRed = false) {
@@ -1024,10 +1066,10 @@ function renderStatusResult(found, statusResultEl) {
       <div class="relative">
         <div class="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full
           ${dotClass(dotDone, isActive, isRed)} ring-4 ring-white shadow-sm"></div>
-        <h4 class="text-sm font-bold ${dotDone ? "text-slate-800" : "text-slate-400"} leading-tight">
+        <h4 class="text-[15px] font-bold ${dotDone ? "text-ink-900" : "text-ink-500"} leading-tight">
           ${title}
         </h4>
-        <p class="text-xs text-slate-500 mt-1">${desc}</p>
+        <p class="text-[14px] text-ink-600 mt-1">${desc}</p>
       </div>
     `;
   }
@@ -1035,9 +1077,9 @@ function renderStatusResult(found, statusResultEl) {
   if (timelineContainer) {
     timelineContainer.innerHTML = `
       <div class="space-y-3 pt-4">
-        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tahapan Seleksi</h3>
+        <h3 class="text-xs font-bold text-ink-500 uppercase tracking-wider">Tahapan Seleksi</h3>
 
-        <div class="relative pl-6 space-y-6 border-l-2 border-slate-200 ml-2 my-2">
+        <div class="relative pl-6 space-y-6 border-l-2 border-line ml-2 my-2">
 
           ${timelineStep(
             step1Done, isPending,
@@ -1053,7 +1095,7 @@ function renderStatusResult(found, statusResultEl) {
             step2Done
               ? `Berkas <strong>${found.namaBerkas || "dokumen"}</strong> telah diverifikasi panitia.${
                   found.catatanAdmin && found.catatanAdmin !== "-"
-                    ? `<br><span class="text-amber-600 font-medium">Catatan: ${found.catatanAdmin}</span>`
+                    ? `<br><span class="text-amber-700 font-semibold">Catatan: ${found.catatanAdmin}</span>`
                     : ""
                 }`
               : "Panitia sedang memeriksa berkas pendaftaran Anda."
@@ -1064,7 +1106,7 @@ function renderStatusResult(found, statusResultEl) {
             isDitolak ? "❌ Tidak Diterima" : "🏆 Pengumuman Hasil",
             step3Done
               ? isDiterima
-                ? "Selamat! Anda dinyatakan <strong class='text-emerald-600'>LULUS</strong> seleksi."
+                ? "Selamat! Anda dinyatakan <strong class='text-brand-700'>LULUS</strong> seleksi."
                 : "Mohon maaf, Anda belum dapat diterima pada seleksi ini."
               : "Menunggu hasil sidang pleno seleksi.",
             isDitolak && step3Done
@@ -1082,10 +1124,10 @@ function renderStatusResult(found, statusResultEl) {
 
         </div>
 
-        <div class="pt-4 border-t border-slate-100">
+        <div class="pt-4 border-t border-line/60">
           <a id="btnWhatsAppStatus" href="#" target="_blank"
-             class="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
-            <i class="fa-brands fa-whatsapp text-base"></i> Konfirmasi / Tanya Status via WhatsApp
+             class="flex items-center justify-center rounded-full bg-brand-600 px-5 py-3.5 text-[15px] font-bold text-white hover:bg-brand-700">
+            Tanya status lewat WhatsApp
           </a>
         </div>
       </div>

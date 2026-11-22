@@ -1,278 +1,131 @@
 <!doctype html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pendaftaran Peserta Didik Baru (SPMB) - Pendaftaran Online</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Formulir Pendaftaran — SPMB SMK Tamansiswa Jetis</title>
+    <meta name="description" content="Formulir pendaftaran online dan cek status SPMB SMK Tamansiswa Jetis 2026/2027." />
+    <meta name="theme-color" content="#FAF7F2" />
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <script src="../assets/js/tailwind-config.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <!-- Google Fonts Inter -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap"
       rel="stylesheet"
     />
-
-    <script src="./assets/js/config.js"></script>
-    <script src="./assets/js/main.js"></script>
-
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ["Inter", "sans-serif"],
-            },
-            colors: {
-              brand: {
-                50: "#eef2ff",
-                100: "#e0e7ff",
-                500: "#6366f1",
-                600: "#4f46e5",
-                700: "#4338ca",
-              },
-            },
-          },
-        },
-      };
-    </script>
+    <link rel="stylesheet" href="../assets/css/style.css" />
   </head>
 
-  <body
-    class="bg-slate-100/80 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between"
-  >
-    <!-- NAVBAR -->
-    <header
-      class="bg-white border-b border-slate-200/80 sticky top-0 z-50 shadow-sm"
-    >
-      <div
-        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between"
-      >
-        <!-- Logo & Title -->
-        <a href="../" class="flex items-center gap-2.5 sm:gap-3 min-w-0 shrink">
-          <div
-            class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md shadow-brand-600/20 shrink-0"
-          >
-            <i class="fa-solid fa-graduation-cap"></i>
-          </div>
-          <div class="min-w-0">
-            <span
-              class="block font-extrabold text-base sm:text-lg text-slate-900 leading-tight truncate"
-              >SPMB Online</span
-            >
-            <span
-              class="text-[10px] sm:text-xs font-medium text-brand-600 block truncate"
-              >Tahun Ajaran 2026/2027</span
-            >
-          </div>
+  <body class="bg-cream text-ink-900 antialiased">
+    <!-- ======================= NAVBAR ======================= -->
+    <header class="sticky top-0 z-40 bg-cream/95 backdrop-blur-sm">
+      <div class="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <a href="../" class="flex items-center gap-2.5" aria-label="Kembali ke beranda">
+          <span class="grid h-10 w-10 place-items-center rounded-2xl bg-brand-600 text-sm font-extrabold text-white">TN</span>
+          <span class="leading-tight">
+            <span class="block text-[15px] font-extrabold">SMK Tamansiswa Jetis</span>
+            <span class="block text-xs text-ink-500">Pendaftaran Online 2026/2027</span>
+          </span>
         </a>
-
-        <!-- Hamburger Button (Hanya Muncul di Mobile) -->
         <button
           id="mobile-menu-btn"
           type="button"
-          class="md:hidden p-2 text-slate-700 hover:text-brand-600 hover:bg-slate-100 rounded-xl focus:outline-none transition shrink-0"
-          aria-label="Toggle Menu"
+          class="grid h-11 w-11 place-items-center rounded-full hover:bg-sand"
+          aria-label="Buka menu"
+          aria-controls="mobile-menu"
         >
-          <i id="menu-icon" class="fa-solid fa-bars text-xl"></i>
+          <span id="menu-icon" aria-hidden="true"
+            ><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg
+          ></span>
         </button>
-
-        <!-- Desktop Navigation -->
-        <nav class="hidden md:flex items-center gap-2 sm:gap-3">
-          <a
-            href="../"
-            class="text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-slate-50 px-3.5 py-2 rounded-xl transition"
-          >
-            Beranda
-          </a>
-          <button
-            type="button"
-            data-tab-link="cek-status"
-            class="tab-btn text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-slate-50 px-3.5 py-2 rounded-xl transition cursor-pointer"
-          >
-            Cek Status
-          </button>
-        </nav>
       </div>
-
-      <!-- Mobile Dropdown Navigation -->
-      <div
-        id="mobile-menu"
-        class="hidden md:hidden border-t border-slate-100 bg-white px-4 pt-3 pb-4 shadow-xl transition-all duration-300"
-      >
-        <nav class="flex flex-col gap-1.5">
-          <a
-            href="../"
-            class="block w-full text-left text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-brand-50 px-3.5 py-2.5 rounded-xl transition"
-          >
-            <i class="fa-solid fa-house w-6 text-brand-500"></i> Beranda
-          </a>
-          <button
-            type="button"
-            data-tab-link="cek-status"
-            class="tab-btn w-full text-left text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-brand-50 px-3.5 py-2.5 rounded-xl transition cursor-pointer"
-          >
-            <i class="fa-solid fa-magnifying-glass w-6 text-brand-500"></i> Cek
-            Status
-          </button>
-        </nav>
-      </div>
+      <nav id="mobile-menu" class="hidden px-4 pb-3" aria-label="Menu">
+        <div class="mx-auto max-w-3xl rounded-3xl bg-white p-3 shadow-soft">
+          <a href="../" class="block rounded-2xl px-4 py-3 text-base font-semibold hover:bg-cream">← Beranda</a>
+          <a href="#" data-tab-link="pendaftaran" class="block rounded-2xl px-4 py-3 text-base font-semibold hover:bg-cream">Formulir Pendaftaran</a>
+          <a href="#cek-status" data-tab-link="cek-status" class="block rounded-2xl px-4 py-3 text-base font-semibold hover:bg-cream">Cek Status</a>
+          <a href="https://wa.me/628823212784" target="_blank" rel="noopener" class="block rounded-2xl px-4 py-3 text-base font-semibold text-brand-700 hover:bg-cream">Chat panitia di WhatsApp</a>
+        </div>
+      </nav>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main
-      class="flex-grow max-w-4xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-6 sm:py-10"
-    >
-      <!-- TAB 1: FORMULIR PENDAFTARAN -->
+    <main class="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
+      <!-- Tab -->
+      <div class="mt-2 grid grid-cols-2 gap-1 rounded-full bg-sand p-1" role="tablist">
+        <button type="button" data-tab="pendaftaran" class="tab-btn active rounded-full bg-brand-600 py-3 text-[15px] font-bold text-white">Daftar</button>
+        <button type="button" data-tab="cek-status" class="tab-btn rounded-full py-3 text-[15px] font-bold text-ink-600">Cek Status</button>
+      </div>
+
+      <!-- ======================= TAB 1: PENDAFTARAN ======================= -->
       <div id="tab-pendaftaran" class="tab-panel">
-        <div class="mb-6 sm:mb-8 text-center max-w-xl mx-auto">
-          <span
-            class="inline-block text-brand-700 bg-brand-50 border border-brand-100 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2"
-          >
-            Pendaftaran Online
-          </span>
-          <h1
-            class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight"
-          >
-            Formulir Penerimaan Siswa Baru
-          </h1>
-          <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-            Silakan isi data diri, kontak orang tua, dan jurusan pilihan secara
-            bertahap.
-          </p>
+        <div class="mt-6">
+          <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Formulir Pendaftaran</h1>
+          <p class="mt-1 text-[15px] text-ink-600">Isi pelan-pelan, sekitar 10 menit. Kolom bertanda <span class="font-bold text-red-600">*</span> wajib diisi.</p>
         </div>
 
-        <form
-          id="regForm"
-          class="bg-white p-4 sm:p-8 rounded-2xl shadow-sm border border-slate-200/80 space-y-6 sm:space-y-8"
-        >
-          <!-- SUB 1: DATA DIRI SISWA -->
-          <div
-            class="bg-slate-50/70 p-4 sm:p-6 rounded-2xl border border-slate-200/60 space-y-4"
-          >
-            <div
-              class="flex items-center justify-between border-b border-slate-200 pb-3"
-            >
-              <h2
-                class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2.5"
-              >
-                <span
-                  class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-brand-600 text-white text-xs sm:text-sm grid place-items-center shadow-sm"
-                  >1</span
-                >
-                Informasi Data Diri Siswa
-              </h2>
-              <span
-                class="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded"
-                >* Wajib diisi</span
-              >
+        <form id="regForm" class="mt-5 scroll-mt-24" novalidate>
+          <!-- Bilah kemajuan -->
+          <div class="mb-4">
+            <div class="mb-2 flex justify-between text-[13px] font-semibold text-ink-600">
+              <span id="stepLabel" aria-live="polite">Langkah 1 dari 4: Data Diri</span>
             </div>
+            <div class="h-2 rounded-full bg-[#E7E3DA]">
+              <div id="stepBar" class="h-2 rounded-full bg-brand-600 transition-all duration-300" style="width: 25%"></div>
+            </div>
+          </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-1">
-              <!-- Nama Lengkap -->
-              <div class="sm:col-span-2">
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Nama Lengkap (Sesuai Ijazah SMP)
-                  <span class="text-red-500">*</span></label
-                >
-                <input
-                  type="text"
-                  id="namaLengkap"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm placeholder:text-slate-400 transition"
-                  placeholder="Contoh: Muhammad Rizky Pratama"
-                />
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
+          <!-- ============ LANGKAH 1: DATA DIRI ============ -->
+          <section data-step="1">
+            <div class="space-y-5 rounded-3xl bg-white p-5 sm:p-6">
+              <h2 class="text-lg font-extrabold">Data diri calon siswa</h2>
+
+              <div>
+                <label for="namaLengkap" class="mb-1.5 block text-[15px] font-semibold">Nama lengkap <span class="text-red-600">*</span></label>
+                <input type="text" id="namaLengkap" autocomplete="name" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: Muhammad Rizky Pratama" />
+                <p class="mt-1 text-[13px] text-ink-500">Tulis sesuai ijazah SMP.</p>
+                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
 
-              <!-- Jenis Kelamin -->
               <div>
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Jenis Kelamin <span class="text-red-500">*</span></label
-                >
-                <select
-                  id="jenisKelamin"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm transition"
-                >
+                <span class="mb-1.5 block text-[15px] font-semibold">Jenis kelamin <span class="text-red-600">*</span></span>
+                <select id="jenisKelamin" class="sr-only" tabindex="-1" aria-hidden="true">
                   <option value="">-- Pilih Jenis Kelamin --</option>
                   <option value="Laki-laki">Laki-laki</option>
                   <option value="Perempuan">Perempuan</option>
                 </select>
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
+                <div class="grid grid-cols-2 gap-2" role="group" aria-label="Jenis kelamin">
+                  <button type="button" class="choice rounded-xl border-[1.5px] border-line bg-white py-3 text-[15px] font-semibold" data-for="jenisKelamin" data-value="Laki-laki" aria-pressed="false">Laki-laki</button>
+                  <button type="button" class="choice rounded-xl border-[1.5px] border-line bg-white py-3 text-[15px] font-semibold" data-for="jenisKelamin" data-value="Perempuan" aria-pressed="false">Perempuan</button>
+                </div>
+                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
 
-              <!-- NISN -->
               <div>
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >NISN SMP (10 Digit)
-                  <span class="text-red-500">*</span></label
-                >
-                <input
-                  type="text"
-                  id="nisn"
-                  maxlength="10"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm placeholder:text-slate-400 transition"
-                  placeholder="0012345678"
-                />
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
+                <label for="nisn" class="mb-1.5 block text-[15px] font-semibold">NISN <span class="text-red-600">*</span></label>
+                <input type="text" id="nisn" inputmode="numeric" maxlength="10" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 0098765432" />
+                <p class="mt-1 text-[13px] text-ink-500">10 angka. Ada di rapor, atau tanyakan ke sekolah asal.</p>
+                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
 
-              <!-- Tempat Lahir -->
-              <div>
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Tempat Lahir <span class="text-red-500">*</span></label
-                >
-                <input
-                  type="text"
-                  id="tempatLahir"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm placeholder:text-slate-400 transition"
-                  placeholder="Yogyakarta"
-                />
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
+              <div class="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label for="tempatLahir" class="mb-1.5 block text-[15px] font-semibold">Tempat lahir <span class="text-red-600">*</span></label>
+                  <input type="text" id="tempatLahir" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: Yogyakarta" />
+                  <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+                </div>
+                <div>
+                  <label for="tanggalLahir" class="mb-1.5 block text-[15px] font-semibold">Tanggal lahir <span class="text-red-600">*</span></label>
+                  <input type="date" id="tanggalLahir" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none" />
+                  <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+                </div>
               </div>
 
-              <!-- Tanggal Lahir -->
               <div>
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Tanggal Lahir <span class="text-red-500">*</span></label
-                >
-                <input
-                  type="date"
-                  id="tanggalLahir"
-                  lang="id"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm transition cursor-pointer"
-                />
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
-              </div>
-
-              <!-- Agama -->
-              <div>
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Agama <span class="text-red-500">*</span></label
-                >
-                <select
-                  id="agama"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm transition"
-                >
+                <label for="agama" class="mb-1.5 block text-[15px] font-semibold">Agama <span class="text-red-600">*</span></label>
+                <select id="agama" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none">
                   <option value="">-- Pilih Agama --</option>
                   <option value="Islam">Islam</option>
                   <option value="Kristen">Kristen</option>
@@ -281,536 +134,214 @@
                   <option value="Buddha">Buddha</option>
                   <option value="Konghucu">Konghucu</option>
                 </select>
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
+                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
 
-              <!-- Nomor WA Siswa -->
+              <div>
+                <label for="whatsapp" class="mb-1.5 block text-[15px] font-semibold">Nomor WhatsApp siswa <span class="text-red-600">*</span></label>
+                <input type="tel" id="whatsapp" inputmode="numeric" autocomplete="tel" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 081234567890" />
+                <p class="mt-1 text-[13px] text-ink-500">Nomor yang aktif, panitia akan menghubungi lewat nomor ini.</p>
+                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+              </div>
+
+              <div>
+                <label for="alamat" class="mb-1.5 block text-[15px] font-semibold">Alamat tempat tinggal <span class="text-red-600">*</span></label>
+                <textarea id="alamat" rows="3" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Jalan, RT/RW, Kelurahan/Desa, Kecamatan, Kota/Kabupaten"></textarea>
+                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+              </div>
+
+              <div>
+                <label for="asalSekolah" class="mb-1.5 block text-[15px] font-semibold">Asal SMP / MTs <span class="text-red-600">*</span></label>
+                <input type="text" id="asalSekolah" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: SMP Negeri 1 Yogyakarta" />
+                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ LANGKAH 2: ORANG TUA ============ -->
+          <section data-step="2" class="hidden">
+            <div class="space-y-5 rounded-3xl bg-white p-5 sm:p-6">
+              <h2 class="text-lg font-extrabold">Data orang tua / wali</h2>
+              <div>
+                <label for="namaOrtu" class="mb-1.5 block text-[15px] font-semibold">Nama orang tua / wali <span class="text-red-600">*</span></label>
+                <input type="text" id="namaOrtu" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Nama ayah / ibu / wali" />
+                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+              </div>
+              <div>
+                <label for="waOrtu" class="mb-1.5 block text-[15px] font-semibold">Nomor WhatsApp orang tua / wali <span class="text-red-600">*</span></label>
+                <input type="tel" id="waOrtu" inputmode="numeric" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 081234567890" />
+                <p class="mt-1 text-[13px] text-ink-500">Dipakai panitia untuk mengabarkan hasil seleksi.</p>
+                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ LANGKAH 3: BERKAS ============ -->
+          <section data-step="3" class="hidden">
+            <div class="space-y-4 rounded-3xl bg-white p-5 sm:p-6">
+              <div class="flex items-center justify-between gap-3">
+                <h2 class="text-lg font-extrabold">Unggah berkas</h2>
+                <span class="rounded-full bg-sand px-3 py-1 text-xs font-bold text-ink-600">Boleh dilewati</span>
+              </div>
               <div>
                 <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Nomor WhatsApp Siswa
-                  <span class="text-red-500">*</span></label
+                  for="berkasFile"
+                  class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line bg-cream px-4 py-8 text-center hover:border-brand-600"
                 >
-                <input
-                  type="tel"
-                  id="whatsapp"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm placeholder:text-slate-400 transition"
-                  placeholder="081234567890"
-                />
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+                  <span class="text-base font-bold">Ketuk untuk memilih foto atau PDF</span>
+                  <span class="text-[13px] text-ink-500">KK, kartu pelajar, foto, atau SKL · PDF/JPG/PNG · maksimal 5 MB</span>
+                  <span id="berkasInfo" class="hidden rounded-full bg-brand-100 px-3 py-1 text-[13px] font-semibold text-brand-700"></span>
+                </label>
+                <input type="file" id="berkasFile" accept=".pdf, .jpg, .jpeg, .png" class="sr-only" />
+                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
-
-              <!-- Alamat Lengkap -->
-              <div class="sm:col-span-2">
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Alamat Tempat Tinggal
-                  <span class="text-red-500">*</span></label
-                >
-                <textarea
-                  id="alamat"
-                  rows="2"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm placeholder:text-slate-400 transition"
-                  placeholder="Jalan, RT/RW, Kelurahan/Desa, Kecamatan, Kota/Kabupaten"
-                ></textarea>
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
-              </div>
-
-              <!-- Asal SMP -->
-              <div class="sm:col-span-2">
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Nama Asal SMP / MTs
-                  <span class="text-red-500">*</span></label
-                >
-                <input
-                  type="text"
-                  id="asalSekolah"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm placeholder:text-slate-400 transition"
-                  placeholder="Contoh: SMP Negeri 1 Yogyakarta"
-                />
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
-              </div>
+              <p class="rounded-2xl bg-brand-50 p-3 text-[14px] text-ink-600">
+                Ijazah/SKL belum keluar? Lewati saja langkah ini, berkas bisa dikirim menyusul lewat WhatsApp panitia.
+              </p>
             </div>
-          </div>
+          </section>
 
-          <!-- SUB 2: DATA ORANG TUA / WALI -->
-          <div
-            class="bg-slate-50/70 p-4 sm:p-6 rounded-2xl border border-slate-200/60 space-y-4"
-          >
-            <div
-              class="flex items-center justify-between border-b border-slate-200 pb-3"
-            >
-              <h2
-                class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2.5"
-              >
-                <span
-                  class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-brand-600 text-white text-xs sm:text-sm grid place-items-center shadow-sm"
-                  >2</span
-                >
-                Informasi Orang Tua / Wali
-              </h2>
-              <span
-                class="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded"
-                >* Wajib diisi</span
-              >
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-1">
-              <!-- Nama Ortu / Wali -->
+          <!-- ============ LANGKAH 4: JURUSAN & KIRIM ============ -->
+          <section data-step="4" class="hidden">
+            <div class="space-y-5 rounded-3xl bg-white p-5 sm:p-6">
+              <h2 class="text-lg font-extrabold">Pilih jurusan</h2>
               <div>
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Nama Orang Tua / Wali
-                  <span class="text-red-500">*</span></label
-                >
-                <input
-                  type="text"
-                  id="namaOrtu"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm placeholder:text-slate-400 transition"
-                  placeholder="Nama Ayah / Ibu / Wali"
-                />
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
-              </div>
-
-              <!-- Nomor WA Ortu / Wali -->
-              <div>
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Nomor WhatsApp Ortu / Wali
-                  <span class="text-red-500">*</span></label
-                >
-                <input
-                  type="tel"
-                  id="waOrtu"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm placeholder:text-slate-400 transition"
-                  placeholder="081234567890"
-                />
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
-              </div>
-            </div>
-          </div>
-
-          <!-- SUB 3: UNGGAH BERKAS PENDUKUNG -->
-          <div
-            class="bg-slate-50/70 p-4 sm:p-6 rounded-2xl border border-slate-200/60 space-y-4"
-          >
-            <div
-              class="flex items-center justify-between border-b border-slate-200 pb-3"
-            >
-              <h2
-                class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2.5"
-              >
-                <span
-                  class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-slate-700 text-white text-xs sm:text-sm grid place-items-center shadow-sm"
-                  >3</span
-                >
-                Unggah Berkas Pendukung
-              </h2>
-              <span
-                class="text-[11px] font-bold text-slate-500 bg-slate-200/80 px-2 py-0.5 rounded"
-                >Opsional</span
-              >
-            </div>
-
-            <div class="space-y-3 pt-1">
-              <label class="block text-xs sm:text-sm font-bold text-slate-800">
-                Upload Dokumen Kelengkapan (KK / Kartu Pelajar / Foto / SKL)
-              </label>
-              <input
-                type="file"
-                id="berkasFile"
-                accept=".pdf, .jpg, .jpeg, .png"
-                class="w-full text-xs sm:text-sm text-slate-600 file:mr-3.5 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-100 file:text-brand-700 hover:file:bg-brand-200 cursor-pointer border border-slate-300 rounded-xl bg-white transition"
-              />
-              <span
-                class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-              ></span>
-
-              <div
-                class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 flex items-start gap-2.5"
-              >
-                <i
-                  class="fa-solid fa-circle-info text-amber-600 mt-0.5 text-sm shrink-0"
-                ></i>
-                <p class="leading-relaxed font-medium">
-                  <strong>Catatan:</strong> Jika ijazah/SKL belum terbit, Anda
-                  dapat melewati langkah ini sekarang dan mengunggahnya nanti
-                  via Portal Akun Siswa.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- SUB 4: PEMILIHAN JURUSAN -->
-          <div
-            class="bg-slate-50/70 p-4 sm:p-6 rounded-2xl border border-slate-200/60 space-y-4"
-          >
-            <div
-              class="flex items-center justify-between border-b border-slate-200 pb-3"
-            >
-              <h2
-                class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2.5"
-              >
-                <span
-                  class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-brand-600 text-white text-xs sm:text-sm grid place-items-center shadow-sm"
-                  >4</span
-                >
-                Pilihan Program Keahlian / Jurusan
-              </h2>
-              <span
-                class="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded"
-                >* Wajib diisi</span
-              >
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-1">
-              <div>
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Jurusan Utama (Pilihan 1)
-                  <span class="text-red-500">*</span></label
-                >
-                <select
-                  id="jurusan1"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm transition"
-                >
+                <label for="jurusan1" class="mb-1.5 block text-[15px] font-semibold">Jurusan utama (pilihan 1) <span class="text-red-600">*</span></label>
+                <select id="jurusan1" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none">
                   <option value="">-- Pilih Jurusan Utama --</option>
-                  <option value="RPL">Rekayasa Perangkat Lunak (RPL)</option>
-                  <option value="DKV">Desain Komunikasi Visual (DKV)</option>
-                  <option value="TITL">
-                    Teknik Instalasi Tenaga Listrik (TITL)
-                  </option>
-                  <option value="TKR">Teknik Kendaraan Ringan (TKR)</option>
-                  <option value="TSM">Teknik Sepeda Motor (TSM)</option>
+                  <option value="TKR">🔧 Teknik Kendaraan Ringan (TKR)</option>
+                  <option value="TSM">🏍️ Teknik Sepeda Motor (TSM)</option>
+                  <option value="TITL">⚡ Teknik Instalasi Tenaga Listrik (TITL)</option>
+                  <option value="RPL">💻 Rekayasa Perangkat Lunak (RPL)</option>
+                  <option value="DKV">🎨 Desain Komunikasi Visual (DKV)</option>
                 </select>
-                <span
-                  class="field-error text-xs font-medium text-red-600 mt-1 hidden"
-                ></span>
+                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
-
               <div>
-                <label
-                  class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                  >Jurusan Cadangan (Pilihan 2)</label
-                >
-                <select
-                  id="jurusan2"
-                  class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 bg-white shadow-sm transition"
-                >
-                  <option value="">-- Pilih Jurusan Cadangan --</option>
-                  <option value="RPL">Rekayasa Perangkat Lunak (RPL)</option>
-                  <option value="DKV">Desain Komunikasi Visual (DKV)</option>
-                  <option value="TITL">
-                    Teknik Instalasi Tenaga Listrik (TITL)
-                  </option>
-                  <option value="TKR">Teknik Kendaraan Ringan (TKR)</option>
-                  <option value="TSM">Teknik Sepeda Motor (TSM)</option>
+                <label for="jurusan2" class="mb-1.5 block text-[15px] font-semibold">Jurusan cadangan (pilihan 2)</label>
+                <select id="jurusan2" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none">
+                  <option value="">-- Boleh dikosongkan --</option>
+                  <option value="TKR">🔧 Teknik Kendaraan Ringan (TKR)</option>
+                  <option value="TSM">🏍️ Teknik Sepeda Motor (TSM)</option>
+                  <option value="TITL">⚡ Teknik Instalasi Tenaga Listrik (TITL)</option>
+                  <option value="RPL">💻 Rekayasa Perangkat Lunak (RPL)</option>
+                  <option value="DKV">🎨 Desain Komunikasi Visual (DKV)</option>
                 </select>
-                <p
-                  id="jurusanSamaWarning"
-                  class="text-xs text-amber-700 font-bold mt-1.5 hidden"
-                >
-                  ⚠️ Jurusan utama dan cadangan tidak boleh sama.
-                </p>
+                <p id="jurusanSamaWarning" class="mt-1 hidden text-[13px] font-semibold text-red-600">Jurusan utama dan cadangan tidak boleh sama. Pilih jurusan lain atau kosongkan.</p>
               </div>
-            </div>
-          </div>
 
-          <!-- PERNYATAAN -->
-          <div
-            class="bg-brand-50/80 border border-brand-200/80 p-4 rounded-2xl flex items-start gap-3"
-          >
-            <input
-              type="checkbox"
-              id="pernyataan"
-              class="mt-1 w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500 shrink-0 cursor-pointer"
-            />
-            <div>
-              <label
-                for="pernyataan"
-                class="text-xs sm:text-sm text-slate-800 font-semibold leading-relaxed cursor-pointer"
+              <div class="rounded-2xl bg-cream p-4">
+                <label for="pernyataan" class="flex cursor-pointer items-start gap-3">
+                  <input type="checkbox" id="pernyataan" class="mt-0.5 h-6 w-6 shrink-0 rounded-md accent-[#15803D]" />
+                  <span class="text-[15px] text-ink-600">Saya menyatakan seluruh data yang diisi adalah <b class="text-ink-900">benar</b>, sah, dan dapat dipertanggungjawabkan.</span>
+                </label>
+                <p id="pernyataanError" class="mt-2 hidden text-[13px] font-semibold text-red-600"></p>
+              </div>
+
+              <button
+                type="submit"
+                id="submitBtn"
+                class="flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-4 text-base font-bold text-white hover:bg-brand-700 disabled:opacity-60"
               >
-                Saya menyatakan bahwa seluruh data yang diisikan pada formulir
-                ini adalah BENAR, sah, dan dapat dipertanggungjawabkan.
-              </label>
-              <span
-                id="pernyataanError"
-                class="block text-xs font-bold text-red-600 mt-1 hidden"
-              ></span>
+                Kirim Formulir Pendaftaran
+              </button>
             </div>
-          </div>
+          </section>
 
-          <!-- SUBMIT BUTTON -->
-          <div class="pt-2">
-            <button
-              type="submit"
-              id="submitBtn"
-              class="w-full bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white font-extrabold py-3.5 sm:py-4 px-6 rounded-xl shadow-lg shadow-brand-600/25 transition-all duration-200 flex items-center justify-center gap-2.5 text-sm sm:text-base cursor-pointer"
-            >
-              <i class="fa-solid fa-paper-plane"></i> Kirim Formulir Pendaftaran
-            </button>
+          <!-- Navigasi langkah -->
+          <div class="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+            <button type="button" data-prev class="step-prev rounded-full border-[1.5px] border-line bg-white px-6 py-3.5 text-base font-semibold hover:border-ink-500">← Kembali</button>
+            <button type="button" data-next class="step-next rounded-full bg-brand-600 px-8 py-4 text-base font-bold text-white hover:bg-brand-700 sm:ml-auto">Lanjut →</button>
           </div>
+          <p class="mt-4 text-center text-sm text-ink-500">
+            Butuh bantuan?
+            <a href="https://wa.me/628823212784" target="_blank" rel="noopener" class="font-bold text-brand-700 underline">Chat panitia di WhatsApp</a>
+          </p>
         </form>
 
-        <!-- SUCCESS CARD (Hidden by Default) -->
-        <div
-          id="successCard"
-          class="hidden bg-white rounded-2xl shadow-lg border border-slate-200/80 p-6 sm:p-8 text-center space-y-5 max-w-lg mx-auto"
-        >
-          <!-- Ikon Centang Sukses -->
-          <div
-            class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner"
-          >
-            <i class="fa-solid fa-check"></i>
-          </div>
+        <!-- ============ KARTU SUKSES ============ -->
+        <div id="successCard" class="mt-6 hidden rounded-3xl bg-white p-6 text-center shadow-soft sm:p-8">
+          <span class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-brand-100">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>
+          </span>
+          <h2 class="mt-4 text-2xl font-extrabold">Pendaftaran berhasil dikirim!</h2>
+          <p class="mx-auto mt-2 max-w-md text-[15px] text-ink-600">Simpan nomor pendaftaran ini, lalu konfirmasi ke WhatsApp panitia.</p>
 
-          <div class="space-y-1.5">
-            <h3 class="text-xl font-extrabold text-slate-900">
-              Pendaftaran Berhasil Dikirim!
-            </h3>
-            <p
-              class="text-xs sm:text-sm text-slate-600 max-w-sm mx-auto leading-relaxed"
-            >
-              Simpan Nomor Pendaftaran Anda dan segera lakukan konfirmasi ke
-              WhatsApp Panitia SPMB.
-            </p>
-          </div>
-
-          <!-- Kotak Nomor Pendaftaran -->
-          <div
-            class="inline-flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl shadow-inner max-w-full overflow-x-auto"
-          >
-            <span class="text-xs text-slate-500 font-semibold shrink-0"
-              >No. Pendaftaran:</span
-            >
-            <span
-              id="noPendaftaran"
-              class="text-base font-extrabold text-brand-600 tracking-wider font-mono truncate"
-            ></span>
-            <button
-              type="button"
-              id="copyNo"
-              class="text-slate-400 hover:text-brand-600 transition p-1 shrink-0"
-              title="Salin Nomor"
-            >
-              <i class="fa-regular fa-copy text-base"></i>
+          <div class="mx-auto mt-5 flex max-w-sm items-center justify-between gap-3 rounded-2xl bg-cream px-4 py-3 text-left">
+            <div>
+              <p class="text-[13px] font-semibold text-ink-500">No. Pendaftaran</p>
+              <p id="noPendaftaran" class="text-2xl font-extrabold tracking-wide text-brand-700">SPMB-000000</p>
+            </div>
+            <button id="copyNo" type="button" class="grid h-11 w-11 place-items-center rounded-full bg-white text-ink-600 hover:text-brand-700" aria-label="Salin nomor pendaftaran">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>
             </button>
           </div>
 
-          <!-- Tombol Aksi & Konfirmasi WhatsApp -->
-          <div class="space-y-3 pt-2">
-            <a
-              id="btnWhatsApp"
-              href="#"
-              target="_blank"
-              class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-5 py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2"
-            >
-              <i class="fa-brands fa-whatsapp text-lg"></i> Konfirmasi
-              Pendaftaran via WhatsApp
+          <div class="mx-auto mt-5 flex max-w-sm flex-col gap-3">
+            <a id="btnWhatsApp" href="#" class="flex items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-4 text-base font-bold text-white hover:bg-brand-700">
+              Konfirmasi lewat WhatsApp
             </a>
-
-            <div class="grid grid-cols-2 gap-2.5 pt-1">
-              <button
-                type="button"
-                onclick="triggerDownloadPDF()"
-                class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <i class="fa-solid fa-file-pdf"></i> Download PDF
-              </button>
-
-              <button
-                type="button"
-                data-tab-link="cek-status"
-                class="tab-btn bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <i class="fa-solid fa-magnifying-glass"></i> Cek Status
-              </button>
-            </div>
+            <button type="button" onclick="triggerDownloadPDF()" class="rounded-full border-[1.5px] border-line bg-white px-6 py-3.5 text-base font-semibold hover:border-ink-500">Unduh Bukti (PDF)</button>
+            <a href="#cek-status" data-tab-link="cek-status" class="text-[15px] font-semibold text-brand-700 underline">Cek status pendaftaran</a>
           </div>
         </div>
       </div>
 
-      <!-- TAB 2: CEK STATUS PENDAFTARAN (DIPERBAIKI UNTUK TAMPILAN MOBILE SLIM/DESAIN AWAL) -->
+      <!-- ======================= TAB 2: CEK STATUS ======================= -->
       <div id="tab-cek-status" class="tab-panel hidden">
-        <div class="mb-6 sm:mb-8 text-center max-w-md mx-auto">
-          <div
-            class="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-brand-50 text-brand-600 mb-3 shadow-inner"
-          >
-            <i class="fa-solid fa-magnifying-glass text-lg"></i>
-          </div>
-          <h1
-            class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight"
-          >
-            Cek Status Pendaftaran
-          </h1>
-          <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-            Masukkan 10 digit NISN SMP Anda untuk memeriksa status verifikasi
-            pendaftaran.
-          </p>
+        <div class="mt-6">
+          <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Cek Status Pendaftaran</h1>
+          <p class="mt-1 text-[15px] text-ink-600">Masukkan NISN (10 angka) yang dipakai saat mendaftar.</p>
         </div>
 
-        <div
-          class="bg-white p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/90 max-w-xl mx-auto space-y-6"
-        >
-          <form id="cekStatusForm" class="space-y-4">
+        <form id="cekStatusForm" class="mt-5 rounded-3xl bg-white p-5 sm:p-6" novalidate>
+          <label for="cekNisn" class="mb-1.5 block text-[15px] font-semibold">Nomor NISN</label>
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <input type="text" id="cekNisn" inputmode="numeric" maxlength="10" class="w-full rounded-xl border-[1.5px] border-line bg-white px-3.5 py-3 text-base placeholder:text-ink-300 focus:border-brand-600 focus:outline-none" placeholder="Contoh: 0098765432" />
+            <button type="submit" class="shrink-0 rounded-full bg-brand-600 px-7 py-3.5 text-base font-bold text-white hover:bg-brand-700 disabled:opacity-60">Cek Status</button>
+          </div>
+          <p id="cekStatusError" class="mt-2 hidden text-[13px] font-semibold text-red-600"></p>
+        </form>
+
+        <div id="statusResult" class="mt-5 hidden rounded-3xl bg-white p-5 sm:p-6">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <label
-                class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5"
-                >Nomor NISN Siswa</label
-              >
-              <div class="flex flex-col sm:flex-row gap-2.5">
-                <input
-                  type="text"
-                  id="cekNisn"
-                  maxlength="10"
-                  class="w-full sm:flex-grow px-4 py-3 rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm text-slate-900 font-mono shadow-sm transition"
-                  placeholder="Contoh: 0098765432"
-                />
-                <button
-                  type="submit"
-                  class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 active:scale-98 text-white font-bold px-6 py-3 rounded-xl text-sm transition shadow-md shadow-brand-600/20 shrink-0 cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                  <span>Cek Status</span>
-                </button>
-              </div>
-              <span
-                id="cekStatusError"
-                class="text-xs font-bold text-red-600 mt-2 block hidden"
-              ></span>
+              <p class="text-[13px] font-semibold text-ink-500">Nama siswa</p>
+              <p id="resNama" class="text-lg font-extrabold">-</p>
+              <p class="mt-1 text-[14px] text-ink-600">NISN: <span id="resNisn" class="font-semibold">0000000000</span> · Pilihan 1: <span id="resJurusan" class="font-semibold">-</span></p>
             </div>
-          </form>
-
-          <div
-            id="statusResult"
-            class="hidden border-t border-slate-100 pt-6 space-y-4"
-          >
-            <div
-              class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
-            >
-              <div class="min-w-0">
-                <span
-                  id="resNama"
-                  class="block font-extrabold text-slate-900 text-base truncate"
-                  >Nama Siswa</span
-                >
-                <span
-                  class="text-xs text-slate-500 block sm:inline mt-0.5 sm:mt-0"
-                  >NISN:
-                  <span id="resNisn" class="font-mono font-bold text-slate-700"
-                    >0000000000</span
-                  >
-                  <span class="hidden sm:inline"> | </span>
-                  <span class="block sm:inline mt-0.5 sm:mt-0"
-                    >Pilihan 1:
-                    <span id="resJurusan" class="font-bold text-brand-600"
-                      >-</span
-                    >
-                  </span>
-                </span>
-              </div>
-              <span
-                id="resBadge"
-                class="self-start sm:self-auto text-xs font-bold px-3 py-1.5 rounded-full shrink-0"
-                >Status</span
-              >
-            </div>
-
-            <div id="timelineContainer"></div>
+            <span id="resBadge" class="self-start rounded-full px-4 py-2 text-xs font-bold">Status</span>
           </div>
         </div>
       </div>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="bg-white border-t border-slate-200 py-6 mt-12">
-      <div
-        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs sm:text-sm text-slate-500 font-medium"
-      >
-        &copy; 2026 Panitia Penerimaan Peserta Didik Baru (SPMB). Hak Cipta
-        Dilindungi.
-      </div>
+    <footer class="border-t border-line/60 px-4 py-6 text-center text-sm text-ink-500">
+      &copy; 2026 Panitia SPMB SMK Tamansiswa Jetis. Hak cipta dilindungi.
     </footer>
 
-    <!-- MODAL / OVERLAY LOADING PROGRESS UPLOAD -->
-    <div
-      id="uploadModal"
-      class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4"
-    >
-      <div
-        class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center space-y-5 animate-in fade-in zoom-in duration-200"
-      >
-        <!-- Ikon Animasi -->
-        <div
-          class="w-16 h-16 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner"
-        >
-          <i
-            id="uploadModalIcon"
-            class="fa-solid fa-cloud-arrow-up animate-bounce"
-          ></i>
-        </div>
-
-        <div class="space-y-1">
-          <h3
-            id="uploadModalTitle"
-            class="text-lg font-extrabold text-slate-900"
-          >
-            Sedang Mengunggah Berkas
-          </h3>
-          <p
-            id="uploadModalDesc"
-            class="text-xs text-slate-500 leading-relaxed"
-          >
-            Mohon tidak menutup halaman ini agar proses pendaftaran Anda
-            tercatat sempurna.
-          </p>
-        </div>
-
-        <!-- Progress Bar Dinamis -->
-        <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-          <div
-            id="uploadProgressBar"
-            class="bg-brand-600 h-2.5 rounded-full transition-all duration-300 w-1/4"
-          ></div>
-        </div>
-
-        <!-- Tips Anti-Boring -->
-        <div class="bg-slate-50 border border-slate-200/80 p-3 rounded-xl">
-          <p
-            class="text-[11px] font-semibold text-slate-600 italic"
-            id="uploadTipText"
-          >
-            💡 Tips: Simpan bukti pendaftaran setelah berhasil terkirim.
-          </p>
-        </div>
-
-        <div id="uploadModalAction" class="hidden pt-2">
-          <button
-            type="button"
-            id="closeUploadModalBtn"
-            class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs py-3 rounded-xl transition cursor-pointer"
-          >
-            Tutup & Coba Lagi
-          </button>
+    <!-- ======================= MODAL UPLOAD ======================= -->
+    <div id="uploadModal" class="fixed inset-0 z-50 hidden bg-ink-900/50 p-4" role="dialog" aria-modal="true" aria-labelledby="uploadModalTitle">
+      <div class="flex min-h-full items-center justify-center">
+        <div class="w-full max-w-sm rounded-3xl bg-white p-6 text-center">
+          <div id="uploadModalIcon" class="text-5xl" aria-hidden="true">📤</div>
+          <h2 id="uploadModalTitle" class="mt-3 text-lg font-extrabold">Sedang mengirim pendaftaran</h2>
+          <p id="uploadModalDesc" class="mt-1 text-[15px] text-ink-600">Mohon jangan menutup halaman ini.</p>
+          <div class="mt-4 h-2.5 rounded-full bg-[#E7E3DA]">
+            <div id="uploadProgressBar" class="h-2.5 rounded-full bg-brand-600 transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <p id="uploadTipText" class="mt-4 rounded-2xl bg-cream p-3 text-[13px] text-ink-600">💡 Tips: Simpan bukti pendaftaran setelah berhasil terkirim.</p>
+          <div id="uploadModalAction" class="mt-4 hidden">
+            <button id="closeUploadModalBtn" type="button" class="w-full rounded-full bg-ink-900 px-6 py-3.5 text-base font-bold text-white">Tutup &amp; coba lagi</button>
+          </div>
         </div>
       </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/form-steps.js"></script>
     <script src="../assets/js/daftar.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   </body>
 </html>
