@@ -916,92 +916,139 @@ window.triggerDownloadPDF = function () {
   }
 };
 
+const NAMA_JURUSAN = {
+  TKR: "Teknik Kendaraan Ringan (TKR)",
+  TSM: "Teknik Sepeda Motor (TSM)",
+  TITL: "Teknik Instalasi Tenaga Listrik (TITL)",
+  RPL: "Rekayasa Perangkat Lunak (RPL)",
+  DKV: "Desain Komunikasi Visual (DKV)",
+};
+
+// Isi bukti pendaftaran (tanpa jsPDF, agar bisa dites)
+function buildPdfContent(data, siswaUrl) {
+  const v = (x) => (x === undefined || x === null || String(x).trim() === "" ? "-" : String(x));
+  const jurusan = (k) => (k && k !== "-" ? NAMA_JURUSAN[k] || k : "-");
+  return {
+    school: "SMK TAMANSISWA JETIS",
+    title: "BUKTI PENDAFTARAN ONLINE",
+    subtitle: "Penerimaan Peserta Didik Baru (SPMB) Tahun Ajaran 2026/2027",
+    noPendaftaran: v(data.noPendaftaran),
+    sections: [
+      {
+        heading: "A. Data Diri Calon Siswa",
+        rows: [
+          ["Nama Lengkap", v(data.namaLengkap)],
+          ["NISN", v(data.nisn)],
+          ["Jenis Kelamin", v(data.jenisKelamin)],
+          ["Tempat, Tanggal Lahir", `${v(data.tempatLahir)}, ${v(formatTanggalIndonesia(data.tanggalLahir))}`],
+          ["Agama", v(data.agama)],
+          ["No. WhatsApp Siswa", v(data.whatsapp)],
+          ["Asal Sekolah", v(data.asalSekolah)],
+          ["Alamat", v(data.alamat)],
+          ["Berkas Diunggah", v(data.namaBerkas)],
+        ],
+      },
+      {
+        heading: "B. Orang Tua & Pilihan Jurusan",
+        rows: [
+          ["Nama Orang Tua/Wali", v(data.namaOrtu)],
+          ["No. WhatsApp Ortu", v(data.waOrtu)],
+          ["Jurusan Utama", jurusan(data.jurusan1)],
+          ["Jurusan Cadangan", jurusan(data.jurusan2)],
+          ["Status Pendaftaran", v(data.statusPendaftaran)],
+        ],
+      },
+    ],
+    loginNote:
+      `Lengkapi berkas atau cek berkas di ${siswaUrl} ` +
+      "dengan login memakai NISN dan password yang dibuat saat mendaftar. Jangan beri tahu password ke siapa pun.",
+  };
+}
+
 function generatePDF(data) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
+  const siswaUrl = new URL("../siswa/", window.location.href).href;
+  const c = buildPdfContent(data, siswaUrl);
+  const GREEN = [21, 128, 61];
+  const INK = [28, 42, 34];
+  const MUTED = [75, 90, 80];
+  const LABEL_X = 25;
+  const COLON_X = 72;
+  const VALUE_X = 75;
+  const VALUE_W = 190 - VALUE_X;
+  const LINE = 6.2;
 
+  // Kepala
+  doc.setTextColor(...GREEN);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text("PANITIA PENERIMAAN PESERTA DIDIK BARU (SPMB)", 105, 20, {
-    align: "center",
-  });
-
-  doc.setFontSize(11);
+  doc.setFontSize(18);
+  doc.text(c.school, 105, 20, { align: "center" });
+  doc.setTextColor(...INK);
+  doc.setFontSize(12);
+  doc.text(c.title, 105, 27, { align: "center" });
   doc.setFont("helvetica", "normal");
-  doc.text("BUKTI REGISTRASI ONLINE - TAHUN AJARAN 2026/2027", 105, 27, {
-    align: "center",
-  });
-
-  doc.setLineWidth(0.5);
-  doc.line(20, 32, 190, 32);
-
-  doc.setFillColor(240, 243, 255);
-  doc.rect(20, 38, 170, 18, "F");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("Nomor Pendaftaran:", 25, 49);
-  doc.setTextColor(79, 70, 229);
-  doc.text(data.noPendaftaran, 70, 49);
-  doc.setTextColor(0, 0, 0);
-
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.text("A. Data Diri Calon Siswa", 20, 68);
-
   doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
+  doc.setTextColor(...MUTED);
+  doc.text(c.subtitle, 105, 33, { align: "center" });
+  doc.setDrawColor(...GREEN);
+  doc.setLineWidth(0.6);
+  doc.line(20, 37, 190, 37);
 
-  let startY = 75;
-  const lineHeight = 7;
-  const labels = [
-    ["Nama Lengkap", `: ${data.namaLengkap}`],
-    ["NISN", `: ${data.nisn}`],
-    ["Jenis Kelamin", `: ${data.jenisKelamin}`],
-    ["Tempat, Tanggal Lahir", `: ${data.tempatLahir}, ${data.tanggalLahir}`],
-    ["Agama", `: ${data.agama}`],
-    ["No. WhatsApp Siswa", `: ${data.whatsapp}`],
-    ["Asal Sekolah (SMP)", `: ${data.asalSekolah}`],
-    ["Alamat", `: ${data.alamat}`],
-    ["Berkas Diunggah", `: ${data.namaBerkas || "-"}`],
-  ];
-
-  labels.forEach(([label, val]) => {
-    doc.text(label, 25, startY);
-    doc.text(val, 65, startY);
-    startY += lineHeight;
-  });
-
-  startY += 5;
+  // Nomor pendaftaran
+  doc.setFillColor(240, 253, 244);
+  doc.roundedRect(20, 42, 170, 18, 3, 3, "F");
+  doc.setTextColor(...INK);
   doc.setFont("helvetica", "bold");
-  doc.text("B. Data Orang Tua & Pilihan Jurusan", 20, startY);
-  startY += 7;
+  doc.setFontSize(11);
+  doc.text("Nomor Pendaftaran", 26, 53);
+  doc.setTextColor(...GREEN);
+  doc.setFontSize(16);
+  doc.text(c.noPendaftaran, 184, 53.5, { align: "right" });
 
-  doc.setFont("helvetica", "normal");
-  const labels2 = [
-    ["Nama Orang Tua/Wali", `: ${data.namaOrtu}`],
-    ["No. WhatsApp Ortu", `: ${data.waOrtu}`],
-    ["Pilihan Jurusan Utama", `: ${data.jurusan1}`],
-    ["Pilihan Jurusan Cadangan", `: ${data.jurusan2}`],
-    ["Status Pendaftaran", `: ${data.statusPendaftaran}`],
-  ];
-
-  labels2.forEach(([label, val]) => {
-    doc.text(label, 25, startY);
-    doc.text(val, 65, startY);
-    startY += lineHeight;
+  // Isi
+  let y = 71;
+  c.sections.forEach((section) => {
+    doc.setTextColor(...INK);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(section.heading, 20, y);
+    y += 7;
+    doc.setFontSize(10);
+    section.rows.forEach(([label, value]) => {
+      const lines = doc.splitTextToSize(value, VALUE_W);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...MUTED);
+      doc.text(label, LABEL_X, y);
+      doc.text(":", COLON_X, y);
+      doc.setTextColor(...INK);
+      doc.text(lines, VALUE_X, y);
+      y += LINE * lines.length;
+    });
+    y += 5;
   });
 
-  startY += 15;
-  doc.text(
-    "Simpan bukti pendaftaran ini sebagai tanda bukti yang sah.",
-    20,
-    startY
-  );
+  // Catatan login
+  doc.setFillColor(250, 247, 242);
+  const note = doc.splitTextToSize(c.loginNote, 160);
+  const noteH = note.length * 5 + 8;
+  doc.roundedRect(20, y, 170, noteH, 3, 3, "F");
+  doc.setFontSize(9.5);
+  doc.setTextColor(...INK);
+  doc.text(note, 25, y + 6.5);
+  y += noteH + 12;
 
-  doc.text("Panitia SPMB", 150, startY + 10, { align: "center" });
-  doc.text("( ____________________ )", 150, startY + 28, { align: "center" });
+  // Penutup
+  doc.setFontSize(10);
+  doc.setTextColor(...MUTED);
+  const dicetak = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+  doc.text("Simpan bukti pendaftaran ini sebagai tanda bukti yang sah.", 20, y);
+  doc.text(`Yogyakarta, ${dicetak}`, 150, y + 10, { align: "center" });
+  doc.setTextColor(...INK);
+  doc.text("Panitia SPMB", 150, y + 16, { align: "center" });
+  doc.text("( ____________________ )", 150, y + 36, { align: "center" });
 
-  doc.save(`Bukti-Pendaftaran-${data.noPendaftaran}.pdf`);
+  doc.save(`Bukti-Pendaftaran-${c.noPendaftaran}.pdf`);
 }
 
 /* --- 3. CEK STATUS PENDAFTARAN --- */
