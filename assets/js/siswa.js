@@ -54,7 +54,7 @@
       return;
     }
     if (!row) {
-      $("homeBody").innerHTML = `<p class="rounded-2xl bg-warn-50 p-4 text-[15px] font-semibold text-warn-700">Data pendaftaran Anda belum terbaca. Tunggu beberapa menit lalu tekan Muat ulang. Kalau tetap tidak muncul, hubungi panitia.</p>`;
+      $("homeBody").innerHTML = `<p class="rounded-lg bg-warn-50 p-4 text-[15px] font-semibold text-warn-700">Data pendaftaran Anda belum terbaca. Tunggu beberapa menit lalu tekan Muat ulang. Kalau tetap tidak muncul, hubungi panitia.</p>`;
       $("uploadBox").classList.add("hidden");
       return;
     }
@@ -66,10 +66,10 @@
       <p class="text-lg font-semibold">${esc(row.namaLengkap || "-")}</p>
       <p class="text-[15px] text-ink-600">No. pendaftaran <b class="text-ink-900">${esc(row.noPendaftaran || "-")}</b> · Jurusan ${esc(row.jurusan1 || "-")}</p>
       <dl class="mt-4 grid gap-3 sm:grid-cols-2">
-        <div class="rounded-2xl bg-cream p-4"><dt class="text-[13px] font-semibold text-ink-500">Status pendaftaran</dt><dd class="mt-1 text-lg font-semibold">${esc(row.statusPendaftaran || "Pending")}</dd></div>
-        <div class="rounded-2xl bg-cream p-4"><dt class="text-[13px] font-semibold text-ink-500">Status berkas</dt><dd class="mt-1 text-lg font-semibold">${esc(row.statusBerkas || "Belum Unggah")}</dd></div>
+        <div class="rounded-lg bg-sand p-4"><dt class="text-[13px] font-semibold text-ink-500">Status pendaftaran</dt><dd class="mt-1 text-lg font-semibold">${esc(row.statusPendaftaran || "Pending")}</dd></div>
+        <div class="rounded-lg bg-sand p-4"><dt class="text-[13px] font-semibold text-ink-500">Status berkas</dt><dd class="mt-1 text-lg font-semibold">${esc(row.statusBerkas || "Belum Unggah")}</dd></div>
       </dl>
-      ${catatan ? `<p class="mt-3 rounded-2xl bg-warn-50 p-4 text-[15px] text-warn-700"><b>Catatan panitia:</b> ${esc(catatan)}</p>` : ""}
+      ${catatan ? `<p class="mt-3 rounded-lg bg-warn-50 p-4 text-[15px] text-warn-700"><b>Catatan panitia:</b> ${esc(catatan)}</p>` : ""}
       <h3 class="mt-5 text-base font-semibold">Berkas yang sudah diunggah</h3>
       ${
         urls.length
@@ -114,12 +114,13 @@
     btn.textContent = "Unggah berkas";
   }
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    const { data } = await db().auth.getSession();
-    let user = data && data.session && data.session.user;
-    if (user) loadHome(user);
-    else show("loginView");
+  // Panel login siswa di beranda (#login). Supabase & sheet baru dimuat saat panel dibuka.
+  let started = false;
+  let user = null;
 
+  async function start() {
+    if (started) return;
+    started = true;
     $("togglePw").addEventListener("click", (e) => {
       const pw = $("password");
       const s = pw.type === "password";
@@ -127,12 +128,10 @@
       e.target.textContent = s ? "Sembunyikan" : "Lihat";
       e.target.setAttribute("aria-pressed", String(s));
     });
-
     $("lupaBtn").addEventListener("click", () => {
       const open = $("lupaInfo").classList.toggle("hidden") === false;
       $("lupaBtn").setAttribute("aria-expanded", String(open));
     });
-
     $("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const nisn = $("nisn").value.trim();
@@ -151,7 +150,6 @@
       $("password").value = "";
       loadHome(user);
     });
-
     $("fileInput").addEventListener("change", () => {
       const f = $("fileInput").files[0];
       $("fileName").textContent = f ? `${f.name} (${Math.max(1, Math.round(f.size / 1024))} KB)` : "";
@@ -163,5 +161,40 @@
       user = null;
       show("loginView");
     });
+
+    const { data } = await db().auth.getSession();
+    user = data && data.session && data.session.user;
+    if (user) loadHome(user);
+    else show("loginView");
+  }
+
+  function setPanel(open) {
+    const panel = $("siswaPanel");
+    if (!panel) return;
+    panel.classList.toggle("hidden", !open);
+    document.documentElement.classList.toggle("overflow-hidden", open);
+    if (open) {
+      start();
+      setTimeout(() => {
+        const first = !$("loginView").classList.contains("hidden") ? $("nisn") : $("siswaClose");
+        if (first) first.focus();
+      }, 50);
+    }
+  }
+  function closePanel() {
+    if (root.location.hash === "#login") root.history.pushState(null, "", root.location.pathname + root.location.search);
+    setPanel(false);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!$("siswaPanel")) return;
+    const sync = () => setPanel(root.location.hash === "#login");
+    root.addEventListener("hashchange", sync);
+    root.addEventListener("popstate", sync);
+    $("siswaClose").addEventListener("click", closePanel);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !$("siswaPanel").classList.contains("hidden")) closePanel();
+    });
+    sync();
   });
 })(typeof window !== "undefined" ? window : globalThis);

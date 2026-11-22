@@ -60,6 +60,7 @@ for (const dir of ["admin", "siswa"]) {
   for (const file of readdirSync(join(root, dir)).filter((f) => f.endsWith(".html"))) {
     const name = `${dir}/${file}`;
     const html = read(name);
+    if (/http-equiv="refresh"/.test(html)) continue; // halaman pengalih
     if (/font-awesome|class="[^"]*fa-/.test(html)) problems.push(`${name}: masih memakai Font Awesome`);
     if (!/<meta name="robots" content="noindex"/.test(html)) problems.push(`${name}: tambahkan meta robots noindex`);
     const cdn = html.indexOf("cdn.tailwindcss.com"), cfg = html.indexOf("../assets/js/tailwind-config.js");
@@ -69,7 +70,7 @@ for (const dir of ["admin", "siswa"]) {
   }
 }
 if (/src="\.\/assets\//.test(pages["daftar/index.html"])) problems.push('daftar/index.html: path "./assets/" salah, pakai "../assets/"');
-if (/supabase-js/.test(pages["index.html"])) problems.push("index.html: supabase-js tidak dipakai di beranda");
+if (!/id="siswaPanel"/.test(pages["index.html"])) problems.push("index.html: panel login siswa (#siswaPanel) wajib ada");
 
 // Semua nomor WhatsApp panitia yang tertulis harus sama
 const WA_PANITIA = "628823212784";

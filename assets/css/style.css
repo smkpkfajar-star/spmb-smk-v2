@@ -12,7 +12,7 @@ body {
 }
 
 /* Fokus keyboard: cincin emas, radius 6px (design.md) */
-:focus-visible { outline: 2px solid #F2B53A; outline-offset: 2px; border-radius: 6px; }
+:focus-visible { outline: 2px solid #EC4899; outline-offset: 2px; border-radius: 6px; }
 
 /* Judul besar huruf rapat */
 .display { letter-spacing: -0.055em; line-height: 1.02; font-weight: 600; }
@@ -38,9 +38,10 @@ body {
   background-image:
     radial-gradient(40% 60% at 20% 70%, rgba(34,197,94,.14), rgba(0,0,0,0) 70%),
     radial-gradient(35% 55% at 50% 85%, rgba(242,181,58,.18), rgba(0,0,0,0) 70%),
-    radial-gradient(40% 60% at 80% 70%, rgba(56,189,248,.16), rgba(0,0,0,0) 70%),
+    radial-gradient(40% 60% at 80% 70%, rgba(56,189,248,.14), rgba(0,0,0,0) 70%),
+    radial-gradient(30% 45% at 70% 20%, rgba(236,72,153,.12), rgba(0,0,0,0) 70%),
     radial-gradient(rgb(212,212,212) 1px, rgba(0,0,0,0) 1px);
-  background-size: auto, auto, auto, 22px 22px;
+  background-size: auto, auto, auto, auto, 22px 22px;
 }
 
 /* Sel bergaris (grid kartu tajam) */
@@ -73,7 +74,7 @@ body {
 .faq-item.open .faq-icon { transform: rotate(45deg); }
 
 /* Tombol pilihan (jenis kelamin) */
-.choice[aria-pressed="true"] { border-color: #171717; border-width: 2px; background: #FEF7E6; }
+.choice[aria-pressed="true"] { border-color: #EC4899; background: #FDF2F8; box-shadow: inset 0 0 0 1px #EC4899; }
 
 /* ============================================================
    Panel admin: sidebar kiri tetap (laptop), laci (HP)

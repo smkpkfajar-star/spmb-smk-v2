@@ -919,7 +919,7 @@ function buildPdfContent(data, siswaUrl) {
 function generatePDF(data) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  const siswaUrl = new URL("../siswa/", window.location.href).href;
+  const siswaUrl = new URL("../#login", window.location.href).href;
   const c = buildPdfContent(data, siswaUrl);
   const GREEN = [23, 23, 23]; // judul & nomor: hitam arang (design.md)
   const GOLD = [242, 181, 58];
@@ -1125,7 +1125,7 @@ function renderStatusResult(found, statusResultEl) {
   const val = (v) => (v && v !== "-" ? v : "");
   const catatan = val(found.catatanAdmin) && !/^Berkas gagal diunggah otomatis/.test(found.catatanAdmin) ? found.catatanAdmin : "";
   const jurusan = val(found.jurusan1) ? (NAMA_JURUSAN[found.jurusan1] || found.jurusan1) : "-";
-  const siswaUrl = new URL("../siswa/", window.location.href).href;
+  const siswaUrl = new URL("../#login", window.location.href).href;
 
   const dot = (st) =>
     ({

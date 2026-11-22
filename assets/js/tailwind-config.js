@@ -12,6 +12,8 @@ tailwind.config = {
         hairline: "#E5E7EB", // garis struktur tipis
         line: "#737373", // garis kolom isian (lebih tegas dari design.md demi keterbacaan)
         gold: { 400: "#F7C869", 500: "#F2B53A", 600: "#BA800C" },
+        // aksen pink (tambahan, tidak ada di design.md) — dipakai hemat untuk sentuhan modern
+        pink: { 50: "#FDF2F8", 100: "#FCE7F3", 400: "#F472B6", 500: "#EC4899", 600: "#DB2777" },
         surface: "#07170F", // kartu/terminal gelap
         ink: {
           900: "#171717",

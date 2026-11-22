@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="author" content="Siswa RPL SMK Tamansiswa Jetis" />
+    <meta name="author" content="Pakdhe.dev RPL" />
     <title>Formulir Pendaftaran — SPMB SMK Tamansiswa Jetis</title>
     <meta name="description" content="Formulir pendaftaran online dan cek status SPMB SMK Tamansiswa Jetis 2026/2027." />
     <meta name="theme-color" content="#FAF7F2" />
@@ -35,7 +35,7 @@
         </div>
         <nav class="hidden items-center gap-6 text-[14.5px] text-ink-600 md:flex" aria-label="Tautan" data-kiosk-hide>
           <a href="../" class="hover:text-ink-900">Beranda</a>
-          <a href="../siswa/" class="hover:text-ink-900">Login Siswa</a>
+          <a href="../#login" class="hover:text-ink-900">Login Siswa</a>
         </nav>
       </div>
     </header>
@@ -59,7 +59,7 @@
             <div class="flex items-center justify-between gap-3 lg:block">
               <p class="font-mono text-[12.8px] text-ink-600"><span id="formProgressText">0%</span> terisi</p>
               <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-sand lg:mt-2" aria-hidden="true">
-                <div id="formProgress" class="h-1.5 rounded-full bg-gold-500 transition-all duration-300" style="width: 0%"></div>
+                <div id="formProgress" class="h-1.5 rounded-full bg-gradient-to-r from-gold-500 to-pink-500 transition-all duration-300" style="width: 0%"></div>
               </div>
             </div>
             <nav class="mt-5 hidden lg:block" aria-label="Bagian formulir">
@@ -79,7 +79,7 @@
           <form id="regForm" class="min-w-0 space-y-14" novalidate>
             <!-- ============ BAGIAN 1: DATA DIRI ============ -->
             <section id="bagian-1" class="scroll-mt-28" aria-labelledby="judul-1">
-              <span class="tag" style="--dot:#16A34A">bagian/01</span>
+              <span class="tag" style="--dot:#EC4899">bagian/01</span>
               <h2 id="judul-1" class="heading mt-2 text-[26px]">Data diri calon siswa</h2>
               <p class="mt-1 text-[15px] text-ink-600">Tulis sesuai ijazah dan dokumen resmi.</p>
 
@@ -161,7 +161,7 @@
 
             <!-- ============ BAGIAN 2: ORANG TUA ============ -->
             <section id="bagian-2" class="scroll-mt-28 border-t border-hairline pt-10" aria-labelledby="judul-2">
-              <span class="tag" style="--dot:#0369A1">bagian/02</span>
+              <span class="tag" style="--dot:#EC4899">bagian/02</span>
               <h2 id="judul-2" class="heading mt-2 text-[26px]">Orang tua / wali</h2>
               <p class="mt-1 text-[15px] text-ink-600">Panitia mengabarkan hasil seleksi lewat nomor ini.</p>
               <div class="mt-6 grid gap-x-5 gap-y-5 sm:grid-cols-2">
@@ -181,7 +181,7 @@
             <!-- ============ BAGIAN 3: BERKAS ============ -->
             <section id="bagian-3" class="scroll-mt-28 border-t border-hairline pt-10" aria-labelledby="judul-3">
               <div class="flex flex-wrap items-center gap-3">
-                <span class="tag" style="--dot:#F2B53A">bagian/03</span>
+                <span class="tag" style="--dot:#EC4899">bagian/03</span>
                 <span class="rounded-full bg-sand px-3 py-0.5 font-mono text-[12px] text-ink-600">opsional</span>
               </div>
               <h2 id="judul-3" class="heading mt-2 text-[26px]">Unggah berkas</h2>
@@ -202,7 +202,7 @@
 
             <!-- ============ BAGIAN 4: JURUSAN & KIRIM ============ -->
             <section id="bagian-4" class="scroll-mt-28 border-t border-hairline pt-10" aria-labelledby="judul-4">
-              <span class="tag" style="--dot:#16523A">bagian/04</span>
+              <span class="tag" style="--dot:#EC4899">bagian/04</span>
               <h2 id="judul-4" class="heading mt-2 text-[26px]">Pilih jurusan</h2>
               <p class="mt-1 text-[15px] text-ink-600">Pilih satu jurusan utama. Jurusan cadangan boleh dikosongkan.</p>
 
@@ -316,7 +316,7 @@
 
           <p class="mx-auto mt-4 max-w-sm rounded-2xl bg-brand-50 p-3 text-left text-[14px] text-ink-600">
             Akun siswa sudah dibuat. Untuk melengkapi berkas nanti, login dengan <b class="text-ink-900">NISN</b> dan
-            <b class="text-ink-900">password</b> yang tadi dibuat di halaman <a href="../siswa/" class="font-bold text-brand-700 underline">Lengkapi Berkas</a>. Jangan beri tahu password ke siapa pun.
+            <b class="text-ink-900">password</b> yang tadi dibuat di halaman <a href="../#login" class="font-bold text-brand-700 underline">Lengkapi Berkas</a>. Jangan beri tahu password ke siapa pun.
           </p>
 
           <div data-kiosk-only class="mx-auto mt-5 max-w-sm">
@@ -337,7 +337,7 @@
       <!-- ======================= TAB 2: CEK STATUS ======================= -->
       <div id="tab-cek-status" class="tab-panel hidden">
         <section class="hero-bg -mx-4 border-b border-hairline px-4 py-12 text-center sm:-mx-6 sm:px-6 sm:py-16">
-          <span class="tag" style="--dot:#0369A1">cek/status</span>
+          <span class="tag" style="--dot:#EC4899">cek/status</span>
           <h1 class="display mt-4 text-[38px] sm:text-[56px]">Cek status pendaftaran</h1>
           <p class="mx-auto mt-3 max-w-md text-[17px] text-ink-600">Masukkan NISN yang dipakai saat mendaftar untuk melihat perkembangan seleksi.</p>
           <form id="cekStatusForm" class="mx-auto mt-8 max-w-xl" novalidate>
@@ -357,8 +357,11 @@
       </div>
     </main>
 
-    <footer data-kiosk-hide class="mt-10 border-t border-hairline px-4 py-6 text-center font-mono text-[13px] text-ink-500">
-      &copy; 2026 Panitia SPMB SMK Tamansiswa Jetis <span class="mx-2 text-ink-300">|</span> Dibuat oleh <a href="https://rpl.tamsis.site/" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 font-medium text-ink-900 hover:underline"><span class="h-1.5 w-1.5 rounded-full bg-ok-600" aria-hidden="true"></span>siswa RPL SMK Tamansiswa Jetis</a>
+    <footer data-kiosk-hide class="mt-10 border-t border-hairline">
+      <div class="mx-auto flex max-w-[1080px] flex-col items-center justify-between gap-2 px-4 py-5 sm:flex-row sm:px-6">
+        <p class="font-mono text-[12.5px] text-ink-500">&copy; 2026 Panitia SPMB SMK Tamansiswa Jetis</p>
+        <a href="https://rpl.tamsis.site/" target="_blank" rel="noopener" class="font-mono text-[12.5px] text-ink-500 hover:text-ink-900">crafted by Pakdhe.dev RPL ↗</a>
+      </div>
     </footer>
 
     <!-- ======================= MODAL "MASIH MENGISI?" (mode kiosk) ======================= -->

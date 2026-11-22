@@ -121,7 +121,7 @@
     const current = all.find((m) => m.id === active) || all[0];
     const link = (m) =>
       `<a href="${m.href}" class="block rounded-md px-3 py-2 text-[14.5px] ${
-        m.id === active ? "bg-sand font-medium text-ink-900" : "text-ink-600 hover:bg-brand-50 hover:text-ink-900"
+        m.id === active ? "bg-pink-50 font-medium text-ink-900 shadow-[inset_2px_0_0_#EC4899]" : "text-ink-600 hover:bg-brand-50 hover:text-ink-900"
       }" ${m.id === active ? 'aria-current="page"' : ""}>${esc(m.title)}</a>`;
     const name = profile.nama_lengkap || profile.email;
 
@@ -241,7 +241,7 @@
         if (f.type === "number") input.inputMode = "decimal";
       }
       input.id = id;
-      input.className = "w-full rounded-md border border-line/60 bg-white px-3 py-2.5 text-[15px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-gold-500/40";
+      input.className = "w-full rounded-md border border-line/60 bg-white px-3 py-2.5 text-[15px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30";
       const v = values[f.name];
       // "-" adalah tanda sel kosong di sheet; tampilkan sebagai kosong (kecuali pilihan yang memang berisi "-")
       input.value = v === undefined || v === null || (v === "-" && f.type !== "select") ? "" : String(v);
@@ -329,7 +329,7 @@
         <div id="tabs" class="no-scrollbar -mb-px flex gap-5 overflow-x-auto" role="tablist" aria-label="${esc(config.filter.label)}"></div>
         <div class="pb-3">
           <label for="q" class="sr-only">Cari</label>
-          <input id="q" type="search" class="w-full rounded-md border border-line/60 bg-white px-3 py-2 text-[14.5px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-gold-500/40 lg:w-80" placeholder="Cari nama, NISN, atau no. pendaftaran" />
+          <input id="q" type="search" class="w-full rounded-md border border-line/60 bg-white px-3 py-2 text-[14.5px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30 lg:w-80" placeholder="Cari nama, NISN, atau no. pendaftaran" />
           <label for="f" class="sr-only">${esc(config.filter.label)}</label>
           <select id="f" class="sr-only" tabindex="-1">
             <option value="">Semua</option>${config.filter.options.map((o) => `<option>${esc(o)}</option>`).join("")}
@@ -368,7 +368,7 @@
         .map(([value, label, n]) => {
           const on = $f.value === value;
           return `<button type="button" role="tab" aria-selected="${on}" data-tab-value="${esc(value)}" class="whitespace-nowrap border-b-2 pb-3 text-[14.5px] ${
-            on ? "border-ink-900 font-medium text-ink-900" : "border-transparent text-ink-500 hover:text-ink-900"
+            on ? "border-pink-500 font-medium text-ink-900" : "border-transparent text-ink-500 hover:text-ink-900"
           }">${esc(label)} <span class="ml-1 rounded-full bg-sand px-1.5 py-0.5 font-mono text-[11.5px] text-ink-600">${n}</span></button>`;
         })
         .join("");

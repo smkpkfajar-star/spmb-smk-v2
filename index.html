@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="author" content="Siswa RPL SMK Tamansiswa Jetis" />
+    <meta name="author" content="Pakdhe.dev RPL" />
     <title>SPMB SMK Tamansiswa Jetis — Penerimaan Murid Baru</title>
     <meta
       name="description"
@@ -38,7 +38,7 @@
             <a href="#alur" class="hover:text-ink-900">Cara Daftar</a>
             <a href="#jurusan" class="hover:text-ink-900">Jurusan</a>
             <a href="#faq" class="hover:text-ink-900">FAQ</a>
-            <a href="siswa/" class="hover:text-ink-900">Login Siswa</a>
+            <a href="#login" class="hover:text-ink-900">Login Siswa</a>
           </nav>
 
           <div class="flex items-center gap-2">
@@ -67,7 +67,7 @@
             <a href="#jurusan" class="mobile-link block border-b border-hairline py-3.5 text-base font-medium">Jurusan</a>
             <a href="#faq" class="mobile-link block border-b border-hairline py-3.5 text-base font-medium">FAQ</a>
             <a href="daftar/index.html#cek-status" class="mobile-link block border-b border-hairline py-3.5 text-base font-medium">Cek Status</a>
-            <a href="siswa/" class="mobile-link block py-3.5 text-base font-medium">Login Siswa (Lengkapi Berkas)</a>
+            <a href="#login" class="mobile-link block py-3.5 text-base font-medium">Login Siswa (Lengkapi Berkas)</a>
             <a href="daftar/index.html" class="mobile-link btn mt-2 block rounded-full bg-brand-600 px-4 py-3.5 text-center text-base font-semibold text-white">Daftar Sekarang</a>
           </div>
         </div>
@@ -113,7 +113,7 @@
           <p class="mt-3"><span class="text-gold-500">$</span> spmb biaya</p>
           <p class="text-gold-400">Pendaftaran online 100% gratis.</p>
           <p class="mt-3"><span class="text-gold-500">$</span> git log --format="%an" | head -1</p>
-          <p class="text-white/75">Siswa RPL SMK Tamansiswa Jetis</p>
+          <p class="text-white/75">Pakdhe.dev RPL</p>
         </div>
         <div class="p-6 sm:p-8">
           <h2 class="heading text-xl">Jadwal penting SPMB</h2>
@@ -235,7 +235,7 @@
               <span class="faq-icon grid h-8 w-8 shrink-0 place-items-center rounded-full text-xl leading-none shadow-[inset_0_0_0_1px_#D4D4D4]" aria-hidden="true">+</span>
             </button>
             <div class="faq-body"><div><p class="pb-5 text-[15px] leading-relaxed text-ink-600">
-              Tenang saja! Kamu tetap bisa mendaftar di awal. Setelah mengisi formulir, sistem otomatis membuat <b class="text-ink-900">akun siswa</b>. Login di halaman <a href="siswa/" class="font-semibold text-ink-900 underline">Lengkapi Berkas</a> dengan NISN dan password untuk <b class="text-ink-900">menyusulkan unggahan berkas</b> (seperti Ijazah/SKL) kapan saja.
+              Tenang saja! Kamu tetap bisa mendaftar di awal. Setelah mengisi formulir, sistem otomatis membuat <b class="text-ink-900">akun siswa</b>. Login di halaman <a href="#login" class="font-semibold text-ink-900 underline">Lengkapi Berkas</a> dengan NISN dan password untuk <b class="text-ink-900">menyusulkan unggahan berkas</b> (seperti Ijazah/SKL) kapan saja.
             </p></div></div>
           </div>
           <div class="faq-item">
@@ -277,7 +277,7 @@
               <li><a href="#alur" class="hover:underline">Cara Daftar</a></li>
               <li><a href="daftar/index.html" class="hover:underline">Formulir Pendaftaran</a></li>
               <li><a href="daftar/index.html#cek-status" class="hover:underline">Cek Status Berkas</a></li>
-              <li><a href="siswa/" class="hover:underline">Login Siswa (Lengkapi Berkas)</a></li>
+              <li><a href="#login" class="hover:underline">Login Siswa (Lengkapi Berkas)</a></li>
             </ul>
           </div>
           <div>
@@ -289,11 +289,99 @@
             </ul>
           </div>
         </div>
-        <p class="border-t border-hairline px-4 py-5 text-center font-mono text-[13px] text-ink-500">
-          &copy; <span id="year">2026</span> SMK Tamansiswa Jetis · Portal SPMB
-          <span class="mx-2 text-ink-300">|</span> Dibuat oleh <a href="https://rpl.tamsis.site/" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 font-medium text-ink-900 hover:underline"><span class="h-1.5 w-1.5 rounded-full bg-ok-600" aria-hidden="true"></span>siswa RPL SMK Tamansiswa Jetis</a>
-        </p>
+        <div class="flex flex-col items-center justify-between gap-2 border-t border-hairline px-4 py-5 sm:flex-row sm:px-10">
+          <p class="font-mono text-[12.5px] text-ink-500">&copy; <span id="year">2026</span> SMK Tamansiswa Jetis</p>
+          <a href="https://rpl.tamsis.site/" target="_blank" rel="noopener" class="font-mono text-[12.5px] text-ink-500 hover:text-ink-900">crafted by Pakdhe.dev RPL ↗</a>
+        </div>
       </footer>
     </main>
+    <!-- ======================= PANEL SISWA (#login) ======================= -->
+    <div id="siswaPanel" class="fixed inset-0 z-[60] hidden overflow-y-auto bg-white" role="dialog" aria-modal="true" aria-label="Login siswa">
+      <div class="sticky top-0 z-10 border-b border-hairline bg-white/90 backdrop-blur">
+        <div class="mx-auto flex h-16 max-w-[1080px] items-center justify-between gap-3 px-4 sm:px-6">
+          <span class="flex items-center gap-2.5">
+            <span class="grid h-8 w-8 place-items-center rounded-lg bg-ok-700 font-mono text-[13px] font-medium text-white">TS</span>
+            <span class="text-[15px] font-semibold tracking-tight">Tamansiswa Jetis <span class="text-ink-500">/ Siswa</span></span>
+          </span>
+          <button id="siswaClose" type="button" class="rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Tutup</button>
+        </div>
+      </div>
+
+      <!-- Login -->
+      <section id="loginView" class="hidden">
+        <div class="hero-bg">
+          <div class="mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1000px] items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.1fr_380px] lg:gap-16">
+            <div class="text-center lg:text-left">
+              <span class="tag" style="--dot:#EC4899">akun/siswa</span>
+              <h2 class="display mt-5 text-[38px] sm:text-[52px] lg:text-[60px]">Lengkapi berkas pendaftaranmu.</h2>
+              <p class="mx-auto mt-5 max-w-md text-[17px] leading-relaxed text-ink-600 lg:mx-0">
+                Unggah ijazah/SKL yang menyusul, pantau status, dan baca catatan dari panitia.
+              </p>
+            </div>
+
+            <div>
+              <form id="loginForm" class="rounded-xl border border-hairline bg-white p-5 shadow-soft sm:p-6" novalidate>
+                <label for="nisn" class="sr-only">NISN</label>
+                <input id="nisn" type="text" inputmode="numeric" maxlength="10" autocomplete="username" class="w-full rounded-lg border border-line/50 px-4 py-3.5 text-[17px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/25" placeholder="NISN (10 angka)" />
+                <label for="password" class="sr-only">Password</label>
+                <span class="relative mt-3 block">
+                  <input id="password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-line/50 py-3.5 pl-4 pr-24 text-[17px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/25" placeholder="Password" />
+                  <button type="button" id="togglePw" class="absolute inset-y-0 right-1.5 my-1.5 rounded-md px-3 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900" aria-pressed="false">Lihat</button>
+                </span>
+                <p id="loginError" class="hidden" role="alert"></p>
+                <button id="loginBtn" type="submit" class="btn mt-4 h-12 w-full rounded-full bg-ink-900 text-[16px] font-semibold text-white disabled:opacity-60">Masuk</button>
+                <div class="mt-4 text-center">
+                  <button type="button" id="lupaBtn" class="text-[14px] font-medium text-ink-600 hover:text-ink-900" aria-expanded="false" aria-controls="lupaInfo">Lupa password?</button>
+                </div>
+                <div id="lupaInfo" class="mt-3 hidden rounded-lg bg-sand p-4 text-[14px] leading-relaxed text-ink-600">
+                  Password direset oleh panitia. Kirim NISN dan nama lengkapmu ke
+                  <a href="https://wa.me/628823212784?text=Halo%20panitia%20SPMB%2C%20saya%20lupa%20password%20akun%20siswa.%20NISN%3A%20" target="_blank" rel="noopener" class="font-medium text-ink-900 underline">WhatsApp panitia</a>.
+                </div>
+                <div class="my-5 h-px bg-hairline" aria-hidden="true"></div>
+                <a href="daftar/" class="btn flex h-12 items-center justify-center rounded-full text-[15px] font-semibold shadow-[inset_0_0_0_1px_#D4D4D4]">Belum daftar? Isi formulir</a>
+              </form>
+              <p class="mt-4 text-center text-[13.5px] text-ink-500">Login memakai NISN + password yang dibuat saat mendaftar.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Berkas siswa (setelah login) -->
+      <section id="homeView" class="hidden">
+        <div class="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <span class="tag" style="--dot:#EC4899">berkas/siswa</span>
+              <h2 class="mt-2 text-[28px] font-semibold tracking-tight">Berkas pendaftaran</h2>
+              <p class="mt-1 font-mono text-[13px] text-ink-500">NISN <span id="homeNisn"></span></p>
+            </div>
+            <div class="flex gap-2">
+              <button id="reloadBtn" type="button" class="rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Muat ulang</button>
+              <button id="logoutBtn" type="button" class="rounded-full px-4 py-2 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900">Keluar</button>
+            </div>
+          </div>
+
+          <div id="homeBody" class="mt-6 rounded-xl border border-hairline bg-white p-5 sm:p-6"></div>
+
+          <div id="uploadBox" class="mt-5 hidden rounded-xl border border-hairline bg-white p-5 sm:p-6">
+            <h3 class="text-[17px] font-semibold">Unggah berkas tambahan</h3>
+            <p class="mt-1 text-[14.5px] text-ink-600">Ijazah/SKL, KK, kartu pelajar, atau berkas yang diminta panitia.</p>
+            <label for="fileInput" class="mt-4 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-line/60 px-4 py-8 text-center hover:border-pink-500 hover:bg-pink-50">
+              <span class="text-[15px] font-semibold">Pilih foto atau PDF</span>
+              <span class="font-mono text-[12.5px] text-ink-500">PDF/JPG/PNG · maks. 5 MB</span>
+              <span id="fileName" class="text-[14px] font-medium text-pink-600"></span>
+            </label>
+            <input id="fileInput" type="file" accept=".pdf, .jpg, .jpeg, .png" class="sr-only" />
+            <button id="uploadBtn" type="button" class="btn mt-4 h-12 w-full rounded-full bg-ink-900 text-[15px] font-semibold text-white disabled:opacity-60">Unggah berkas</button>
+            <p id="uploadMsg" class="hidden" role="status"></p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="assets/js/app-config.js" defer></script>
+    <script src="assets/js/sheetson.js" defer></script>
+    <script src="assets/js/siswa.js" defer></script>
   </body>
 </html>
