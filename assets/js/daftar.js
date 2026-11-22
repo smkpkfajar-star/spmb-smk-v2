@@ -1,7 +1,3 @@
-const ICON_MENU_SVG =
-  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
-const ICON_CLOSE_SVG =
-  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
 const ICON_COPY_SVG =
   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
 const ICON_CHECK_SVG =
@@ -17,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initTabSwitcher();
   initFormValidationAndSubmit(SHEETSON_CONFIG, SUPABASE_CONFIG);
   initStatusChecker(SHEETSON_CONFIG);
-  initMobileMenu();
 });
 
 /* --- 1. TAB & MOBILE MENU SWITCHER --- */
@@ -66,31 +61,6 @@ function initTabSwitcher() {
   }
 }
 
-function initMobileMenu() {
-  const menuBtn = document.getElementById("mobile-menu-btn");
-  const mobileMenu = document.getElementById("mobile-menu");
-  const menuIcon = document.getElementById("menu-icon");
-
-  if (menuBtn && mobileMenu && menuIcon) {
-    menuBtn.addEventListener("click", () => {
-      const isHidden = mobileMenu.classList.contains("hidden");
-      if (isHidden) {
-        mobileMenu.classList.remove("hidden");
-        menuIcon.innerHTML = ICON_CLOSE_SVG;
-      } else {
-        mobileMenu.classList.add("hidden");
-        menuIcon.innerHTML = ICON_MENU_SVG;
-      }
-    });
-
-    mobileMenu.querySelectorAll("button, a").forEach((el) => {
-      el.addEventListener("click", () => {
-        mobileMenu.classList.add("hidden");
-        menuIcon.innerHTML = ICON_MENU_SVG;
-      });
-    });
-  }
-}
 
 /* --- 2. FORM VALIDASI & SUBMIT PENDAFTARAN --- */
 function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
@@ -1107,166 +1077,129 @@ function initStatusChecker(config) {
   });
 }
 
+function escapeText(v) {
+  return String(v ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+const STATUS_LABEL = {
+  Pending: { text: "Menunggu verifikasi", tone: "wait" },
+  Diverifikasi: { text: "Diverifikasi", tone: "info" },
+  Diterima: { text: "Diterima", tone: "ok" },
+  Ditolak: { text: "Tidak diterima", tone: "bad" },
+};
+function statusLabel(status) {
+  return STATUS_LABEL[String(status || "").trim()] || STATUS_LABEL.Pending;
+}
+
+// Tahapan seleksi: done | active | todo | bad | skip
+function statusStages(status) {
+  const s = String(status || "").trim();
+  const verified = ["Diverifikasi", "Diterima", "Ditolak"].includes(s);
+  return [
+    { label: "Terdaftar", desc: "Formulir diterima sistem.", state: "done" },
+    { label: "Verifikasi berkas", desc: "Panitia memeriksa data & berkas.", state: verified ? "done" : "active" },
+    {
+      label: "Pengumuman",
+      desc: s === "Diterima" ? "Selamat, kamu dinyatakan diterima." : s === "Ditolak" ? "Mohon maaf, belum dapat diterima." : "Menunggu hasil seleksi.",
+      state: s === "Diterima" ? "done" : s === "Ditolak" ? "bad" : s === "Diverifikasi" ? "active" : "todo",
+    },
+    {
+      label: "Daftar ulang",
+      desc: s === "Diterima" ? "Segera lakukan daftar ulang." : s === "Ditolak" ? "Tidak berlaku." : "Setelah pengumuman.",
+      state: s === "Diterima" ? "active" : s === "Ditolak" ? "skip" : "todo",
+    },
+  ];
+}
+
+const TONE_DOT_COLOR = { ok: "#16A34A", bad: "#DC2626", wait: "#D97706", info: "#0369A1" };
+
 function renderStatusResult(found, statusResultEl) {
-  const resNama    = document.getElementById("resNama");
-  const resNisn    = document.getElementById("resNisn");
-  const resJurusan = document.getElementById("resJurusan");
-  const resBadge   = document.getElementById("resBadge");
+  if (!statusResultEl) return;
+  const label = statusLabel(found.statusPendaftaran);
+  const stages = statusStages(found.statusPendaftaran);
+  const val = (v) => (v && v !== "-" ? v : "");
+  const catatan = val(found.catatanAdmin) && !/^Berkas gagal diunggah otomatis/.test(found.catatanAdmin) ? found.catatanAdmin : "";
+  const jurusan = val(found.jurusan1) ? (NAMA_JURUSAN[found.jurusan1] || found.jurusan1) : "-";
+  const siswaUrl = new URL("../siswa/", window.location.href).href;
 
-  if (resNama)    resNama.textContent    = found.namaLengkap || "-";
-  if (resNisn)    resNisn.textContent    = found.nisn        || "-";
-  if (resJurusan) resJurusan.textContent = found.jurusan1    || "-";
+  const dot = (st) =>
+    ({
+      done: '<span class="grid h-6 w-6 place-items-center rounded-full bg-ink-900 text-[12px] text-white">✓</span>',
+      active: '<span class="grid h-6 w-6 place-items-center rounded-full bg-white ring-2 ring-gold-500"><span class="h-2.5 w-2.5 rounded-full bg-gold-500"></span></span>',
+      bad: '<span class="grid h-6 w-6 place-items-center rounded-full bg-red-600 text-[13px] font-semibold text-white">!</span>',
+      todo: '<span class="block h-6 w-6 rounded-full bg-white ring-[1.5px] ring-line/50"></span>',
+      skip: '<span class="block h-6 w-6 rounded-full bg-sand ring-1 ring-hairline"></span>',
+    })[st];
 
-  if (resBadge) {
-    resBadge.className =
-      "self-start rounded-full px-4 py-2 text-xs font-bold";
-  }
+  const waMessage = encodeURIComponent(
+    `Halo Panitia SPMB, saya ingin menanyakan status pendaftaran.\n\n` +
+      `*No. Pendaftaran:* ${found.noPendaftaran || "-"}\n*NISN:* ${found.nisn || "-"}\n` +
+      `*Nama:* ${found.namaLengkap || "-"}\n*Status saat ini:* ${label.text}\n\nTerima kasih.`
+  );
 
-  let timelineContainer = document.getElementById("timelineContainer");
-  if (!timelineContainer && statusResultEl) {
-    timelineContainer = document.createElement("div");
-    timelineContainer.id = "timelineContainer";
-    statusResultEl.appendChild(timelineContainer);
-  }
-
-  // Hanya 4 status yang dipakai
-  const status = found.statusPendaftaran
-    ? found.statusPendaftaran.trim()
-    : "Pending";
-
-  // 4 kondisi utama
-  const isPending     = status === "Pending";
-  const isDiverifikasi = status === "Diverifikasi";
-  const isDiterima    = status === "Diterima";
-  const isDitolak     = status === "Ditolak";
-
-  // 4 step — selesai berdasarkan urutan status
-  const step1Done = !isPending || isDiverifikasi || isDiterima || isDitolak;
-  const step2Done = isDiverifikasi || isDiterima || isDitolak;
-  const step3Done = isDiterima || isDitolak;
-  const step4Done = isDiterima;
-
-  // Badge
-  if (resBadge) {
-    if (isDiterima) {
-      resBadge.textContent = "Diterima";
-      resBadge.classList.add("bg-ok-50", "text-ok-700");
-    } else if (isDitolak) {
-      resBadge.textContent = "Tidak Diterima";
-      resBadge.classList.add("bg-red-100", "text-red-700");
-    } else if (isDiverifikasi) {
-      resBadge.textContent = "Diverifikasi";
-      resBadge.classList.add("bg-sky-100", "text-sky-800");
-    } else {
-      resBadge.textContent = "Menunggu Verifikasi";
-      resBadge.classList.add("bg-warn-50", "text-warn-700");
-    }
-  }
-
-  function dotClass(isDone, isActive, isRed = false) {
-    if (isDone && isRed) return "bg-red-600";
-    if (isDone)          return "bg-brand-600";
-    if (isActive)        return "bg-gold-500";
-    return "bg-line";
-  }
-
-  function timelineStep(dotDone, isActive, title, desc, isRed = false) {
-    return `
-      <div class="relative">
-        <div class="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full
-          ${dotClass(dotDone, isActive, isRed)} ring-4 ring-white shadow-sm"></div>
-        <h4 class="text-[15px] font-bold ${dotDone ? "text-ink-900" : "text-ink-500"} leading-tight">
-          ${title}
-        </h4>
-        <p class="text-[14px] text-ink-600 mt-1">${desc}</p>
+  statusResultEl.innerHTML = `
+    <div class="flex flex-col gap-4 border-b border-hairline p-5 sm:flex-row sm:items-start sm:justify-between sm:p-6">
+      <div class="min-w-0">
+        <p class="text-[24px] font-semibold leading-tight tracking-tight">${escapeText(found.namaLengkap || "-")}</p>
+        <p class="mt-1 font-mono text-[13px] text-ink-500">${escapeText(found.noPendaftaran || "-")} · NISN ${escapeText(found.nisn || "-")}</p>
       </div>
-    `;
-  }
+      <span class="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-sand px-3.5 py-1.5 text-[14px] font-medium">
+        <span class="h-2 w-2 rounded-full" style="background:${TONE_DOT_COLOR[label.tone]}"></span>${escapeText(label.text)}
+      </span>
+    </div>
 
-  if (timelineContainer) {
-    timelineContainer.innerHTML = `
-      <div class="space-y-3 pt-4">
-        <h3 class="text-xs font-bold text-ink-500 uppercase tracking-wider">Tahapan Seleksi</h3>
-
-        <div class="relative pl-6 space-y-6 border-l-2 border-line ml-2 my-2">
-
-          ${timelineStep(
-            step1Done, isPending,
-            "Pendaftaran diterima",
-            step1Done
-              ? "Formulir pendaftaran Anda telah berhasil diterima sistem."
-              : "Pendaftaran belum masuk ke sistem."
-          )}
-
-          ${timelineStep(
-            step2Done, step1Done && !step2Done,
-            "Verifikasi berkas",
-            step2Done
-              ? `Berkas <strong>${found.namaBerkas || "dokumen"}</strong> telah diverifikasi panitia.${
-                  found.catatanAdmin && found.catatanAdmin !== "-"
-                    ? `<br><span class="text-amber-700 font-semibold">Catatan: ${found.catatanAdmin}</span>`
-                    : ""
-                }`
-              : "Panitia sedang memeriksa berkas pendaftaran Anda."
-          )}
-
-          ${timelineStep(
-            step3Done, step2Done && !step3Done,
-            isDitolak ? "Tidak diterima" : "Pengumuman hasil",
-            step3Done
-              ? isDiterima
-                ? "Selamat! Anda dinyatakan <strong class='text-ok-700'>LULUS</strong> seleksi."
-                : "Mohon maaf, Anda belum dapat diterima pada seleksi ini."
-              : "Menunggu hasil sidang pleno seleksi.",
-            isDitolak && step3Done
-          )}
-
-          ${timelineStep(
-            step4Done, isDiterima && !step4Done,
-            "Daftar ulang",
-            step4Done
-              ? "Selamat bergabung! Proses daftar ulang telah selesai."
-              : isDitolak
-              ? "Tahap ini tidak berlaku."
-              : "Segera lakukan daftar ulang sesuai jadwal.",
-          )}
-
-        </div>
-
-        <div class="pt-4 border-t border-line/60">
-          <a id="btnWhatsAppStatus" href="#" target="_blank"
-             class="flex items-center justify-center rounded-full bg-brand-600 px-5 py-3.5 text-[15px] font-bold text-white hover:bg-brand-700">
-            Tanya status lewat WhatsApp
-          </a>
-        </div>
+    <dl class="grid border-b border-hairline sm:grid-cols-3">
+      <div class="border-b border-hairline p-5 sm:border-b-0 sm:border-r sm:p-6">
+        <dt class="text-[13px] text-ink-500">Jurusan pilihan</dt>
+        <dd class="mt-1 text-[15px] font-medium">${escapeText(jurusan)}</dd>
       </div>
-    `;
-  }
+      <div class="border-b border-hairline p-5 sm:border-b-0 sm:border-r sm:p-6">
+        <dt class="text-[13px] text-ink-500">Status berkas</dt>
+        <dd class="mt-1 text-[15px] font-medium">${escapeText(val(found.statusBerkas) || "Belum unggah")}</dd>
+      </div>
+      <div class="p-5 sm:p-6">
+        <dt class="text-[13px] text-ink-500">Berkas menyusul?</dt>
+        <dd class="mt-1"><a href="${escapeText(siswaUrl)}" class="text-[15px] font-medium underline underline-offset-4">Lengkapi berkas →</a></dd>
+      </div>
+    </dl>
 
-  const btnWhatsAppStatus = document.getElementById("btnWhatsAppStatus");
-  if (btnWhatsAppStatus) {
-    const currentStatusText = resBadge ? resBadge.textContent : "Menunggu";
-    const waMessage = encodeURIComponent(
-      `Halo Admin, saya ingin menanyakan status pendaftaran saya.\n\n` +
-        `*No. Pendaftaran:* ${found.noPendaftaran || "-"}\n` +
-        `*NISN:* ${found.nisn || "-"}\n` +
-        `*Nama Lengkap:* ${found.namaLengkap || "-"}\n` +
-        `*Jurusan:* ${found.jurusan1 || "-"}\n` +
-        `*Status Saat Ini:* ${currentStatusText}\n\n` +
-        `Mohon bantuannya, terima kasih.`
-    );
-    btnWhatsAppStatus.href = `https://wa.me/628823212784?text=${waMessage}`;
-  }
+    <div class="p-5 sm:p-6">
+      <h3 class="font-mono text-[12.8px] text-ink-500">tahapan seleksi</h3>
+      <ol class="mt-5 grid gap-5 sm:grid-cols-4 sm:gap-0">
+        ${stages
+          .map(
+            (st, i) => `<li class="relative flex gap-3 sm:block sm:pr-4">
+              ${i < stages.length - 1 ? `<span class="absolute left-3 top-7 h-[calc(100%-4px)] w-px sm:left-7 sm:top-3 sm:h-px sm:w-[calc(100%-32px)] ${["done", "active", "bad"].includes(stages[i + 1].state) ? "bg-ink-900" : "bg-hairline"}" aria-hidden="true"></span>` : ""}
+              <span class="relative z-10 shrink-0">${dot(st.state)}</span>
+              <span class="block sm:mt-3">
+                <span class="block text-[15px] font-medium ${st.state === "todo" || st.state === "skip" ? "text-ink-500" : st.state === "bad" ? "text-red-600" : ""}">${escapeText(st.label)}</span>
+                <span class="mt-0.5 block text-[13.5px] leading-snug text-ink-500">${escapeText(st.desc)}</span>
+              </span>
+            </li>`
+          )
+          .join("")}
+      </ol>
 
-  if (statusResultEl) {
-    statusResultEl.classList.remove("hidden");
-    statusResultEl.style.opacity = "0";
-    statusResultEl.style.transform = "translateY(15px)";
-    statusResultEl.style.transition = "all 0.4s ease-out";
-    requestAnimationFrame(() => {
-      statusResultEl.style.opacity = "1";
-      statusResultEl.style.transform = "translateY(0)";
-    });
-    statusResultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
+      ${
+        catatan
+          ? `<div class="mt-6 border-l-2 border-gold-500 bg-warn-50 px-4 py-3">
+              <p class="font-mono text-[12px] text-warn-700">catatan panitia</p>
+              <p class="mt-1 text-[15px] text-ink-900">${escapeText(catatan)}</p>
+            </div>`
+          : ""
+      }
+
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row" id="timelineContainer">
+        <a id="btnWhatsAppStatus" href="https://wa.me/628823212784?text=${waMessage}" target="_blank" rel="noopener" class="btn inline-flex h-12 items-center justify-center rounded-full bg-ink-900 px-6 text-[15px] font-semibold text-white">Tanya status lewat WhatsApp</a>
+        <a href="${escapeText(siswaUrl)}" class="btn inline-flex h-12 items-center justify-center rounded-full px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_#D4D4D4]">Lengkapi berkas</a>
+      </div>
+    </div>`;
+
+  statusResultEl.classList.remove("hidden");
+  statusResultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
