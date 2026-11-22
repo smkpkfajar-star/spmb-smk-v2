@@ -99,6 +99,18 @@ cekUrutan("daftar/index.html (pilihan jurusan1)", pages["daftar/index.html"].spl
 cekUrutan("daftar/index.html (pilihan jurusan2)", pages["daftar/index.html"].split('id="jurusan2"')[1].split("</select>")[0], /value="([A-Z]+)"/g);
 cekUrutan("admin/ui.js (URUTAN_JURUSAN)", read("assets/js/admin/ui.js").match(/const URUTAN_JURUSAN = [^\n]*/)[0], /"(DKV|RPL|TITL|TKR|TSM)"/g);
 
+// Mode gelap: tema.js dimuat tepat setelah tailwind-config.js, dan ada tombol tema
+for (const name of ["index.html", "daftar/index.html", "admin/index.html", "admin/dashboard.html"]) {
+  const h = read(name);
+  if (!/tailwind-config\.js"><\/script>\s*<script src="[^"]*\/umum\/tema\.js"><\/script>/.test(h)) problems.push(`${name}: tema.js harus dimuat tepat setelah tailwind-config.js`);
+  if (name !== "admin/dashboard.html" && !/data-tema\b/.test(h)) problems.push(`${name}: tombol mode gelap (data-tema) belum ada`);
+}
+if (!/data-tema\b/.test(read("assets/js/admin/ui.js"))) problems.push("admin/ui.js: tombol mode gelap di topbar belum ada");
+// Warna tetap (#hex) di class arbitrer tidak ikut mode gelap — pakai variabel
+for (const name of ["index.html", "daftar/index.html", "admin/index.html", "assets/js/admin/ui.js", "assets/js/admin/modules.js", "assets/js/daftar/daftar.js"]) {
+  for (const m of read(name).matchAll(/-\[[^\]"'\s]*#(?:D4D4D4|E5E7EB|E5E5E5|EAEAEA|FBCFE8|171717|FAFAFA)[^\]"'\s]*\]/gi)) problems.push(`${name}: warna tetap ${m[0]} — pakai rgb(var(--…))`);
+}
+
 // Setiap latar .hero-bg punya lapisan cahaya bergerak sebagai anak pertama
 for (const name of ["index.html", "daftar/index.html", "admin/index.html"]) {
   for (const m of read(name).matchAll(/<(?:section|main|label|div)[^>]*\bhero-bg\b[^>]*>(.{0,40})/g)) {

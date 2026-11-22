@@ -18,6 +18,7 @@ assets/js/
   umum/               Dipakai semua halaman
     app-config.js       ← SATU-SATUNYA tempat alamat & kunci layanan
     tailwind-config.js  ← warna, huruf, sudut (tema situs)
+    tema.js             ← mode terang/gelap (ikut setelan HP, tombol bulan/matahari)
     sheetson.js         ← baca/tulis Google Sheets
   beranda/            main.js (menu & navigasi), jurusan.js (penjelajah jurusan & animasi hero)
   daftar/             daftar.js (formulir, nomor, unggah, PDF bukti),
@@ -36,7 +37,9 @@ docs/                 design.md (panduan gaya) + catatan desain & rencana kerja
 | Ingin mengubah… | File |
 |---|---|
 | Kunci Sheetson / alamat Supabase | `assets/js/umum/app-config.js` |
-| Warna atau huruf situs | `assets/js/umum/tailwind-config.js` |
+| Warna situs (terang & gelap) | `assets/css/style.css` — bagian `:root` (terang) dan `html.dark` (gelap) |
+| Huruf, sudut, nama warna Tailwind | `assets/js/umum/tailwind-config.js` |
+| Cara kerja mode gelap (tombol, ingatan) | `assets/js/umum/tema.js` |
 | Teks penjelasan jurusan | `assets/js/beranda/jurusan.js` (atau `index.html`) |
 | Isian formulir pendaftaran | `daftar/index.html` + `assets/js/daftar/daftar.js` |
 | Isi PDF bukti pendaftaran | `buildPdfContent` di `assets/js/daftar/daftar.js` |

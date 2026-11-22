@@ -1256,7 +1256,7 @@ function renderStatusResult(found, statusResultEl) {
 
       <div class="mt-6 flex flex-col gap-3 sm:flex-row" id="timelineContainer">
         <a id="btnWhatsAppStatus" href="https://wa.me/628823212784?text=${waMessage}" target="_blank" rel="noopener" class="btn inline-flex h-12 items-center justify-center rounded-full bg-ink-900 px-6 text-[15px] font-semibold text-white">Tanya status lewat WhatsApp</a>
-        <a href="${escapeText(siswaUrl)}" class="btn inline-flex h-12 items-center justify-center rounded-full px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_#D4D4D4]">Lengkapi berkas</a>
+        <a href="${escapeText(siswaUrl)}" class="btn inline-flex h-12 items-center justify-center rounded-full px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">Lengkapi berkas</a>
       </div>
     </div>`;
 

@@ -3,11 +3,45 @@
    (pelengkap utility Tailwind, bukan pengganti)
    ============================================================ */
 
+/* ---------- Warna tema (R G B). Terang di :root, gelap di html.dark ---------- */
+:root {
+  --cream: 255 255 255; --kartu: 255 255 255; --sand: 245 245 245;
+  --hairline: 229 231 235; --line: 115 115 115; --garis-tombol: 212 212 212;
+  --ink-900: 23 23 23; --ink-600: 82 82 82; --ink-500: 102 102 102; --ink-300: 138 138 138;
+  --brand-50: 250 250 250; --brand-100: 245 245 245; --brand-600: 23 23 23; --brand-700: 10 10 10;
+  --pink-50: 253 242 248; --pink-100: 252 231 243; --pink-200: 251 207 232; --pink-600: 219 39 119;
+  --ok-50: 234 245 239; --info-50: 224 242 254; --warn-50: 254 243 199;
+  --teks-ok: 22 82 58; --teks-info: 3 105 161; --teks-warn: 138 90 0;
+  --surface: 7 23 15; --putih: 255 255 255;
+}
+html.dark {
+  color-scheme: dark;
+  --cream: 10 10 11; --kartu: 22 22 25; --sand: 34 34 38;
+  --hairline: 44 44 50; --line: 112 112 120; --garis-tombol: 66 66 74;
+  --ink-900: 237 237 237; --ink-600: 180 180 186; --ink-500: 152 152 158; --ink-300: 104 104 110;
+  --brand-50: 26 26 29; --brand-100: 34 34 38; --brand-600: 237 237 237; --brand-700: 255 255 255;
+  --pink-50: 52 18 38; --pink-100: 68 22 48; --pink-200: 112 36 80; --pink-600: 244 114 182;
+  --ok-50: 16 44 29; --info-50: 12 38 54; --warn-50: 48 36 6;
+  --teks-ok: 74 222 128; --teks-info: 125 211 252; --teks-warn: 252 211 77;
+  --surface: 14 32 22;
+}
+/* Tombol hitam berubah terang di mode gelap → tulisan putih di atasnya ikut gelap */
+html.dark .bg-ink-900, html.dark .bg-brand-600, html.dark .bg-brand-700,
+html.dark .hover\:bg-brand-700:hover, html.dark .aria-selected\:bg-ink-900[aria-selected="true"] { --putih: 17 17 17; }
+/* Warna bawaan Tailwind yang tidak lewat variabel */
+html.dark .bg-red-50 { background-color: #2A1111; }
+html.dark .text-red-600, html.dark .text-red-700 { color: #F87171; }
+html.dark .bg-surface .bg-white\/25 { background-color: rgb(255 255 255 / .25); }
+/* Tombol tema: ikon bulan (terang) / matahari (gelap) */
+.ikon-matahari { display: none; }
+html.dark .ikon-matahari { display: block; }
+html.dark .ikon-bulan { display: none; }
+
 html { scroll-padding-top: 80px; -webkit-text-size-adjust: 100%; }
 body {
   font-family: "Geist", system-ui, -apple-system, sans-serif;
-  background: #FFFFFF;
-  color: #171717;
+  background: rgb(var(--cream));
+  color: rgb(var(--ink-900));
   -webkit-font-smoothing: antialiased;
 }
 
@@ -21,13 +55,13 @@ body {
 /* Bingkai tengah bergaris kiri-kanan seperti rpl.tamsis.site */
 .frame { max-width: 1080px; margin-inline: auto; }
 @media (min-width: 1100px) {
-  .frame { border-inline: 1px solid #E5E7EB; }
+  .frame { border-inline: 1px solid rgb(var(--hairline)); }
 }
-.rule { border-top: 1px solid #E5E7EB; position: relative; }
+.rule { border-top: 1px solid rgb(var(--hairline)); position: relative; }
 /* penanda "+" di pertemuan garis (desktop) */
 @media (min-width: 1100px) {
   .rule::before, .rule::after {
-    content: "+"; position: absolute; top: -0.78em; font: 300 22px/1 "Geist", sans-serif; color: #A3A3A3;
+    content: "+"; position: absolute; top: -0.78em; font: 300 22px/1 "Geist", sans-serif; color: rgb(var(--ink-300));
   }
   .rule::before { left: -0.33em; }
   .rule::after { right: -0.33em; }
@@ -39,7 +73,7 @@ body {
 .hero-bg {
   position: relative;
   isolation: isolate;
-  background-image: radial-gradient(rgb(212,212,212) 1px, rgba(0,0,0,0) 1px);
+  background-image: radial-gradient(rgb(var(--garis-tombol)) 1px, rgba(0,0,0,0) 1px);
   background-size: 22px 22px;
 }
 .cahaya { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
@@ -62,15 +96,15 @@ body {
 
 /* Sel bergaris (grid kartu tajam) */
 .cells { display: grid; }
-.cells > * { border-bottom: 1px solid #E5E7EB; }
+.cells > * { border-bottom: 1px solid rgb(var(--hairline)); }
 @media (min-width: 768px) {
   .cells-3 { grid-template-columns: repeat(3, 1fr); }
-  .cells-3 > * { border-right: 1px solid #E5E7EB; }
+  .cells-3 > * { border-right: 1px solid rgb(var(--hairline)); }
   .cells-3 > *:nth-child(3n) { border-right: 0; }
 }
 
 /* Label kecil bergaya kode: ● jurusan/rpl */
-.tag { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12.8px; color: #525252; display: inline-flex; align-items: center; gap: .45em; }
+.tag { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12.8px; color: rgb(var(--ink-600)); display: inline-flex; align-items: center; gap: .45em; }
 .tag::before { content: ""; width: .55em; height: .55em; border-radius: 999px; background: var(--dot, #16523A); }
 
 /* Tombol: redup saat hover, mengecil saat ditekan (design.md) */
@@ -90,7 +124,7 @@ body {
 .faq-item.open .faq-icon { transform: rotate(45deg); }
 
 /* Tombol pilihan (jenis kelamin) */
-.choice[aria-pressed="true"] { border-color: #EC4899; background: #FDF2F8; box-shadow: inset 0 0 0 1px #EC4899; }
+.choice[aria-pressed="true"] { border-color: #EC4899; background: rgb(var(--pink-50)); box-shadow: inset 0 0 0 1px #EC4899; }
 
 /* ============================================================
    Panel admin: sidebar kiri tetap (laptop), laci (HP)
@@ -118,8 +152,8 @@ body {
 }
 
 /* Indikator proses (modal kirim) */
-.spinner, .spinner-error { width: 44px; height: 44px; border-radius: 999px; border: 3px solid #E5E7EB; }
-.spinner { border-top-color: #171717; animation: putar .8s linear infinite; }
+.spinner, .spinner-error { width: 44px; height: 44px; border-radius: 999px; border: 3px solid rgb(var(--hairline)); }
+.spinner { border-top-color: rgb(var(--ink-900)); animation: putar .8s linear infinite; }
 .spinner-error { border-color: #DC2626; position: relative; }
 .spinner-error::after { content: "!"; position: absolute; inset: 0; display: grid; place-items: center; font: 600 22px/1 "Geist", sans-serif; color: #DC2626; }
 @keyframes putar { to { transform: rotate(360deg); } }
@@ -133,7 +167,7 @@ body {
 @keyframes jurusanMasuk { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* Kerangka saat data dimuat (menggantikan tulisan "Memuat…") */
-.skeleton { border-radius: 6px; background: linear-gradient(90deg, #F3F4F6 0%, #ECEDEF 50%, #F3F4F6 100%); background-size: 200% 100%; animation: kilau 1.3s ease-in-out infinite; }
+.skeleton { border-radius: 6px; background: linear-gradient(90deg, rgb(var(--sand)) 0%, rgb(var(--hairline)) 50%, rgb(var(--sand)) 100%); background-size: 200% 100%; animation: kilau 1.3s ease-in-out infinite; }
 @keyframes kilau { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 
 /* Garis proses tipis di atas halaman saat memuat ulang (data lama tetap tampil) */

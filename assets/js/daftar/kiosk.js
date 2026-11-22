@@ -35,6 +35,7 @@
   if (!mode.on) return;
 
   document.documentElement.classList.add("kiosk");
+  document.documentElement.classList.remove("dark"); // mode teras selalu terang
 
   // Kembali ke form kosong (tanpa parameter, mode tetap diingat)
   function resetKiosk() {

@@ -26,7 +26,7 @@
               <h1 class="text-[26px] font-semibold tracking-tight">Halo, ${esc(profile.nama_lengkap || "Petugas")}</h1>
               <p class="mt-1 text-[15px] text-ink-600">Ringkasan pendaftaran SPMB 2026/2027.</p>
             </div>
-            <button id="reloadDash" type="button" class="btn rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4]">Muat ulang</button>
+            <button id="reloadDash" type="button" class="btn rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">Muat ulang</button>
           </div>
           <div id="newSlot"></div>
           <div id="dashStats" class="mt-6"><div class="grid grid-cols-2 gap-4 sm:grid-cols-5" aria-hidden="true"><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div></div></div>

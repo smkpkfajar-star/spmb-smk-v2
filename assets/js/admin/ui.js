@@ -230,7 +230,7 @@
         <hr class="mini-show my-3 hidden border-hairline" />
         ${modules.map(link).join("")}
       </nav>
-      <button type="button" data-mini aria-controls="adminSidebar" class="sb-mini-row mx-3 mb-3 hidden items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-medium text-ink-600 shadow-[inset_0_0_0_1px_#E5E5E5] hover:bg-pink-50 hover:text-ink-900 hover:shadow-[inset_0_0_0_1px_#FBCFE8] lg:flex"><svg class="mini-arah shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg><span class="mini-hide">Kecilkan menu</span></button>
+      <button type="button" data-mini aria-controls="adminSidebar" class="sb-mini-row mx-3 mb-3 hidden items-center gap-3 rounded-md px-3 py-2.5 text-[14px] font-medium text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--hairline))] hover:bg-pink-50 hover:text-ink-900 hover:shadow-[inset_0_0_0_1px_rgb(var(--pink-200))] lg:flex"><svg class="mini-arah shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg><span class="mini-hide">Kecilkan menu</span></button>
       <button type="button" data-mini aria-controls="adminSidebar" class="sb-handle absolute -right-3.5 top-[4.5rem] hidden h-7 w-7 place-items-center rounded-full border border-hairline bg-white text-ink-600 shadow-[0_2px_6px_rgba(0,0,0,0.12)] hover:border-pink-500 hover:bg-pink-500 hover:text-white lg:grid"><svg class="mini-arah shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button>
       <div class="sb-foot flex items-center gap-3 border-t border-hairline p-4">
         <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sand text-[13px] font-semibold text-ink-900" title="${esc(name)}">${esc(initials(name))}</span>
@@ -263,6 +263,7 @@
       <div class="flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-8">
         <button id="btnMenu" type="button" class="-ml-1 rounded-md px-2 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand lg:hidden" aria-label="Buka menu" aria-expanded="false" aria-controls="adminSidebar">Menu</button>
         <nav class="min-w-0 flex-1 truncate text-[14px]" aria-label="Lokasi"><span class="text-ink-500">Admin</span><span class="px-1.5 text-ink-300">/</span><span id="crumbTitle" class="font-medium">${esc(current.title)}</span></nav>
+        <button type="button" data-tema data-kiosk-hide class="btn grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand hover:text-ink-900" aria-label="Ganti ke mode gelap" title="Ganti ke mode gelap"><svg class="ikon-bulan" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="ikon-matahari" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
         <button id="btnBunyi" type="button" aria-pressed="false" class="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-ink-600 hover:bg-sand" title="Bunyi saat ada pendaftar baru">Bunyi: mati</button>
         <span class="hidden font-mono text-[12px] text-ink-500 sm:inline">SPMB 2026/2027</span>
       </div>`;
@@ -431,7 +432,7 @@
       <div class="border-t border-hairline px-5 py-4">
         <p data-error class="mb-3 hidden bg-red-50 p-3 text-[14px] font-medium text-red-700"></p>
         <div class="flex justify-end gap-2">
-          <button type="button" data-cancel class="btn rounded-full px-5 py-2.5 text-[14.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4]">Batal</button>
+          <button type="button" data-cancel class="btn rounded-full px-5 py-2.5 text-[14.5px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">Batal</button>
           <button type="submit" data-save class="btn rounded-full bg-ink-900 px-6 py-2.5 text-[14.5px] font-medium text-white disabled:opacity-60">Simpan</button>
         </div>
       </div>`;
@@ -563,7 +564,7 @@
           <h1 class="text-[26px] font-semibold tracking-tight">${esc(config.title)}</h1>
           <p class="mt-1 text-[15px] text-ink-600">${esc(config.intro)}</p>
         </div>
-        <button id="reload" type="button" class="btn rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4]">Muat ulang</button>
+        <button id="reload" type="button" class="btn rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">Muat ulang</button>
       </div>
       <div id="stats" class="mt-6"></div>
       <div class="mt-6 flex flex-col gap-3 border-b border-hairline lg:flex-row lg:items-end lg:justify-between">
@@ -576,11 +577,11 @@
             <option value="">Semua</option>${config.filter.options.map((o) => `<option>${esc(o)}</option>`).join("")}
           </select>
           <div class="relative">
-            <button type="button" id="filterBtn" aria-expanded="false" aria-controls="filterPanel" class="inline-flex h-full items-center gap-1.5 rounded-md bg-white px-3.5 py-2 text-[14.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">
+            <button type="button" id="filterBtn" aria-expanded="false" aria-controls="filterPanel" class="inline-flex h-full items-center gap-1.5 rounded-md bg-white px-3.5 py-2 text-[14.5px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5z"/></svg>
               Filter<span id="filterN" class="hidden min-w-5 rounded-full bg-pink-500 px-1.5 text-center font-mono text-[11.5px] leading-5 text-white"></span>
             </button>
-            <div id="filterPanel" role="dialog" aria-label="Filter" tabindex="-1" class="absolute right-0 top-full z-30 mt-2 hidden max-h-[max(18rem,calc(100dvh-22.5rem))] w-[min(calc(100vw-2rem),34rem)] overflow-y-auto overscroll-contain rounded-lg border border-hairline bg-white p-4 text-left shadow-[0_12px_32px_rgba(0,0,0,0.12)]">
+            <div id="filterPanel" role="dialog" aria-label="Filter" tabindex="-1" class="absolute right-0 top-full z-30 mt-2 hidden w-[min(calc(100vw-2rem),34rem)] overflow-y-auto overscroll-contain rounded-lg border border-hairline bg-white p-4 text-left shadow-[0_12px_32px_rgba(0,0,0,0.12)]">
               <div class="flex items-center justify-between">
                 <h2 class="text-[15px] font-semibold">Filter</h2>
                 <button type="button" data-tutup class="grid h-8 w-8 place-items-center rounded-md text-[20px] leading-none text-ink-500 hover:bg-sand hover:text-ink-900" aria-label="Tutup filter">×</button>
@@ -596,9 +597,9 @@
                   <input id="tglSampai" type="date" class="rounded-md border border-line/60 bg-white px-2.5 py-1.5 text-[14px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30 min-w-0 flex-1" />
                 </div>
                 <div class="mt-2 flex flex-wrap gap-1">
-                  <button type="button" data-tgl="hari" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Hari ini</button>
-                  <button type="button" data-tgl="kemarin" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Kemarin</button>
-                  <button type="button" data-tgl="7" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">7 hari</button>
+                  <button type="button" data-tgl="hari" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Hari ini</button>
+                  <button type="button" data-tgl="kemarin" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Kemarin</button>
+                  <button type="button" data-tgl="7" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">7 hari</button>
                 </div>
               </div>
               <div class="mt-4 flex items-center justify-between gap-2 border-t border-hairline pt-3">
@@ -694,7 +695,7 @@
           ? ` · ${tglTeks(t1)} – ${tglTeks(t2)}`
           : ` · ${$dari.value && $sampai.value ? "tanggal" : $dari.value ? "sejak" : "sampai"} ${tglTeks(t1)}`;
       const label = (key, teks) =>
-        `<span class="inline-flex items-center gap-1 rounded-full bg-pink-50 py-1 pl-3 pr-1 text-[13px] text-ink-900 shadow-[inset_0_0_0_1px_#FBCFE8]">${esc(teks)}<button type="button" data-hapus="${esc(key)}" class="grid h-5 w-5 place-items-center rounded-full text-[15px] leading-none text-ink-500 hover:bg-white hover:text-ink-900" aria-label="Hapus filter ${esc(teks)}">×</button></span>`;
+        `<span class="inline-flex items-center gap-1 rounded-full bg-pink-50 py-1 pl-3 pr-1 text-[13px] text-ink-900 shadow-[inset_0_0_0_1px_rgb(var(--pink-200))]">${esc(teks)}<button type="button" data-hapus="${esc(key)}" class="grid h-5 w-5 place-items-center rounded-full text-[15px] leading-none text-ink-500 hover:bg-white hover:text-ink-900" aria-label="Hapus filter ${esc(teks)}">×</button></span>`;
       app.querySelector("#filterAktif").innerHTML =
         saringAktif.map((d) => label(d.id, `${d.label}: ${pilihan[d.id]}`)).join("") +
         (adaTanggal ? label("tanggal", `Tanggal daftar${rentang.replace(/^ · /, ": ")}`) : "");
@@ -705,7 +706,7 @@
         return;
       }
       const actionsHtml = (row) =>
-        `<button type="button" data-edit="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Ubah</button>` +
+        `<button type="button" data-edit="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Ubah</button>` +
         (config.actions || [])
           .filter((a) => !a.show || a.show(row))
           .map(
@@ -714,10 +715,10 @@
           )
           .join("");
       // Kolom pertama (nama) & kolom aksi dibekukan; judul kolom menempel di atas.
-      const STICKY_L = "sticky left-0 z-[1] shadow-[1px_0_0_#E5E5E5]";
-      const STICKY_R = "sticky right-0 z-[1] shadow-[-1px_0_0_#E5E5E5]";
+      const STICKY_L = "sticky left-0 z-[1] shadow-[1px_0_0_rgb(var(--hairline))]";
+      const STICKY_R = "sticky right-0 z-[1] shadow-[-1px_0_0_rgb(var(--hairline))]";
       const thCls = (i) =>
-        `sticky top-0 border-b border-hairline bg-brand-50 px-4 py-3 font-medium whitespace-nowrap ${i === 0 ? "left-0 z-[3] min-w-[230px] shadow-[1px_0_0_#E5E5E5]" : "z-[2]"}`;
+        `sticky top-0 border-b border-hairline bg-brand-50 px-4 py-3 font-medium whitespace-nowrap ${i === 0 ? "left-0 z-[3] min-w-[230px] shadow-[1px_0_0_rgb(var(--hairline))]" : "z-[2]"}`;
       const th = (c, i) => {
         if (!c.sortKey) return `<th scope="col" class="${thCls(i)}">${esc(c.label)}</th>`;
         const on = state.sortKey === c.sortKey;
@@ -729,7 +730,7 @@
         <div class="hidden max-h-[calc(100vh-12rem)] overflow-auto rounded-lg border border-hairline bg-white md:block">
           <table class="w-full border-separate border-spacing-0 text-left text-[14px] leading-snug">
             <thead class="text-[12.5px] text-ink-500">
-              <tr>${columns.map(th).join("")}<th scope="col" class="sticky right-0 top-0 z-[3] border-b border-hairline bg-brand-50 px-4 py-3 shadow-[-1px_0_0_#E5E5E5]"><span class="sr-only">Aksi</span></th></tr>
+              <tr>${columns.map(th).join("")}<th scope="col" class="sticky right-0 top-0 z-[3] border-b border-hairline bg-brand-50 px-4 py-3 shadow-[-1px_0_0_rgb(var(--hairline))]"><span class="sr-only">Aksi</span></th></tr>
             </thead>
             <tbody>
               ${pg.items
@@ -779,9 +780,9 @@
             pg.pages <= 1
               ? ""
               : `<div class="flex flex-wrap items-center gap-1">
-              <button type="button" data-page="${pg.page - 1}" ${pg.page === 1 ? "disabled" : ""} class="${btn} shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand disabled:opacity-40" aria-label="Halaman sebelumnya">‹</button>
+              <button type="button" data-page="${pg.page - 1}" ${pg.page === 1 ? "disabled" : ""} class="${btn} shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand disabled:opacity-40" aria-label="Halaman sebelumnya">‹</button>
               ${nums}
-              <button type="button" data-page="${pg.page + 1}" ${pg.page === pg.pages ? "disabled" : ""} class="${btn} shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand disabled:opacity-40" aria-label="Halaman berikutnya">›</button>
+              <button type="button" data-page="${pg.page + 1}" ${pg.page === pg.pages ? "disabled" : ""} class="${btn} shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand disabled:opacity-40" aria-label="Halaman berikutnya">›</button>
             </div>`
           }
         </nav>`;
@@ -916,10 +917,20 @@
     });
     const $panel = app.querySelector("#filterPanel");
     const $fbtn = app.querySelector("#filterBtn");
+    // tinggi mengikuti sisa layar di bawah tombol, agar tombol Tampilkan selalu terlihat
+    const ukurPanel = () => {
+      if (!document.contains($panel)) return root.removeEventListener("resize", ukurPanel);
+      if ($panel.classList.contains("hidden")) return;
+      $panel.style.maxHeight = Math.max(288, root.innerHeight - $panel.getBoundingClientRect().top - 12) + "px";
+    };
+    root.addEventListener("resize", ukurPanel);
     const bukaPanel = (buka) => {
       $panel.classList.toggle("hidden", !buka);
       $fbtn.setAttribute("aria-expanded", String(buka));
-      if (buka) ($panel.querySelector("select") || $panel).focus();
+      if (buka) {
+        ukurPanel();
+        ($panel.querySelector("select") || $panel).focus();
+      }
     };
     $fbtn.addEventListener("click", () => bukaPanel($panel.classList.contains("hidden")));
     $panel.addEventListener("click", (e) => {
