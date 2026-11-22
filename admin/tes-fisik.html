@@ -10,12 +10,12 @@
     <script src="../assets/js/tailwind-config.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../assets/css/style.css" />
   </head>
   <body class="bg-cream text-ink-900 antialiased">
     <header id="adminHeader" class="sticky top-0 z-40 bg-cream/95 backdrop-blur-sm"></header>
-    <main id="app" class="mx-auto max-w-6xl px-4 pb-16 pt-4 sm:px-6"><p class="text-[15px] text-ink-600">Memuat…</p></main>
+    <main id="app" class="max-w-[1200px] px-4 pb-16 pt-6 sm:px-6 lg:px-8"><p class="text-[15px] text-ink-600">Memuat…</p></main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/app-config.js"></script>
@@ -30,17 +30,25 @@
         const num = (v, unit) => (Number(v) > 0 ? `${esc(v)} ${unit}` : "-");
         const today = () => new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "-");
 
+        const hitung = (rows, field, value, fallback) => rows.filter((r) => (r[field] && r[field] !== "-" ? r[field] : fallback) === value).length;
         AdminUI.modulePage({
           sheet: "Tes_Fisik_Seragam",
+          stats: (rows) => [
+            { label: "total", value: rows.length, filter: "" },
+            { label: "belum tes", value: hitung(rows, "statusTesFisik", "Belum Tes", "Belum Tes"), tone: "wait", filter: "Belum Tes" },
+            { label: "lulus tes", value: hitung(rows, "statusTesFisik", "Lulus Tes", "Belum Tes"), tone: "ok", filter: "Lulus Tes" },
+            { label: "tidak lulus", value: hitung(rows, "statusTesFisik", "Tidak Lulus", "Belum Tes"), tone: "bad", filter: "Tidak Lulus" },
+            { label: "sudah ukur seragam", value: rows.filter((r) => r.ukuranSeragam && r.ukuranSeragam !== "-").length, tone: "info" },
+          ],
           title: "Tes Fisik & Seragam",
           intro: "Isi hasil pengukuran, tes fisik, dan ukuran seragam.",
           filter: { field: "statusTesFisik", label: "Status tes", options: ["Belum Tes", "Lulus Tes", "Tidak Lulus"] },
           columns: [
-            { label: "Siswa", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="text-[13px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
-            { label: "Tinggi / Berat", render: (r) => `${num(r.tinggiBadan, "cm")} / ${num(r.beratBadan, "kg")}` },
+            { label: "Siswa", sortKey: "namaLengkap", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="text-[13px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
+            { label: "Tinggi / Berat", sortKey: "tinggiBadan", render: (r) => `${num(r.tinggiBadan, "cm")} / ${num(r.beratBadan, "kg")}` },
             { label: "Tato/Tindik", render: (r) => esc(r.tatoTindik || "-") },
-            { label: "Status tes", render: (r) => AdminUI.badge(r.statusTesFisik || "Belum Tes") },
-            { label: "Seragam", render: (r) => `<b>${esc(r.ukuranSeragam || "-")}</b>` + (r.tglUkurSeragam && r.tglUkurSeragam !== "-" ? `<br><span class="text-[13px] text-ink-500">${esc(r.tglUkurSeragam)}</span>` : "") },
+            { label: "Status tes", sortKey: "statusTesFisik", render: (r) => AdminUI.badge(r.statusTesFisik || "Belum Tes") },
+            { label: "Seragam", sortKey: "ukuranSeragam", render: (r) => `<b>${esc(r.ukuranSeragam || "-")}</b>` + (r.tglUkurSeragam && r.tglUkurSeragam !== "-" ? `<br><span class="text-[13px] text-ink-500">${esc(r.tglUkurSeragam)}</span>` : "") },
             { label: "Catatan", render: (r) => esc(r.catatanTesFisik && r.catatanTesFisik !== "-" ? r.catatanTesFisik : "") },
           ],
           editTitle: (r) => `Tes fisik: ${r.namaLengkap || r.noPendaftaran}`,

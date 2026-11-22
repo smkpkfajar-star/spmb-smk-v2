@@ -5,7 +5,7 @@ const ICON_CLOSE_SVG =
 const ICON_COPY_SVG =
   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
 const ICON_CHECK_SVG =
-  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>';
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>';
 const SUBMIT_LABEL = "Kirim Formulir Pendaftaran";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -970,7 +970,8 @@ function generatePDF(data) {
   const doc = new jsPDF();
   const siswaUrl = new URL("../siswa/", window.location.href).href;
   const c = buildPdfContent(data, siswaUrl);
-  const GREEN = [21, 128, 61];
+  const GREEN = [23, 23, 23]; // judul & nomor: hitam arang (design.md)
+  const GOLD = [242, 181, 58];
   const INK = [28, 42, 34];
   const MUTED = [75, 90, 80];
   const LABEL_X = 25;
@@ -991,12 +992,12 @@ function generatePDF(data) {
   doc.setFontSize(10);
   doc.setTextColor(...MUTED);
   doc.text(c.subtitle, 105, 33, { align: "center" });
-  doc.setDrawColor(...GREEN);
+  doc.setDrawColor(...GOLD);
   doc.setLineWidth(0.6);
   doc.line(20, 37, 190, 37);
 
   // Nomor pendaftaran
-  doc.setFillColor(240, 253, 244);
+  doc.setFillColor(254, 247, 230);
   doc.roundedRect(20, 42, 170, 18, 3, 3, "F");
   doc.setTextColor(...INK);
   doc.setFont("helvetica", "bold");
@@ -1168,7 +1169,7 @@ function renderStatusResult(found, statusResultEl) {
   if (resBadge) {
     if (isDiterima) {
       resBadge.textContent = "Diterima";
-      resBadge.classList.add("bg-brand-100", "text-brand-700");
+      resBadge.classList.add("bg-ok-50", "text-ok-700");
     } else if (isDitolak) {
       resBadge.textContent = "Tidak Diterima";
       resBadge.classList.add("bg-red-100", "text-red-700");
@@ -1177,14 +1178,14 @@ function renderStatusResult(found, statusResultEl) {
       resBadge.classList.add("bg-sky-100", "text-sky-800");
     } else {
       resBadge.textContent = "Menunggu Verifikasi";
-      resBadge.classList.add("bg-amber-100", "text-amber-800");
+      resBadge.classList.add("bg-warn-50", "text-warn-700");
     }
   }
 
   function dotClass(isDone, isActive, isRed = false) {
     if (isDone && isRed) return "bg-red-600";
     if (isDone)          return "bg-brand-600";
-    if (isActive)        return "bg-amber-400";
+    if (isActive)        return "bg-gold-500";
     return "bg-line";
   }
 
@@ -1233,7 +1234,7 @@ function renderStatusResult(found, statusResultEl) {
             isDitolak ? "❌ Tidak Diterima" : "🏆 Pengumuman Hasil",
             step3Done
               ? isDiterima
-                ? "Selamat! Anda dinyatakan <strong class='text-brand-700'>LULUS</strong> seleksi."
+                ? "Selamat! Anda dinyatakan <strong class='text-ok-700'>LULUS</strong> seleksi."
                 : "Mohon maaf, Anda belum dapat diterima pada seleksi ini."
               : "Menunggu hasil sidang pleno seleksi.",
             isDitolak && step3Done

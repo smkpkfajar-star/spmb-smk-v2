@@ -38,7 +38,7 @@
   }
   function msg(el, text, good) {
     el.textContent = text;
-    el.className = `mt-4 rounded-2xl p-3 text-[15px] font-semibold ${good ? "bg-brand-50 text-brand-700" : "bg-red-50 text-red-700"}`;
+    el.className = `mt-4 rounded-2xl p-3 text-[15px] font-semibold ${good ? "bg-ok-50 text-ok-700" : "bg-red-50 text-red-700"}`;
   }
 
   async function loadHome(user) {
@@ -54,7 +54,7 @@
       return;
     }
     if (!row) {
-      $("homeBody").innerHTML = `<p class="rounded-2xl bg-amber-100 p-4 text-[15px] font-semibold text-amber-900">Data pendaftaran Anda belum terbaca. Tunggu beberapa menit lalu tekan Muat ulang. Kalau tetap tidak muncul, hubungi panitia.</p>`;
+      $("homeBody").innerHTML = `<p class="rounded-2xl bg-warn-50 p-4 text-[15px] font-semibold text-warn-700">Data pendaftaran Anda belum terbaca. Tunggu beberapa menit lalu tekan Muat ulang. Kalau tetap tidak muncul, hubungi panitia.</p>`;
       $("uploadBox").classList.add("hidden");
       return;
     }
@@ -63,14 +63,14 @@
     const names = String(row.namaBerkas || "").split(/\r?\n/);
     const catatan = row.catatanAdmin && row.catatanAdmin !== "-" && !/^Berkas gagal diunggah otomatis/.test(row.catatanAdmin) ? row.catatanAdmin : "";
     $("homeBody").innerHTML = `
-      <p class="text-lg font-extrabold">${esc(row.namaLengkap || "-")}</p>
+      <p class="text-lg font-semibold">${esc(row.namaLengkap || "-")}</p>
       <p class="text-[15px] text-ink-600">No. pendaftaran <b class="text-ink-900">${esc(row.noPendaftaran || "-")}</b> · Jurusan ${esc(row.jurusan1 || "-")}</p>
       <dl class="mt-4 grid gap-3 sm:grid-cols-2">
-        <div class="rounded-2xl bg-cream p-4"><dt class="text-[13px] font-semibold text-ink-500">Status pendaftaran</dt><dd class="mt-1 text-lg font-extrabold">${esc(row.statusPendaftaran || "Pending")}</dd></div>
-        <div class="rounded-2xl bg-cream p-4"><dt class="text-[13px] font-semibold text-ink-500">Status berkas</dt><dd class="mt-1 text-lg font-extrabold">${esc(row.statusBerkas || "Belum Unggah")}</dd></div>
+        <div class="rounded-2xl bg-cream p-4"><dt class="text-[13px] font-semibold text-ink-500">Status pendaftaran</dt><dd class="mt-1 text-lg font-semibold">${esc(row.statusPendaftaran || "Pending")}</dd></div>
+        <div class="rounded-2xl bg-cream p-4"><dt class="text-[13px] font-semibold text-ink-500">Status berkas</dt><dd class="mt-1 text-lg font-semibold">${esc(row.statusBerkas || "Belum Unggah")}</dd></div>
       </dl>
-      ${catatan ? `<p class="mt-3 rounded-2xl bg-amber-100 p-4 text-[15px] text-amber-900"><b>Catatan panitia:</b> ${esc(catatan)}</p>` : ""}
-      <h3 class="mt-5 text-base font-extrabold">Berkas yang sudah diunggah</h3>
+      ${catatan ? `<p class="mt-3 rounded-2xl bg-warn-50 p-4 text-[15px] text-warn-700"><b>Catatan panitia:</b> ${esc(catatan)}</p>` : ""}
+      <h3 class="mt-5 text-base font-semibold">Berkas yang sudah diunggah</h3>
       ${
         urls.length
           ? `<ul class="mt-2 space-y-1.5">${urls.map((u, i) => `<li><a href="${esc(u.trim())}" target="_blank" rel="noopener" class="font-semibold text-brand-700 underline">📄 ${esc(names[i] && names[i] !== "-" ? names[i] : "Berkas " + (i + 1))}</a></li>`).join("")}</ul>`

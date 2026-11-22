@@ -10,15 +10,15 @@
     <script src="../assets/js/tailwind-config.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../assets/css/style.css" />
   </head>
   <body class="bg-cream text-ink-900 antialiased">
     <header class="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
       <a href="../" class="flex items-center gap-2.5" aria-label="Kembali ke beranda">
-        <span class="grid h-10 w-10 place-items-center rounded-2xl bg-brand-600 text-sm font-extrabold text-white">TN</span>
+        <span class="grid h-9 w-9 place-items-center rounded-lg bg-ok-700 font-mono text-[13px] font-medium text-white">TS</span>
         <span class="leading-tight">
-          <span class="block text-[15px] font-extrabold">SMK Tamansiswa Jetis</span>
+          <span class="block text-[15px] font-semibold">SMK Tamansiswa Jetis</span>
           <span class="block text-xs text-ink-500">Lengkapi Berkas Pendaftaran</span>
         </span>
       </a>
@@ -27,9 +27,9 @@
     <main class="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
       <!-- LOGIN -->
       <section id="loginView" class="hidden">
-        <h1 class="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">Login siswa</h1>
+        <h1 class="mt-4 heading text-[28px] sm:text-[34px]">Login siswa</h1>
         <p class="mt-1 text-[15px] text-ink-600">Masuk dengan NISN dan password yang dibuat saat mendaftar.</p>
-        <form id="loginForm" class="mt-5 rounded-3xl border-2 border-line/40 bg-white p-5 sm:p-6" novalidate>
+        <form id="loginForm" class="mt-5 rounded-3xl border border-hairline bg-white p-5 sm:p-6" novalidate>
           <label for="nisn" class="mb-1.5 block text-[15px] font-semibold">NISN</label>
           <input id="nisn" type="text" inputmode="numeric" maxlength="10" autocomplete="username" class="w-full rounded-xl border-2 border-line px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none" placeholder="10 angka" />
           <label for="password" class="mb-1.5 mt-4 block text-[15px] font-semibold">Password</label>
@@ -46,7 +46,7 @@
       <!-- BERANDA SISWA -->
       <section id="homeView" class="hidden">
         <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Halo! 👋</h1>
+          <h1 class="heading text-[28px] sm:text-[34px]">Halo! 👋</h1>
           <div class="flex gap-2">
             <button id="reloadBtn" type="button" class="rounded-full border-2 border-line bg-white px-4 py-2 text-[15px] font-semibold hover:border-ink-500">↻ Muat ulang</button>
             <button id="logoutBtn" type="button" class="rounded-full border-2 border-line bg-white px-4 py-2 text-[15px] font-semibold hover:border-ink-500">Keluar</button>
@@ -54,10 +54,10 @@
         </div>
         <p class="mt-1 text-[15px] text-ink-600">Login sebagai NISN <b id="homeNisn" class="text-ink-900"></b></p>
 
-        <div id="homeBody" class="mt-5 rounded-3xl bg-white p-5 sm:p-6"></div>
+        <div id="homeBody" class="mt-5 rounded-3xl border border-hairline bg-white p-5 sm:p-6"></div>
 
-        <div id="uploadBox" class="mt-5 hidden rounded-3xl bg-white p-5 sm:p-6">
-          <h2 class="text-lg font-extrabold">Unggah berkas tambahan</h2>
+        <div id="uploadBox" class="mt-5 hidden rounded-3xl border border-hairline bg-white p-5 sm:p-6">
+          <h2 class="text-lg font-semibold">Unggah berkas tambahan</h2>
           <p class="mt-1 text-[15px] text-ink-600">Ijazah/SKL, KK, kartu pelajar, atau berkas yang diminta panitia.</p>
           <label for="fileInput" class="mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line bg-cream px-4 py-8 text-center hover:border-brand-600">
             <span class="text-3xl" aria-hidden="true">📤</span>

@@ -54,3 +54,26 @@ test("badgeTone mengenali status", () => {
   assert.equal(badgeTone("Tidak Ada"), "wait");
   assert.equal(badgeTone("Tidak Lulus"), "bad");
 });
+
+test("paginate: 25 per halaman, halaman dibatasi", () => {
+  const { paginate } = ctx.window.AdminUI;
+  const rows = Array.from({ length: 60 }, (_, i) => ({ i }));
+  const p1 = paginate(rows, 1, 25);
+  assert.equal(p1.pages, 3);
+  assert.equal(p1.items.length, 25);
+  assert.equal(p1.items[0].i, 0);
+  const p3 = paginate(rows, 3, 25);
+  assert.equal(p3.items.length, 10);
+  assert.equal(p3.items[0].i, 50);
+  assert.equal(paginate(rows, 9, 25).page, 3);
+  assert.equal(paginate(rows, 0, 25).page, 1);
+  assert.equal(paginate([], 1, 25).pages, 1);
+});
+
+test("sortRows: teks & angka, naik/turun, tidak mengubah aslinya", () => {
+  const { sortRows } = ctx.window.AdminUI;
+  const rows = [{ n: "budi", t: 160 }, { n: "Ani", t: 9 }, { n: "citra", t: "" }];
+  assert.deepEqual([...sortRows(rows, "n", "asc").map((r) => r.n)], ["Ani", "budi", "citra"]);
+  assert.deepEqual([...sortRows(rows, "t", "desc").map((r) => r.t)], [160, 9, ""]);
+  assert.equal(rows[0].n, "budi");
+});

@@ -1,18 +1,65 @@
 /* ============================================================
-   style.css — dasar bersama gaya "Hangat & Ramah"
+   style.css — dasar bersama, gaya design.md (rpl.tamsis.site)
    (pelengkap utility Tailwind, bukan pengganti)
    ============================================================ */
 
 html { scroll-padding-top: 80px; -webkit-text-size-adjust: 100%; }
 body {
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
-  background: #FAF7F2;
-  color: #1C2A22;
+  font-family: "Geist", system-ui, -apple-system, sans-serif;
+  background: #FFFFFF;
+  color: #171717;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Fokus keyboard yang jelas */
-:focus-visible { outline: 3px solid #15803D; outline-offset: 2px; border-radius: 12px; }
+/* Fokus keyboard: cincin emas, radius 6px (design.md) */
+:focus-visible { outline: 2px solid #F2B53A; outline-offset: 2px; border-radius: 6px; }
+
+/* Judul besar huruf rapat */
+.display { letter-spacing: -0.055em; line-height: 1.02; font-weight: 600; }
+.heading { letter-spacing: -0.03em; font-weight: 600; }
+
+/* Bingkai tengah bergaris kiri-kanan seperti rpl.tamsis.site */
+.frame { max-width: 1080px; margin-inline: auto; }
+@media (min-width: 1100px) {
+  .frame { border-inline: 1px solid #E5E7EB; }
+}
+.rule { border-top: 1px solid #E5E7EB; position: relative; }
+/* penanda "+" di pertemuan garis (desktop) */
+@media (min-width: 1100px) {
+  .rule::before, .rule::after {
+    content: "+"; position: absolute; top: -0.78em; font: 300 22px/1 "Geist", sans-serif; color: #A3A3A3;
+  }
+  .rule::before { left: -0.33em; }
+  .rule::after { right: -0.33em; }
+}
+
+/* Latar hero: titik-titik + gradasi lembut hijau/emas/biru */
+.hero-bg {
+  background-image:
+    radial-gradient(40% 60% at 20% 70%, rgba(34,197,94,.14), rgba(0,0,0,0) 70%),
+    radial-gradient(35% 55% at 50% 85%, rgba(242,181,58,.18), rgba(0,0,0,0) 70%),
+    radial-gradient(40% 60% at 80% 70%, rgba(56,189,248,.16), rgba(0,0,0,0) 70%),
+    radial-gradient(rgb(212,212,212) 1px, rgba(0,0,0,0) 1px);
+  background-size: auto, auto, auto, 22px 22px;
+}
+
+/* Sel bergaris (grid kartu tajam) */
+.cells { display: grid; }
+.cells > * { border-bottom: 1px solid #E5E7EB; }
+@media (min-width: 768px) {
+  .cells-3 { grid-template-columns: repeat(3, 1fr); }
+  .cells-3 > * { border-right: 1px solid #E5E7EB; }
+  .cells-3 > *:nth-child(3n) { border-right: 0; }
+}
+
+/* Label kecil bergaya kode: ● jurusan/rpl */
+.tag { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12.8px; color: #525252; display: inline-flex; align-items: center; gap: .45em; }
+.tag::before { content: ""; width: .55em; height: .55em; border-radius: 999px; background: var(--dot, #16523A); }
+
+/* Tombol: redup saat hover, mengecil saat ditekan (design.md) */
+.btn { transition: opacity .15s ease, transform .15s ease; }
+.btn:hover { opacity: .85; }
+.btn:active { transform: scale(.97); }
 
 /* Geser kartu jurusan di HP tanpa scrollbar */
 .no-scrollbar { scrollbar-width: none; }
@@ -26,7 +73,19 @@ body {
 .faq-item.open .faq-icon { transform: rotate(45deg); }
 
 /* Tombol pilihan (jenis kelamin) */
-.choice[aria-pressed="true"] { border-color: #15803D; border-width: 2px; background: #F0FDF4; }
+.choice[aria-pressed="true"] { border-color: #171717; border-width: 2px; background: #FEF7E6; }
+
+/* ============================================================
+   Panel admin: sidebar kiri tetap (laptop), laci (HP)
+   ============================================================ */
+.admin-sidebar { transition: transform .2s ease; }
+@media (max-width: 1023px) {
+  .admin-sidebar { transform: translateX(-100%); }
+  body.sidebar-open .admin-sidebar { transform: none; }
+}
+@media (min-width: 1024px) {
+  body.admin-shell #adminHeader, body.admin-shell main { margin-left: 16rem; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
@@ -40,10 +99,9 @@ body {
 .kiosk [data-kiosk-only] { display: block !important; }
 .kiosk [data-kiosk-hide] { display: none !important; }
 
-.kiosk body { zoom: 1.15; }
-.kiosk body { background: #FFFFFF; color: #000000; }
-.kiosk .bg-cream, .kiosk .bg-cream\/95 { background: #FFFFFF !important; }
-.kiosk .bg-sand { background: #E5E1D8 !important; }
+.kiosk body { zoom: 1.15; background: #FFFFFF; color: #000000; }
+.kiosk .hero-bg { background-image: none; }
+.kiosk .bg-sand { background: #E5E5E5 !important; }
 .kiosk .text-ink-900 { color: #000000 !important; }
 .kiosk .text-ink-600, .kiosk .text-ink-500, .kiosk .text-ink-300 { color: #111111 !important; }
 .kiosk ::placeholder { color: #555555 !important; }
@@ -52,8 +110,7 @@ body {
   border-width: 2.5px !important;
   color: #000000;
 }
-.kiosk main .rounded-3xl.bg-white { border: 2.5px solid #000000; }
-.kiosk .bg-brand-600 { background: #14532D !important; }
-.kiosk .text-brand-700 { color: #14532D !important; }
+.kiosk main .bg-white { outline: 2.5px solid #000000; }
+.kiosk .bg-brand-600 { background: #000000 !important; }
 .kiosk .text-red-600 { color: #B91C1C !important; }
-.kiosk .choice[aria-pressed="true"] { background: #DCFCE7; outline: 3px solid #14532D; }
+.kiosk .choice[aria-pressed="true"] { background: #F2B53A; outline: 3px solid #000000; }
