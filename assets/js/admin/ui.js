@@ -533,33 +533,48 @@
       <div id="stats" class="mt-6"></div>
       <div class="mt-6 flex flex-col gap-3 border-b border-hairline lg:flex-row lg:items-end lg:justify-between">
         <div id="tabs" class="no-scrollbar -mb-px flex gap-5 overflow-x-auto" role="tablist" aria-label="${esc(config.filter.label)}"></div>
-        <div class="pb-3">
+        <div class="flex gap-2 pb-3">
           <label for="q" class="sr-only">Cari</label>
-          <input id="q" type="search" class="w-full rounded-md border border-line/60 bg-white px-3 py-2 text-[14.5px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30 lg:w-80" placeholder="Cari nama, NISN, atau no. pendaftaran" />
+          <input id="q" type="search" class="min-w-0 flex-1 rounded-md border border-line/60 bg-white px-3 py-2 text-[14.5px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30 lg:w-80 lg:flex-none" placeholder="Cari nama, NISN, atau no. pendaftaran" />
           <label for="f" class="sr-only">${esc(config.filter.label)}</label>
           <select id="f" class="sr-only" tabindex="-1">
             <option value="">Semua</option>${config.filter.options.map((o) => `<option>${esc(o)}</option>`).join("")}
           </select>
+          <div class="relative">
+            <button type="button" id="filterBtn" aria-expanded="false" aria-controls="filterPanel" class="inline-flex h-full items-center gap-1.5 rounded-md bg-white px-3.5 py-2 text-[14.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5z"/></svg>
+              Filter<span id="filterN" class="hidden min-w-5 rounded-full bg-pink-500 px-1.5 text-center font-mono text-[11.5px] leading-5 text-white"></span>
+            </button>
+            <div id="filterPanel" role="dialog" aria-label="Filter" tabindex="-1" class="absolute right-0 top-full z-30 mt-2 hidden max-h-[max(18rem,calc(100dvh-22.5rem))] w-[min(calc(100vw-2rem),34rem)] overflow-y-auto overscroll-contain rounded-lg border border-hairline bg-white p-4 text-left shadow-[0_12px_32px_rgba(0,0,0,0.12)]">
+              <div class="flex items-center justify-between">
+                <h2 class="text-[15px] font-semibold">Filter</h2>
+                <button type="button" data-tutup class="grid h-8 w-8 place-items-center rounded-md text-[20px] leading-none text-ink-500 hover:bg-sand hover:text-ink-900" aria-label="Tutup filter">×</button>
+              </div>
+              <div id="saringSel" class="mt-3 grid gap-3 sm:grid-cols-2"></div>
+              <div id="tglBar" class="mt-4 border-t border-hairline pt-4" role="group" aria-label="Tanggal daftar">
+                <p class="text-[12.5px] text-ink-500">Tanggal daftar</p>
+                <div class="mt-1 flex items-center gap-2">
+                  <label for="tglDari" class="sr-only">Dari tanggal</label>
+                  <input id="tglDari" type="date" class="rounded-md border border-line/60 bg-white px-2.5 py-1.5 text-[14px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30 min-w-0 flex-1" />
+                  <span class="text-ink-500" aria-hidden="true">–</span>
+                  <label for="tglSampai" class="sr-only">Sampai tanggal</label>
+                  <input id="tglSampai" type="date" class="rounded-md border border-line/60 bg-white px-2.5 py-1.5 text-[14px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30 min-w-0 flex-1" />
+                </div>
+                <div class="mt-2 flex flex-wrap gap-1">
+                  <button type="button" data-tgl="hari" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Hari ini</button>
+                  <button type="button" data-tgl="kemarin" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Kemarin</button>
+                  <button type="button" data-tgl="7" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">7 hari</button>
+                </div>
+              </div>
+              <div class="mt-4 flex items-center justify-between gap-2 border-t border-hairline pt-3">
+                <button type="button" id="saringReset" class="rounded-full px-3 py-2 text-[13.5px] font-medium text-pink-600 hover:bg-pink-50 disabled:invisible">Hapus semua</button>
+                <button type="button" data-tutup id="filterLihat" class="rounded-full bg-ink-900 px-4 py-2 text-[14px] font-medium text-white hover:opacity-90">Tampilkan</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="saringBar" class="mt-4 flex flex-wrap items-center gap-2" role="group" aria-label="Saring daftar">
-        <span class="mr-1 text-[13px] font-medium text-ink-600">Saring</span>
-        <span id="saringSel" class="contents"></span>
-        <button type="button" id="saringReset" class="hidden rounded-full px-3 py-1.5 text-[13.5px] font-medium text-pink-600 hover:bg-pink-50">Hapus semua saringan</button>
-      </div>
-      <div id="tglBar" class="mt-3 flex flex-wrap items-center gap-2" role="group" aria-label="Cari berdasarkan tanggal daftar">
-        <span class="mr-1 text-[13px] font-medium text-ink-600">Tanggal daftar</span>
-        <label for="tglDari" class="sr-only">Dari tanggal</label>
-        <input id="tglDari" type="date" class="rounded-md border border-line/60 bg-white px-2.5 py-1.5 text-[14px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30" />
-        <span class="text-ink-500" aria-hidden="true">–</span>
-        <label for="tglSampai" class="sr-only">Sampai tanggal</label>
-        <input id="tglSampai" type="date" class="rounded-md border border-line/60 bg-white px-2.5 py-1.5 text-[14px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30" />
-        <span class="mx-1 hidden h-5 w-px bg-hairline sm:block" aria-hidden="true"></span>
-        <button type="button" data-tgl="hari" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Hari ini</button>
-        <button type="button" data-tgl="kemarin" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Kemarin</button>
-        <button type="button" data-tgl="7" class="rounded-full px-3 py-1.5 text-[13.5px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">7 hari</button>
-        <button type="button" data-tgl="reset" id="tglReset" class="hidden rounded-full px-3 py-1.5 text-[13.5px] font-medium text-pink-600 hover:bg-pink-50">Hapus tanggal</button>
-      </div>
+      <div id="filterAktif" class="mt-3 flex flex-wrap gap-1.5 empty:hidden"></div>
       <div id="newSlot"></div>
       <p id="count" class="mt-4 h-5 font-mono text-[12.5px] text-ink-500" aria-live="polite"></p>
       <div id="list" class="mt-2"><div class="space-y-2" aria-hidden="true">${'<div class="skeleton h-12"></div>'.repeat(8)}</div></div>
@@ -589,11 +604,11 @@
           const on = !!pilihan[d.id];
           const opsi = opsiSaring(page.rows, d);
           if (on && !opsi.some((o) => o.value === pilihan[d.id])) opsi.push({ value: pilihan[d.id], n: 0 });
-          return `<select data-saring="${esc(d.id)}" aria-label="${esc(d.label)}" class="max-w-[18rem] rounded-md border bg-white px-2.5 py-1.5 text-[14px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30 ${
-            on ? "border-pink-500 font-medium text-ink-900" : "border-line/60 text-ink-600"
-          }"><option value="">${esc(d.label)}: semua</option>${opsi
-            .map((o) => `<option value="${esc(o.value)}" ${o.value === pilihan[d.id] ? "selected" : ""}>${esc(d.label)}: ${esc(o.value)} (${o.n})</option>`)
-            .join("")}</select>`;
+          return `<label class="flex flex-col gap-1 text-[12.5px] text-ink-500">${esc(d.label)}<select data-saring="${esc(d.id)}" class="w-full rounded-md border bg-white px-2.5 py-2 text-[14px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30 ${
+            on ? "border-pink-500 font-medium text-ink-900" : "border-line/60 text-ink-900"
+          }"><option value="">Semua</option>${opsi
+            .map((o) => `<option value="${esc(o.value)}" ${o.value === pilihan[d.id] ? "selected" : ""}>${esc(o.value)} (${o.n})</option>`)
+            .join("")}</select></label>`;
         })
         .join("");
     }
@@ -627,8 +642,12 @@
       rows = saringTambahan(rows, saringDefs, pilihan);
       const adaTanggal = !!($dari.value || $sampai.value);
       const saringAktif = saringDefs.filter((d) => pilihan[d.id]);
-      app.querySelector("#saringReset").classList.toggle("hidden", !saringAktif.length && !adaTanggal);
-      app.querySelector("#tglReset").classList.toggle("hidden", !adaTanggal);
+      const nAktif = saringAktif.length + (adaTanggal ? 1 : 0);
+      const $n = app.querySelector("#filterN");
+      $n.textContent = nAktif;
+      $n.classList.toggle("hidden", !nAktif);
+      app.querySelector("#saringReset").disabled = !nAktif;
+      app.querySelector("#filterLihat").textContent = `Tampilkan ${rows.length} pendaftar`;
       if (state.sortKey) rows = sortRows(rows, state.sortKey, state.sortDir);
       const pg = paginate(rows, state.page, state.size);
       state.page = pg.page;
@@ -639,8 +658,12 @@
         : t2 && t1 !== t2
           ? ` · ${tglTeks(t1)} – ${tglTeks(t2)}`
           : ` · ${$dari.value && $sampai.value ? "tanggal" : $dari.value ? "sejak" : "sampai"} ${tglTeks(t1)}`;
-      const teksSaring = saringAktif.map((d) => ` · ${d.label}: ${pilihan[d.id]}`).join("");
-      $count.textContent = `${rows.length} dari ${page.rows.length} pendaftar${rentang}${teksSaring}`;
+      const label = (key, teks) =>
+        `<span class="inline-flex items-center gap-1 rounded-full bg-pink-50 py-1 pl-3 pr-1 text-[13px] text-ink-900 shadow-[inset_0_0_0_1px_#FBCFE8]">${esc(teks)}<button type="button" data-hapus="${esc(key)}" class="grid h-5 w-5 place-items-center rounded-full text-[15px] leading-none text-ink-500 hover:bg-white hover:text-ink-900" aria-label="Hapus filter ${esc(teks)}">×</button></span>`;
+      app.querySelector("#filterAktif").innerHTML =
+        saringAktif.map((d) => label(d.id, `${d.label}: ${pilihan[d.id]}`)).join("") +
+        (adaTanggal ? label("tanggal", `Tanggal daftar${rentang.replace(/^ · /, ": ")}`) : "");
+      $count.textContent = `${rows.length} dari ${page.rows.length} pendaftar`;
       if (!rows.length) {
         $list.innerHTML = `<div class="rounded-lg border border-dashed border-hairline p-10 text-center text-[15px] text-ink-500">Tidak ada data yang cocok.</div>`;
         $pager.innerHTML = "";
@@ -855,6 +878,40 @@
       render();
       const el = $saring.querySelector(`[data-saring="${id}"]`);
       if (el) el.focus();
+    });
+    const $panel = app.querySelector("#filterPanel");
+    const $fbtn = app.querySelector("#filterBtn");
+    const bukaPanel = (buka) => {
+      $panel.classList.toggle("hidden", !buka);
+      $fbtn.setAttribute("aria-expanded", String(buka));
+      if (buka) ($panel.querySelector("select") || $panel).focus();
+    };
+    $fbtn.addEventListener("click", () => bukaPanel($panel.classList.contains("hidden")));
+    $panel.addEventListener("click", (e) => {
+      if (e.target.closest("[data-tutup]")) {
+        bukaPanel(false);
+        $fbtn.focus();
+      }
+    });
+    const tutupLuar = (e) => {
+      if (!document.contains($panel)) return document.removeEventListener("pointerdown", tutupLuar);
+      if (!$panel.classList.contains("hidden") && !$panel.contains(e.target) && !$fbtn.contains(e.target)) bukaPanel(false);
+    };
+    document.addEventListener("pointerdown", tutupLuar);
+    $panel.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        bukaPanel(false);
+        $fbtn.focus();
+      }
+    });
+    app.querySelector("#filterAktif").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-hapus]");
+      if (!b) return;
+      if (b.dataset.hapus === "tanggal") $dari.value = $sampai.value = "";
+      else pilihan[b.dataset.hapus] = "";
+      state.page = 1;
+      renderSaring();
+      render();
     });
     app.querySelector("#saringReset").addEventListener("click", () => {
       Object.keys(pilihan).forEach((k) => (pilihan[k] = ""));
