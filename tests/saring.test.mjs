@@ -68,3 +68,46 @@ test("polaBunyi: lonceng tiga nada naik, diulang 2x, total ±2 detik, cukup kera
   assert.ok(selesai >= 1.8 && selesai <= 2.6, `durasi ${selesai}s`);
   assert.ok(nada.every((n) => n.v >= 0.2 && n.v <= 0.5), "volume jelas tapi tidak pecah");
 });
+
+/* ---------- nomor dobel: deteksi & perbaikan ---------- */
+
+const DP = [
+  { rowIndex: 2, noPendaftaran: "SPMB-2026-000", namaLengkap: "A", createdAt: "2026-11-22 17:18:43" },
+  { rowIndex: 3, noPendaftaran: "SPMB-2026-100", namaLengkap: "Lama", createdAt: "2026-11-22 17:18:46" },
+  { rowIndex: 7, noPendaftaran: "SPMB-2026-100", namaLengkap: "Baru", createdAt: "2026-11-22 21:27:33" },
+  { rowIndex: 8, noPendaftaran: "-", namaLengkap: "Kosong", createdAt: "2026-11-22 22:00:00" },
+  { rowIndex: 9, noPendaftaran: "", namaLengkap: "Kosong2", createdAt: "" },
+];
+
+test("cariNomorDobel: hanya nomor yang dipakai >1 orang; yang daftar lebih dulu di urutan pertama", () => {
+  const g = plain(UI.cariNomorDobel(DP));
+  assert.equal(g.length, 1);
+  assert.equal(g[0].nomor, "SPMB-2026-100");
+  assert.deepEqual(g[0].orang.map((r) => r.namaLengkap), ["Lama", "Baru"]);
+  // urutan baris di sheet tidak menentukan; waktu daftar yang menentukan
+  const terbalik = [{ ...DP[2], rowIndex: 3 }, { ...DP[1], rowIndex: 7 }];
+  assert.deepEqual(plain(UI.cariNomorDobel(terbalik))[0].orang.map((r) => r.namaLengkap), ["Lama", "Baru"]);
+  assert.equal(UI.cariNomorDobel([]).length, 0);
+});
+
+test("barisMilik: cocokkan lewat nama; bila nama tak membantu, lewat urutan kemunculan", () => {
+  const uang = [
+    { rowIndex: 3, noPendaftaran: "SPMB-2026-100", namaLengkap: "Lama" },
+    { rowIndex: 7, noPendaftaran: "SPMB-2026-100", namaLengkap: " baru " },
+  ];
+  assert.equal(UI.barisMilik(uang, "SPMB-2026-100", "Baru", 1).rowIndex, 7);
+  assert.equal(UI.barisMilik(uang, "SPMB-2026-100", "Baru", 0).rowIndex, 7, "nama unik menang atas urutan");
+  const samaNama = [
+    { rowIndex: 3, noPendaftaran: "SPMB-2026-100", namaLengkap: "Budi" },
+    { rowIndex: 7, noPendaftaran: "SPMB-2026-100", namaLengkap: "Budi" },
+  ];
+  assert.equal(UI.barisMilik(samaNama, "SPMB-2026-100", "Budi", 1).rowIndex, 7);
+  assert.equal(UI.barisMilik(uang, "SPMB-2026-999", "Baru", 0), null);
+});
+
+test("pesanNomorBaru: pesan WhatsApp berisi nama, nomor lama & nomor baru", () => {
+  const p = UI.pesanNomorBaru("Budi", "SPMB-2026-100", "SPMB-2026-101");
+  assert.match(p, /Budi/);
+  assert.match(p, /SPMB-2026-100/);
+  assert.match(p, /SPMB-2026-101/);
+});

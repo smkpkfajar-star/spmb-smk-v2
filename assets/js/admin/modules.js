@@ -29,6 +29,7 @@
             <button id="reloadDash" type="button" class="btn rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">Muat ulang</button>
           </div>
           <div id="newSlot"></div>
+          <div id="dobelSlot"></div>
           <div id="dashStats" class="mt-6"><div class="grid grid-cols-2 gap-4 sm:grid-cols-5" aria-hidden="true"><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div></div></div>
 
           <div class="mt-8 grid gap-6 xl:grid-cols-[1fr_360px]">
@@ -68,6 +69,7 @@
               { label: "sudah lunas", value: count(uang, "statusBiayaDaftar", "Lunas", "Belum Bayar"), tone: "info" },
               { label: "sudah tes fisik", value: fisik.filter((r) => val(r.statusTesFisik, "Belum Tes") !== "Belum Tes").length, tone: "ok" },
             ]);
+            renderDobel(daftar);
             const status = new Map(verif.map((r) => [r.noPendaftaran, r.statusPendaftaran]));
             const recent = [...daftar].sort((a, b) => AdminUI.waktuKey(b.createdAt) - AdminUI.waktuKey(a.createdAt)).slice(0, 10);
             $t.innerHTML = recent.length
@@ -90,6 +92,105 @@
             $s.innerHTML = `<p class="bg-red-50 p-4 text-[15px] font-semibold text-red-700">${esc(e.message)}. Periksa internet lalu tekan Muat ulang.</p>`;
           }
         }
+        /* ---------- nomor pendaftaran dobel: peringatan + "Beri nomor baru" ---------- */
+        const SHEETS_NOMOR = ["Data_Pendaftar", "Verifikasi_Berkas", "Keuangan_Voucher", "Tes_Fisik_Seragam"];
+        const bolehGanti = ["superadmin", "verifikasi"].includes(profile.role);
+        let grupDobel = [];
+        const toWa = (n) => {
+          const d = String(n || "").replace(/\D/g, "");
+          return d.startsWith("0") ? "62" + d.slice(1) : d.startsWith("62") ? d : d ? "62" + d : "";
+        };
+        function renderDobel(daftar) {
+          grupDobel = AdminUI.cariNomorDobel(daftar);
+          const $d = document.getElementById("dobelSlot");
+          if (!grupDobel.length) {
+            $d.innerHTML = "";
+            return;
+          }
+          const orangHtml = (g, r, i) => `
+            <li class="flex flex-wrap items-center justify-between gap-2 py-2">
+              <span class="min-w-0">
+                <b class="font-semibold">${esc(r.namaLengkap || "-")}</b>
+                <span class="text-[13px] text-ink-600"> · NISN ${esc(r.nisn || "-")} · ${esc(r.jurusan1 || "-")} · daftar ${esc(AdminUI.formatWaktu(r.createdAt))}</span>
+              </span>
+              ${
+                i === 0
+                  ? `<span class="rounded-full bg-white px-2.5 py-1 text-[12.5px] font-medium text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--hairline))]">daftar lebih dulu · tetap ${esc(g.nomor)}</span>`
+                  : bolehGanti
+                    ? `<button type="button" data-ganti="${esc(g.nomor)}|${esc(r.rowIndex)}" class="rounded-full bg-red-600 px-3.5 py-1.5 text-[13.5px] font-semibold text-white hover:bg-red-700">Beri nomor baru</button>`
+                    : `<span class="text-[12.5px] text-red-700">minta superadmin/verifikasi memberi nomor baru</span>`
+              }
+            </li>`;
+          $d.innerHTML = `
+            <section class="mt-6 rounded-lg border border-red-300 bg-red-50 p-4" role="alert" aria-labelledby="dobelJudul">
+              <h2 id="dobelJudul" class="flex items-center gap-2 text-[15px] font-semibold text-red-700">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                Nomor pendaftaran dobel (${grupDobel.length})
+              </h2>
+              <p class="mt-1 text-[13.5px] text-ink-600">Pendaftar yang lebih dulu tetap memegang nomornya. Yang belakangan diberi nomor baru — otomatis diganti di keempat sheet, lalu kabari lewat WhatsApp.</p>
+              ${grupDobel
+                .map(
+                  (g) => `<div class="mt-3"><p class="font-mono text-[13px] font-medium">${esc(g.nomor)} · dipakai ${g.orang.length} pendaftar</p>
+                    <ul class="divide-y divide-red-200">${g.orang.map((r, i) => orangHtml(g, r, i)).join("")}</ul></div>`
+                )
+                .join("")}
+            </section>`;
+        }
+        async function beriNomorBaru(nomor, rowIndex, btn) {
+          const g = grupDobel.find((x) => x.nomor === nomor);
+          const orang = g && g.orang.find((r) => String(r.rowIndex) === String(rowIndex));
+          if (!orang) return;
+          if (!confirm(`Beri nomor baru untuk ${orang.namaLengkap}?\n\nNomor ${nomor} tetap dipegang ${g.orang[0].namaLengkap} (daftar lebih dulu).\nNomor baru otomatis diganti di keempat sheet.`)) return;
+          btn.disabled = true;
+          btn.textContent = "Memproses…";
+          try {
+            const semua = await Promise.all(SHEETS_NOMOR.map((s) => Sheetson.getRows(s, { fresh: true })));
+            const terpakai = [...new Set(semua.flatMap((rows) => rows.map((r) => String(r.noPendaftaran ?? "").trim()).filter((n) => n && n !== "-")))];
+            const { data: baru, error } = await AdminAuth.getClient().rpc("ganti_no_pendaftaran", {
+              p_nisn: String(orang.nisn ?? ""),
+              p_jurusan: orang.jurusan1,
+              p_terpakai: terpakai,
+            });
+            if (error) {
+              throw new Error(
+                /function|schema cache|not find/i.test(error.message)
+                  ? "Fungsi database belum terpasang. Jalankan ulang supabase/02-nomor-pendaftaran.sql di Supabase."
+                  : error.message
+              );
+            }
+            // urutan kemunculan orang ini di antara pemegang nomor yang sama (menurut baris Data_Pendaftar)
+            const urutanKe = semua[0]
+              .filter((r) => String(r.noPendaftaran ?? "").trim() === nomor)
+              .sort((a, b) => a.rowIndex - b.rowIndex)
+              .findIndex((r) => String(r.rowIndex) === String(orang.rowIndex));
+            const terlewat = [];
+            for (let i = 0; i < SHEETS_NOMOR.length; i++) {
+              const row = AdminUI.barisMilik(semua[i], nomor, orang.namaLengkap, Math.max(urutanKe, 0));
+              if (row) await Sheetson.patchRow(SHEETS_NOMOR[i], row.rowIndex, { noPendaftaran: baru });
+              else terlewat.push(SHEETS_NOMOR[i]);
+            }
+            AdminUI.toast(
+              terlewat.length
+                ? `Nomor baru ${baru}. Periksa manual sheet: ${terlewat.join(", ")}`
+                : `${orang.namaLengkap}: nomor baru ${baru} (keempat sheet diperbarui)`,
+              terlewat.length ? "error" : "ok"
+            );
+            const wa = toWa(orang.waOrtu) || toWa(orang.whatsapp);
+            if (wa) window.open(`https://wa.me/${wa}?text=${encodeURIComponent(AdminUI.pesanNomorBaru(orang.namaLengkap, nomor, baru))}`, "_blank", "noopener");
+            await loadDash(true);
+          } catch (e) {
+            btn.disabled = false;
+            btn.textContent = "Beri nomor baru";
+            AdminUI.toast(e.message, "error");
+          }
+        }
+        document.getElementById("dobelSlot").addEventListener("click", (e) => {
+          const b = e.target.closest("button[data-ganti]");
+          if (!b) return;
+          const [nomor, rowIndex] = b.dataset.ganti.split("|");
+          beriNomorBaru(nomor, rowIndex, b);
+        });
+
         document.getElementById("reloadDash").addEventListener("click", () => loadDash(true));
         loadDash();
       

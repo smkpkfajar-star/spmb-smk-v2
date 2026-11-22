@@ -604,9 +604,21 @@ function nomorCadangan(jurusan, date) {
 // Nomor urut per jurusan dari database Supabase. Database menjamin tidak ada nomor
 // yang sama (kolom unik + penghitung yang dikunci), dan kiriman ulang oleh akun
 // yang sama untuk jurusan yang sama mendapat nomor yang sama.
-async function ambilNomorPendaftaran(client, jurusan, now = new Date()) {
-  try {
-    const { data, error } = await client.rpc("ambil_no_pendaftaran", { p_jurusan: jurusan });
+// Minta nomor ke database. sudahDipakai(nomor) → Promise<boolean> memeriksa sheet:
+// bila nomor itu ternyata sudah dipakai NISN lain (penghitung pernah kembali ke awal),
+// database diminta melewatinya dan memberi nomor berikutnya (maks. 5 kali).
+const MAKS_LEWATI_NOMOR = 5;
+async function ambilNomorPendaftaran(client, jurusan, now = new Date(), sudahDipakai = null) {
+  let lewati = null;
+  for (let percobaan = 0; percobaan < MAKS_LEWATI_NOMOR; percobaan++) {
+    let data, error;
+    try {
+      const args = lewati ? { p_jurusan: jurusan, p_lewati: lewati } : { p_jurusan: jurusan };
+      ({ data, error } = await client.rpc("ambil_no_pendaftaran", args));
+    } catch (err) {
+      console.warn("Nomor urut database gagal, memakai nomor cadangan:", err);
+      break;
+    }
     if (error && /PENUH/.test(error.message || "")) {
       throw userError(
         `Maaf, kuota nomor pendaftaran jurusan ${jurusan} sudah penuh.\n\n` +
@@ -614,13 +626,33 @@ async function ambilNomorPendaftaran(client, jurusan, now = new Date()) {
       );
     }
     const blokCocok = typeof data === "string" && POLA_NOMOR.test(data) && Number(data.slice(-3, -2)) === BLOK_JURUSAN[jurusan];
-    if (!error && blokCocok) return data;
-    console.warn("Nomor urut database belum tersedia, memakai nomor cadangan:", (error && error.message) || data);
-  } catch (err) {
-    if (err.userFacing) throw err;
-    console.warn("Nomor urut database gagal, memakai nomor cadangan:", err);
+    if (error || !blokCocok) {
+      console.warn("Nomor urut database belum tersedia, memakai nomor cadangan:", (error && error.message) || data);
+      break;
+    }
+    if (!sudahDipakai) return data;
+    let bentrok = false;
+    try {
+      bentrok = await sudahDipakai(data);
+    } catch (err) {
+      console.warn("Tidak bisa memeriksa nomor di sheet; nomor tetap dipakai:", err);
+    }
+    if (!bentrok) return data;
+    console.warn(`Nomor ${data} sudah dipakai pendaftar lain di sheet, meminta nomor berikutnya.`);
+    lewati = data;
   }
   return nomorCadangan(jurusan, now);
+}
+
+// Fungsi murni: apakah nomor ini sudah dipakai NISN lain di baris sheet?
+function bentrokNomor(rows, nomor, nisn) {
+  return rows.some((r) => String(r.noPendaftaran || "").trim() === nomor && !sameNisn(r.nisn, nisn));
+}
+
+// Cari nomor di Verifikasi_Berkas (punya kolom noPendaftaran & nisn)
+async function nomorDipakaiOrangLain(config, nomor, nisn) {
+  const json = await sheetsonGet(config, `where=${encodeURIComponent(JSON.stringify({ noPendaftaran: nomor }))}`);
+  return bentrokNomor(json.results || [], nomor, nisn);
 }
 
 // "2026-11-22 15:22:27" atau ISO lama → "22-11-2026 pukul 15.22 WIB"
@@ -636,7 +668,10 @@ function waktuDaftarTeks(v) {
 }
 
 async function collectFormData(nisnVal, jurusan1, jurusan2, supabaseConfig, akun) {
-  const noPendaftaran = await ambilNomorPendaftaran(akun.client, jurusan1.value);
+  const sheetCfg = window.APP_CONFIG.sheetson;
+  const noPendaftaran = await ambilNomorPendaftaran(akun.client, jurusan1.value, new Date(), (no) =>
+    nomorDipakaiOrangLain(sheetCfg, no, nisnVal)
+  );
   const fileInput = document.getElementById("berkasFile");
   let fileUrl = "-";
   let fileName = "-";

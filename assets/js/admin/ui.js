@@ -154,7 +154,40 @@
     return aktif.length ? rows.filter((r) => aktif.every((d) => d.get(r) === pilihan[d.id])) : rows;
   }
 
-  root.AdminUI = { polaBunyi: () => polaBunyi(), URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
+  // ---------- nomor pendaftaran dobel ----------
+  const nomorBersih = (v) => {
+    const t = String(v ?? "").trim();
+    return t && t !== "-" ? t : "";
+  };
+  // Kelompok nomor yang dipakai lebih dari satu orang. orang[0] = yang daftar lebih dulu (tetap memegang nomor).
+  function cariNomorDobel(rows) {
+    const per = new Map();
+    rows.forEach((r) => {
+      const n = nomorBersih(r.noPendaftaran);
+      if (n) per.set(n, [...(per.get(n) || []), r]);
+    });
+    return [...per.entries()]
+      .filter(([, orang]) => orang.length > 1)
+      .map(([nomor, orang]) => ({
+        nomor,
+        orang: [...orang].sort((a, b) => (waktuKey(a.createdAt) || Infinity) - (waktuKey(b.createdAt) || Infinity) || a.rowIndex - b.rowIndex),
+      }))
+      .sort((a, b) => a.nomor.localeCompare(b.nomor));
+  }
+  // Baris milik seseorang di sheet lain: nama yang cocok tepat satu → itu; selain itu urutan kemunculan.
+  function barisMilik(rows, nomor, nama, urutanKe) {
+    const kandidat = rows.filter((r) => nomorBersih(r.noPendaftaran) === nomor).sort((a, b) => a.rowIndex - b.rowIndex);
+    const norm = (v) => String(v ?? "").trim().toLowerCase();
+    const samaNama = kandidat.filter((r) => norm(r.namaLengkap) === norm(nama));
+    if (samaNama.length === 1) return samaNama[0];
+    return kandidat[urutanKe] || null;
+  }
+  const pesanNomorBaru = (nama, lama, baru) =>
+    `Halo, kami panitia SPMB SMK Tamansiswa Jetis.\n\nNomor pendaftaran atas nama *${nama}* kami perbarui dari ${lama} menjadi *${baru}* ` +
+    `karena ada kesalahan sistem penomoran. Data pendaftaran tetap aman, tidak perlu mendaftar ulang.\n\n` +
+    `Mohon gunakan nomor baru ini untuk keperluan selanjutnya. Terima kasih.`;
+
+  root.AdminUI = { cariNomorDobel, barisMilik, pesanNomorBaru, polaBunyi: () => polaBunyi(), URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
   if (typeof document === "undefined") return;
 
   /* ---------- tampilan ---------- */

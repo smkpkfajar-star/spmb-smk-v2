@@ -31,6 +31,8 @@ html.dark .hover\:bg-brand-700:hover, html.dark .aria-selected\:bg-ink-900[aria-
 /* Warna bawaan Tailwind yang tidak lewat variabel */
 html.dark .bg-red-50 { background-color: #2A1111; }
 html.dark .text-red-600, html.dark .text-red-700 { color: #F87171; }
+html.dark .border-red-300 { border-color: #7F1D1D; }
+html.dark .divide-red-200 > :not([hidden]) ~ :not([hidden]) { border-color: #5B1A1A; }
 html.dark .bg-surface .bg-white\/25 { background-color: rgb(255 255 255 / .25); }
 /* Tombol bunyi (admin): ikon sesuai keadaan */
 [data-bunyi] .ikon-bunyi-nyala, [data-bunyi][aria-pressed="true"] .ikon-bunyi-mati { display: none; }

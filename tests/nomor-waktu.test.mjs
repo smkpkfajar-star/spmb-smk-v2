@@ -134,3 +134,40 @@ test("filterTanggal: dari–sampai (termasuk kedua ujung), salah satu boleh koso
   // tertukar → tetap benar
   assert.equal(n(UI.filterTanggal(rows, "2026-11-22", "2026-11-20")), "abc");
 });
+
+/* ---------- pengaman nomor dobel ---------- */
+
+test("ambilNomorPendaftaran: nomor sudah dipakai NISN lain di sheet → minta nomor berikutnya", async () => {
+  const panggilan = [];
+  const client = {
+    rpc: async (name, a) => {
+      panggilan.push({ ...a });
+      return { data: a.p_lewati ? "SPMB-2026-101" : "SPMB-2026-100", error: null };
+    },
+  };
+  const dipakai = async (no) => no === "SPMB-2026-100";
+  assert.equal(await dctx.ambilNomorPendaftaran(client, "RPL", new Date(), dipakai), "SPMB-2026-101");
+  assert.deepEqual(panggilan, [{ p_jurusan: "RPL" }, { p_jurusan: "RPL", p_lewati: "SPMB-2026-100" }]);
+});
+
+test("ambilNomorPendaftaran: selalu bentrok → berhenti setelah 5x dan memakai nomor cadangan unik", async () => {
+  let n = 0;
+  const client = { rpc: async () => ({ data: `SPMB-2026-1${String(n++).padStart(2, "0")}`, error: null }) };
+  const hasil = await dctx.ambilNomorPendaftaran(client, "RPL", new Date(), async () => true);
+  assert.equal(n, 5);
+  assert.match(hasil, /^SPMB-\d{4}-1[0-9A-Z]{9,}$/);
+});
+
+test("ambilNomorPendaftaran: pemeriksaan sheet gagal (internet) → nomor tetap dipakai, pendaftaran jalan", async () => {
+  const client = { rpc: async () => ({ data: "SPMB-2026-007", error: null }) };
+  const gagal = async () => { throw new Error("network"); };
+  assert.equal(await dctx.ambilNomorPendaftaran(client, "DKV", new Date(), gagal), "SPMB-2026-007");
+});
+
+test("nomorDipakaiOrangLain: nomor sama milik NISN lain = bentrok; milik NISN sendiri (kirim ulang) = aman", () => {
+  const rows = [{ noPendaftaran: "SPMB-2026-100", nisn: 9999000120 }];
+  assert.equal(dctx.bentrokNomor(rows, "SPMB-2026-100", "9999000124"), true);
+  assert.equal(dctx.bentrokNomor(rows, "SPMB-2026-100", "9999000120"), false);
+  assert.equal(dctx.bentrokNomor([{ noPendaftaran: "SPMB-2026-100", nisn: 12345678 }], "SPMB-2026-100", "0012345678"), false);
+  assert.equal(dctx.bentrokNomor(rows, "SPMB-2026-101", "9999000124"), false);
+});
