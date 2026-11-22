@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Login Petugas — SPMB SMK Tamansiswa Jetis</title>
+    <meta name="theme-color" content="#FAF7F2" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../assets/js/tailwind-config.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
+  </head>
+  <body class="bg-cream text-ink-900 antialiased">
+    <main class="flex min-h-screen items-center justify-center px-4 py-10">
+      <div class="w-full max-w-sm">
+        <div class="mb-6 flex items-center gap-2.5">
+          <span class="grid h-11 w-11 place-items-center rounded-2xl bg-brand-600 text-sm font-extrabold text-white">TN</span>
+          <span class="leading-tight">
+            <span class="block text-base font-extrabold">Admin SPMB</span>
+            <span class="block text-sm text-ink-500">SMK Tamansiswa Jetis</span>
+          </span>
+        </div>
+
+        <form id="loginForm" class="rounded-3xl border-2 border-line/40 bg-white p-6" novalidate>
+          <h1 class="text-2xl font-extrabold">Login petugas</h1>
+          <p class="mt-1 text-[15px] text-ink-600">Masuk dengan akun yang diberikan superadmin.</p>
+
+          <label for="username" class="mb-1.5 mt-5 block text-[15px] font-semibold">Username</label>
+          <input id="username" type="text" autocomplete="username" autocapitalize="none" class="w-full rounded-xl border-2 border-line px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none" placeholder="Contoh: bendahara" />
+
+          <label for="password" class="mb-1.5 mt-4 block text-[15px] font-semibold">Password</label>
+          <span class="relative block">
+            <input id="password" type="password" autocomplete="current-password" class="w-full rounded-xl border-2 border-line py-3 pl-3.5 pr-28 text-base focus:border-brand-600 focus:outline-none" />
+            <button type="button" id="togglePw" class="absolute inset-y-0 right-1.5 my-1.5 rounded-lg px-3 text-[14px] font-semibold text-brand-700 hover:bg-brand-50" aria-pressed="false">Lihat</button>
+          </span>
+
+          <p id="loginError" class="mt-4 hidden rounded-2xl bg-red-50 p-3 text-[15px] font-semibold text-red-700" role="alert"></p>
+
+          <button id="loginBtn" type="submit" class="mt-5 w-full rounded-full bg-brand-600 px-6 py-4 text-base font-bold text-white hover:bg-brand-700 disabled:opacity-60">Masuk</button>
+        </form>
+        <p class="mt-4 text-center text-sm text-ink-500">Lupa password? Hubungi superadmin.</p>
+      </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/app-config.js"></script>
+    <script src="../assets/js/admin-auth.js"></script>
+    <script>
+      (async () => {
+        // Sudah login sebagai petugas? langsung ke dashboard
+        const existing = await AdminAuth.getProfile().catch(() => null);
+        if (existing && AdminAuth.isStaffRole(existing.role)) return location.replace("dashboard.html");
+
+        const form = document.getElementById("loginForm");
+        const err = document.getElementById("loginError");
+        const btn = document.getElementById("loginBtn");
+        const pw = document.getElementById("password");
+        document.getElementById("togglePw").addEventListener("click", (e) => {
+          const show = pw.type === "password";
+          pw.type = show ? "text" : "password";
+          e.target.textContent = show ? "Sembunyikan" : "Lihat";
+          e.target.setAttribute("aria-pressed", String(show));
+        });
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const username = document.getElementById("username").value;
+          err.classList.add("hidden");
+          if (!username.trim() || !pw.value) {
+            err.textContent = "Isi username dan password.";
+            err.classList.remove("hidden");
+            return;
+          }
+          btn.disabled = true;
+          btn.textContent = "Memeriksa…";
+          const res = await AdminAuth.login(username, pw.value);
+          if (res.ok) return location.replace("dashboard.html");
+          err.textContent = res.error;
+          err.classList.remove("hidden");
+          btn.disabled = false;
+          btn.textContent = "Masuk";
+        });
+      })();
+    </script>
+  </body>
+</html>

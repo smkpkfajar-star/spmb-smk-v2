@@ -3,117 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tes Fisik & Seragam - Admin SPMB</title>
+    <meta name="robots" content="noindex" />
+    <title>Tes Fisik & Seragam — Admin SPMB</title>
+    <meta name="theme-color" content="#FAF7F2" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: { sans: ["Inter", "sans-serif"] },
-            colors: { brand: { 50: "#eef2ff", 100: "#e0e7ff", 500: "#6366f1", 600: "#4f46e5", 700: "#4338ca" } }
-          }
-        }
-      };
-    </script>
+    <script src="../assets/js/tailwind-config.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
   </head>
-  <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <a href="dashboard.html" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
-            <i class="fa-solid fa-arrow-left"></i>
-          </a>
-          <span class="font-bold text-lg text-slate-900">Modul Pengukuran Fisik & Seragam</span>
-        </div>
-        <button onclick="logoutAdmin()" class="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 px-3 py-2 rounded-xl">Keluar</button>
-      </div>
-    </header>
+  <body class="bg-cream text-ink-900 antialiased">
+    <header id="adminHeader" class="sticky top-0 z-40 bg-cream/95 backdrop-blur-sm"></header>
+    <main id="app" class="mx-auto max-w-6xl px-4 pb-16 pt-4 sm:px-6"><p class="text-[15px] text-ink-600">Memuat…</p></main>
 
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm overflow-x-auto">
-        <h2 class="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-ruler-vertical text-amber-600"></i> Pengukuran Fisik & Seragam Siswa
-        </h2>
-        <table class="w-full text-left text-xs text-slate-600 border-collapse">
-          <thead>
-            <tr class="bg-slate-50 text-slate-700 border-b border-slate-200">
-              <th class="p-3">No. Pendaftaran</th>
-              <th class="p-3">Nama Siswa</th>
-              <th class="p-3">Tinggi / Berat</th>
-              <th class="p-3">Ukuran Seragam</th>
-              <th class="p-3">Status Tes</th>
-              <th class="p-3 text-center">Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="fisikTableBody" class="divide-y divide-slate-100">
-            <tr><td colspan="6" class="p-4 text-center text-slate-400">Memuat data...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </main>
-
-    <script src="../assets/js/auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/app-config.js"></script>
+    <script src="../assets/js/sheetson.js"></script>
+    <script src="../assets/js/admin-auth.js"></script>
+    <script src="../assets/js/admin-ui.js"></script>
     <script>
-      checkAdminAccess(["tes-fisik"]);
+      (async () => {
+        const profile = await AdminAuth.requireRole(["tes_fisik"]);
+        AdminUI.renderShell(profile, "tes-fisik");
+        const esc = Sheetson.escapeHtml;
+        const num = (v, unit) => (Number(v) > 0 ? `${esc(v)} ${unit}` : "-");
+        const today = () => new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "-");
 
-      const SHEETSON_CONFIG = {
-        apiKey: "oGKHOLLKHVzlDAWCpD2zHUWGSj3G4o8l2vajRqzpBW6e3Ha1SgJWLRxwAPk",
-        spreadsheetId: "1vFCAMSse_I294GIaqVRKNP4L-Zpw8pr1EHgzJqxdYUs",
-      };
-
-      async function loadFisikData() {
-        const tbody = document.getElementById("fisikTableBody");
-        const res = await fetch(`https://api.sheetson.com/v2/sheets/Tes_Fisik_Seragam`, {
-          headers: {
-            Authorization: `Bearer ${SHEETSON_CONFIG.apiKey}`,
-            "X-Spreadsheet-Id": SHEETSON_CONFIG.spreadsheetId
-          }
+        AdminUI.modulePage({
+          sheet: "Tes_Fisik_Seragam",
+          title: "Tes Fisik & Seragam",
+          intro: "Isi hasil pengukuran, tes fisik, dan ukuran seragam.",
+          filter: { field: "statusTesFisik", label: "Status tes", options: ["Belum Tes", "Lulus Tes", "Tidak Lulus"] },
+          columns: [
+            { label: "Siswa", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="text-[13px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
+            { label: "Tinggi / Berat", render: (r) => `${num(r.tinggiBadan, "cm")} / ${num(r.beratBadan, "kg")}` },
+            { label: "Tato/Tindik", render: (r) => esc(r.tatoTindik || "-") },
+            { label: "Status tes", render: (r) => AdminUI.badge(r.statusTesFisik || "Belum Tes") },
+            { label: "Seragam", render: (r) => `<b>${esc(r.ukuranSeragam || "-")}</b>` + (r.tglUkurSeragam && r.tglUkurSeragam !== "-" ? `<br><span class="text-[13px] text-ink-500">${esc(r.tglUkurSeragam)}</span>` : "") },
+            { label: "Catatan", render: (r) => esc(r.catatanTesFisik && r.catatanTesFisik !== "-" ? r.catatanTesFisik : "") },
+          ],
+          editTitle: (r) => `Tes fisik: ${r.namaLengkap || r.noPendaftaran}`,
+          fields: [
+            { name: "tinggiBadan", label: "Tinggi badan (cm)", type: "number" },
+            { name: "beratBadan", label: "Berat badan (kg)", type: "number" },
+            { name: "tatoTindik", label: "Tato / tindik", type: "select", options: ["-", "Tidak Ada", "Ada"] },
+            { name: "statusTesFisik", label: "Hasil tes fisik", type: "select", options: ["Belum Tes", "Lulus Tes", "Tidak Lulus"] },
+            { name: "ukuranSeragam", label: "Ukuran seragam", type: "select", options: ["-", "S", "M", "L", "XL", "XXL"], help: "Tanggal ukur terisi otomatis saat ukuran diubah." },
+            { name: "catatanTesFisik", label: "Catatan", type: "textarea" },
+          ],
+          beforeSave: (changes) => {
+            if (changes.ukuranSeragam && changes.ukuranSeragam !== "-") changes.tglUkurSeragam = today();
+            return changes;
+          },
         });
-        const json = await res.json();
-        const rows = json.data || json.results || [];
-
-        tbody.innerHTML = rows.map((r) => `
-          <tr class="hover:bg-slate-50">
-            <td class="p-3 font-mono font-bold text-brand-600">${r.noPendaftaran || "-"}</td>
-            <td class="p-3 font-semibold text-slate-900">${r.namaLengkap || "-"}</td>
-            <td class="p-3">${r.tinggiBadan || 0} cm / ${r.beratBadan || 0} kg</td>
-            <td class="p-3"><span class="bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded border border-amber-200">${r.ukuranSeragam || "-"}</span></td>
-            <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${r.statusTesFisik === 'Lulus Tes' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}">${r.statusTesFisik || "Belum Tes"}</span></td>
-            <td class="p-3 text-center">
-              <button onclick="updateFisikPrompt('${r.rowIndex}')" class="bg-brand-600 hover:bg-brand-700 text-white px-2.5 py-1 rounded-lg text-[11px] transition">Input Hasil</button>
-            </td>
-          </tr>
-        `).join("");
-      }
-
-      async function updateFisikPrompt(rowIndex) {
-        const tinggiBadan = prompt("Tinggi Badan (cm):", "165");
-        const beratBadan = prompt("Berat Badan (kg):", "55");
-        const ukuranSeragam = prompt("Ukuran Seragam (S/M/L/XL/XXL):", "L");
-
-        if (tinggiBadan && beratBadan && ukuranSeragam) {
-          await fetch(`https://api.sheetson.com/v2/sheets/Tes_Fisik_Seragam/${rowIndex}`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${SHEETSON_CONFIG.apiKey}`,
-              "X-Spreadsheet-Id": SHEETSON_CONFIG.spreadsheetId
-            },
-            body: JSON.stringify({
-              tinggiBadan: Number(tinggiBadan),
-              beratBadan: Number(beratBadan),
-              ukuranSeragam,
-              statusTesFisik: "Lulus Tes"
-            })
-          });
-          alert("Data fisik dan ukuran seragam tersimpan!");
-          loadFisikData();
-        }
-      }
-
-      document.addEventListener("DOMContentLoaded", loadFisikData);
+      })();
     </script>
   </body>
 </html>
