@@ -333,52 +333,51 @@
       </footer>
     </main>
     <!-- ======================= PANEL SISWA (#login) ======================= -->
-    <div id="siswaPanel" class="fixed inset-0 z-[60] hidden overflow-y-auto bg-white" role="dialog" aria-modal="true" aria-label="Login siswa">
-      <div class="sticky top-0 z-10 border-b border-hairline bg-white/90 backdrop-blur">
-        <div class="mx-auto flex h-16 max-w-[1080px] items-center justify-between gap-3 px-4 sm:px-6">
-          <span class="flex items-center gap-2.5">
+    <div id="siswaPanel" class="fixed inset-0 z-[60] hidden flex-col overflow-y-auto bg-white" role="dialog" aria-modal="true" aria-label="Login siswa">
+      <div class="sticky top-0 z-10 shrink-0 border-b border-hairline bg-white/90 backdrop-blur">
+        <div class="mx-auto flex h-14 max-w-[1080px] items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
+          <a href="./" id="siswaHome" class="flex items-center gap-2.5 rounded-md" aria-label="Kembali ke beranda">
             <span class="grid h-8 w-8 place-items-center rounded-lg bg-ok-700 font-mono text-[13px] font-medium text-white">TS</span>
-            <span class="text-[15px] font-semibold tracking-tight">Tamansiswa Jetis <span class="text-ink-500">/ Siswa</span></span>
-          </span>
-          <button id="siswaClose" type="button" class="rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand">Tutup</button>
+            <span class="whitespace-nowrap text-[15px] font-semibold tracking-tight">Tamansiswa Jetis <span class="hidden text-ink-500 sm:inline">/ Siswa</span></span>
+          </a>
+          <button id="siswaClose" type="button" class="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_#D4D4D4] hover:bg-sand" aria-label="Tutup dan kembali ke beranda">
+            <span aria-hidden="true">←</span> Beranda
+          </button>
         </div>
       </div>
 
       <!-- Login -->
-      <section id="loginView" class="hidden">
-        <div class="hero-bg">
-          <div class="mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1000px] items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.1fr_380px] lg:gap-16">
+      <section id="loginView" class="hidden min-h-0 flex-1">
+        <div class="hero-bg flex h-full items-center">
+          <div class="mx-auto grid w-full max-w-[1000px] items-center gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[1.1fr_380px] lg:gap-16">
             <div class="text-center lg:text-left">
-              <span class="tag" style="--dot:#EC4899">akun/siswa</span>
-              <h2 class="display mt-5 text-[38px] sm:text-[52px] lg:text-[60px]">Lengkapi berkas pendaftaranmu.</h2>
-              <p class="mx-auto mt-5 max-w-md text-[17px] leading-relaxed text-ink-600 lg:mx-0">
+              <span class="tag hidden sm:inline-flex" style="--dot:#EC4899">akun/siswa</span>
+              <h2 class="display text-[30px] sm:mt-4 sm:text-[44px] lg:text-[60px]">Lengkapi berkas pendaftaranmu.</h2>
+              <p class="mx-auto mt-4 hidden max-w-md text-[17px] leading-relaxed text-ink-600 sm:block lg:mx-0 [@media(max-height:760px)]:hidden">
                 Unggah ijazah/SKL yang menyusul, pantau status, dan baca catatan dari panitia.
               </p>
             </div>
 
-            <div>
-              <form id="loginForm" class="rounded-xl border border-hairline bg-white p-5 shadow-soft sm:p-6" novalidate>
-                <label for="nisn" class="sr-only">NISN</label>
-                <input id="nisn" type="text" inputmode="numeric" maxlength="10" autocomplete="username" class="w-full rounded-lg border border-line/50 px-4 py-3.5 text-[17px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/25" placeholder="NISN (10 angka)" />
-                <label for="password" class="sr-only">Password</label>
-                <span class="relative mt-3 block">
-                  <input id="password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-line/50 py-3.5 pl-4 pr-24 text-[17px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/25" placeholder="Password" />
-                  <button type="button" id="togglePw" class="absolute inset-y-0 right-1.5 my-1.5 rounded-md px-3 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900" aria-pressed="false">Lihat</button>
-                </span>
-                <p id="loginError" class="hidden" role="alert"></p>
-                <button id="loginBtn" type="submit" class="btn mt-4 h-12 w-full rounded-full bg-ink-900 text-[16px] font-semibold text-white disabled:opacity-60">Masuk</button>
-                <div class="mt-4 text-center">
-                  <button type="button" id="lupaBtn" class="text-[14px] font-medium text-ink-600 hover:text-ink-900" aria-expanded="false" aria-controls="lupaInfo">Lupa password?</button>
-                </div>
-                <div id="lupaInfo" class="mt-3 hidden rounded-lg bg-sand p-4 text-[14px] leading-relaxed text-ink-600">
-                  Password direset oleh panitia. Kirim NISN dan nama lengkapmu ke
-                  <a href="https://wa.me/628823212784?text=Halo%20panitia%20SPMB%2C%20saya%20lupa%20password%20akun%20siswa.%20NISN%3A%20" target="_blank" rel="noopener" class="font-medium text-ink-900 underline">WhatsApp panitia</a>.
-                </div>
-                <div class="my-5 h-px bg-hairline" aria-hidden="true"></div>
-                <a href="daftar/" class="btn flex h-12 items-center justify-center rounded-full text-[15px] font-semibold shadow-[inset_0_0_0_1px_#D4D4D4]">Belum daftar? Isi formulir</a>
-              </form>
-              <p class="mt-4 text-center text-[13.5px] text-ink-500">Login memakai NISN + password yang dibuat saat mendaftar.</p>
-            </div>
+            <form id="loginForm" class="w-full rounded-xl border border-hairline bg-white p-4 shadow-soft sm:p-6" novalidate>
+              <label for="nisn" class="sr-only">NISN</label>
+              <input id="nisn" type="text" inputmode="numeric" maxlength="10" autocomplete="username" class="w-full rounded-lg border border-line/50 px-4 py-3 text-[17px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/25" placeholder="NISN (10 angka)" />
+              <label for="password" class="sr-only">Password</label>
+              <span class="relative mt-2.5 block">
+                <input id="password" type="password" autocomplete="current-password" class="w-full rounded-lg border border-line/50 py-3 pl-4 pr-24 text-[17px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/25" placeholder="Password" />
+                <button type="button" id="togglePw" class="absolute inset-y-0 right-1.5 my-1.5 rounded-md px-3 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900" aria-pressed="false">Lihat</button>
+              </span>
+              <p id="loginError" class="hidden" role="alert"></p>
+              <button id="loginBtn" type="submit" class="btn mt-3 h-12 w-full rounded-full bg-ink-900 text-[16px] font-semibold text-white disabled:opacity-60">Masuk</button>
+              <div class="mt-3 flex items-center justify-between gap-3 text-[14px]">
+                <button type="button" id="lupaBtn" class="font-medium text-ink-600 hover:text-ink-900" aria-expanded="false" aria-controls="lupaInfo">Lupa password?</button>
+                <a href="daftar/" class="font-medium text-ink-900 underline-offset-4 hover:underline">Belum daftar?</a>
+              </div>
+              <div id="lupaInfo" class="mt-3 hidden rounded-lg bg-sand p-3 text-[13.5px] leading-relaxed text-ink-600">
+                Password direset oleh panitia. Kirim NISN dan nama lengkapmu ke
+                <a href="https://wa.me/628823212784?text=Halo%20panitia%20SPMB%2C%20saya%20lupa%20password%20akun%20siswa.%20NISN%3A%20" target="_blank" rel="noopener" class="font-medium text-ink-900 underline">WhatsApp panitia</a>.
+              </div>
+              <p class="mt-3 border-t border-hairline pt-3 text-center text-[12.5px] text-ink-500">Login memakai NISN + password yang dibuat saat mendaftar.</p>
+            </form>
           </div>
         </div>
       </section>

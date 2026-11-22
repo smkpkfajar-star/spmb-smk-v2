@@ -172,6 +172,7 @@
     const panel = $("siswaPanel");
     if (!panel) return;
     panel.classList.toggle("hidden", !open);
+    panel.classList.toggle("flex", open);
     document.documentElement.classList.toggle("overflow-hidden", open);
     if (open) {
       start();
@@ -192,6 +193,12 @@
     root.addEventListener("hashchange", sync);
     root.addEventListener("popstate", sync);
     $("siswaClose").addEventListener("click", closePanel);
+    // Logo = kembali ke beranda (tutup panel, tanpa memuat ulang halaman)
+    $("siswaHome").addEventListener("click", (e) => {
+      e.preventDefault();
+      closePanel();
+      root.scrollTo({ top: 0, behavior: "smooth" });
+    });
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && !$("siswaPanel").classList.contains("hidden")) closePanel();
     });
