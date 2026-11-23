@@ -287,6 +287,19 @@ function initBerkasInfo() {
   const input = document.getElementById("berkasFile");
   const info = document.getElementById("berkasInfo");
   if (!input || !info) return;
+  // Dua pilihan unggah: foto langsung (kamera) atau pilih berkas
+  if (window.PilihBerkas) {
+    window.PilihBerkas.siapkan(document.querySelector("#bagian-3 [data-pilih-berkas]"));
+    window.PilihBerkas.pasang({
+      kamera: document.getElementById("berkasKamera"),
+      target: input,
+      saatProses: (on) => {
+        if (!on) return;
+        info.textContent = "Menyiapkan foto…";
+        info.classList.remove("hidden");
+      },
+    });
+  }
   input.addEventListener("change", () => {
     const file = input.files && input.files[0];
     if (!file) {

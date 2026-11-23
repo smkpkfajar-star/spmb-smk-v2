@@ -247,6 +247,18 @@
       const f = $("fileInput").files[0];
       $("fileName").textContent = f ? `${f.name} (${Math.max(1, Math.round(f.size / 1024))} KB)` : "";
     });
+    // Dua pilihan unggah: foto langsung (kamera) atau pilih berkas
+    if (root.PilihBerkas) {
+      root.PilihBerkas.siapkan(document.querySelector("#uploadBox [data-pilih-berkas]"));
+      root.PilihBerkas.pasang({
+        kamera: $("kameraInput"),
+        target: $("fileInput"),
+        saatProses: (on) => {
+          $("uploadBtn").disabled = on;
+          if (on) $("fileName").textContent = "Menyiapkan foto…";
+        },
+      });
+    }
     $("uploadBtn").addEventListener("click", () => upload(user));
     $("reloadBtn").addEventListener("click", () => user && loadHome(user));
     // Unduh ulang bukti pendaftaran — dibuat dari data terbaru di sheet
