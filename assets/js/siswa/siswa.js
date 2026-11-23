@@ -104,6 +104,12 @@
       )
       .join("")}</ol>`;
   }
+  // Label nama berkas di tombol unggah (sama seperti formulir pendaftaran)
+  const ukuranTeks = (n) => (n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
+  function infoBerkas(teks) {
+    $("fileName").textContent = teks;
+    $("fileName").classList.toggle("hidden", !teks);
+  }
   function msg(el, text, good) {
     el.textContent = text;
     el.className = `mt-3 rounded-md p-3 text-[14.5px] font-medium ${good ? "bg-ok-50 text-ok-700" : "bg-red-50 text-red-700"}`;
@@ -195,7 +201,7 @@
         statusBerkas: "Sudah Unggah",
       });
       input.value = "";
-      $("fileName").textContent = "";
+      infoBerkas("");
       msg(info, `✓ ${file.name} berhasil diunggah. Panitia akan memeriksanya.`, true);
       await loadHome(user);
     } catch (e) {
@@ -245,7 +251,7 @@
     });
     $("fileInput").addEventListener("change", () => {
       const f = $("fileInput").files[0];
-      $("fileName").textContent = f ? `${f.name} (${Math.max(1, Math.round(f.size / 1024))} KB)` : "";
+      infoBerkas(f ? `✓ ${f.name} (${ukuranTeks(f.size)})` : "");
     });
     // Dua pilihan unggah: foto langsung (kamera) atau pilih berkas
     if (root.PilihBerkas) {
@@ -255,7 +261,7 @@
         target: $("fileInput"),
         saatProses: (on) => {
           $("uploadBtn").disabled = on;
-          if (on) $("fileName").textContent = "Menyiapkan foto…";
+          if (on) infoBerkas("Menyiapkan foto…");
         },
       });
     }

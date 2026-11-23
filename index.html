@@ -423,11 +423,15 @@
             <h3 class="text-[16px] font-semibold">Unggah berkas tambahan</h3>
             <p class="mt-0.5 text-[14px] text-ink-600">Ijazah/SKL, KK, kartu pelajar, atau berkas yang diminta panitia.</p>
             <!-- Satu tombol → pop-up pilihan: Ambil foto / Pilih berkas -->
-            <button type="button" id="unggahTombol" class="mt-4 flex w-full flex-col items-center justify-center gap-1.5 border border-dashed border-line/60 px-4 py-7 text-center transition hover:border-ink-900 hover:bg-sand/60">
-              <span class="text-ink-600"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></span>
-              <span class="text-[14.5px] font-medium">Unggah berkas</span>
-              <span class="text-[12.5px] text-ink-500">Ambil foto atau pilih file · maks. 5 MB</span>
-              <span id="fileName" class="text-[14px] font-medium text-ink-900"></span>
+            <!-- Sama persis dengan kotak unggah di formulir pendaftaran -->
+            <button type="button" id="unggahTombol" class="hero-bg mt-4 flex w-full cursor-pointer flex-col items-center justify-center gap-2 border-[1.5px] border-dashed border-line px-4 py-10 text-center hover:border-ink-900"><span class="cahaya" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <span class="grid h-12 w-12 place-items-center rounded-full bg-white shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+              </span>
+              <span class="text-base font-semibold">Unggah berkas</span>
+              <span class="text-[14px] text-ink-600">Ambil foto atau pilih file</span>
+              <span class="font-mono text-[12.8px] text-ink-500">Ijazah/SKL · KK · kartu pelajar — maks. 5 MB</span>
+              <span id="fileName" class="hidden rounded-full bg-ok-50 px-3 py-1 text-[13px] font-semibold text-ok-700"></span>
             </button>
             <input id="kameraInput" type="file" accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true" />
             <input id="fileInput" type="file" accept=".pdf, .jpg, .jpeg, .png" class="sr-only" tabindex="-1" aria-label="Berkas" />
