@@ -951,7 +951,7 @@
         <div class="hidden max-h-[calc(100vh-12rem)] overflow-auto rounded-lg border border-hairline bg-white md:block">
           <table class="w-full border-separate border-spacing-0 text-left text-[14px] leading-snug">
             <thead class="text-[12.5px] text-ink-500">
-              <tr>${columns.map(th).join("")}<th scope="col" class="sticky right-0 top-0 z-[3] border-b border-hairline bg-brand-50 px-4 py-3 shadow-[-1px_0_0_rgb(var(--hairline))]"><span class="sr-only">Aksi</span></th></tr>
+              <tr>${columns.map(th).join("")}<th scope="col" class="sticky right-0 top-0 z-[3] whitespace-nowrap border-b border-hairline bg-brand-50 px-4 py-3 text-left font-medium shadow-[-1px_0_0_rgb(var(--hairline))]">Aksi</th></tr>
             </thead>
             <tbody>
               ${pg.items
