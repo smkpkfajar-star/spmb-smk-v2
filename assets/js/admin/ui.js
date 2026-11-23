@@ -356,33 +356,53 @@
       </div>`;
     document.body.appendChild(aside);
 
-    // Ciutkan/buka sub-menu; pilihan diingat per browser
-    const KUNCI_SUB = (id) => `spmb-admin-sub-${id}`;
-    const aturSub = (tombol, buka, simpan) => {
+    // Sub-menu: TERTUTUP saat panel dibuka (panel tetap ringkas). Dibuka lewat panah
+    // atau klik menu induknya; buka/tutup beranimasi halus (tinggi + transparansi).
+    const aturSub = (tombol, buka, halus) => {
       const id = tombol.dataset.subToggle;
       const wadah = aside.querySelector(`#sub-${id}`);
-      if (wadah) wadah.hidden = !buka;
       tombol.setAttribute("aria-expanded", String(buka));
       const panah = tombol.querySelector("[data-panah]");
       if (panah) panah.style.transform = buka ? "" : "rotate(-90deg)";
-      if (simpan) {
-        try {
-          if (buka) localStorage.removeItem(KUNCI_SUB(id));
-          else localStorage.setItem(KUNCI_SUB(id), "tutup");
-        } catch {}
+      if (!wadah) return;
+      wadah.style.overflow = "hidden";
+      const gerak = halus && !(root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      if (!gerak) {
+        wadah.hidden = !buka;
+        wadah.style.maxHeight = "";
+        return;
+      }
+      wadah.style.transition = "max-height .22s ease, opacity .22s ease";
+      if (buka) {
+        wadah.hidden = false;
+        wadah.style.maxHeight = "0px";
+        wadah.style.opacity = "0";
+        requestAnimationFrame(() => {
+          wadah.style.maxHeight = wadah.scrollHeight + "px";
+          wadah.style.opacity = "1";
+        });
+        setTimeout(() => tombol.getAttribute("aria-expanded") === "true" && (wadah.style.maxHeight = ""), 260);
+      } else {
+        wadah.style.maxHeight = wadah.scrollHeight + "px";
+        requestAnimationFrame(() => {
+          wadah.style.maxHeight = "0px";
+          wadah.style.opacity = "0";
+        });
+        setTimeout(() => tombol.getAttribute("aria-expanded") === "false" && (wadah.hidden = true), 240);
       }
     };
-    aside.querySelectorAll("[data-sub-toggle]").forEach((t) => {
-      let tutup = false;
-      try {
-        tutup = localStorage.getItem(KUNCI_SUB(t.dataset.subToggle)) === "tutup";
-      } catch {}
-      aturSub(t, !tutup, false);
-    });
+    aside.querySelectorAll("[data-sub-toggle]").forEach((t) => aturSub(t, false, false));
     aside.addEventListener("click", (e) => {
       const t = e.target.closest("[data-sub-toggle]");
-      if (t) aturSub(t, t.getAttribute("aria-expanded") !== "true", true);
+      if (t) return aturSub(t, t.getAttribute("aria-expanded") !== "true", true);
+      // klik menu induk (mis. "Superadmin") ikut membuka sub-menunya
+      const induk = e.target.closest("a[data-nav]");
+      const panah = induk && aside.querySelector(`[data-sub-toggle="${induk.dataset.nav}"]`);
+      if (panah && panah.getAttribute("aria-expanded") !== "true") aturSub(panah, true, true);
     });
+    try {
+      Object.keys(localStorage).filter((k) => k.startsWith("spmb-admin-sub-")).forEach((k) => localStorage.removeItem(k));
+    } catch {}
 
     const overlay = document.createElement("div");
     overlay.className = "fixed inset-0 z-40 hidden bg-black/30 lg:hidden";
