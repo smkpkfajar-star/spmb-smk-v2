@@ -73,45 +73,32 @@
 
   function show(id) {
     ["loginView", "homeView"].forEach((v) => $(v).classList.toggle("hidden", v !== id));
-    // Tombol Keluar di bilah atas hanya muncul saat sudah login (selalu terlihat walau digulir)
-    const masuk = id === "homeView";
-    $("logoutTop").classList.toggle("hidden", !masuk);
-    $("logoutTop").classList.toggle("flex", masuk);
-    // Di HP, label "Beranda" disembunyikan agar tombol Keluar muat
-    $("labelBeranda").classList.toggle("hidden", masuk);
-    $("labelBeranda").classList.toggle("sm:inline", masuk);
   }
 
-  const WARNA_NADA = {
-    ok: "bg-ok-50 text-ok-700",
-    bad: "bg-red-50 text-red-700",
-    info: "bg-info-50 text-info-700",
-    wait: "bg-warn-50 text-warn-700",
-  };
+  // Tampilan dibuat netral (hitam-abu); warna hanya pada titik kecil status
   const TITIK_NADA = { ok: "#16A34A", bad: "#DC2626", info: "#0284C7", wait: "#D97706" };
-  const badgeSiswa = (text) => {
-    const n = nadaStatus(text);
-    return `<span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[13.5px] font-semibold leading-tight sm:text-[14px] ${WARNA_NADA[n]}"><span class="h-2 w-2 rounded-full" style="background:${TITIK_NADA[n]}" aria-hidden="true"></span>${esc(text)}</span>`;
-  };
-  const IKON_CENTANG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`;
-  const IKON_BERKAS = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>`;
+  const statusTeks = (text) =>
+    `<span class="flex items-start gap-2 text-[15px] font-medium leading-snug"><span class="mt-[7px] h-2 w-2 shrink-0 rounded-full" style="background:${TITIK_NADA[nadaStatus(text)]}" aria-hidden="true"></span>${esc(text)}</span>`;
+  const IKON_CENTANG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`;
+  const IKON_BERKAS = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>`;
   const STATE_TEKS = { done: "selesai", now: "sedang berjalan", todo: "belum", bad: "perlu perhatian" };
 
   function langkahHtml(row) {
     const daftar = langkahSiswa(row);
     const bulat = (l, i) => {
-      if (l.state === "done") return `<span class="grid h-9 w-9 place-items-center rounded-full" style="background:#16523A;color:#fff">${IKON_CENTANG}</span>`;
-      if (l.state === "bad") return `<span class="grid h-9 w-9 place-items-center rounded-full bg-red-600 text-[16px] font-bold" style="color:#fff">!</span>`;
-      if (l.state === "now") return `<span class="grid h-9 w-9 place-items-center rounded-full bg-pink-50 text-[15px] font-bold text-pink-600 shadow-[0_0_0_2px_#EC4899]">${i + 1}</span>`;
-      return `<span class="grid h-9 w-9 place-items-center rounded-full bg-sand text-[15px] font-semibold text-ink-500 shadow-[inset_0_0_0_1px_rgb(var(--hairline))]">${i + 1}</span>`;
+      const dasar = "grid h-8 w-8 place-items-center rounded-full text-[13.5px]";
+      if (l.state === "done") return `<span class="${dasar} bg-ink-900 text-cream">${IKON_CENTANG}</span>`;
+      if (l.state === "bad") return `<span class="${dasar} bg-white font-bold text-red-600 shadow-[inset_0_0_0_2px_#DC2626]">!</span>`;
+      if (l.state === "now") return `<span class="${dasar} bg-white font-semibold text-ink-900 shadow-[inset_0_0_0_2px_rgb(var(--ink-900))]">${i + 1}</span>`;
+      return `<span class="${dasar} bg-white text-ink-500 shadow-[inset_0_0_0_1px_rgb(var(--hairline))]">${i + 1}</span>`;
     };
-    return `<ol class="mt-4 grid grid-cols-4" aria-label="Tahapan pendaftaran">${daftar
+    return `<ol class="mt-5 grid grid-cols-4" aria-label="Tahapan pendaftaran">${daftar
       .map(
         (l, i) => `<li class="relative flex flex-col items-center text-center">
-          ${i < daftar.length - 1 ? `<span class="absolute left-1/2 top-[17px] h-0.5 w-full ${l.state === "done" ? "" : "bg-hairline"}" style="${l.state === "done" ? "background:#16523A" : ""}" aria-hidden="true"></span>` : ""}
+          ${i < daftar.length - 1 ? `<span class="absolute left-1/2 top-[15px] h-px w-full ${l.state === "done" ? "bg-ink-900" : "bg-hairline"}" aria-hidden="true"></span>` : ""}
           <span class="relative">${bulat(l, i)}</span>
-          <span class="mt-2 text-[13.5px] font-semibold sm:text-[14.5px] ${l.state === "todo" ? "text-ink-500" : ""}">${esc(l.label)}</span>
-          <span class="mt-0.5 px-1 text-[12px] leading-snug sm:text-[13px] ${l.state === "bad" ? "font-medium text-red-700" : l.state === "now" ? "font-medium text-pink-600" : "text-ink-500"}">${esc(l.ket)}</span>
+          <span class="mt-2 text-[13px] font-medium sm:text-[14px] ${l.state === "todo" ? "text-ink-500" : ""}">${esc(l.label)}</span>
+          <span class="mt-0.5 px-1 text-[11.5px] leading-snug sm:text-[12.5px] ${l.state === "bad" ? "text-red-700" : "text-ink-500"}">${esc(l.ket)}</span>
           <span class="sr-only">(${STATE_TEKS[l.state]})</span>
         </li>`,
       )
@@ -126,18 +113,18 @@
     show("homeView");
     const nisn = nisnFromEmail(user.email);
     $("homeNisn").textContent = nisn;
-    $("homeNama").textContent = "Halo 👋";
-    $("homeMeta").innerHTML = "";
-    $("homeBody").innerHTML = `<div class="border border-hairline bg-white p-5 sm:p-6" aria-hidden="true"><div class="skeleton h-5 w-48"></div><div class="mt-5 grid grid-cols-4 gap-3"><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div><div class="skeleton h-16"></div></div></div><div class="mt-4 grid gap-3 sm:grid-cols-2" aria-hidden="true"><div class="skeleton h-20"></div><div class="skeleton h-20"></div></div><span class="sr-only">Memuat data</span>`;
+    $("homeNama").textContent = "Halo";
+    $("homeMeta").textContent = "";
+    $("homeBody").innerHTML = `<div class="border border-hairline bg-white p-5 sm:p-6" aria-hidden="true"><div class="skeleton h-4 w-40"></div><div class="mt-5 grid grid-cols-4 gap-3"><div class="skeleton h-14"></div><div class="skeleton h-14"></div><div class="skeleton h-14"></div><div class="skeleton h-14"></div></div></div><span class="sr-only">Memuat data</span>`;
     let row = null;
     try {
       row = findMyRow(await root.Sheetson.getRows(SHEET), nisn);
     } catch (e) {
-      $("homeBody").innerHTML = `<p class="rounded-2xl bg-red-50 p-4 text-[15px] font-semibold text-red-700">${esc(e.message)}. Periksa internet lalu muat ulang.</p>`;
+      $("homeBody").innerHTML = `<p class="bg-red-50 p-4 text-[15px] font-medium text-red-700">${esc(e.message)}. Periksa internet lalu muat ulang.</p>`;
       return;
     }
     if (!row) {
-      $("homeBody").innerHTML = `<p class="rounded-lg bg-warn-50 p-4 text-[15px] font-semibold text-warn-700">Data pendaftaran Anda belum terbaca. Tunggu beberapa menit lalu tekan Muat ulang. Kalau tetap tidak muncul, hubungi panitia.</p>`;
+      $("homeBody").innerHTML = `<p class="border border-hairline bg-white p-4 text-[15px] text-ink-600">Data pendaftaranmu belum terbaca. Tunggu beberapa menit lalu muat ulang. Kalau tetap tidak muncul, hubungi panitia.</p>`;
       $("uploadBox").classList.add("hidden");
       return;
     }
@@ -146,43 +133,38 @@
     const names = String(row.namaBerkas || "").split(/\r?\n/);
     const catatan = row.catatanAdmin && row.catatanAdmin !== "-" && !/^Berkas gagal diunggah otomatis/.test(row.catatanAdmin) ? row.catatanAdmin : "";
     const nama = String(row.namaLengkap || "").trim();
-    $("homeNama").textContent = nama && nama !== "-" ? `Halo, ${nama} 👋` : "Halo 👋";
-    const chip = (label, isi, mono) =>
-      `<span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[13.5px]" style="background:rgba(255,255,255,.12);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)"><span style="color:rgba(255,255,255,.7)">${label}</span><b class="${mono ? "font-mono " : ""}font-semibold">${esc(isi)}</b></span>`;
-    $("homeMeta").innerHTML = chip("No.", row.noPendaftaran || "-", true) + chip("Jurusan", row.jurusan1 || "-");
+    $("homeNama").textContent = nama && nama !== "-" ? `Halo, ${nama}` : "Halo";
+    $("homeMeta").textContent = `${row.noPendaftaran || "-"} · ${row.jurusan1 || "-"}`;
     const statusDaftar = row.statusPendaftaran && row.statusPendaftaran !== "-" ? row.statusPendaftaran : "Pending";
     const statusBerkas = row.statusBerkas && row.statusBerkas !== "-" ? row.statusBerkas : "Belum Unggah";
     $("homeBody").innerHTML = `
       <div class="border border-hairline bg-white p-5 sm:p-6">
-        <h3 class="text-[17px] font-semibold">Tahapan pendaftaranmu</h3>
+        <h3 class="text-[16px] font-semibold">Tahapan pendaftaran</h3>
         ${langkahHtml(row)}
+        <dl class="mt-5 grid grid-cols-2 gap-4 border-t border-hairline pt-4">
+          <div><dt class="text-[12.5px] text-ink-500">Status pendaftaran</dt><dd class="mt-1">${statusTeks(statusDaftar)}</dd></div>
+          <div><dt class="text-[12.5px] text-ink-500">Status berkas</dt><dd class="mt-1">${statusTeks(statusBerkas)}</dd></div>
+        </dl>
       </div>
-      <dl class="mt-4 grid grid-cols-2 gap-3">
-        <div class="border border-hairline bg-white p-4 sm:p-5"><dt class="text-[13px] font-medium text-ink-500">Status pendaftaran</dt><dd class="mt-2">${badgeSiswa(statusDaftar)}</dd></div>
-        <div class="border border-hairline bg-white p-4 sm:p-5"><dt class="text-[13px] font-medium text-ink-500">Status berkas</dt><dd class="mt-2">${badgeSiswa(statusBerkas)}</dd></div>
-      </dl>
       ${
         catatan
-          ? `<div class="mt-4 flex gap-3 border-l-4 bg-warn-50 p-4" style="border-color:#F2B53A"><span class="text-[18px] leading-none" aria-hidden="true">📌</span><div><p class="text-[13px] font-semibold uppercase tracking-wide text-warn-700">Catatan panitia</p><p class="mt-1 whitespace-pre-line text-[15px] text-warn-700">${esc(catatan)}</p></div></div>`
+          ? `<div class="mt-3 border border-hairline border-l-2 border-l-ink-900 bg-white p-4 sm:px-6"><p class="text-[12.5px] text-ink-500">Catatan panitia</p><p class="mt-1 whitespace-pre-line text-[15px]">${esc(catatan)}</p></div>`
           : ""
       }
-      <div class="mt-4 border border-hairline bg-white p-5 sm:p-6">
-        <div class="flex items-center justify-between gap-3">
-          <h3 class="text-[17px] font-semibold">Berkas yang sudah diunggah</h3>
-          <span class="rounded-full bg-sand px-2.5 py-0.5 font-mono text-[12.5px] text-ink-600">${urls.length}</span>
-        </div>
+      <div class="mt-3 border border-hairline bg-white p-5 sm:p-6">
+        <h3 class="text-[16px] font-semibold">Berkas terunggah <span class="font-normal text-ink-500">(${urls.length})</span></h3>
         ${
           urls.length
-            ? `<ul class="mt-3 divide-y divide-hairline border-y border-hairline">${urls
+            ? `<ul class="mt-3 divide-y divide-hairline border-t border-hairline">${urls
                 .map(
-                  (u, i) => `<li><a href="${esc(u.trim())}" target="_blank" rel="noopener" class="group flex items-center gap-3 py-3 hover:bg-sand/60">
-                    <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sand text-ink-600">${IKON_BERKAS}</span>
-                    <span class="min-w-0 flex-1 truncate text-[15px] font-medium">${esc(names[i] && names[i] !== "-" ? names[i] : "Berkas " + (i + 1))}</span>
-                    <span class="shrink-0 pr-1 text-[13.5px] font-medium text-ink-500 group-hover:text-ink-900">Lihat ↗</span>
+                  (u, i) => `<li><a href="${esc(u.trim())}" target="_blank" rel="noopener" class="group flex items-center gap-3 py-3">
+                    <span class="shrink-0 text-ink-500">${IKON_BERKAS}</span>
+                    <span class="min-w-0 flex-1 truncate text-[15px] group-hover:underline">${esc(names[i] && names[i] !== "-" ? names[i] : "Berkas " + (i + 1))}</span>
+                    <span class="shrink-0 text-[13px] text-ink-500 group-hover:text-ink-900">Lihat ↗</span>
                   </a></li>`,
                 )
                 .join("")}</ul>`
-            : `<p class="mt-3 bg-sand/70 p-4 text-center text-[14.5px] text-ink-600">Belum ada berkas. Unggah ijazah/SKL di bawah ini.</p>`
+            : `<p class="mt-1 text-[14.5px] text-ink-500">Belum ada berkas.</p>`
         }
       </div>`;
     $("uploadBox").dataset.row = row.rowIndex;
@@ -267,43 +249,12 @@
     });
     $("uploadBtn").addEventListener("click", () => upload(user));
     $("reloadBtn").addEventListener("click", () => user && loadHome(user));
-    let pemicuKeluar = null;
-    const bukaKeluar = (e) => {
-      pemicuKeluar = e.currentTarget;
-      $("keluarDialog").classList.remove("hidden");
-      $("keluarDialog").classList.add("flex");
-      $("keluarBatal").focus();
-    };
-    const tutupKeluar = () => {
-      $("keluarDialog").classList.add("hidden");
-      $("keluarDialog").classList.remove("flex");
-      if (pemicuKeluar && !pemicuKeluar.closest(".hidden")) pemicuKeluar.focus();
-    };
-    $("logoutBtn").addEventListener("click", bukaKeluar);
-    $("logoutTop").addEventListener("click", bukaKeluar);
-    $("keluarBatal").addEventListener("click", tutupKeluar);
-    $("keluarDialog").addEventListener("click", (e) => e.target === e.currentTarget && tutupKeluar());
-    $("keluarDialog").addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        e.stopPropagation();
-        tutupKeluar();
-      } else if (e.key === "Tab") {
-        // fokus tetap di dalam dialog
-        const a = $("keluarBatal"), b = $("keluarYa");
-        if (e.shiftKey && document.activeElement === a) (e.preventDefault(), b.focus());
-        else if (!e.shiftKey && document.activeElement === b) (e.preventDefault(), a.focus());
-      }
-    });
-    $("keluarYa").addEventListener("click", async () => {
-      const btn = $("keluarYa");
-      btn.disabled = true;
-      btn.textContent = "Keluar…";
+    // Keluar cukup sekali ketuk (masuk lagi pun mudah); pesan singkat muncul di form login
+    $("logoutBtn").addEventListener("click", async () => {
+      $("logoutBtn").disabled = true;
       await db().auth.signOut().catch(() => {});
+      $("logoutBtn").disabled = false;
       user = null;
-      btn.disabled = false;
-      btn.textContent = "Ya, keluar";
-      pemicuKeluar = null;
-      tutupKeluar();
       $("uploadMsg").className = "hidden";
       $("nisn").value = "";
       show("loginView");
@@ -352,7 +303,6 @@
     });
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape" || $("siswaPanel").classList.contains("hidden")) return;
-      if ($("keluarDialog") && !$("keluarDialog").classList.contains("hidden")) return; // dialog keluar menangani Escape sendiri
       closePanel();
     });
     sync();
