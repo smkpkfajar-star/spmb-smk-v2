@@ -291,6 +291,11 @@
     const current = all.find((m) => m.id === active) || all[0];
     const link = (m) =>
       `<a href="${m.href}" data-nav="${m.id}" title="${esc(m.title)}" class="flex items-center gap-3 rounded-md px-3 py-2 text-[14.5px]">${NAV_ICON[m.id] || NAV_ICON.dashboard}<span class="mini-hide truncate">${esc(m.title)}</span></a>`;
+    // Sub-menu (mis. Superadmin): garis tipis di kiri, hilang saat panel dikecilkan
+    const subMenu = (m) =>
+      `<div class="mini-hide mb-1 ml-[1.35rem] mt-0.5 space-y-0.5 border-l border-hairline pl-2.5" role="group" aria-label="${esc(m.title)}">${m.sub
+        .map((s) => `<a href="${m.href}/${s.id}" data-nav-sub="${m.id}/${s.id}" class="block truncate rounded-md px-2.5 py-1.5 text-[13.5px] text-ink-600 hover:bg-brand-50 hover:text-ink-900">${esc(s.title)}</a>`)
+        .join("")}</div>`;
     const name = profile.nama_lengkap || profile.email;
 
     const aside = document.createElement("aside");
@@ -307,7 +312,7 @@
         ${link(all[0])}
         <p class="mini-hide mt-5 px-3 pb-1.5 font-mono text-[11.5px] uppercase tracking-wider text-ink-500">Modul</p>
         <hr class="mini-show my-3 hidden border-hairline" />
-        ${modules.map(link).join("")}
+        ${modules.map((m) => link(m) + (m.sub ? subMenu(m) : "")).join("")}
       </nav>
       <div class="sb-alat mx-3 mb-3 hidden items-center gap-1.5 lg:flex">
         <button type="button" data-mini aria-controls="adminSidebar" class="sb-mini-row flex h-9 min-w-0 flex-1 items-center gap-2 whitespace-nowrap rounded-md px-3 text-[14px] font-medium text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--hairline))] hover:bg-pink-50 hover:text-ink-900 hover:shadow-[inset_0_0_0_1px_rgb(var(--pink-200))] lg:flex"><svg class="mini-arah shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg><span class="mini-hide">Kecilkan</span></button>
@@ -337,7 +342,7 @@
     };
     overlay.addEventListener("click", () => setOpen(false));
     // HP: tutup laci setelah memilih menu
-    aside.addEventListener("click", (e) => e.target.closest("a[data-nav]") && setOpen(false));
+    aside.addEventListener("click", (e) => e.target.closest("a[data-nav], a[data-nav-sub]") && setOpen(false));
     setActiveNav(active, current.title);
     document.addEventListener("keydown", (e) => e.key === "Escape" && setOpen(false));
 
@@ -506,11 +511,18 @@
   // Tandai menu aktif & judul lokasi tanpa merender ulang kerangka
   const NAV_ON = ["bg-pink-50", "font-medium", "text-ink-900", "shadow-[inset_2px_0_0_#EC4899]"];
   const NAV_OFF = ["text-ink-600", "hover:bg-brand-50", "hover:text-ink-900"];
-  function setActiveNav(id, title) {
+  function setActiveNav(id, title, sub) {
     document.querySelectorAll("#adminSidebar a[data-nav]").forEach((a) => {
       const on = a.dataset.nav === id;
       NAV_ON.forEach((c) => a.classList.toggle(c, on));
       NAV_OFF.forEach((c) => a.classList.toggle(c, !on));
+      if (on && !sub) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    });
+    document.querySelectorAll("#adminSidebar a[data-nav-sub]").forEach((a) => {
+      const on = !!sub && a.dataset.navSub === `${id}/${sub}`;
+      ["bg-pink-50", "font-medium", "text-ink-900"].forEach((c) => a.classList.toggle(c, on));
+      a.classList.toggle("text-ink-600", !on);
       if (on) a.setAttribute("aria-current", "page");
       else a.removeAttribute("aria-current");
     });

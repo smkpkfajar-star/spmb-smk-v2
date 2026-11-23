@@ -25,13 +25,28 @@
     { id: "verifikasi", href: "#verifikasi", title: "Verifikasi Berkas", desc: "Periksa berkas, ubah status pendaftaran, hubungi orang tua.", roles: ["verifikasi"] },
     { id: "keuangan", href: "#keuangan", title: "Keuangan & Voucher", desc: "Catat pembayaran, potongan, dan status voucher.", roles: ["keuangan"] },
     { id: "tes-fisik", href: "#tes-fisik", title: "Tes Fisik & Seragam", desc: "Isi tinggi/berat, hasil tes fisik, dan ukuran seragam.", roles: ["tes_fisik"] },
-    { id: "superadmin", href: "#superadmin", title: "Superadmin", desc: "Rekap, unduh data, kelola akun petugas, reset password.", roles: [] },
+    {
+      id: "superadmin", href: "#superadmin", title: "Superadmin", desc: "Pengaturan situs, rekap, unduh data, akun petugas, reset password.", roles: [],
+      sub: [
+        { id: "pengaturan", title: "Pengaturan situs" },
+        { id: "rekap", title: "Rekap & unduh data" },
+        { id: "petugas", title: "Akun petugas" },
+        { id: "reset", title: "Reset password" },
+      ],
+    },
   ]);
 
-  // "#keuangan" → "keuangan"; selain modul yang dikenal → "dashboard"
+  // "#keuangan" → "keuangan"; "#superadmin/petugas" → "superadmin"; selain modul yang dikenal → "dashboard"
   function routeFromHash(hash) {
-    const id = String(hash || "").replace(/^#\/?/, "");
+    const id = String(hash || "").replace(/^#\/?/, "").split("/")[0];
     return MODULES.some((m) => m.id === id) ? id : "dashboard";
+  }
+  // Sub-menu: "#superadmin/petugas" → "petugas"; tanpa/tak dikenal → sub pertama; modul tanpa sub → null
+  function subFromHash(hash) {
+    const [id, sub] = String(hash || "").replace(/^#\/?/, "").split("/");
+    const m = MODULES.find((x) => x.id === id);
+    if (!m || !m.sub) return null;
+    return m.sub.some((s) => s.id === sub) ? sub : m.sub[0].id;
   }
 
   const isStaffRole = (role) => Object.prototype.hasOwnProperty.call(ROLE_LABEL, role || "");
@@ -218,5 +233,5 @@
     return profile;
   }
 
-  root.AdminAuth = { folderUrl, routeFromHash, ROLE_LABEL, MODULES, isStaffRole, canOpen, modulesFor, usernameToEmail, getClient, getProfile, login, logout, requireRole, BATAS_DIAM, sesiHabis, sisaDiam };
+  root.AdminAuth = { folderUrl, routeFromHash, subFromHash, ROLE_LABEL, MODULES, isStaffRole, canOpen, modulesFor, usernameToEmail, getClient, getProfile, login, logout, requireRole, BATAS_DIAM, sesiHabis, sisaDiam };
 })(typeof window !== "undefined" ? window : globalThis);

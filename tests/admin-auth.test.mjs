@@ -77,3 +77,17 @@ test("sesi diam: keluar setelah 20 menit tanpa aktivitas", () => {
   assert.equal(sisaDiam(t0, t0 + 19 * 60 * 1000), 60 * 1000);
   assert.equal(sisaDiam(t0, t0 + 25 * 60 * 1000), 0);
 });
+
+test("sub-menu superadmin: #superadmin/petugas → modul superadmin, sub petugas", () => {
+  const { routeFromHash, subFromHash, MODULES } = ctx.window.AdminAuth;
+  assert.equal(routeFromHash("#superadmin/petugas"), "superadmin");
+  assert.equal(subFromHash("#superadmin/petugas"), "petugas");
+  assert.equal(subFromHash("#superadmin/rekap"), "rekap");
+  // tanpa sub / sub tak dikenal → sub pertama (pengaturan situs)
+  assert.equal(subFromHash("#superadmin"), "pengaturan");
+  assert.equal(subFromHash("#superadmin/entah"), "pengaturan");
+  // modul tanpa sub-menu
+  assert.equal(subFromHash("#verifikasi"), null);
+  const sa = MODULES.find((m) => m.id === "superadmin");
+  assert.equal(sa.sub.map((s) => s.id).join(","), "pengaturan,rekap,petugas,reset");
+});

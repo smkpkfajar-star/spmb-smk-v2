@@ -193,7 +193,7 @@
 
         document.getElementById("reloadDash").addEventListener("click", () => loadDash(true));
         loadDash();
-      
+
       },
     },
     "verifikasi": {
@@ -278,7 +278,7 @@
             },
           ],
         });
-      
+
       },
     },
     "keuangan": {
@@ -333,7 +333,7 @@
             { name: "catatanBendahara", label: "Catatan bendahara", type: "textarea" },
           ],
         });
-      
+
       },
     },
     "tes-fisik": {
@@ -393,27 +393,28 @@
             return changes;
           },
         });
-      
+
       },
     },
     "superadmin": {
       title: 'Superadmin',
       roles: ["superadmin"],
-      async mount(app, profile) {
+      async mount(app, profile, sub) {
         app.innerHTML = `
-      <h1 class="text-[26px] font-semibold tracking-tight">Superadmin</h1>
-      <p class="mt-1 text-[15px] text-ink-600">Pengaturan situs, rekap pendaftaran, unduh data, kelola akun petugas, dan reset password.</p>
+      <p class="font-mono text-[12.5px] uppercase tracking-wider text-ink-500">Superadmin</p>
+      <h1 id="saJudul" class="mt-1 text-[26px] font-semibold tracking-tight">Superadmin</h1>
+      <p id="saDesk" class="mt-1 text-[15px] text-ink-600"></p>
 
       <!-- PENGATURAN SITUS -->
-      <section class="mt-6 rounded-lg border border-hairline bg-white p-5" aria-labelledby="pengaturanJudul">
-        <h2 id="pengaturanJudul" class="text-lg font-semibold">Pengaturan situs</h2>
-        <p class="mt-1 text-[14.5px] text-ink-600">Berlaku langsung untuk semua pengunjung tanpa perlu mengubah kode.</p>
+      <section data-sub="pengaturan" class="mt-6 hidden rounded-lg border border-hairline bg-white p-5" aria-labelledby="pengaturanJudul">
+        <h2 id="pengaturanJudul" class="sr-only">Pengaturan situs</h2>
+        <p class="text-[14.5px] text-ink-600">Berlaku langsung untuk semua pengunjung tanpa perlu mengubah kode.</p>
         <div id="pengaturanIsi" class="mt-4 divide-y divide-hairline border-y border-hairline" aria-hidden="true"><div class="skeleton my-3 h-14"></div><div class="skeleton my-3 h-14"></div></div>
         <p id="pengaturanInfo" class="mt-3 hidden rounded-lg p-3 text-[14.5px]"></p>
       </section>
 
       <!-- REKAP -->
-      <section class="mt-6" aria-labelledby="rekapJudul">
+      <section data-sub="rekap" class="mt-6 hidden" aria-labelledby="rekapJudul">
         <div class="flex items-center justify-between gap-3">
           <h2 id="rekapJudul" class="text-lg font-semibold">Rekap</h2>
           <button id="reloadRekap" type="button" class="rounded-full border-2 border-line bg-white px-4 py-2 text-[15px] font-semibold hover:border-ink-500">Muat ulang</button>
@@ -422,25 +423,24 @@
       </section>
 
       <!-- UNDUH -->
-      <section class="mt-8 rounded-lg border border-hairline bg-white p-5" aria-labelledby="unduhJudul">
+      <section data-sub="rekap" class="mt-6 hidden rounded-lg border border-hairline bg-white p-5" aria-labelledby="unduhJudul">
         <h2 id="unduhJudul" class="text-lg font-semibold">Unduh data (bisa dibuka di Excel)</h2>
         <div class="mt-3 flex flex-wrap gap-2" id="unduh"></div>
       </section>
 
       <!-- PETUGAS -->
-      <section class="mt-8 rounded-lg border border-hairline bg-white p-5" aria-labelledby="petugasJudul">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="petugasJudul" class="text-lg font-semibold">Akun petugas</h2>
+      <section data-sub="petugas" class="mt-6 hidden rounded-lg border border-hairline bg-white p-5" aria-labelledby="petugasJudul">
+        <div class="flex flex-wrap items-center justify-end gap-3">
+          <h2 id="petugasJudul" class="sr-only">Akun petugas</h2>
           <button id="btnTambah" type="button" class="rounded-full bg-brand-600 px-5 py-2.5 text-[15px] font-bold text-white hover:bg-brand-700">+ Tambah petugas</button>
         </div>
         <div id="petugas" class="mt-3 space-y-2" aria-hidden="true"><div class="skeleton h-12"></div><div class="skeleton h-12"></div><div class="skeleton h-12"></div></div>
       </section>
 
       <!-- RESET PASSWORD -->
-      <section class="mt-8 rounded-lg border border-hairline bg-white p-5" aria-labelledby="resetJudul">
-        <h2 id="resetJudul" class="text-lg font-semibold">Reset password</h2>
-        <p class="mt-1 text-[15px] text-ink-600">Untuk siswa (isi NISN) atau petugas (isi username) yang lupa password.</p>
-        <form id="resetForm" class="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end" novalidate>
+      <section data-sub="reset" class="mt-6 hidden rounded-lg border border-hairline bg-white p-5" aria-labelledby="resetJudul">
+        <h2 id="resetJudul" class="sr-only">Reset password</h2>
+        <form id="resetForm" class="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end" novalidate>
           <div>
             <label for="resetSiapa" class="mb-1.5 block text-[15px] font-semibold">NISN / username</label>
             <input id="resetSiapa" type="text" class="w-full rounded-xl border-2 border-line px-3.5 py-3 text-base focus:border-brand-600 focus:outline-none" />
@@ -491,7 +491,6 @@
           }
         }
         document.getElementById("reloadRekap").addEventListener("click", () => loadRekap(true));
-        loadRekap();
 
         /* ---------- pengaturan situs (tabel "pengaturan", supabase/03-pengaturan.sql) ---------- */
         const SAKLAR = [
@@ -575,7 +574,6 @@
           document.getElementById("pengaturanInfo").className = "mt-3 hidden rounded-lg p-3 text-[14.5px]";
           loadPengaturan();
         });
-        loadPengaturan();
 
         /* ---------- unduh CSV ---------- */
         const unduh = document.getElementById("unduh");
@@ -696,7 +694,6 @@
             },
           })
         );
-        loadPetugas();
 
         /* ---------- reset password ---------- */
         document.getElementById("resetForm").addEventListener("submit", async (e) => {
@@ -723,7 +720,29 @@
             document.getElementById("resetPw").value = "";
           }
         });
-      
+
+        /* ---------- sub-halaman (menu samping: Superadmin → …) ---------- */
+        const INFO_SUB = {
+          pengaturan: ["Pengaturan situs", "Buka/tutup pendaftaran SPMB dan atur pop-up promo di beranda."],
+          rekap: ["Rekap & unduh data", "Ringkasan jumlah pendaftar dan unduhan data lengkap (bisa dibuka di Excel)."],
+          petugas: ["Akun petugas", "Tambah petugas, ubah nama/password, dan atur tugas tiap akun."],
+          reset: ["Reset password", "Untuk siswa (isi NISN) atau petugas (isi username) yang lupa password."],
+        };
+        const MUAT = { pengaturan: () => loadPengaturan(), rekap: () => loadRekap(), petugas: () => loadPetugas() };
+        const sudahDimuat = new Set();
+        const pindahSub = (s) => {
+          const id = INFO_SUB[s] ? s : "pengaturan";
+          app.querySelectorAll("[data-sub]").forEach((el) => el.classList.toggle("hidden", el.dataset.sub !== id));
+          document.getElementById("saJudul").textContent = INFO_SUB[id][0];
+          document.getElementById("saDesk").textContent = INFO_SUB[id][1];
+          document.title = `${INFO_SUB[id][0]} · Superadmin — Admin SPMB`;
+          if (MUAT[id] && !sudahDimuat.has(id)) {
+            sudahDimuat.add(id);
+            MUAT[id]();
+          }
+        };
+        this.pindahSub = pindahSub;
+        pindahSub(sub);
       },
     },
   };
@@ -739,15 +758,25 @@
     const app = document.getElementById("app");
     let token = 0;
 
+    let modulAktif = null;
     async function go() {
       const id = root.AdminAuth.routeFromHash(root.location.hash);
+      const sub = root.AdminAuth.subFromHash(root.location.hash);
       const mod = MODULES[id];
+      const daftarSub = (root.AdminAuth.MODULES.find((m) => m.id === id) || {}).sub || [];
+      const subJudul = sub && (daftarSub.find((x) => x.id === sub) || {}).title;
+      root.AdminUI.setActiveNav(id, subJudul ? `${mod.title} · ${subJudul}` : mod.title, sub);
+      root.scrollTo({ top: 0 });
+      // pindah sub-menu di modul yang sama: cukup ganti tampilan, data tidak dimuat ulang
+      if (sub && modulAktif === id && typeof mod.pindahSub === "function" && app.querySelector("[data-sub]")) {
+        mod.pindahSub(sub);
+        return;
+      }
+      modulAktif = id;
       const my = ++token;
       root.AdminUI.stopAllWatchers();
       document.querySelectorAll("[data-admin-overlay]").forEach((el) => el.remove());
-      root.AdminUI.setActiveNav(id, mod.title);
       document.title = `${mod.title} — Admin SPMB`;
-      root.scrollTo({ top: 0 });
       if (!root.AdminAuth.canOpen(profile.role, mod.roles)) {
         app.innerHTML = `<div class="rounded-lg border border-dashed border-hairline p-10 text-center">
           <p class="text-[17px] font-semibold">Anda tidak punya akses ke modul ini</p>
@@ -757,7 +786,7 @@
       }
       app.innerHTML = SKELETON;
       try {
-        await mod.mount(app, profile);
+        await mod.mount(app, profile, sub);
       } catch (e) {
         if (my === token) app.innerHTML = `<p class="bg-red-50 p-4 text-[15px] font-medium text-red-700">${root.Sheetson.escapeHtml(e.message)}</p>`;
       }
