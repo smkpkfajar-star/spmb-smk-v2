@@ -231,7 +231,25 @@
     return `Laporan ${aman} ${tgl}.${ext}`;
   }
 
-  root.AdminUI = { tabelEkspor, keteranganFilter, namaFileLaporan, cekUbahPetugas, cariNomorDobel, barisMilik, pesanNomorBaru, polaBunyi: () => polaBunyi(), URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
+  /* ---------- riwayat aktivitas (dites) ---------- */
+  // Perubahan data untuk dicatat: ["Label: lama → baru", …] — hanya kolom yang berubah
+  function ringkasPerubahan(sebelum, sesudah, label) {
+    const tampil = (v) => {
+      const t = String(v ?? "").trim();
+      return t === "" || t === "-" ? "–" : t;
+    };
+    return Object.keys(sesudah || {})
+      .filter((k) => tampil((sebelum || {})[k]) !== tampil(sesudah[k]))
+      .map((k) => `${(label && label[k]) || k}: ${tampil((sebelum || {})[k])} → ${tampil(sesudah[k])}`);
+  }
+  // Teks ringkas kolom "Detail" di halaman Riwayat
+  function teksDetailRiwayat(detail) {
+    if (!detail) return "";
+    if (Array.isArray(detail.perubahan) && detail.perubahan.length) return detail.perubahan.join(" · ");
+    return String(detail.keterangan || "");
+  }
+
+  root.AdminUI = { ringkasPerubahan, teksDetailRiwayat, tabelEkspor, keteranganFilter, namaFileLaporan, cekUbahPetugas, cariNomorDobel, barisMilik, pesanNomorBaru, polaBunyi: () => polaBunyi(), URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
   if (typeof document === "undefined") return;
 
   /* ---------- tampilan ---------- */
@@ -1073,7 +1091,11 @@
       if (!row) return;
       if (btn.dataset.bukti !== undefined) unduhBukti(row, btn);
       else if (btn.dataset.edit !== undefined) edit(row);
-      else config.actions[Number(btn.dataset.action)].run(row, page);
+      else {
+        const aksi = config.actions[Number(btn.dataset.action)];
+        catatModul(aksi.label, row);
+        aksi.run(row, page);
+      }
     });
     $pager.addEventListener("click", (e) => {
       const b = e.target.closest("button[data-page]");
@@ -1099,6 +1121,11 @@
       render();
     });
 
+    // Riwayat aktivitas (dibaca superadmin): siapa melakukan apa pada pendaftar mana
+    const sasaranBaris = (r) => [r.noPendaftaran && r.noPendaftaran !== "-" ? r.noPendaftaran : "", r.namaLengkap || ""].filter(Boolean).join(" · ");
+    const catatModul = (aksi, row, detail) =>
+      root.AdminAuth && root.AdminAuth.catat({ aksi, modul: config.title, sasaran: row ? sasaranBaris(row) : null, detail });
+
     // Bukti pendaftaran (PDF F4) dibuat ulang dari data terbaru di sheet
     async function unduhBukti(row, btn) {
       if (!root.BuktiPdf) return toast("Fitur bukti PDF belum termuat. Muat ulang halaman.");
@@ -1111,6 +1138,7 @@
         if (!data) throw new Error("Data pendaftar tidak ditemukan di sheet");
         await root.BuktiPdf.unduh(data);
         toast(`Bukti pendaftaran diunduh: ${data.namaLengkap || data.noPendaftaran}`);
+        catatModul("Unduh bukti PDF", row);
       } catch (err) {
         toast(err.message || "Gagal membuat PDF");
       }
@@ -1133,6 +1161,8 @@
             return;
           }
           await root.Sheetson.patchRow(config.sheet, row.rowIndex, changes);
+          const label = Object.fromEntries(config.fields.map((f) => [f.name, f.label]));
+          catatModul("Ubah data", row, { perubahan: ringkasPerubahan(original, changes, label) });
           Object.assign(row, changes);
           renderStats();
           renderSaring();
@@ -1296,6 +1326,7 @@
       try {
         await (jenis === "pdf" ? eksporPdf(laporan) : eksporExcel(laporan));
         toast(`${laporan.body.length} pendaftar diekspor ke ${jenis === "pdf" ? "PDF" : "Excel"}.`);
+        catatModul(jenis === "pdf" ? "Ekspor PDF" : "Ekspor Excel", null, { keterangan: `${laporan.body.length} pendaftar · ${laporan.keterangan}` });
         bukaEkspor(false);
       } catch (err) {
         toast("Gagal membuat file: " + (err.message || "periksa koneksi internet"), "error");

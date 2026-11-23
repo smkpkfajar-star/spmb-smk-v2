@@ -163,6 +163,12 @@
               .filter((r) => String(r.noPendaftaran ?? "").trim() === nomor)
               .sort((a, b) => a.rowIndex - b.rowIndex)
               .findIndex((r) => String(r.rowIndex) === String(orang.rowIndex));
+            AdminAuth.catat({
+              aksi: "Beri nomor baru",
+              modul: "Dashboard",
+              sasaran: `${orang.namaLengkap || ""} · NISN ${orang.nisn || "-"}`,
+              detail: { perubahan: [`No. pendaftaran: ${nomor} → ${baru}`] },
+            });
             const terlewat = [];
             for (let i = 0; i < SHEETS_NOMOR.length; i++) {
               const row = AdminUI.barisMilik(semua[i], nomor, orang.namaLengkap, Math.max(urutanKe, 0));
@@ -453,6 +459,23 @@
         </form>
         <p id="resetInfo" class="mt-3 hidden rounded-2xl p-3 text-[15px] font-semibold"></p>
       </section>
+
+      <!-- RIWAYAT AKTIVITAS -->
+      <section data-sub="riwayat" class="mt-6 hidden" aria-labelledby="riwayatJudul">
+        <h2 id="riwayatJudul" class="sr-only">Riwayat aktivitas</h2>
+        <div class="flex flex-wrap items-center gap-2">
+          <label for="rwCari" class="sr-only">Cari</label>
+          <input id="rwCari" type="search" placeholder="Cari nama, no. pendaftaran, aktivitas…" class="h-10 min-w-[220px] flex-1 rounded-md border border-line/50 bg-white px-3 text-[14.5px] focus:border-ink-900 focus:outline-none" />
+          <label for="rwPetugas" class="sr-only">Petugas</label>
+          <select id="rwPetugas" class="h-10 rounded-md border border-line/50 bg-white px-2 text-[14px]"><option value="">Semua petugas</option></select>
+          <label for="rwAksi" class="sr-only">Aktivitas</label>
+          <select id="rwAksi" class="h-10 rounded-md border border-line/50 bg-white px-2 text-[14px]"><option value="">Semua aktivitas</option></select>
+          <button id="rwMuatUlang" type="button" class="h-10 rounded-full px-4 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Muat ulang</button>
+        </div>
+        <p id="rwJumlah" class="mt-3 font-mono text-[12.5px] text-ink-500"></p>
+        <div id="rwDaftar" class="mt-2"><div class="skeleton h-12"></div><div class="skeleton mt-2 h-12"></div><div class="skeleton mt-2 h-12"></div></div>
+        <button id="rwLagi" type="button" class="mt-4 hidden h-10 rounded-full px-5 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Muat lebih banyak</button>
+      </section>
     `;
 
         const esc = Sheetson.escapeHtml;
@@ -571,6 +594,7 @@
             return;
           }
           AdminUI.toast(`${k.judul}: ${nilaiBaru ? "NYALA" : "MATI"}`);
+          AdminAuth.catat({ aksi: "Ubah pengaturan situs", modul: "Superadmin", sasaran: k.judul, detail: { perubahan: [`${k.judul}: ${nilaiBaru ? "Mati → Nyala" : "Nyala → Mati"}`] } });
           document.getElementById("pengaturanInfo").className = "mt-3 hidden rounded-lg p-3 text-[14.5px]";
           loadPengaturan();
         });
@@ -590,6 +614,7 @@
               const keys = [...new Set(rows.flatMap((r) => Object.keys(r)))].filter((k) => k !== "rowIndex" && !k.startsWith("_"));
               AdminUI.downloadFile(`${s}-${today}.csv`, AdminUI.toCsv(rows, keys.map((k) => ({ key: k, label: k }))));
               AdminUI.toast(`${rows.length} baris diunduh.`);
+              AdminAuth.catat({ aksi: "Unduh CSV", modul: "Superadmin", sasaran: s, detail: { keterangan: `${rows.length} baris` } });
             } catch (e) {
               AdminUI.toast(e.message, "error");
             }
@@ -626,9 +651,18 @@
         document.getElementById("petugas").addEventListener("change", async (e) => {
           const sel = e.target.closest("select[data-role]");
           if (!sel) return;
+          const lama = daftarPetugas.find((x) => x.id === sel.dataset.role);
           const { error } = await db.from("profiles").update({ role: sel.value }).eq("id", sel.dataset.role);
           if (error) AdminUI.toast("Gagal mengubah peran: " + error.message, "error");
-          else AdminUI.toast("Peran diperbarui.");
+          else {
+            AdminUI.toast("Peran diperbarui.");
+            AdminAuth.catat({
+              aksi: "Ubah peran",
+              modul: "Superadmin",
+              sasaran: lama ? `${lama.nama_lengkap || ""} (${username(lama.email)})` : null,
+              detail: { perubahan: [`Tugas: ${lama ? AdminAuth.ROLE_LABEL[lama.role] || lama.role : "–"} → ${AdminAuth.ROLE_LABEL[sel.value] || sel.value}`] },
+            });
+          }
           loadPetugas();
         });
         document.getElementById("petugas").addEventListener("click", (e) => {
@@ -656,6 +690,9 @@
                 if (error) throw new Error("Nama tersimpan, tapi password gagal diganti: " + error.message);
               }
               AdminUI.toast(password ? `Data ${nama} diperbarui, password diganti.` : `Data ${nama} diperbarui.`);
+              const ubahan = nama !== (p.nama_lengkap || "") ? [`Nama: ${p.nama_lengkap || "–"} → ${nama}`] : [];
+              if (password) ubahan.push("Password diganti");
+              if (ubahan.length) AdminAuth.catat({ aksi: "Ubah petugas", modul: "Superadmin", sasaran: username(p.email), detail: { perubahan: ubahan } });
               // nama sendiri tampil di menu samping → muat ulang agar ikut berubah
               if (dirinya && nama !== (p.nama_lengkap || "")) return setTimeout(() => location.reload(), 900);
               loadPetugas();
@@ -690,6 +727,7 @@
               const { error: e2, data: upd } = await db.from("profiles").update({ role: v.role, nama_lengkap: v.nama }).eq("id", data.user.id).select("id");
               if (e2 || !upd || !upd.length) throw new Error("Akun dibuat, tapi peran gagal diatur. Atur peran dari daftar di bawah.");
               AdminUI.toast(`Petugas ${v.nama} ditambahkan.`);
+              AdminAuth.catat({ aksi: "Tambah petugas", modul: "Superadmin", sasaran: `${v.nama} (${v.username})`, detail: { keterangan: `Tugas: ${AdminAuth.ROLE_LABEL[v.role] || v.role}` } });
               loadPetugas();
             },
           })
@@ -716,10 +754,121 @@
               false
             );
           } else {
+            AdminAuth.catat({ aksi: "Reset password", modul: "Superadmin", sasaran: email.split("@")[0] });
             show(`Password ${email.split("@")[0]} sudah diganti. Beritahukan password baru secara langsung.`, true);
             document.getElementById("resetPw").value = "";
           }
         });
+
+        /* ---------- riwayat aktivitas (tabel "riwayat", supabase/04-riwayat.sql) ---------- */
+        const RW_PER_MUAT = 100;
+        let rwBaris = [];
+        let rwHabis = false;
+        const rwWaktu = (iso) =>
+          new Date(iso).toLocaleString("id-ID", { timeZone: "Asia/Jakarta", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+        const RW_WARNA = (aksi) =>
+          /^Masuk$/.test(aksi) ? "#16A34A" : /^Keluar/.test(aksi) ? "#A1A1AA" : /Reset|peran|pengaturan|petugas/i.test(aksi) ? "#EC4899"
+            : /Ubah data|nomor/i.test(aksi) ? "#0284C7" : "#D97706";
+        function rwTerfilter() {
+          const q = document.getElementById("rwCari").value.trim().toLowerCase();
+          const pt = document.getElementById("rwPetugas").value;
+          const ak = document.getElementById("rwAksi").value;
+          return rwBaris.filter((r) => {
+            if (pt && r.pelaku_nama !== pt) return false;
+            if (ak && r.aksi !== ak) return false;
+            if (!q) return true;
+            return [r.pelaku_nama, r.aksi, r.modul, r.sasaran, AdminUI.teksDetailRiwayat(r.detail)].join(" ").toLowerCase().includes(q);
+          });
+        }
+        function rwIsiPilihan(id, nilai, semua) {
+          const sel = document.getElementById(id);
+          const pilih = sel.value;
+          sel.innerHTML = `<option value="">${semua}</option>` + [...new Set(nilai.filter(Boolean))].sort().map((v) => `<option>${esc(v)}</option>`).join("");
+          sel.value = pilih;
+        }
+        function renderRiwayat() {
+          const rows = rwTerfilter();
+          const wadah = document.getElementById("rwDaftar");
+          document.getElementById("rwJumlah").textContent = `${rows.length} dari ${rwBaris.length} aktivitas dimuat${rwHabis ? "" : " (terbaru dulu)"}`;
+          document.getElementById("rwLagi").classList.toggle("hidden", rwHabis);
+          if (!rows.length) {
+            wadah.innerHTML = `<div class="rounded-lg border border-dashed border-hairline p-8 text-center text-[15px] text-ink-500">${rwBaris.length ? "Tidak ada aktivitas yang cocok." : "Belum ada aktivitas tercatat."}</div>`;
+            return;
+          }
+          const detailHtml = (r) => {
+            const d = r.detail || {};
+            if (Array.isArray(d.perubahan) && d.perubahan.length)
+              return `<ul class="space-y-0.5">${d.perubahan.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
+            return esc(d.keterangan || "");
+          };
+          const petugas = (r) => `<span class="block font-medium">${esc(r.pelaku_nama || "–")}</span><span class="block text-[12.5px] text-ink-500">${esc(AdminAuth.ROLE_LABEL[r.peran] || r.peran || "")}</span>`;
+          const aksi = (r) => `<span class="inline-flex items-center gap-1.5 whitespace-nowrap"><span class="h-2 w-2 shrink-0 rounded-full" style="background:${RW_WARNA(r.aksi)}" aria-hidden="true"></span>${esc(r.aksi)}</span>${r.modul ? `<span class="block text-[12.5px] text-ink-500">${esc(r.modul)}</span>` : ""}`;
+          wadah.innerHTML = `
+            <div class="hidden overflow-auto rounded-lg border border-hairline bg-white md:block">
+              <table class="w-full border-separate border-spacing-0 text-left text-[14px] leading-snug">
+                <thead class="text-[12.5px] text-ink-500"><tr>
+                  ${["Waktu (WIB)", "Petugas", "Aktivitas", "Pendaftar / sasaran", "Detail"].map((h) => `<th scope="col" class="sticky top-0 border-b border-hairline bg-brand-50 px-4 py-3 font-medium whitespace-nowrap">${h}</th>`).join("")}
+                </tr></thead>
+                <tbody>${rows
+                  .map(
+                    (r) => `<tr class="bg-white align-top even:bg-sand">
+                      <td class="border-b border-hairline px-4 py-2.5 font-mono text-[12.5px] whitespace-nowrap text-ink-600">${esc(rwWaktu(r.waktu))}</td>
+                      <td class="border-b border-hairline px-4 py-2.5">${petugas(r)}</td>
+                      <td class="border-b border-hairline px-4 py-2.5">${aksi(r)}</td>
+                      <td class="border-b border-hairline px-4 py-2.5">${esc(r.sasaran || "–")}</td>
+                      <td class="min-w-[220px] border-b border-hairline px-4 py-2.5 text-ink-600">${detailHtml(r)}</td>
+                    </tr>`
+                  )
+                  .join("")}</tbody>
+              </table>
+            </div>
+            <div class="divide-y divide-hairline rounded-lg border border-hairline bg-white md:hidden">
+              ${rows
+                .map(
+                  (r) => `<article class="p-4 text-[14px]">
+                    <div class="flex items-start justify-between gap-3"><div class="min-w-0">${aksi(r)}</div><span class="shrink-0 font-mono text-[12px] text-ink-500">${esc(rwWaktu(r.waktu))}</span></div>
+                    <div class="mt-2">${petugas(r)}</div>
+                    ${r.sasaran ? `<p class="mt-1.5">${esc(r.sasaran)}</p>` : ""}
+                    ${r.detail ? `<div class="mt-1 text-ink-600">${detailHtml(r)}</div>` : ""}
+                  </article>`
+                )
+                .join("")}
+            </div>`;
+        }
+        async function loadRiwayat(dariAwal) {
+          const wadah = document.getElementById("rwDaftar");
+          const tombolLagi = document.getElementById("rwLagi");
+          if (dariAwal) {
+            rwBaris = [];
+            rwHabis = false;
+          }
+          tombolLagi.disabled = true;
+          const { data, error } = await db
+            .from("riwayat")
+            .select("id,waktu,pelaku_nama,peran,aksi,modul,sasaran,detail")
+            .order("waktu", { ascending: false })
+            .order("id", { ascending: false })
+            .range(rwBaris.length, rwBaris.length + RW_PER_MUAT - 1);
+          tombolLagi.disabled = false;
+          if (error) {
+            document.getElementById("rwJumlah").textContent = "";
+            tombolLagi.classList.add("hidden");
+            wadah.innerHTML = `<p class="rounded-lg bg-red-50 p-4 text-[15px] text-red-700">${
+              /riwayat|schema cache|does not exist|42P01|PGRST2/i.test(error.message + " " + (error.code || ""))
+                ? "Tabel riwayat belum dibuat. Jalankan supabase/04-riwayat.sql di Supabase (SQL Editor → New query → Run), lalu muat ulang halaman ini."
+                : "Gagal memuat riwayat: " + esc(error.message)
+            }</p>`;
+            return;
+          }
+          rwBaris = rwBaris.concat(data || []);
+          rwHabis = !data || data.length < RW_PER_MUAT;
+          rwIsiPilihan("rwPetugas", rwBaris.map((r) => r.pelaku_nama), "Semua petugas");
+          rwIsiPilihan("rwAksi", rwBaris.map((r) => r.aksi), "Semua aktivitas");
+          renderRiwayat();
+        }
+        ["rwCari", "rwPetugas", "rwAksi"].forEach((id) => document.getElementById(id).addEventListener("input", renderRiwayat));
+        document.getElementById("rwMuatUlang").addEventListener("click", () => loadRiwayat(true));
+        document.getElementById("rwLagi").addEventListener("click", () => loadRiwayat(false));
 
         /* ---------- sub-halaman (menu samping: Superadmin → …) ---------- */
         const INFO_SUB = {
@@ -727,8 +876,9 @@
           rekap: ["Rekap & unduh data", "Ringkasan jumlah pendaftar dan unduhan data lengkap (bisa dibuka di Excel)."],
           petugas: ["Akun petugas", "Tambah petugas, ubah nama/password, dan atur tugas tiap akun."],
           reset: ["Reset password", "Untuk siswa (isi NISN) atau petugas (isi username) yang lupa password."],
+          riwayat: ["Riwayat aktivitas", "Catatan siapa melakukan apa di panel admin. Hanya superadmin yang bisa melihat; catatan tidak bisa diubah atau dihapus."],
         };
-        const MUAT = { pengaturan: () => loadPengaturan(), rekap: () => loadRekap(), petugas: () => loadPetugas() };
+        const MUAT = { pengaturan: () => loadPengaturan(), rekap: () => loadRekap(), petugas: () => loadPetugas(), riwayat: () => loadRiwayat(true) };
         const sudahDimuat = new Set();
         const pindahSub = (s) => {
           const id = INFO_SUB[s] ? s : "pengaturan";

@@ -32,6 +32,7 @@
         { id: "rekap", title: "Rekap & unduh data" },
         { id: "petugas", title: "Akun petugas" },
         { id: "reset", title: "Reset password" },
+        { id: "riwayat", title: "Riwayat aktivitas" },
       ],
     },
   ]);
@@ -192,6 +193,23 @@
     return profile;
   }
 
+  // Catat aktivitas petugas ke tabel "riwayat" (hanya superadmin yang bisa membaca).
+  // Nama/peran/waktu diisi server. Gagal (tabel belum ada / offline) diabaikan agar kerja tidak terganggu.
+  // JANGAN pernah memasukkan password ke catatan.
+  function catat({ aksi, modul, sasaran, detail } = {}, { tunggu = false } = {}) {
+    let kirim;
+    try {
+      kirim = Promise.resolve(
+        getClient()
+          .from("riwayat")
+          .insert({ aksi, modul: modul || null, sasaran: sasaran || null, detail: detail || null })
+      ).then(() => {}, () => {});
+    } catch {
+      kirim = Promise.resolve();
+    }
+    return tunggu ? Promise.race([kirim, new Promise((r) => setTimeout(r, 1500))]) : kirim;
+  }
+
   async function login(username, password) {
     const c = getClient();
     const { error } = await c.auth.signInWithPassword({ email: usernameToEmail(username), password });
@@ -202,11 +220,13 @@
       return { ok: false, error: "Akun ini bukan akun petugas. Hubungi superadmin." };
     }
     catatAktif();
+    await catat({ aksi: "Masuk" }, { tunggu: true });
     return { ok: true, role: profile.role };
   }
 
   // alasan "habis" → halaman login menjelaskan sesi berakhir karena diam 20 menit
   async function logout(alasan) {
+    await catat({ aksi: alasan === "habis" ? "Keluar otomatis (diam 20 menit)" : "Keluar" }, { tunggu: true });
     hapusAktif();
     await getClient().auth.signOut().catch(() => {});
     root.location.replace(alasan === "habis" ? "index.html?sesi=habis" : "index.html");
@@ -233,5 +253,5 @@
     return profile;
   }
 
-  root.AdminAuth = { folderUrl, routeFromHash, subFromHash, ROLE_LABEL, MODULES, isStaffRole, canOpen, modulesFor, usernameToEmail, getClient, getProfile, login, logout, requireRole, BATAS_DIAM, sesiHabis, sisaDiam };
+  root.AdminAuth = { catat, folderUrl, routeFromHash, subFromHash, ROLE_LABEL, MODULES, isStaffRole, canOpen, modulesFor, usernameToEmail, getClient, getProfile, login, logout, requireRole, BATAS_DIAM, sesiHabis, sisaDiam };
 })(typeof window !== "undefined" ? window : globalThis);
