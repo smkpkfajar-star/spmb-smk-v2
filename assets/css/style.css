@@ -215,7 +215,7 @@ body {
 .kiosk .text-red-600 { color: #B91C1C !important; }
 .kiosk .choice[aria-pressed="true"] { background: #F2B53A; outline: 3px solid #000000; }
 
-/* Sorotan biaya (beranda): angka emas berkilau + lubang sobekan kupon */
+/* Pop-up promo biaya (promo.js): angka emas berkilau + lubang sobekan kupon */
 .teks-emas { background: linear-gradient(100deg, #FDE68A 0%, #F2B53A 45%, #FDE68A 70%, #F2B53A 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .tiket-sobek { position: relative; }
 .tiket-sobek::before, .tiket-sobek::after { content: ""; position: absolute; width: 26px; height: 26px; border-radius: 999px; background: rgb(var(--cream)); }
