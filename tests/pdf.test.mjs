@@ -112,3 +112,12 @@ test("namaFile aman untuk sistem berkas", () => {
   assert.equal(namaFile("SPMB-2026-RPL-007"), "Bukti-Pendaftaran-SPMB-2026-RPL-007.pdf");
   assert.equal(namaFile("a/b c"), "Bukti-Pendaftaran-a-b-c.pdf");
 });
+
+test("template kop surat ada dan cocok dengan yang dipakai bukti-pdf.js", async () => {
+  const { existsSync, readFileSync: baca } = await import("node:fs");
+  const kode = baca(new URL("../assets/js/umum/bukti-pdf.js", import.meta.url), "utf8");
+  const nama = kode.match(/template\/([\w.-]+\.pdf)/)[1];
+  const berkas = new URL(`../assets/template/${nama}`, import.meta.url);
+  assert.ok(existsSync(berkas), `template tidak ada: assets/template/${nama}`);
+  assert.equal(baca(berkas).subarray(0, 5).toString(), "%PDF-");
+});

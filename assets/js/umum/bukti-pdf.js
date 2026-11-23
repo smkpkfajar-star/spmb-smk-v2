@@ -9,6 +9,11 @@
    ============================================================ */
 (function (root) {
   const JSPDF_URL = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+  const PDFLIB_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js";
+  // Kop surat sekolah (PDF 1 halaman, dibuat panitia). Ganti berkas ini untuk mengganti kop.
+  const SKRIP_INI = typeof document !== "undefined" && document.currentScript ? document.currentScript.src : "";
+  const KOP_URL = SKRIP_INI ? new URL("../../template/template-pendaftaran-spmb-online.pdf", SKRIP_INI).href : "";
+  const KOP_BAWAH = 64; // mm: batas bawah kop (garis ganda) setelah disesuaikan ke lebar F4
 
   function waktuWIB(date) {
     return new Date(date.getTime() + 7 * 3600 * 1000).toISOString().slice(0, 19).replace("T", " ");
@@ -107,7 +112,8 @@
     return s === "-" ? "" : s;
   }
 
-  function buatDokumen(data, siswaUrl) {
+  function buatDokumen(data, siswaUrl, opsi) {
+    const pakaiKop = !!(opsi && opsi.kop);
     const { jsPDF } = root.jspdf;
     const c = buildPdfContent(data, siswaUrl);
     const doc = new jsPDF({ unit: "mm", format: c.kertas }); // F4: 215 x 330 mm
@@ -125,7 +131,7 @@
     const COLON_X = 72;
     const VALUE_X = 75;
     const VALUE_W = KANAN - VALUE_X;
-    const LINE = 5.6;
+    const LINE = pakaiKop ? 5.1 : 5.6;
     // pindah halaman bila sisa ruang tidak cukup
     const ruang = (y, perlu) => {
       if (y + perlu <= PAGE_H - 12) return y;
@@ -133,41 +139,65 @@
       return 20;
     };
 
-    // Kepala
-    doc.setTextColor(...GREEN);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text(c.school, TENGAH, 20, { align: "center" });
-    doc.setTextColor(...INK);
-    doc.setFontSize(12);
-    doc.text(c.title, TENGAH, 27, { align: "center" });
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(...MUTED);
-    doc.text(c.subtitle, TENGAH, 33, { align: "center" });
-    doc.setDrawColor(...GOLD);
-    doc.setLineWidth(0.6);
-    doc.line(KIRI, 37, KANAN, 37);
+    let y;
+    if (pakaiKop) {
+      // Kop surat ditempel sebagai latar (lihat tempelKop); di sini cukup judul + nomor
+      doc.setTextColor(...INK);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      doc.text(c.title, TENGAH, KOP_BAWAH + 8, { align: "center" });
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(...MUTED);
+      doc.text(c.subtitle, TENGAH, KOP_BAWAH + 13.5, { align: "center" });
 
-    // Nomor pendaftaran
-    doc.setFillColor(254, 247, 230);
-    doc.roundedRect(KIRI, 42, LEBAR, 18, 3, 3, "F");
-    doc.setTextColor(...INK);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text("Nomor Pendaftaran", 26, 53);
-    doc.setTextColor(...GREEN);
-    doc.setFontSize(16);
-    doc.text(c.noPendaftaran, KANAN - 6, 53.5, { align: "right" });
+      doc.setFillColor(254, 247, 230);
+      doc.roundedRect(KIRI, KOP_BAWAH + 17, LEBAR, 12, 2.5, 2.5, "F");
+      doc.setTextColor(...INK);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.5);
+      doc.text("Nomor Pendaftaran", 26, KOP_BAWAH + 24.6);
+      doc.setTextColor(...GREEN);
+      doc.setFontSize(14);
+      doc.text(c.noPendaftaran, KANAN - 6, KOP_BAWAH + 25, { align: "right" });
+      y = KOP_BAWAH + 37;
+    } else {
+      // Kepala (tanpa kop)
+      doc.setTextColor(...GREEN);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.text(c.school, TENGAH, 20, { align: "center" });
+      doc.setTextColor(...INK);
+      doc.setFontSize(12);
+      doc.text(c.title, TENGAH, 27, { align: "center" });
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(...MUTED);
+      doc.text(c.subtitle, TENGAH, 33, { align: "center" });
+      doc.setDrawColor(...GOLD);
+      doc.setLineWidth(0.6);
+      doc.line(KIRI, 37, KANAN, 37);
+
+      // Nomor pendaftaran
+      doc.setFillColor(254, 247, 230);
+      doc.roundedRect(KIRI, 42, LEBAR, 18, 3, 3, "F");
+      doc.setTextColor(...INK);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("Nomor Pendaftaran", 26, 53);
+      doc.setTextColor(...GREEN);
+      doc.setFontSize(16);
+      doc.text(c.noPendaftaran, KANAN - 6, 53.5, { align: "right" });
+      y = 71;
+    }
 
     // Isi
-    let y = 71;
     c.sections.forEach((section) => {
       doc.setTextColor(...INK);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       doc.text(section.heading, 20, y);
-      y += 7;
+      y += pakaiKop ? 6.2 : 7;
       doc.setFontSize(10);
       section.rows.forEach(([label, value]) => {
         const lines = doc.splitTextToSize(value, VALUE_W);
@@ -179,47 +209,52 @@
         doc.text(lines, VALUE_X, y);
         y += LINE * lines.length;
       });
-      y += 5;
+      y += pakaiKop ? 3.5 : 5;
     });
+
+    // Jarak bagian bawah: lebih rapat bila memakai kop agar tetap satu lembar F4
+    const J = pakaiKop
+      ? { cat: 4.5, catPad: 6, catJeda: 6.5, baris: 4.7, judul: 6, sesudah: 5, tgl: 6, garis: 21, nama: 26, namaKosong: 25.5, akhir: 33 }
+      : { cat: 5, catPad: 8, catJeda: 9, baris: 5, judul: 7, sesudah: 7, tgl: 7, garis: 24, nama: 29, namaKosong: 28.5, akhir: 38 };
 
     // Catatan login
     doc.setFillColor(250, 247, 242);
     const note = doc.splitTextToSize(c.loginNote, LEBAR - 10);
-    const noteH = note.length * 5 + 8;
+    const noteH = note.length * J.cat + J.catPad;
     doc.roundedRect(KIRI, y, LEBAR, noteH, 3, 3, "F");
     doc.setFontSize(9.5);
     doc.setTextColor(...INK);
-    doc.text(note, 25, y + 6.5);
-    y += noteH + 9;
+    doc.text(note, 25, y + J.catPad - 1.5);
+    y += noteH + J.catJeda;
 
     // Pernyataan persetujuan siswa & orang tua/wali
     const p = c.pernyataan;
     doc.setFontSize(10);
     const pembuka = doc.splitTextToSize(p.pembuka, LEBAR);
     const butir = p.butir.map((b) => doc.splitTextToSize(b, LEBAR - 7));
-    const tinggiPernyataan = 7 + pembuka.length * 5 + 2 + butir.reduce((t, l) => t + l.length * 5 + 1, 0);
-    y = ruang(y, tinggiPernyataan + 7 + 7 + 33); // pernyataan + tanda tangan tetap satu halaman
+    const tinggiPernyataan = J.judul + pembuka.length * J.baris + 2 + butir.reduce((t, l) => t + l.length * J.baris + 1, 0);
+    y = ruang(y, tinggiPernyataan + J.sesudah + J.tgl + J.nama + 4); // pernyataan + tanda tangan tetap satu halaman
     doc.setTextColor(...INK);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text(p.judul, KIRI, y);
-    y += 7;
+    y += J.judul;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.text(pembuka, KIRI, y);
-    y += pembuka.length * 5 + 2;
+    y += pembuka.length * J.baris + 2;
     butir.forEach((lines, i) => {
       doc.text(`${i + 1}.`, KIRI + 2, y);
       doc.text(lines, KIRI + 7, y);
-      y += lines.length * 5 + 1;
+      y += lines.length * J.baris + 1;
     });
-    y += 7;
+    y += J.sesudah;
 
     // Tanda tangan: calon siswa, orang tua/wali, panitia
     const dicetak = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
     doc.setTextColor(...MUTED);
     doc.text(`Yogyakarta, ${dicetak}`, KANAN, y, { align: "right" });
-    y += 7;
+    y += J.tgl;
     const kolom = LEBAR / c.ttd.length;
     const LEBAR_GARIS = kolom - 10;
     c.ttd.forEach((t, i) => {
@@ -230,18 +265,18 @@
       doc.setFont("helvetica", "normal");
       doc.setDrawColor(...INK);
       doc.setLineWidth(0.3);
-      doc.line(x - LEBAR_GARIS / 2, y + 24, x + LEBAR_GARIS / 2, y + 24);
+      doc.line(x - LEBAR_GARIS / 2, y + J.garis, x + LEBAR_GARIS / 2, y + J.garis);
       if (t.nama) {
         const nama = doc.splitTextToSize(t.nama, LEBAR_GARIS);
-        doc.text(nama[0] + (nama.length > 1 ? "…" : ""), x, y + 29, { align: "center" });
+        doc.text(nama[0] + (nama.length > 1 ? "…" : ""), x, y + J.nama, { align: "center" });
       } else {
         doc.setTextColor(...MUTED);
         doc.setFontSize(8.5);
-        doc.text("nama jelas", x, y + 28.5, { align: "center" });
+        doc.text("nama jelas", x, y + J.namaKosong, { align: "center" });
         doc.setFontSize(10);
       }
     });
-    y += 38;
+    y += J.akhir;
     doc.setFontSize(9);
     doc.setTextColor(...MUTED);
     doc.text("Cetak di kertas F4, tanda tangani, lalu bawa saat daftar ulang. Simpan salinannya sebagai tanda bukti yang sah.", TENGAH, Math.min(y, PAGE_H - 10), { align: "center" });
@@ -286,15 +321,66 @@
     return gabungData(d, v);
   }
 
-  function muatJsPdf() {
-    if (root.jspdf && root.jspdf.jsPDF) return Promise.resolve();
+  function muatSkrip(url, sudah) {
+    if (sudah()) return Promise.resolve();
     return new Promise((res, rej) => {
-      const s = document.createElement("script");
-      s.src = JSPDF_URL;
-      s.onload = () => res();
-      s.onerror = () => rej(new Error("Gagal memuat pembuat PDF. Periksa internet lalu coba lagi."));
-      document.head.appendChild(s);
+      const el = document.createElement("script");
+      el.src = url;
+      el.onload = () => res();
+      el.onerror = () => rej(new Error("Gagal memuat pembuat PDF. Periksa internet lalu coba lagi."));
+      document.head.appendChild(el);
     });
+  }
+  const muatJsPdf = () => muatSkrip(JSPDF_URL, () => !!(root.jspdf && root.jspdf.jsPDF));
+
+  // Ambil kop (sekali saja per kunjungan). Gagal → null, PDF tetap dibuat tanpa kop.
+  let kopCache = null;
+  async function ambilKop() {
+    if (!KOP_URL) return null;
+    try {
+      await muatSkrip(PDFLIB_URL, () => !!root.PDFLib);
+      if (!kopCache) {
+        const r = await fetch(KOP_URL);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        kopCache = new Uint8Array(await r.arrayBuffer());
+      }
+      return kopCache;
+    } catch (e) {
+      if (root.console) console.warn("Kop surat tidak termuat, PDF dibuat tanpa kop:", e);
+      return null;
+    }
+  }
+
+  // Halaman 1: kop (vektor asli, disesuaikan ke lebar F4) di bawah isi dari jsPDF
+  async function tempelKop(isiBytes, kopBytes) {
+    const { PDFDocument } = root.PDFLib;
+    const out = await PDFDocument.create();
+    const isi = await PDFDocument.load(isiBytes);
+    const kop = await PDFDocument.load(kopBytes);
+    const [latar] = await out.embedPdf(kop, [0]);
+    const halaman = await out.embedPdf(isi, isi.getPageIndices());
+    halaman.forEach((hal, i) => {
+      const { width: W, height: H } = isi.getPage(i).getSize();
+      const p = out.addPage([W, H]);
+      if (i === 0) {
+        const skala = W / latar.width;
+        p.drawPage(latar, { x: 0, y: H - latar.height * skala, width: W, height: latar.height * skala });
+      }
+      p.drawPage(hal, { x: 0, y: 0, width: W, height: H });
+    });
+    out.setTitle("Bukti Pendaftaran SPMB SMK Tamansiswa Jetis");
+    return out.save();
+  }
+
+  function simpanBerkas(bytes, nama) {
+    const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = nama;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
   }
 
   // Alamat halaman login siswa (situs di-hosting di akar domain)
@@ -302,10 +388,21 @@
 
   async function unduh(data, siswaUrl) {
     await muatJsPdf();
-    const { doc, namaFile: nama } = buatDokumen(data, siswaUrl || alamatSiswa());
+    const url = siswaUrl || alamatSiswa();
+    const kop = await ambilKop();
+    if (kop) {
+      try {
+        const { doc, namaFile: nama } = buatDokumen(data, url, { kop: true });
+        simpanBerkas(await tempelKop(doc.output("arraybuffer"), kop), nama);
+        return nama;
+      } catch (e) {
+        if (root.console) console.warn("Gagal menempel kop, PDF dibuat tanpa kop:", e);
+      }
+    }
+    const { doc, namaFile: nama } = buatDokumen(data, url);
     doc.save(nama);
     return nama;
   }
 
-  root.BuktiPdf = { NAMA_JURUSAN, buildPdfContent, gabungData, cariData, unduh, namaFile, tanggalTeks, waktuDaftarTeks };
+  root.BuktiPdf = { KOP_URL, NAMA_JURUSAN, buildPdfContent, gabungData, cariData, unduh, namaFile, tanggalTeks, waktuDaftarTeks };
 })(typeof window !== "undefined" ? window : globalThis);

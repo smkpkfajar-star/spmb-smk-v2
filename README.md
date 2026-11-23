@@ -43,7 +43,8 @@ docs/                 design.md (panduan gaya) + catatan desain & rencana kerja
 | Logo & ikon tab browser | `assets/img/logo.svg` (sumber), PNG ukuran lain + `favicon.ico` di folder utama dibuat dari SVG itu |
 | Teks penjelasan jurusan | `assets/js/beranda/jurusan.js` (atau `index.html`) |
 | Isian formulir pendaftaran | `daftar/index.html` + `assets/js/daftar/daftar.js` |
-| PDF bukti pendaftaran (kertas F4, pernyataan, tanda tangan) — dipakai formulir, halaman siswa & tombol "Bukti PDF" admin | `assets/js/umum/bukti-pdf.js` |
+| PDF bukti pendaftaran (kertas F4, kop surat, pernyataan, tanda tangan) — dipakai formulir, halaman siswa & tombol "Bukti PDF" admin | `assets/js/umum/bukti-pdf.js` |
+| Kop surat PDF bukti (ganti file ini, nama tetap, untuk mengganti kop) | `assets/template/template-pendaftaran-spmb-online.pdf` |
 | Unggah berkas: satu tombol → pop-up "Ambil foto" (kamera HP / webcam) atau "Pilih berkas"; foto dikecilkan maks. 2000 px | `assets/js/umum/pilih-berkas.js` |
 | Kolom tabel admin, status, tombol | `assets/js/admin/modules.js` |
 | Tampilan tabel/filter admin (semua modul) | `assets/js/admin/ui.js` |
