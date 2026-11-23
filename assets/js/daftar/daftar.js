@@ -1011,14 +1011,42 @@ function buildPdfContent(data, siswaUrl) {
     loginNote:
       `Lengkapi berkas atau cek berkas di ${siswaUrl} ` +
       "dengan login memakai NISN dan password yang dibuat saat mendaftar. Jangan beri tahu password ke siapa pun.",
+    kertas: [215, 330], // F4 / folio, dalam mm
+    pernyataan: {
+      judul: "C. Pernyataan Persetujuan",
+      pembuka: "Dengan menandatangani bukti pendaftaran ini, kami calon siswa dan orang tua/wali menyatakan bahwa:",
+      butir: [
+        "Data yang diisikan dalam formulir pendaftaran adalah benar dan dapat dipertanggungjawabkan.",
+        "Calon siswa bersedia mengikuti seluruh tahapan seleksi SPMB SMK Tamansiswa Jetis.",
+        "Orang tua/wali menyetujui dan mendukung calon siswa bersekolah di SMK Tamansiswa Jetis pada jurusan yang dipilih.",
+        "Apabila diterima, calon siswa bersedia menaati tata tertib dan peraturan sekolah.",
+        "Apabila di kemudian hari data terbukti tidak benar, kami bersedia menerima keputusan panitia, termasuk pembatalan pendaftaran.",
+      ],
+    },
+    ttd: [
+      { peran: "Calon Siswa", nama: isiNama(data.namaLengkap) },
+      { peran: "Orang Tua/Wali", nama: isiNama(data.namaOrtu) },
+      { peran: "Panitia SPMB", nama: "" },
+    ],
   };
+}
+// Nama untuk kolom tanda tangan: kosong/"-" → "" (dicetak sebagai garis isian)
+function isiNama(x) {
+  const s = String(x ?? "").trim();
+  return s === "-" ? "" : s;
 }
 
 function generatePDF(data) {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
   const siswaUrl = new URL("../#login", window.location.href).href;
   const c = buildPdfContent(data, siswaUrl);
+  const doc = new jsPDF({ unit: "mm", format: c.kertas }); // F4: 215 x 330 mm
+  const PAGE_W = c.kertas[0];
+  const PAGE_H = c.kertas[1];
+  const KIRI = 20;
+  const KANAN = PAGE_W - 20;
+  const TENGAH = PAGE_W / 2;
+  const LEBAR = KANAN - KIRI;
   const GREEN = [23, 23, 23]; // judul & nomor: hitam arang (design.md)
   const GOLD = [242, 181, 58];
   const INK = [28, 42, 34];
@@ -1026,35 +1054,41 @@ function generatePDF(data) {
   const LABEL_X = 25;
   const COLON_X = 72;
   const VALUE_X = 75;
-  const VALUE_W = 190 - VALUE_X;
-  const LINE = 6.2;
+  const VALUE_W = KANAN - VALUE_X;
+  const LINE = 5.6;
+  // pindah halaman bila sisa ruang tidak cukup
+  const ruang = (y, perlu) => {
+    if (y + perlu <= PAGE_H - 12) return y;
+    doc.addPage(c.kertas);
+    return 20;
+  };
 
   // Kepala
   doc.setTextColor(...GREEN);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
-  doc.text(c.school, 105, 20, { align: "center" });
+  doc.text(c.school, TENGAH, 20, { align: "center" });
   doc.setTextColor(...INK);
   doc.setFontSize(12);
-  doc.text(c.title, 105, 27, { align: "center" });
+  doc.text(c.title, TENGAH, 27, { align: "center" });
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor(...MUTED);
-  doc.text(c.subtitle, 105, 33, { align: "center" });
+  doc.text(c.subtitle, TENGAH, 33, { align: "center" });
   doc.setDrawColor(...GOLD);
   doc.setLineWidth(0.6);
-  doc.line(20, 37, 190, 37);
+  doc.line(KIRI, 37, KANAN, 37);
 
   // Nomor pendaftaran
   doc.setFillColor(254, 247, 230);
-  doc.roundedRect(20, 42, 170, 18, 3, 3, "F");
+  doc.roundedRect(KIRI, 42, LEBAR, 18, 3, 3, "F");
   doc.setTextColor(...INK);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.text("Nomor Pendaftaran", 26, 53);
   doc.setTextColor(...GREEN);
   doc.setFontSize(16);
-  doc.text(c.noPendaftaran, 184, 53.5, { align: "right" });
+  doc.text(c.noPendaftaran, KANAN - 6, 53.5, { align: "right" });
 
   // Isi
   let y = 71;
@@ -1080,23 +1114,67 @@ function generatePDF(data) {
 
   // Catatan login
   doc.setFillColor(250, 247, 242);
-  const note = doc.splitTextToSize(c.loginNote, 160);
+  const note = doc.splitTextToSize(c.loginNote, LEBAR - 10);
   const noteH = note.length * 5 + 8;
-  doc.roundedRect(20, y, 170, noteH, 3, 3, "F");
+  doc.roundedRect(KIRI, y, LEBAR, noteH, 3, 3, "F");
   doc.setFontSize(9.5);
   doc.setTextColor(...INK);
   doc.text(note, 25, y + 6.5);
-  y += noteH + 12;
+  y += noteH + 9;
 
-  // Penutup
+  // Pernyataan persetujuan siswa & orang tua/wali
+  const p = c.pernyataan;
   doc.setFontSize(10);
-  doc.setTextColor(...MUTED);
-  const dicetak = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
-  doc.text("Simpan bukti pendaftaran ini sebagai tanda bukti yang sah.", 20, y);
-  doc.text(`Yogyakarta, ${dicetak}`, 150, y + 10, { align: "center" });
+  const pembuka = doc.splitTextToSize(p.pembuka, LEBAR);
+  const butir = p.butir.map((b) => doc.splitTextToSize(b, LEBAR - 7));
+  const tinggiPernyataan = 7 + pembuka.length * 5 + 2 + butir.reduce((t, l) => t + l.length * 5 + 1, 0);
+  y = ruang(y, tinggiPernyataan + 7 + 7 + 33); // pernyataan + tanda tangan tetap satu halaman
   doc.setTextColor(...INK);
-  doc.text("Panitia SPMB", 150, y + 16, { align: "center" });
-  doc.text("( ____________________ )", 150, y + 36, { align: "center" });
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.text(p.judul, KIRI, y);
+  y += 7;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(pembuka, KIRI, y);
+  y += pembuka.length * 5 + 2;
+  butir.forEach((lines, i) => {
+    doc.text(`${i + 1}.`, KIRI + 2, y);
+    doc.text(lines, KIRI + 7, y);
+    y += lines.length * 5 + 1;
+  });
+  y += 7;
+
+  // Tanda tangan: calon siswa, orang tua/wali, panitia
+  const dicetak = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+  doc.setTextColor(...MUTED);
+  doc.text(`Yogyakarta, ${dicetak}`, KANAN, y, { align: "right" });
+  y += 7;
+  const kolom = LEBAR / c.ttd.length;
+  const LEBAR_GARIS = kolom - 10;
+  c.ttd.forEach((t, i) => {
+    const x = KIRI + kolom * i + kolom / 2;
+    doc.setTextColor(...INK);
+    doc.setFont("helvetica", "bold");
+    doc.text(t.peran, x, y, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setDrawColor(...INK);
+    doc.setLineWidth(0.3);
+    doc.line(x - LEBAR_GARIS / 2, y + 24, x + LEBAR_GARIS / 2, y + 24);
+    if (t.nama) {
+      const nama = doc.splitTextToSize(t.nama, LEBAR_GARIS);
+      doc.text(nama[0] + (nama.length > 1 ? "…" : ""), x, y + 29, { align: "center" });
+    } else {
+      doc.setTextColor(...MUTED);
+      doc.setFontSize(8.5);
+      doc.text("nama jelas", x, y + 28.5, { align: "center" });
+      doc.setFontSize(10);
+    }
+  });
+  y += 38;
+  doc.setFontSize(9);
+  doc.setTextColor(...MUTED);
+  doc.text("Cetak di kertas F4, tanda tangani, lalu bawa saat daftar ulang. Simpan salinannya sebagai tanda bukti yang sah.", TENGAH, Math.min(y, PAGE_H - 10), { align: "center" });
 
   doc.save(`Bukti-Pendaftaran-${c.noPendaftaran}.pdf`);
 }

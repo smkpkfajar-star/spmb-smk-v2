@@ -60,3 +60,28 @@ test("catatan login memuat alamat halaman siswa", () => {
   assert.ok(c.loginNote.includes("https://contoh.sch.id/siswa/"));
   assert.ok(/NISN/.test(c.loginNote) && /password/.test(c.loginNote));
 });
+
+test("kertas F4 (215 x 330 mm)", () => {
+  const c = buildPdfContent(data, "x");
+  assert.equal(c.kertas.join("x"), "215x330");
+});
+
+test("ada pernyataan persetujuan siswa & orang tua", () => {
+  const c = buildPdfContent(data, "x");
+  assert.match(c.pernyataan.judul, /Pernyataan/i);
+  assert.match(c.pernyataan.pembuka, /orang tua\/wali/i);
+  assert.ok(c.pernyataan.butir.length >= 3);
+  assert.ok(c.pernyataan.butir.some((b) => /benar/i.test(b)));
+});
+
+test("kolom tanda tangan: calon siswa, orang tua/wali, panitia — dengan nama", () => {
+  const t = buildPdfContent(data, "x").ttd;
+  assert.equal(t.map((x) => x.peran).join("|"), "Calon Siswa|Orang Tua/Wali|Panitia SPMB");
+  assert.equal(t[0].nama, "Siti Aminah");
+  assert.equal(t[1].nama, "Ibu Siti");
+});
+
+test("nama orang tua kosong → garis isian, bukan '-'", () => {
+  const t = buildPdfContent({ ...data, namaOrtu: "" }, "x").ttd;
+  assert.equal(t[1].nama, "");
+});
