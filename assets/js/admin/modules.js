@@ -487,6 +487,7 @@
         /* ---------- petugas ---------- */
         const domain = APP_CONFIG.emailDomain.petugas;
         const username = (email) => String(email || "").replace("@" + domain, "");
+        let daftarPetugas = [];
         async function loadPetugas() {
           const el = document.getElementById("petugas");
           const { data, error } = await db.from("profiles").select("id, email, nama_lengkap, role").in("role", STAFF_ROLES).order("role");
@@ -494,14 +495,16 @@
             el.innerHTML = `<p class="rounded-2xl bg-red-50 p-4 text-[15px] font-semibold text-red-700">Gagal memuat petugas: ${esc(error.message)}</p>`;
             return;
           }
+          daftarPetugas = data;
           el.innerHTML = `<ul class="divide-y divide-line/40">${data
             .map(
               (p) => `<li class="flex flex-wrap items-center justify-between gap-3 py-3">
                 <span><b>${esc(p.nama_lengkap || "-")}</b><br><span class="text-[14px] text-ink-500">username: ${esc(username(p.email))}</span></span>
-                <label class="flex items-center gap-2 text-[15px]"><span class="sr-only">Peran ${esc(p.nama_lengkap)}</span>
+                <span class="flex items-center gap-2"><label class="flex items-center gap-2 text-[15px]"><span class="sr-only">Peran ${esc(p.nama_lengkap)}</span>
                   <select data-role="${esc(p.id)}" ${p.id === profile.id ? "disabled" : ""} class="rounded-xl border-2 border-line bg-white px-3 py-2 text-[15px]">
                     ${[...STAFF_ROLES, "pendaftar"].map((r) => `<option value="${r}" ${r === p.role ? "selected" : ""}>${r === "pendaftar" ? "Nonaktif (bukan petugas)" : esc(AdminAuth.ROLE_LABEL[r])}</option>`).join("")}
                   </select></label>
+                  <button type="button" data-ubah="${esc(p.id)}" class="rounded-xl border-2 border-line bg-white px-3 py-2 text-[15px] font-semibold hover:border-ink-500" aria-label="Ubah nama atau password ${esc(p.nama_lengkap || username(p.email))}">Ubah</button></span>
               </li>`
             )
             .join("")}</ul>`;
@@ -513,6 +516,37 @@
           if (error) AdminUI.toast("Gagal mengubah peran: " + error.message, "error");
           else AdminUI.toast("Peran diperbarui.");
           loadPetugas();
+        });
+        document.getElementById("petugas").addEventListener("click", (e) => {
+          const btn = e.target.closest("button[data-ubah]");
+          if (!btn) return;
+          const p = daftarPetugas.find((x) => x.id === btn.dataset.ubah);
+          if (!p) return;
+          const dirinya = p.id === profile.id;
+          AdminUI.openDialog({
+            title: "Ubah petugas",
+            subtitle: `Username: ${username(p.email)}`,
+            fields: [
+              { name: "nama", label: "Nama petugas", type: "text" },
+              { name: "password", label: "Password baru (min. 8 karakter)", type: "text", help: "Kosongkan bila password tidak diganti. Beritahukan password baru langsung ke petugas." },
+            ],
+            values: { nama: p.nama_lengkap || "" },
+            onSave: async (v) => {
+              const { nama, password } = AdminUI.cekUbahPetugas(v);
+              if (nama !== (p.nama_lengkap || "")) {
+                const { error, data: upd } = await db.from("profiles").update({ nama_lengkap: nama }).eq("id", p.id).select("id");
+                if (error || !upd || !upd.length) throw new Error("Gagal mengubah nama" + (error ? ": " + error.message : "."));
+              }
+              if (password) {
+                const { error } = await db.rpc("reset_password", { target_email: p.email, new_password: password });
+                if (error) throw new Error("Nama tersimpan, tapi password gagal diganti: " + error.message);
+              }
+              AdminUI.toast(password ? `Data ${nama} diperbarui, password diganti.` : `Data ${nama} diperbarui.`);
+              // nama sendiri tampil di menu samping → muat ulang agar ikut berubah
+              if (dirinya && nama !== (p.nama_lengkap || "")) return setTimeout(() => location.reload(), 900);
+              loadPetugas();
+            },
+          });
         });
         document.getElementById("btnTambah").addEventListener("click", () =>
           AdminUI.openDialog({

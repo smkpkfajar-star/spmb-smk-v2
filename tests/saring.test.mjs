@@ -111,3 +111,11 @@ test("pesanNomorBaru: pesan WhatsApp berisi nama, nomor lama & nomor baru", () =
   assert.match(p, /SPMB-2026-100/);
   assert.match(p, /SPMB-2026-101/);
 });
+
+test("cekUbahPetugas: nama wajib, password boleh kosong (tidak diganti) atau min. 8", () => {
+  const { cekUbahPetugas } = UI;
+  assert.deepEqual({ ...cekUbahPetugas({ nama: "  Bu Sari ", password: "-" }) }, { nama: "Bu Sari", password: null });
+  assert.deepEqual({ ...cekUbahPetugas({ nama: "Bu Sari", password: "rahasia123" }) }, { nama: "Bu Sari", password: "rahasia123" });
+  assert.throws(() => cekUbahPetugas({ nama: "-", password: "-" }), /nama/i);
+  assert.throws(() => cekUbahPetugas({ nama: "Bu Sari", password: "pendek" }), /8 karakter/);
+});

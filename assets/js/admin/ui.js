@@ -187,7 +187,16 @@
     `karena ada kesalahan sistem penomoran. Data pendaftaran tetap aman, tidak perlu mendaftar ulang.\n\n` +
     `Mohon gunakan nomor baru ini untuk keperluan selanjutnya. Terima kasih.`;
 
-  root.AdminUI = { cariNomorDobel, barisMilik, pesanNomorBaru, polaBunyi: () => polaBunyi(), URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
+  // Isian dialog "Ubah petugas" ("-" = kosong). Password kosong = tidak diganti.
+  function cekUbahPetugas(v) {
+    const nama = String(v.nama || "").trim();
+    if (!nama || nama === "-") throw new Error("Isi nama petugas.");
+    const pw = v.password === undefined || v.password === "-" ? "" : String(v.password);
+    if (pw && pw.length < 8) throw new Error("Password minimal 8 karakter. Kosongkan bila tidak ingin mengganti password.");
+    return { nama, password: pw || null };
+  }
+
+  root.AdminUI = { cekUbahPetugas, cariNomorDobel, barisMilik, pesanNomorBaru, polaBunyi: () => polaBunyi(), URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
   if (typeof document === "undefined") return;
 
   /* ---------- tampilan ---------- */
