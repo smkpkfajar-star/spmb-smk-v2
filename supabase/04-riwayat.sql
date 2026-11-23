@@ -1,5 +1,5 @@
 -- ============================================================
--- Riwayat aktivitas petugas (hanya SUPERADMIN yang bisa melihat)
+-- Riwayat aktivitas petugas (hanya SUPERADMIN yang bisa melihat) — tampil langsung (realtime)
 --
 -- Dicatat dari panel admin: masuk/keluar, ubah data pendaftar (lengkap dengan
 -- perubahan lama → baru), hubungi orang tua, ekspor Excel/PDF, unduh bukti PDF,
@@ -12,7 +12,8 @@
 -- * Hanya superadmin yang boleh MEMBACA.
 -- * TIDAK ADA yang boleh mengubah atau menghapus catatan.
 --
--- Jalankan SESUDAH 01-admin-setup.sql.
+-- Jalankan SESUDAH 01-admin-setup.sql. Bila versi lama file ini sudah pernah dijalankan,
+-- jalankan ULANG agar fitur langsung (realtime) aktif.
 -- Supabase → SQL Editor → New query → tempel → Run. Aman dijalankan ulang.
 -- ============================================================
 
@@ -76,6 +77,19 @@ using (public.is_superadmin());
 revoke update, delete on public.riwayat from anon, authenticated;
 grant select, insert on public.riwayat to authenticated;
 grant usage on sequence public.riwayat_id_seq to authenticated;
+
+-- Realtime: aktivitas baru langsung muncul di halaman Riwayat superadmin.
+-- (Aturan baca di atas tetap berlaku: hanya superadmin yang menerima kiriman langsung.)
+do $$
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1 from pg_publication_tables
+       where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'riwayat'
+     ) then
+    alter publication supabase_realtime add table public.riwayat;
+  end if;
+end $$;
 
 -- Lihat 50 aktivitas terbaru:
 -- select waktu, pelaku_nama, peran, aksi, modul, sasaran, detail from public.riwayat order by waktu desc limit 50;

@@ -472,7 +472,13 @@
           <select id="rwAksi" class="h-10 rounded-md border border-line/50 bg-white px-2 text-[14px]"><option value="">Semua aktivitas</option></select>
           <button id="rwMuatUlang" type="button" class="h-10 rounded-full px-4 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Muat ulang</button>
         </div>
-        <p id="rwJumlah" class="mt-3 font-mono text-[12.5px] text-ink-500"></p>
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <p id="rwJumlah" class="font-mono text-[12.5px] text-ink-500"></p>
+          <span id="rwLangsung" class="inline-flex items-center gap-2 text-[13px] text-ink-500" role="status" aria-live="polite">
+            <span class="relative flex h-2.5 w-2.5" aria-hidden="true"><span data-rw-denyut class="absolute inline-flex h-full w-full rounded-full opacity-75" style="background:#A1A1AA"></span><span data-rw-titik class="relative inline-flex h-2.5 w-2.5 rounded-full" style="background:#A1A1AA"></span></span>
+            <span data-rw-teks>Menghubungkan…</span>
+          </span>
+        </div>
         <div id="rwDaftar" class="mt-2"><div class="skeleton h-12"></div><div class="skeleton mt-2 h-12"></div><div class="skeleton mt-2 h-12"></div></div>
         <button id="rwLagi" type="button" class="mt-4 hidden h-10 rounded-full px-5 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Muat lebih banyak</button>
       </section>
@@ -811,7 +817,7 @@
                 </tr></thead>
                 <tbody>${rows
                   .map(
-                    (r) => `<tr class="bg-white align-top even:bg-sand">
+                    (r) => `<tr class="bg-white align-top even:bg-sand" ${rwBaru.has(r.id) ? "data-rw-baru" : ""}>
                       <td class="border-b border-hairline px-4 py-2.5 font-mono text-[12.5px] whitespace-nowrap text-ink-600">${esc(rwWaktu(r.waktu))}</td>
                       <td class="border-b border-hairline px-4 py-2.5">${petugas(r)}</td>
                       <td class="border-b border-hairline px-4 py-2.5">${aksi(r)}</td>
@@ -825,7 +831,7 @@
             <div class="divide-y divide-hairline rounded-lg border border-hairline bg-white md:hidden">
               ${rows
                 .map(
-                  (r) => `<article class="p-4 text-[14px]">
+                  (r) => `<article class="p-4 text-[14px]" ${rwBaru.has(r.id) ? "data-rw-baru" : ""}>
                     <div class="flex items-start justify-between gap-3"><div class="min-w-0">${aksi(r)}</div><span class="shrink-0 font-mono text-[12px] text-ink-500">${esc(rwWaktu(r.waktu))}</span></div>
                     <div class="mt-2">${petugas(r)}</div>
                     ${r.sasaran ? `<p class="mt-1.5">${esc(r.sasaran)}</p>` : ""}
@@ -834,7 +840,76 @@
                 )
                 .join("")}
             </div>`;
+          // sorot sebentar aktivitas yang baru masuk
+          wadah.querySelectorAll("[data-rw-baru]").forEach((el) =>
+            el.animate && el.animate([{ backgroundColor: "rgb(252 231 243)" }, { backgroundColor: "rgb(252 231 243)", offset: 0.5 }, { backgroundColor: "transparent" }], { duration: 3000, easing: "ease-out" })
+          );
+          rwBaru.clear();
         }
+
+        /* --- langsung (realtime): aktivitas baru muncul sendiri tanpa muat ulang --- */
+        const rwBaru = new Set();
+        let rwSaluran = null;
+        let rwStatus = "";
+        let rwTimer = null;
+        let rwLepas = null;
+        function rwTampilStatus(status) {
+          rwStatus = status;
+          const wadah = document.getElementById("rwLangsung");
+          if (!wadah) return;
+          const nyala = status === "SUBSCRIBED";
+          const warna = nyala ? "#16A34A" : status === "MENGHUBUNGKAN" ? "#A1A1AA" : "#D97706";
+          wadah.querySelector("[data-rw-titik]").style.background = warna;
+          const denyut = wadah.querySelector("[data-rw-denyut]");
+          denyut.style.background = warna;
+          denyut.classList.toggle("animate-ping", nyala);
+          wadah.querySelector("[data-rw-teks]").textContent = nyala ? "Langsung — aktivitas baru muncul otomatis" : status === "MENGHUBUNGKAN" ? "Menghubungkan…" : "Diperbarui otomatis tiap 20 detik";
+        }
+        function rwTambah(rows) {
+          const ada = new Set(rwBaris.map((r) => r.id));
+          const baru = (rows || []).filter((r) => r && !ada.has(r.id));
+          if (!baru.length) return;
+          baru.forEach((r) => rwBaru.add(r.id));
+          rwBaris = baru.concat(rwBaris).sort((a, b) => (a.waktu < b.waktu ? 1 : a.waktu > b.waktu ? -1 : b.id - a.id));
+          rwIsiPilihan("rwPetugas", rwBaris.map((r) => r.pelaku_nama), "Semua petugas");
+          rwIsiPilihan("rwAksi", rwBaris.map((r) => r.aksi), "Semua aktivitas");
+          renderRiwayat();
+        }
+        async function rwCekBaru() {
+          if (document.visibilityState !== "visible" || !rwBaris.length) return;
+          const { data, error } = await db
+            .from("riwayat")
+            .select("id,waktu,pelaku_nama,peran,aksi,modul,sasaran,detail")
+            .gt("id", Math.max(...rwBaris.map((r) => r.id)))
+            .order("id", { ascending: false })
+            .limit(50);
+          if (!error) rwTambah(data);
+        }
+        function rwMulaiLangsung() {
+          if (rwSaluran || rwTimer) return;
+          rwTampilStatus("MENGHUBUNGKAN");
+          try {
+            rwSaluran = db
+              .channel("riwayat-langsung")
+              .on("postgres_changes", { event: "INSERT", schema: "public", table: "riwayat" }, (p) => rwTambah([p.new]))
+              .subscribe((status) => rwTampilStatus(status));
+          } catch {
+            rwTampilStatus("CADANGAN");
+          }
+          // cadangan: tetap cek berkala (realtime bisa "terhubung" tapi tabel belum terdaftar di Supabase)
+          rwTimer = setInterval(rwCekBaru, 20000);
+          setTimeout(() => rwStatus !== "SUBSCRIBED" && rwTampilStatus("CADANGAN"), 8000);
+          rwLepas = AdminUI.daftarPengamat({ stop: rwBerhentiLangsung });
+        }
+        function rwBerhentiLangsung() {
+          if (rwSaluran) db.removeChannel(rwSaluran).catch(() => {});
+          rwSaluran = null;
+          clearInterval(rwTimer);
+          rwTimer = null;
+          if (rwLepas) rwLepas();
+          rwLepas = null;
+        }
+
         async function loadRiwayat(dariAwal) {
           const wadah = document.getElementById("rwDaftar");
           const tombolLagi = document.getElementById("rwLagi");
@@ -862,6 +937,7 @@
           }
           rwBaris = rwBaris.concat(data || []);
           rwHabis = !data || data.length < RW_PER_MUAT;
+          rwMulaiLangsung();
           rwIsiPilihan("rwPetugas", rwBaris.map((r) => r.pelaku_nama), "Semua petugas");
           rwIsiPilihan("rwAksi", rwBaris.map((r) => r.aksi), "Semua aktivitas");
           renderRiwayat();
@@ -889,7 +965,11 @@
           if (MUAT[id] && !sudahDimuat.has(id)) {
             sudahDimuat.add(id);
             MUAT[id]();
+          } else if (id === "riwayat") {
+            rwCekBaru();
+            rwMulaiLangsung();
           }
+          if (id !== "riwayat") rwBerhentiLangsung();
         };
         this.pindahSub = pindahSub;
         pindahSub(sub);

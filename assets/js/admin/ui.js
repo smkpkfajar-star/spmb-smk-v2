@@ -504,6 +504,11 @@
 
   const ACTIVE_WATCHERS = new Set();
   const stopAllWatchers = () => [...ACTIVE_WATCHERS].forEach((w) => w.stop());
+  // Daftarkan pemantau lain (mis. realtime riwayat) agar ikut dihentikan saat pindah modul
+  const daftarPengamat = (w) => {
+    ACTIVE_WATCHERS.add(w);
+    return () => ACTIVE_WATCHERS.delete(w);
+  };
 
   // Cek tiap 60 detik selama tab terlihat; langsung cek saat tab kembali dibuka.
   // getKnown() → jumlah baris yang sudah tampil; onNew(n) dipanggil bila ada baris baru.
@@ -1339,5 +1344,5 @@
     return page;
   }
 
-  Object.assign(root.AdminUI, { badge, toast, renderShell, setActiveNav, statCards, openDialog, downloadFile, modulePage, watchNew, newBanner, stopAllWatchers });
+  Object.assign(root.AdminUI, { badge, toast, renderShell, setActiveNav, statCards, openDialog, downloadFile, modulePage, watchNew, newBanner, stopAllWatchers, daftarPengamat });
 })(typeof window !== "undefined" ? window : globalThis);
