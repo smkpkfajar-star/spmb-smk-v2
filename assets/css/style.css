@@ -224,7 +224,8 @@ body {
 .promo-mini-gambar { position: relative; display: block; width: 100%; height: auto; }
 @media (min-width: 640px) { .promo-mini { right: 24px; bottom: 24px; } .promo-mini-tombol { width: 88px; } }
 @keyframes promoGoyang { 0%, 82%, 100% { transform: translateY(0) rotate(0); } 86% { transform: translateY(-4px) rotate(-7deg); } 90% { transform: translateY(-4px) rotate(6deg); } 94% { transform: translateY(-2px) rotate(-3deg); } }
-@keyframes promoDenyut { 0% { box-shadow: 0 0 0 0 rgba(236,72,153,.55); } 70%, 100% { box-shadow: 0 0 0 14px rgba(236,72,153,0); } }
+.promo-mini-denyut { border: 2px solid rgba(236,72,153,.75); will-change: transform, opacity; opacity: 0; }
+@keyframes promoDenyut { 0% { transform: scale(1); opacity: .9; } 70%, 100% { transform: scale(1.22); opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
   .promo-mini-goyang { animation: promoGoyang 3.2s ease-in-out 1s infinite; transform-origin: 50% 80%; }
   .promo-mini-denyut { animation: promoDenyut 2.2s ease-out infinite; }
@@ -233,11 +234,11 @@ body {
 .promo-tiket-besar { position: relative; }
 .promo-kilap { position: absolute; inset: 0; pointer-events: none; overflow: hidden;
   -webkit-mask: url("../img/promo-tiket.png") center / 100% 100% no-repeat; mask: url("../img/promo-tiket.png") center / 100% 100% no-repeat; }
-.promo-kilap::before { content: ""; position: absolute; top: -20%; bottom: -20%; left: -70%; width: 55%; transform: skewX(-20deg);
+.promo-kilap::before { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 55%; transform: translateX(-130%) skewX(-20deg); will-change: transform, opacity;
   background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.08) 25%, rgba(255,255,255,.6) 50%, rgba(255,255,255,.08) 75%, rgba(255,255,255,0) 100%); opacity: 0; }
 .promo-bintang { position: absolute; transform: translate(-50%, -50%) scale(0); color: #fff; font-size: 18px; line-height: 1; pointer-events: none;
   text-shadow: 0 0 6px rgba(255,255,255,.95), 0 0 14px rgba(253,230,138,.9); opacity: 0; }
-@keyframes promoKilap { 0% { left: -70%; opacity: 1; } 28% { left: 125%; opacity: 1; } 29%, 100% { left: 125%; opacity: 0; } }
+@keyframes promoKilap { 0% { transform: translateX(-130%) skewX(-20deg); opacity: 1; } 28% { transform: translateX(240%) skewX(-20deg); opacity: 1; } 29%, 100% { transform: translateX(240%) skewX(-20deg); opacity: 0; } }
 @keyframes promoKelip { 0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0); } 12% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(45deg); } 24% { opacity: 0; transform: translate(-50%, -50%) scale(.2) rotate(90deg); } }
 @media (prefers-reduced-motion: no-preference) {
   .promo-kilap::before { animation: promoKilap 3.8s cubic-bezier(.45,.05,.35,1) .45s infinite; }
@@ -259,5 +260,16 @@ body {
   transform: translate(-50%, -50%);
   background: repeating-conic-gradient(from 0deg, rgba(253,230,138,.55) 0deg 5deg, rgba(253,230,138,0) 5deg 15deg);
   -webkit-mask: radial-gradient(circle, #000 0%, rgba(0,0,0,.65) 30%, transparent 66%); mask: radial-gradient(circle, #000 0%, rgba(0,0,0,.65) 30%, transparent 66%); }
+.promo-sinar { will-change: transform, opacity; }
 @keyframes promoSinarPutar { to { transform: translate(-50%, -50%) rotate(360deg); } }
 @media (prefers-reduced-motion: no-preference) { .promo-sinar.nyala { animation: promoSinarPutar 16s linear infinite; } }
+/* Selama pop-up terbuka, cahaya hero di belakangnya berhenti (hemat tenaga, terutama di HP) */
+.promo-buka .cahaya i { animation-play-state: paused; }
+/* Mode ringan (HP/tablet/perangkat lemah, diset promo.js): efek berat dikurangi */
+.promo-ringan #promoSpmb img, .promo-ringan .promo-mini-gambar { filter: none !important; }
+.promo-ringan .promo-sinar { width: 150%; }
+.promo-ringan .promo-sinar.nyala { animation: none; }
+.promo-ringan .promo-bintang:nth-of-type(n+4) { display: none; }
+.promo-ringan .promo-bintang { text-shadow: none; }
+.promo-ringan .promo-kilap::before { animation-duration: 5.5s; }
+.promo-ringan .promo-kartu-belakang img { box-shadow: 0 0 0 4px rgba(247,200,105,.85); }

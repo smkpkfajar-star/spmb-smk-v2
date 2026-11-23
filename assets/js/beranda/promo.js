@@ -43,6 +43,19 @@
   root.Promo = { perluTampil, transformTerbang, tengahLubang };
   if (typeof document === "undefined") return;
 
+  // Mode ringan untuk HP/tablet & perangkat lemah: efek dikurangi agar animasi tetap mulus
+  const RINGAN = (() => {
+    try {
+      const sentuh = root.matchMedia && root.matchMedia("(pointer: coarse)").matches;
+      const kecil = root.innerWidth < 640;
+      const lemah = (navigator.hardwareConcurrency || 8) <= 4;
+      const hemat = !!(navigator.connection && navigator.connection.saveData);
+      return sentuh || kecil || lemah || hemat;
+    } catch {
+      return false;
+    }
+  })();
+  if (RINGAN) document.documentElement.classList.add("promo-ringan");
   const geraknyaHalus = () => !(root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const animasi = (el, frames, opsi) =>
     geraknyaHalus() && el.animate ? el.animate(frames, { fill: "forwards", ...opsi }).finished.catch(() => {}) : Promise.resolve();
@@ -75,6 +88,7 @@
   // Ledakan partikel dari titik (x, y). lebar > 0 = sumber memanjang (mis. garis sobekan).
   function ledakan(x, y, jumlah, { warna, jarak = 220, ukuran = [7, 14], bentuk = ["✦", "●", "■"], durasi = 950, lebar = 0, gravitasi = false } = {}) {
     if (!geraknyaHalus()) return;
+    if (RINGAN) jumlah = Math.ceil(jumlah * 0.45);
     const wadah = document.createElement("div");
     Object.assign(wadah.style, { position: "fixed", inset: "0", zIndex: "80", pointerEvents: "none", overflow: "hidden" });
     document.body.appendChild(wadah);
@@ -93,7 +107,7 @@
         position: "absolute", left: x + (lebar ? (Math.random() - 0.5) * lebar : 0) + "px", top: y + "px",
         fontSize: uk * 1.5 + "px", lineHeight: "1", color: w,
         width: kotakKertas ? uk + "px" : "", height: kotakKertas ? uk * 0.62 + "px" : "", background: kotakKertas ? w : "",
-        borderRadius: kotakKertas ? "2px" : "", textShadow: kotakKertas ? "" : "0 0 10px rgba(255,255,255,.85)",
+        borderRadius: kotakKertas ? "2px" : "", textShadow: kotakKertas || RINGAN ? "" : "0 0 10px rgba(255,255,255,.85)", willChange: "transform, opacity",
         transform: "translate(-50%,-50%)",
       });
       wadah.appendChild(p);
@@ -134,19 +148,28 @@
     [0.7, -180, 1.08, 1, "pantul"],
     [1, 0, 1, 1, null],
   ];
+  const LINTASAN_RINGAN = [
+    [0, -540, 0.3, 0, "masuk"],
+    [0.14, -460, 0.55, 1, "keluar"],
+    [0.55, -180, 1.03, 1, "halus"],
+    [0.66, -180, 1.06, 1, "pantul"],
+    [1, 0, 1, 1, null],
+  ];
   // Kartu berputar beberapa kali (sisi belakang & depan bergantian), lalu membalik memperlihatkan tiket.
   // Sisi yang tampil dipilih dari sudut putaran tiap frame (lebih andal daripada backface-visibility).
   function putarKartu(isi, durasi) {
     const depan = isi.querySelector("a");
     const belakang = isi.querySelector(".promo-kartu-belakang");
+    isi.style.willChange = "transform, opacity";
     return new Promise((selesai) => {
       const mulai = performance.now();
       const langkah = (kini) => {
         const t = Math.min(1, (kini - mulai) / durasi);
         let i = 0;
-        while (i < LINTASAN.length - 2 && t > LINTASAN[i + 1][0]) i++;
-        const [t0, a0, s0, o0, pelan] = LINTASAN[i];
-        const [t1, a1, s1, o1] = LINTASAN[i + 1];
+        const L = RINGAN ? LINTASAN_RINGAN : LINTASAN;
+        while (i < L.length - 2 && t > L[i + 1][0]) i++;
+        const [t0, a0, s0, o0, pelan] = L[i];
+        const [t1, a1, s1, o1] = L[i + 1];
         const k = PELAN[pelan]((t - t0) / (t1 - t0 || 1));
         const sudut = a0 + (a1 - a0) * k;
         isi.style.transform = `scale(${s0 + (s1 - s0) * k}) rotateY(${sudut}deg)`;
@@ -158,6 +181,7 @@
         else {
           isi.style.transform = "";
           isi.style.opacity = "";
+          isi.style.willChange = "";
           depan.style.visibility = "";
           belakang.style.visibility = "hidden";
           selesai();
@@ -176,7 +200,7 @@
       return;
     }
     tombol.forEach((b) => (b.style.opacity = "0"));
-    const DURASI = 1750;
+    const DURASI = RINGAN ? 1200 : 1750;
     sinar.classList.add("nyala");
     sinar.animate(
       [{ opacity: 0 }, { opacity: 0, offset: 0.4 }, { opacity: 1, offset: 0.72 }, { opacity: 0.42 }],
@@ -189,7 +213,7 @@
       const y = r.top + r.height / 2;
       kilatan(x, y);
       ledakan(x, y, 34, { warna: ["#FDE68A", "#F2B53A", "#ffffff", "#F472B6", "#4ADE80"], jarak: Math.max(r.width, 260) * 0.8 });
-    }, DURASI * 0.7);
+    }, DURASI * (RINGAN ? 0.66 : 0.7));
     await putarKartu(isi, DURASI);
     tombol.forEach((b) => {
       b.style.transition = "opacity .3s";
@@ -303,7 +327,7 @@
       if (menutup) return;
       menutup = true;
       document.removeEventListener("keydown", tombol, true);
-      document.documentElement.classList.remove("overflow-hidden");
+      document.documentElement.classList.remove("overflow-hidden", "promo-buka");
       const mini = buatMini();
       mini.style.visibility = "hidden";
       document.body.appendChild(mini);
@@ -349,7 +373,7 @@
       root.location.href = tautan.href;
     });
     document.addEventListener("keydown", tombol, true);
-    document.documentElement.classList.add("overflow-hidden");
+    document.documentElement.classList.add("overflow-hidden", "promo-buka");
     document.body.appendChild(el);
     if (!dariRect) gacha(kotak);
     else {
