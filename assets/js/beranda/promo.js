@@ -22,7 +22,25 @@
     return { dx: x2 - x1, dy: y2 - y1, skala: Math.round((ke.width / dari.width) * 1000) / 1000 };
   }
 
-  root.Promo = { perluTampil, transformTerbang };
+  // Posisi garis sobekan (0–1 dari atas) = titik tengah lubang transparan terpanjang
+  // di tepi kiri gambar, dicari di 30%–92% tinggi (abaikan sudut membulat).
+  function tengahLubang(alpha) {
+    const n = alpha.length;
+    let terbaik = null;
+    let mulai = -1;
+    for (let i = Math.floor(n * 0.3); i <= Math.ceil(n * 0.92); i++) {
+      const bolong = i < n && alpha[i] < 16;
+      if (bolong && mulai < 0) mulai = i;
+      if ((!bolong || i === Math.ceil(n * 0.92)) && mulai >= 0) {
+        const akhir = bolong ? i : i - 1;
+        if (!terbaik || akhir - mulai > terbaik[1] - terbaik[0]) terbaik = [mulai, akhir];
+        mulai = -1;
+      }
+    }
+    return terbaik ? Math.round(((terbaik[0] + terbaik[1]) / 2 / n) * 1000) / 1000 : null;
+  }
+
+  root.Promo = { perluTampil, transformTerbang, tengahLubang };
   if (typeof document === "undefined") return;
 
   const geraknyaHalus = () => !(root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -51,6 +69,66 @@
       mini.remove();
     });
     return mini;
+  }
+
+  /* ---------- sobek karcis saat tiket diklik ---------- */
+  let garisSobek = null;
+  function bacaGarisSobek(img) {
+    if (garisSobek) return garisSobek;
+    try {
+      const k = document.createElement("canvas");
+      k.width = 4;
+      k.height = img.naturalHeight;
+      const g = k.getContext("2d", { willReadFrequently: true });
+      g.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, img.naturalWidth, img.naturalHeight);
+      const d = g.getImageData(1, 0, 1, img.naturalHeight).data;
+      const alpha = [];
+      for (let i = 3; i < d.length; i += 4) alpha.push(d[i]);
+      garisSobek = tengahLubang(alpha);
+    } catch {}
+    return (garisSobek = garisSobek || 0.66);
+  }
+
+  // Bagian bawah (sobekan emas) ditarik, robek di garis putus-putus, lalu jatuh berputar
+  async function sobekKarcis(img) {
+    const r = img.getBoundingClientRect();
+    const g = bacaGarisSobek(img) * 100;
+    const potong = (atas) => {
+      const c = img.cloneNode();
+      c.removeAttribute("alt");
+      c.setAttribute("aria-hidden", "true");
+      Object.assign(c.style, {
+        position: "fixed", left: r.left + "px", top: r.top + "px", width: r.width + "px", height: r.height + "px",
+        maxHeight: "none", margin: "0", zIndex: "75", pointerEvents: "none",
+        clipPath: atas ? `inset(0 0 ${100 - g}% 0)` : `inset(${g}% 0 0 0)`,
+        transformOrigin: atas ? "50% 100%" : `0% ${g}%`,
+      });
+      document.body.appendChild(c);
+      return c;
+    };
+    const bagianAtas = potong(true);
+    const bagianBawah = potong(false);
+    img.style.visibility = "hidden";
+    const kilau = img.parentElement && img.parentElement.querySelectorAll(".promo-kilap, .promo-bintang");
+    if (kilau) kilau.forEach((x) => (x.style.display = "none"));
+    await Promise.all([
+      animasi(bagianAtas, [
+        { transform: "none", offset: 0 },
+        { transform: "translateY(-3px) rotate(-.6deg)", offset: 0.35 },
+        { transform: "translateY(-10px) rotate(-1.5deg)", offset: 1 },
+      ], { duration: 820, easing: "ease-out" }),
+      animasi(bagianBawah, [
+        { transform: "none", opacity: 1, offset: 0 },
+        { transform: "translate(3px, 4px) rotate(1.5deg)", opacity: 1, offset: 0.14 },
+        { transform: "translate(-1px, 2px) rotate(-.8deg)", opacity: 1, offset: 0.26 },
+        { transform: "translate(8px, 14px) rotate(4deg)", opacity: 1, offset: 0.4 },
+        { transform: "translate(70px, 340px) rotate(24deg)", opacity: 0, offset: 1 },
+      ], { duration: 820, easing: "cubic-bezier(.5,0,.75,.4)" }),
+    ]);
+    return () => {
+      bagianAtas.remove();
+      bagianBawah.remove();
+    };
   }
 
   // dariRect: bila dibuka dari ikon kecil, tiket "terbang" membesar dari pojok
@@ -115,8 +193,19 @@
         else if (!e.shiftKey && i === f.length - 1) (e.preventDefault(), f[0].focus());
       }
     };
-    el.addEventListener("click", (e) => {
-      if (e.target === el || e.target.closest("[data-promo-tutup]")) tutup();
+    let menyobek = false;
+    el.addEventListener("click", async (e) => {
+      if (e.target === el || e.target.closest("[data-promo-tutup]")) return tutup();
+      const tautan = e.target.closest("[data-promo-daftar]");
+      if (!tautan) return;
+      // Ctrl/⌘/Shift-klik (tab baru) atau mode kurangi animasi: biarkan langsung
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0 || !geraknyaHalus()) return;
+      e.preventDefault();
+      if (menyobek) return;
+      menyobek = true;
+      kotak.querySelectorAll("[data-promo-tutup]").forEach((b) => (b.style.opacity = "0"));
+      await sobekKarcis(gambar);
+      root.location.href = tautan.href;
     });
     document.addEventListener("keydown", tombol, true);
     document.documentElement.classList.add("overflow-hidden");

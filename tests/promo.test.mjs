@@ -28,3 +28,15 @@ test("transformTerbang: dari tiket besar ke ikon kecil di pojok", () => {
   assert.equal(t.dx, 1216 - 640); // selisih titik tengah X
   assert.equal(t.dy, 819 - 385); // selisih titik tengah Y
 });
+
+test("tengahLubang: posisi garis sobekan dari kolom alpha tepi kiri gambar", () => {
+  const { tengahLubang } = ctx.window.Promo;
+  // 100 baris; baris 60–70 transparan (lubang sobekan), sisanya tidak
+  const alpha = Array.from({ length: 100 }, (_, i) => (i >= 60 && i <= 70 ? 0 : 255));
+  assert.equal(tengahLubang(alpha), 0.65);
+  // sudut membulat di atas & bawah (transparan) diabaikan: hanya dicari di 30%–92% tinggi
+  const sudut = alpha.map((a, i) => (i < 5 || i > 95 ? 0 : a));
+  assert.equal(tengahLubang(sudut), 0.65);
+  // tidak ada lubang → null (pakai cadangan)
+  assert.equal(tengahLubang(new Array(100).fill(255)), null);
+});
