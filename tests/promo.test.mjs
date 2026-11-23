@@ -19,3 +19,12 @@ test("tidak menghalangi tautan langsung (#login siswa, #faq, dst.)", () => {
   assert.equal(perluTampil({ hash: "#login" }), false);
   assert.equal(perluTampil({ hash: "#faq" }), false);
 });
+
+test("transformTerbang: dari tiket besar ke ikon kecil di pojok", () => {
+  const { transformTerbang } = ctx.window.Promo;
+  // tiket 400x570 di tengah layar → ikon 80x114 di pojok kanan bawah
+  const t = transformTerbang({ left: 440, top: 100, width: 400, height: 570 }, { left: 1176, top: 762, width: 80, height: 114 });
+  assert.equal(t.skala, 0.2);
+  assert.equal(t.dx, 1216 - 640); // selisih titik tengah X
+  assert.equal(t.dy, 819 - 385); // selisih titik tengah Y
+});
