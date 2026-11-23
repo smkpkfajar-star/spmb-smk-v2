@@ -40,6 +40,7 @@ docs/                 design.md (panduan gaya) + catatan desain & rencana kerja
 | Warna situs (terang & gelap) | `assets/css/style.css` — bagian `:root` (terang) dan `html.dark` (gelap) |
 | Huruf, sudut, nama warna Tailwind | `assets/js/umum/tailwind-config.js` |
 | Cara kerja mode gelap (tombol, ingatan) | `assets/js/umum/tema.js` |
+| Logo & ikon tab browser | `assets/img/logo.svg` (sumber), PNG ukuran lain + `favicon.ico` di folder utama dibuat dari SVG itu |
 | Teks penjelasan jurusan | `assets/js/beranda/jurusan.js` (atau `index.html`) |
 | Isian formulir pendaftaran | `daftar/index.html` + `assets/js/daftar/daftar.js` |
 | Isi PDF bukti pendaftaran | `buildPdfContent` di `assets/js/daftar/daftar.js` |

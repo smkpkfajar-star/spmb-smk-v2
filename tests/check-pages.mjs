@@ -124,10 +124,19 @@ for (const dir of ["daftar", "siswa", "admin"]) {
   if (existsSync(join(root, dir))) readdirSync(join(root, dir)).filter((f) => f.endsWith(".html")).forEach((f) => semuaHalaman.push(`${dir}/${f}`));
 }
 for (const name of semuaHalaman) {
-  for (const m of read(name).matchAll(/(?:src|href)="([^"#?:]+\.(?:js|css))"/g)) {
+  for (const m of read(name).matchAll(/(?:src|href)="([^"#?:]+\.(?:js|css|svg|png|ico))"/g)) {
     if (!existsSync(join(root, dirname(name), m[1]))) problems.push(`${name}: file "${m[1]}" tidak ditemukan`);
   }
 }
+
+// Ikon tab browser & logo: setiap halaman utama memuat favicon + ikon SVG + ikon iPhone; logo lama "TS" teks tidak dipakai lagi
+for (const name of semuaHalaman.filter((n) => !/http-equiv="refresh"/.test(read(n)))) {
+  const html = read(name);
+  for (const pola of [/rel="icon" href="[^"]*favicon\.ico"/, /rel="icon" href="[^"]*logo\.svg" type="image\/svg\+xml"/, /rel="apple-touch-icon"/])
+    if (!pola.test(html)) problems.push(`${name}: ikon belum dipasang (${pola.source})`);
+}
+for (const name of [...semuaHalaman, "assets/js/admin/ui.js"])
+  if (/>TS<\/span>/.test(read(name))) problems.push(`${name}: masih memakai kotak teks "TS", ganti dengan assets/img/logo.svg`);
 
 if (problems.length) {
   console.log(problems.join("\n"));

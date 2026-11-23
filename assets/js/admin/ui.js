@@ -262,7 +262,7 @@
     aside.setAttribute("aria-label", "Menu admin");
     aside.innerHTML = `
       <div class="sb-head flex h-14 items-center gap-2.5 px-5">
-        <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-ink-900 font-mono text-[12px] font-medium text-white">TS</span>
+        <img src="../assets/img/logo.svg" alt="" width="28" height="28" class="h-7 w-7 shrink-0 rounded-md" />
         <span class="mini-hide whitespace-nowrap text-[15px] font-semibold tracking-tight">SPMB <span class="font-normal text-ink-500">Admin</span></span>
       </div>
       <nav class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4">
