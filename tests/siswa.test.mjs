@@ -26,3 +26,30 @@ test("findMyRow mencocokkan NISN walau tersimpan sebagai angka", () => {
 test("nisnFromEmail", () => {
   assert.equal(nisnFromEmail("0099990011@siswa.spmb.local"), "0099990011");
 });
+
+test("langkahSiswa: urutan Terdaftar → Berkas → Verifikasi → Hasil", () => {
+  const { langkahSiswa } = ctx.window.Siswa;
+  const st = (row) => langkahSiswa(row).map((l) => l.state).join(",");
+  assert.equal(langkahSiswa({}).map((l) => l.label).join(","), "Terdaftar,Berkas,Verifikasi,Hasil");
+  assert.equal(st({}), "done,now,todo,todo");
+  assert.equal(st({ statusBerkas: "Belum Unggah", statusPendaftaran: "Pending" }), "done,now,todo,todo");
+  assert.equal(st({ statusBerkas: "Sudah Unggah", statusPendaftaran: "Pending" }), "done,done,now,todo");
+  assert.equal(st({ statusBerkas: "Berkas Ditolak", statusPendaftaran: "Pending" }), "done,bad,todo,todo");
+  assert.equal(st({ statusBerkas: "Gagal Unggah" }), "done,bad,todo,todo");
+  assert.equal(st({ statusBerkas: "Berkas Terverifikasi", statusPendaftaran: "Diverifikasi" }), "done,done,done,now");
+  assert.equal(st({ statusBerkas: "Berkas Terverifikasi", statusPendaftaran: "Diterima" }), "done,done,done,done");
+  assert.equal(st({ statusBerkas: "Sudah Unggah", statusPendaftaran: "Ditolak" }), "done,done,done,bad");
+  assert.match(langkahSiswa({ statusPendaftaran: "Diterima" })[3].ket, /diterima/i);
+});
+
+test("nadaStatus memberi warna badge", () => {
+  const { nadaStatus } = ctx.window.Siswa;
+  assert.equal(nadaStatus("Diterima"), "ok");
+  assert.equal(nadaStatus("Berkas Terverifikasi"), "ok");
+  assert.equal(nadaStatus("Sudah Unggah"), "ok");
+  assert.equal(nadaStatus("Berkas Ditolak"), "bad");
+  assert.equal(nadaStatus("Gagal Unggah"), "bad");
+  assert.equal(nadaStatus("Diverifikasi"), "info");
+  assert.equal(nadaStatus("Pending"), "wait");
+  assert.equal(nadaStatus("Belum Unggah"), "wait");
+});
