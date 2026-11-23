@@ -65,8 +65,13 @@
     el.innerHTML = `
       <div data-promo-kotak tabindex="-1" class="relative flex flex-col items-center outline-none ${dariRect ? "" : "motion-safe:animate-[promoMasuk_.35s_cubic-bezier(.2,.9,.3,1.2)]"}">
         <button type="button" data-promo-tutup class="absolute -right-2 -top-2 z-10 grid h-10 w-10 place-items-center rounded-full text-[17px] font-bold leading-none shadow-[0_6px_20px_rgba(0,0,0,.35)] transition hover:scale-105" style="background:#fff;color:#0E3A29" aria-label="Tutup">&#x2715;</button>
-        <a href="daftar/index.html" data-promo-daftar class="block rounded-[24px] focus:outline-none focus-visible:ring-4 focus-visible:ring-white/70">
+        <a href="daftar/index.html" data-promo-daftar class="promo-tiket-besar block rounded-[24px] focus:outline-none focus-visible:ring-4 focus-visible:ring-white/70">
           <img src="${GAMBAR}" width="420" height="597" alt="SPMB 2026/2027 resmi dibuka. Daftar ulang makin ringan! Mulai dengan Rp2 juta, sisa biaya bisa diangsur. Daftar sekarang." class="block h-auto w-auto max-w-full drop-shadow-[0_30px_60px_rgba(0,0,0,.45)]" style="max-height:calc(100dvh - 6.5rem)" />
+          <span class="promo-kilap" aria-hidden="true"></span>
+          <span class="promo-bintang" style="left:88%;top:47%" aria-hidden="true">✦</span>
+          <span class="promo-bintang" style="left:10%;top:61%;animation-delay:.9s;font-size:14px" aria-hidden="true">✦</span>
+          <span class="promo-bintang" style="left:78%;top:30%;animation-delay:1.6s;font-size:12px" aria-hidden="true">✦</span>
+          <span class="promo-bintang" style="left:55%;top:71%;animation-delay:2.3s;font-size:11px" aria-hidden="true">✦</span>
         </a>
         <button type="button" data-promo-tutup class="mt-3 rounded-full px-4 py-1.5 text-[14px] font-semibold underline-offset-4 hover:underline" style="color:rgba(255,255,255,.92)">Nanti saja</button>
       </div>`;

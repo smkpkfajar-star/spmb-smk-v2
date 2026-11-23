@@ -229,3 +229,17 @@ body {
   .promo-mini-goyang { animation: promoGoyang 3.2s ease-in-out 1s infinite; transform-origin: 50% 80%; }
   .promo-mini-denyut { animation: promoDenyut 2.2s ease-out infinite; }
 }
+/* Efek mengkilap tiket pop-up: sapuan cahaya (hanya di bagian tiket, mengikuti bentuk gambar) + bintang berkelip */
+.promo-tiket-besar { position: relative; }
+.promo-kilap { position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  -webkit-mask: url("../img/promo-tiket.png") center / 100% 100% no-repeat; mask: url("../img/promo-tiket.png") center / 100% 100% no-repeat; }
+.promo-kilap::before { content: ""; position: absolute; top: -20%; bottom: -20%; left: -70%; width: 55%; transform: skewX(-20deg);
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.08) 25%, rgba(255,255,255,.6) 50%, rgba(255,255,255,.08) 75%, rgba(255,255,255,0) 100%); opacity: 0; }
+.promo-bintang { position: absolute; transform: translate(-50%, -50%) scale(0); color: #fff; font-size: 18px; line-height: 1; pointer-events: none;
+  text-shadow: 0 0 6px rgba(255,255,255,.95), 0 0 14px rgba(253,230,138,.9); opacity: 0; }
+@keyframes promoKilap { 0% { left: -70%; opacity: 1; } 28% { left: 125%; opacity: 1; } 29%, 100% { left: 125%; opacity: 0; } }
+@keyframes promoKelip { 0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0); } 12% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(45deg); } 24% { opacity: 0; transform: translate(-50%, -50%) scale(.2) rotate(90deg); } }
+@media (prefers-reduced-motion: no-preference) {
+  .promo-kilap::before { animation: promoKilap 3.8s cubic-bezier(.45,.05,.35,1) .45s infinite; }
+  .promo-bintang { animation: promoKelip 3.2s ease-in-out .6s infinite; }
+}
