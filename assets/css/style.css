@@ -267,7 +267,7 @@ body {
 .promo-buka .cahaya i { animation-play-state: paused; }
 /* Mode ringan (HP/tablet/perangkat lemah, diset promo.js): efek berat dikurangi */
 .promo-ringan #promoSpmb img, .promo-ringan .promo-mini-gambar { filter: none !important; }
-.promo-ringan .promo-sinar { width: 150%; }
+.promo-ringan .promo-sinar { display: none; } /* HP: tanpa sinar emas (gacha dimatikan) */
 .promo-ringan .promo-sinar.nyala { animation: none; }
 .promo-ringan .promo-bintang:nth-of-type(n+4) { display: none; }
 .promo-ringan .promo-bintang { text-shadow: none; }

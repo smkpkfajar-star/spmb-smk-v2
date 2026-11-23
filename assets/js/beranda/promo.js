@@ -48,7 +48,7 @@
     try {
       const sentuh = root.matchMedia && root.matchMedia("(pointer: coarse)").matches;
       const kecil = root.innerWidth < 640;
-      const lemah = (navigator.hardwareConcurrency || 8) <= 4;
+      const lemah = (navigator.hardwareConcurrency || 8) <= 2; // komputer sangat lemah saja
       const hemat = !!(navigator.connection && navigator.connection.saveData);
       return sentuh || kecil || lemah || hemat;
     } catch {
@@ -197,6 +197,14 @@
     const tombol = kotak.querySelectorAll("[data-promo-tutup]");
     if (!geraknyaHalus() || !isi.animate) {
       sinar.style.opacity = ".4";
+      return;
+    }
+    if (RINGAN) {
+      // HP/perangkat lemah: tanpa gacha — cukup muncul halus (ringan, hanya transform & opacity)
+      isi.animate(
+        [{ transform: "translateY(18px) scale(.94)", opacity: 0 }, { transform: "none", opacity: 1 }],
+        { duration: 320, easing: "cubic-bezier(.2,.9,.3,1.15)" }
+      );
       return;
     }
     tombol.forEach((b) => (b.style.opacity = "0"));
@@ -364,7 +372,8 @@
       const tautan = e.target.closest("[data-promo-daftar]");
       if (!tautan) return;
       // Ctrl/⌘/Shift-klik (tab baru) atau mode kurangi animasi: biarkan langsung
-      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0 || !geraknyaHalus()) return;
+      // HP/perangkat lemah juga langsung (tanpa animasi sobek agar tidak berat)
+      if (RINGAN || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0 || !geraknyaHalus()) return;
       e.preventDefault();
       if (menyobek) return;
       menyobek = true;
@@ -377,8 +386,10 @@
     document.body.appendChild(el);
     if (!dariRect) gacha(kotak);
     else {
-      kotak.querySelector(".promo-sinar").style.opacity = ".42";
-      kotak.querySelector(".promo-sinar").classList.add("nyala");
+      if (!RINGAN) {
+        kotak.querySelector(".promo-sinar").style.opacity = ".42";
+        kotak.querySelector(".promo-sinar").classList.add("nyala");
+      }
       // kebalikan dari tutup: terbang membesar dari ikon kecil ke tengah
       const t = transformTerbang(gambar.getBoundingClientRect(), dariRect);
       animasi(kotak, [
