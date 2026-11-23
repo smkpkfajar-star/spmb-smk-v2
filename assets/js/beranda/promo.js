@@ -1,36 +1,20 @@
 /* ============================================================
    promo.js — pop-up gambar tiket "Daftar Ulang Makin Ringan! Mulai dengan
    Rp2 Juta, sisa biaya bisa diangsur" saat pertama membuka beranda.
-   - Muncul sekali per sesi browser; setelah ditutup tidak muncul lagi
-     sampai browser/tab baru dibuka.
+   - Muncul setiap kali beranda dibuka / di-refresh.
    - Tutup: tombol ✕, tombol "Nanti saja", Esc, atau klik di luar kotak.
    - Tidak muncul bila halaman dibuka lewat tautan langsung (#login, #faq, …).
    ============================================================ */
 (function (root) {
-  const KUNCI = "spmb-promo-ditutup";
   const GAMBAR = "assets/img/promo-tiket.png"; // sumber desain: docs/desain/promo-tiket.html
 
   /* ---------- fungsi murni (dites) ---------- */
-  function perluTampil({ ditutup, hash }) {
-    if (ditutup) return false;
+  function perluTampil({ hash }) {
     return !hash || hash === "#";
   }
 
   root.Promo = { perluTampil };
   if (typeof document === "undefined") return;
-
-  const baca = () => {
-    try {
-      return sessionStorage.getItem(KUNCI) === "1";
-    } catch {
-      return false;
-    }
-  };
-  const tandai = () => {
-    try {
-      sessionStorage.setItem(KUNCI, "1");
-    } catch {}
-  };
 
   function tampilkan() {
     const pemicu = document.activeElement;
@@ -50,7 +34,6 @@
       </div>`;
 
     const tutup = () => {
-      tandai();
       document.removeEventListener("keydown", tombol, true);
       document.documentElement.classList.remove("overflow-hidden");
       el.remove();
@@ -70,7 +53,6 @@
     };
     el.addEventListener("click", (e) => {
       if (e.target === el || e.target.closest("[data-promo-tutup]")) tutup();
-      else if (e.target.closest("[data-promo-daftar]")) tandai();
     });
     document.addEventListener("keydown", tombol, true);
     document.documentElement.classList.add("overflow-hidden");
@@ -81,7 +63,7 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     if (document.documentElement.classList.contains("kiosk")) return; // mode kios sekolah: tanpa pop-up
-    if (!perluTampil({ ditutup: baca(), hash: root.location.hash })) return;
+    if (!perluTampil({ hash: root.location.hash })) return;
     // jeda sebentar agar beranda sempat tampil dulu
     const gambar = new Image();
     gambar.src = GAMBAR;

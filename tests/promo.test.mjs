@@ -8,16 +8,14 @@ vm.createContext(ctx);
 vm.runInContext(readFileSync(new URL("../assets/js/beranda/promo.js", import.meta.url), "utf8"), ctx);
 const { perluTampil } = ctx.window.Promo;
 
-test("pop-up promo tampil saat pertama buka beranda", () => {
-  assert.equal(perluTampil({ ditutup: false, hash: "" }), true);
-  assert.equal(perluTampil({ ditutup: false, hash: "#" }), true);
-});
-
-test("tidak tampil lagi setelah ditutup pada sesi yang sama", () => {
-  assert.equal(perluTampil({ ditutup: true, hash: "" }), false);
+test("pop-up promo tampil setiap kali beranda dibuka / di-refresh", () => {
+  assert.equal(perluTampil({ hash: "" }), true);
+  assert.equal(perluTampil({ hash: "#" }), true);
+  // walau sebelumnya sudah ditutup, refresh tetap menampilkan lagi
+  assert.equal(perluTampil({ hash: "", ditutup: true }), true);
 });
 
 test("tidak menghalangi tautan langsung (#login siswa, #faq, dst.)", () => {
-  assert.equal(perluTampil({ ditutup: false, hash: "#login" }), false);
-  assert.equal(perluTampil({ ditutup: false, hash: "#faq" }), false);
+  assert.equal(perluTampil({ hash: "#login" }), false);
+  assert.equal(perluTampil({ hash: "#faq" }), false);
 });
