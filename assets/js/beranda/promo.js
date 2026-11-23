@@ -1,5 +1,6 @@
 /* ============================================================
-   promo.js — pop-up "Biaya awal Rp2 Juta" saat pertama membuka beranda.
+   promo.js — pop-up gambar tiket "Daftar Ulang Makin Ringan! Mulai dengan
+   Rp2 Juta, sisa biaya bisa diangsur" saat pertama membuka beranda.
    - Muncul sekali per sesi browser; setelah ditutup tidak muncul lagi
      sampai browser/tab baru dibuka.
    - Tutup: tombol ✕, tombol "Nanti saja", Esc, atau klik di luar kotak.
@@ -7,6 +8,7 @@
    ============================================================ */
 (function (root) {
   const KUNCI = "spmb-promo-ditutup";
+  const GAMBAR = "assets/img/promo-tiket.png"; // sumber desain: docs/desain/promo-tiket.html
 
   /* ---------- fungsi murni (dites) ---------- */
   function perluTampil({ ditutup, hash }) {
@@ -37,29 +39,14 @@
     el.className = "fixed inset-0 z-[70] flex items-center justify-center bg-black/55 p-4 motion-safe:animate-[promoLatar_.25s_ease-out]";
     el.setAttribute("role", "dialog");
     el.setAttribute("aria-modal", "true");
-    el.setAttribute("aria-labelledby", "promoJudul");
+    el.setAttribute("aria-label", "Promo SPMB: daftar ulang makin ringan");
     el.innerHTML = `
-      <div class="relative w-full max-w-[420px] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,.35)] motion-safe:animate-[promoMasuk_.35s_cubic-bezier(.2,.9,.3,1.2)]" style="border-radius:18px">
-        <button type="button" data-promo-tutup class="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full text-[18px] leading-none transition hover:scale-105" style="background:rgba(255,255,255,.14);color:#fff" aria-label="Tutup">&#x2715;</button>
-        <div class="relative overflow-hidden px-6 pb-6 pt-6" style="background:#16523A;color:#fff">
-          <span class="pointer-events-none absolute -right-14 -top-14 h-44 w-44 rounded-full" style="background:rgba(247,200,105,.12)" aria-hidden="true"></span>
-          <span class="relative inline-flex items-center gap-2 rounded-full px-3 py-1 text-[12px] font-bold uppercase tracking-wide" style="background:rgba(255,255,255,.12)">
-            <span class="relative flex h-2 w-2" aria-hidden="true"><span class="absolute inline-flex h-full w-full rounded-full opacity-75 motion-safe:animate-ping" style="background:#4ADE80"></span><span class="relative inline-flex h-2 w-2 rounded-full" style="background:#4ADE80"></span></span>
-            SPMB 2026/2027 resmi dibuka
-          </span>
-          <p class="relative mt-4 text-[17px] font-medium" style="color:rgba(255,255,255,.85)">Cukup bayar</p>
-          <p id="promoJudul" class="teks-emas relative text-[64px] font-black leading-none tracking-tight">Rp2 Juta</p>
-          <p class="relative mt-2 text-[20px] font-bold leading-tight">di awal, kamu sudah bisa mulai sekolah di sini!</p>
-          <p class="relative mt-2 text-[14px] leading-relaxed" style="color:rgba(255,255,255,.75)">Praktik nyata berstandar industri · 5 jurusan · daftar online gratis</p>
-        </div>
-        <div class="tiket-sobek flex flex-col items-center gap-2.5 border-t-[3px] border-dashed px-6 pb-5 pt-6 text-center" style="background:#F7C869;border-color:#16523A">
-          <a href="daftar/index.html" data-promo-daftar class="inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[16px] font-bold" style="background:#0E3A29;color:#fff">
-            Daftar sekarang
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </a>
-          <button type="button" data-promo-tutup class="text-[14px] font-semibold underline-offset-4 hover:underline" style="color:#16523A">Nanti saja</button>
-          <span class="text-[11.5px] leading-snug" style="color:#4a4a2a">*Biaya awal untuk mulai sekolah. Rincian biaya lainnya dijelaskan panitia saat daftar ulang.</span>
-        </div>
+      <div data-promo-kotak tabindex="-1" class="relative flex flex-col items-center outline-none motion-safe:animate-[promoMasuk_.35s_cubic-bezier(.2,.9,.3,1.2)]">
+        <button type="button" data-promo-tutup class="absolute -right-2 -top-2 z-10 grid h-10 w-10 place-items-center rounded-full text-[17px] font-bold leading-none shadow-[0_6px_20px_rgba(0,0,0,.35)] transition hover:scale-105" style="background:#fff;color:#0E3A29" aria-label="Tutup">&#x2715;</button>
+        <a href="daftar/index.html" data-promo-daftar class="block rounded-[24px] focus:outline-none focus-visible:ring-4 focus-visible:ring-white/70">
+          <img src="${GAMBAR}" width="420" height="597" alt="SPMB 2026/2027 resmi dibuka. Daftar ulang makin ringan! Mulai dengan Rp2 juta, sisa biaya bisa diangsur. Daftar sekarang." class="block h-auto w-auto max-w-full drop-shadow-[0_30px_60px_rgba(0,0,0,.45)]" style="max-height:calc(100dvh - 6.5rem)" />
+        </a>
+        <button type="button" data-promo-tutup class="mt-3 rounded-full px-4 py-1.5 text-[14px] font-semibold underline-offset-4 hover:underline" style="color:rgba(255,255,255,.92)">Nanti saja</button>
       </div>`;
 
     const tutup = () => {
@@ -88,16 +75,24 @@
     document.addEventListener("keydown", tombol, true);
     document.documentElement.classList.add("overflow-hidden");
     document.body.appendChild(el);
-    el.querySelector("[data-promo-daftar]").focus({ preventScroll: true });
+    // fokus ke kotak pop-up (bukan tautan) agar tidak muncul garis fokus saat dibuka dengan mouse/sentuh
+    el.querySelector("[data-promo-kotak]").focus({ preventScroll: true });
   }
 
   document.addEventListener("DOMContentLoaded", () => {
     if (document.documentElement.classList.contains("kiosk")) return; // mode kios sekolah: tanpa pop-up
     if (!perluTampil({ ditutup: baca(), hash: root.location.hash })) return;
     // jeda sebentar agar beranda sempat tampil dulu
-    setTimeout(() => {
+    const gambar = new Image();
+    gambar.src = GAMBAR;
+    const siap = new Promise((r) => {
+      gambar.onload = r;
+      gambar.onerror = r;
+    });
+    setTimeout(async () => {
+      await siap;
       if (root.location.hash && root.location.hash !== "#") return;
-      if (!document.getElementById("promoSpmb")) tampilkan();
+      if (gambar.naturalWidth && !document.getElementById("promoSpmb")) tampilkan();
     }, 700);
   });
 })(typeof window !== "undefined" ? window : globalThis);

@@ -215,22 +215,6 @@ body {
 .kiosk .text-red-600 { color: #B91C1C !important; }
 .kiosk .choice[aria-pressed="true"] { background: #F2B53A; outline: 3px solid #000000; }
 
-/* Pop-up promo biaya (promo.js): angka emas berkilau + lubang sobekan kupon */
-.teks-emas { background: linear-gradient(100deg, #FDE68A 0%, #F2B53A 45%, #FDE68A 70%, #F2B53A 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.tiket-sobek { position: relative; }
-.tiket-sobek::before, .tiket-sobek::after { content: ""; position: absolute; width: 26px; height: 26px; border-radius: 999px; background: rgb(var(--cream)); }
-/* HP: sobekan di atas bagian emas (lubang kiri & kanan) */
-.tiket-sobek::before { top: -14px; left: -13px; }
-.tiket-sobek::after { top: -14px; right: -13px; }
-/* Layar lebar: sobekan di kiri bagian emas (lubang atas & bawah) */
-@media (min-width: 640px) {
-  .tiket-sobek::before { top: -13px; left: -14px; right: auto; }
-  .tiket-sobek::after { top: auto; bottom: -13px; left: -14px; right: auto; }
-}
-
 /* Pop-up promo beranda (promo.js) */
 @keyframes promoLatar { from { opacity: 0; } to { opacity: 1; } }
 @keyframes promoMasuk { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: none; } }
-/* lubang tiket di pop-up mengikuti warna latar gelap pop-up */
-#promoSpmb .tiket-sobek::before, #promoSpmb .tiket-sobek::after { background: #737373; }
-html.dark #promoSpmb .tiket-sobek::before, html.dark #promoSpmb .tiket-sobek::after { background: #050506; }

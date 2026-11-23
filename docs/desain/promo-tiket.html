@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Geist+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; background: transparent; }
+  body { padding: 0; font-family: Geist, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .tiket {
+    --sobek: 452px; /* posisi garis sobekan dari atas */
+    width: 420px; border-radius: 24px; overflow: hidden; position: relative;
+    -webkit-mask:
+      radial-gradient(circle 15px at 0 var(--sobek), #0000 97%, #000) ,
+      radial-gradient(circle 15px at 100% var(--sobek), #0000 97%, #000);
+    -webkit-mask-composite: source-in;
+            mask-composite: intersect;
+  }
+  .atas { box-sizing: border-box; padding: 26px 30px 30px; color: #fff; position: relative;
+    background: radial-gradient(120% 80% at 100% 0%, #1f6b4c 0%, #16523A 45%, #0E3A29 100%); }
+  .lingkar { position: absolute; border-radius: 999px; pointer-events: none; }
+  .pil { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.12); border-radius: 999px;
+    padding: 6px 13px 6px 11px; font: 700 11.5px Geist, sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+  .titik { width: 8px; height: 8px; border-radius: 99px; background: #4ADE80; box-shadow: 0 0 0 4px rgba(74,222,128,.22); }
+  .sekolah { margin-top: 18px; font: 600 12.5px "Geist Mono", monospace; letter-spacing: .22em; color: #F7C869; text-transform: uppercase; }
+  .judul { margin: 6px 0 0; font-weight: 800; font-size: 40px; line-height: 1.02; letter-spacing: -.035em; }
+  .judul em { font-style: normal; color: #F7C869; }
+  .garis { margin: 18px 0 14px; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,.28), rgba(255,255,255,0)); }
+  .mulai { font-size: 18px; font-weight: 500; color: rgba(255,255,255,.85); }
+  .harga { font-weight: 900; font-size: 80px; line-height: .95; white-space: nowrap; letter-spacing: -.045em; margin-top: 2px;
+    background: linear-gradient(100deg, #FDE68A 0%, #F2B53A 45%, #FDE68A 72%, #F2B53A 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .angsur { margin-top: 14px; display: inline-flex; align-items: center; gap: 9px; padding: 9px 15px 9px 10px;
+    border-radius: 999px; background: rgba(247,200,105,.14); box-shadow: inset 0 0 0 1.5px rgba(247,200,105,.55);
+    font-size: 17px; font-weight: 700; }
+  .cek { width: 22px; height: 22px; border-radius: 99px; background: #F7C869; color: #0E3A29; display: grid; place-items: center; font-size: 13px; font-weight: 900; }
+  .bawah { background: #F7C869; padding: 26px 30px 22px; text-align: center; position: relative;
+    border-top: 3px dashed #16523A; }
+  .tombol { display: flex; align-items: center; justify-content: center; gap: 10px; background: #0E3A29; color: #fff;
+    border-radius: 999px; padding: 15px 20px; font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+  .info { margin-top: 12px; font-size: 13.5px; font-weight: 600; color: #16523A; }
+  .kode { margin: 14px auto 0; display: flex; justify-content: center; gap: 2px; height: 26px; opacity: .8; }
+  .kode i { display: block; background: #0E3A29; }
+  .catatan { margin-top: 10px; font-size: 11px; color: #4a4a2a; }
+</style>
+</head>
+<body>
+  <div class="tiket" id="tiket">
+    <div class="atas">
+      <span class="lingkar" style="right:-70px;top:-70px;width:220px;height:220px;background:rgba(247,200,105,.10)"></span>
+      <span class="lingkar" style="left:-60px;bottom:-90px;width:200px;height:200px;background:rgba(255,255,255,.05)"></span>
+      <span class="pil"><span class="titik"></span>SPMB 2026/2027 resmi dibuka</span>
+      <div class="sekolah">SMK Tamansiswa Jetis</div>
+      <p class="judul">Daftar Ulang<br><em>Makin Ringan!</em></p>
+      <div class="garis"></div>
+      <div class="mulai">Mulai dengan</div>
+      <div class="harga">Rp2 Juta</div>
+      <div class="angsur"><span class="cek">✓</span>Sisa biaya bisa diangsur</div>
+    </div>
+    <div class="bawah">
+      <div class="tombol">Daftar sekarang <span style="font-size:20px">→</span></div>
+      <div class="info">Pendaftaran online gratis · cukup ±10 menit</div>
+      <div class="kode" id="kode"></div>
+      <div class="catatan">*Rincian biaya &amp; angsuran dijelaskan panitia saat daftar ulang.</div>
+    </div>
+  </div>
+<script>
+  // lubang sobekan tepat di garis putus-putus
+  const t = document.getElementById("tiket");
+  t.style.setProperty("--sobek", t.querySelector(".atas").offsetHeight + 1.5 + "px");
+  // hiasan kode batang
+  const pola = [3,1,2,1,1,3,1,2,2,1,3,1,1,2,1,3,2,1,1,2,3,1,2,1,1,3,1,1,2,2,1,3,1,2,1,1,2,3,1,1];
+  document.getElementById("kode").innerHTML = pola.map((w, i) => `<i style="width:${w}px;${i % 7 === 3 ? "opacity:.5;" : ""}"></i>`).join("");
+</script>
+</body>
+</html>
