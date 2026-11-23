@@ -293,9 +293,17 @@
       `<a href="${m.href}" data-nav="${m.id}" title="${esc(m.title)}" class="flex items-center gap-3 rounded-md px-3 py-2 text-[14.5px]">${NAV_ICON[m.id] || NAV_ICON.dashboard}<span class="mini-hide truncate">${esc(m.title)}</span></a>`;
     // Sub-menu (mis. Superadmin): garis tipis di kiri, hilang saat panel dikecilkan
     const subMenu = (m) =>
-      `<div class="mini-hide mb-1 ml-[1.35rem] mt-0.5 space-y-0.5 border-l border-hairline pl-2.5" role="group" aria-label="${esc(m.title)}">${m.sub
+      `<div id="sub-${m.id}" class="mini-hide mb-1 ml-[1.35rem] mt-0.5 space-y-0.5 border-l border-hairline pl-2.5" role="group" aria-label="${esc(m.title)}">${m.sub
         .map((s) => `<a href="${m.href}/${s.id}" data-nav-sub="${m.id}/${s.id}" class="block truncate rounded-md px-2.5 py-1.5 text-[13.5px] text-ink-600 hover:bg-brand-50 hover:text-ink-900">${esc(s.title)}</a>`)
         .join("")}</div>`;
+    // Menu induk yang punya sub-menu: tautan + tombol panah untuk menciutkan/membuka sub-menu
+    const linkInduk = (m) =>
+      `<div class="flex items-center gap-1">${link(m).replace('class="flex items-center', 'class="min-w-0 flex-1 flex items-center')}` +
+      `<button type="button" data-sub-toggle="${m.id}" aria-controls="sub-${m.id}" aria-expanded="true" title="Ciutkan/buka sub-menu" ` +
+      `class="mini-hide grid h-8 w-8 shrink-0 place-items-center rounded-md text-ink-500 hover:bg-brand-50 hover:text-ink-900">` +
+      `<span class="sr-only">Sub-menu ${esc(m.title)}</span>` +
+      `<svg data-panah width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transition:transform .2s"><path d="m6 9 6 6 6-6"/></svg>` +
+      `</button></div>`;
     const name = profile.nama_lengkap || profile.email;
 
     const aside = document.createElement("aside");
@@ -312,7 +320,7 @@
         ${link(all[0])}
         <p class="mini-hide mt-5 px-3 pb-1.5 font-mono text-[11.5px] uppercase tracking-wider text-ink-500">Modul</p>
         <hr class="mini-show my-3 hidden border-hairline" />
-        ${modules.map((m) => link(m) + (m.sub ? subMenu(m) : "")).join("")}
+        ${modules.map((m) => (m.sub ? linkInduk(m) + subMenu(m) : link(m))).join("")}
       </nav>
       <div class="sb-alat mx-3 mb-3 hidden items-center gap-1.5 lg:flex">
         <button type="button" data-mini aria-controls="adminSidebar" class="sb-mini-row flex h-9 min-w-0 flex-1 items-center gap-2 whitespace-nowrap rounded-md px-3 text-[14px] font-medium text-ink-600 shadow-[inset_0_0_0_1px_rgb(var(--hairline))] hover:bg-pink-50 hover:text-ink-900 hover:shadow-[inset_0_0_0_1px_rgb(var(--pink-200))] lg:flex"><svg class="mini-arah shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg><span class="mini-hide">Kecilkan</span></button>
@@ -329,6 +337,34 @@
         <button id="btnLogout" type="button" title="Keluar" class="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900"><svg class="mini-show hidden" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l-5-5 5-5M5 12h11"/></svg><span class="mini-hide">Keluar</span><span class="mini-show sr-only">Keluar</span></button>
       </div>`;
     document.body.appendChild(aside);
+
+    // Ciutkan/buka sub-menu; pilihan diingat per browser
+    const KUNCI_SUB = (id) => `spmb-admin-sub-${id}`;
+    const aturSub = (tombol, buka, simpan) => {
+      const id = tombol.dataset.subToggle;
+      const wadah = aside.querySelector(`#sub-${id}`);
+      if (wadah) wadah.hidden = !buka;
+      tombol.setAttribute("aria-expanded", String(buka));
+      const panah = tombol.querySelector("[data-panah]");
+      if (panah) panah.style.transform = buka ? "" : "rotate(-90deg)";
+      if (simpan) {
+        try {
+          if (buka) localStorage.removeItem(KUNCI_SUB(id));
+          else localStorage.setItem(KUNCI_SUB(id), "tutup");
+        } catch {}
+      }
+    };
+    aside.querySelectorAll("[data-sub-toggle]").forEach((t) => {
+      let tutup = false;
+      try {
+        tutup = localStorage.getItem(KUNCI_SUB(t.dataset.subToggle)) === "tutup";
+      } catch {}
+      aturSub(t, !tutup, false);
+    });
+    aside.addEventListener("click", (e) => {
+      const t = e.target.closest("[data-sub-toggle]");
+      if (t) aturSub(t, t.getAttribute("aria-expanded") !== "true", true);
+    });
 
     const overlay = document.createElement("div");
     overlay.className = "fixed inset-0 z-40 hidden bg-black/30 lg:hidden";
