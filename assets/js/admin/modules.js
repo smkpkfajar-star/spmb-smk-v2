@@ -242,6 +242,13 @@
             { label: "Catatan", wrap: true, render: (r) => esc(r.catatanAdmin && r.catatanAdmin !== "-" ? r.catatanAdmin : "") + (r.tglFollowUpWa && r.tglFollowUpWa !== "-" ? `<br><span class="text-[13px] text-ink-500">WA ortu: ${esc(r.tglFollowUpWa)}</span>` : "") },
             { label: "Status berkas", sortKey: "statusBerkas", render: (r) => AdminUI.badge(r.statusBerkas) },
           ],
+          ekspor: [
+            { label: "Jurusan cadangan", get: (r) => r.jurusan2 },
+            { label: "Status verifikasi", get: (r) => AdminUI.isi(r.statusPendaftaran, "Pending") },
+            { label: "Status berkas", get: (r) => r.statusBerkas },
+            { label: "Catatan", get: (r) => r.catatanAdmin },
+            { label: "Ortu dihubungi (WA)", get: (r) => r.tglFollowUpWa },
+          ],
           editTitle: (r) => `Verifikasi: ${r.namaLengkap || r.noPendaftaran}`,
           fields: [
             { name: "statusBerkas", label: "Status berkas", type: "select", options: ["Belum Unggah", "Sudah Unggah", "Gagal Unggah", "Berkas Terverifikasi", "Berkas Ditolak"] },
@@ -309,6 +316,14 @@
             { label: "Metode", render: (r) => esc(r.metodePembayaran || "-") },
             { label: "Catatan", wrap: true, render: (r) => esc(r.catatanBendahara && r.catatanBendahara !== "-" ? r.catatanBendahara : "") },
           ],
+          ekspor: [
+            { label: "Status bayar", get: (r) => AdminUI.isi(r.statusBiayaDaftar, "Belum Bayar") },
+            { label: "Metode", get: (r) => r.metodePembayaran },
+            { label: "Kode voucher", get: (r) => r.kodeVoucher },
+            { label: "Status voucher", get: (r) => AdminUI.isi(r.statusVoucher, "Tidak Ada") },
+            { label: "Potongan (Rp)", get: (r) => r.potonganBiaya, angka: true },
+            { label: "Catatan", get: (r) => r.catatanBendahara },
+          ],
           editTitle: (r) => `Keuangan: ${r.namaLengkap || r.noPendaftaran}`,
           fields: [
             { name: "statusBiayaDaftar", label: "Status pembayaran", type: "select", options: ["Belum Bayar", "Lunas"] },
@@ -354,6 +369,15 @@
             { label: "Status tes", sortKey: "statusTesFisik", render: (r) => AdminUI.badge(r.statusTesFisik || "Belum Tes") },
             { label: "Seragam", sortKey: "ukuranSeragam", render: (r) => `<b>${esc(r.ukuranSeragam || "-")}</b>` + (r.tglUkurSeragam && r.tglUkurSeragam !== "-" ? `<br><span class="text-[13px] text-ink-500">${esc(r.tglUkurSeragam)}</span>` : "") },
             { label: "Catatan", wrap: true, render: (r) => esc(r.catatanTesFisik && r.catatanTesFisik !== "-" ? r.catatanTesFisik : "") },
+          ],
+          ekspor: [
+            { label: "Tinggi (cm)", get: (r) => r.tinggiBadan, angka: true },
+            { label: "Berat (kg)", get: (r) => r.beratBadan, angka: true },
+            { label: "Tato/tindik", get: (r) => r.tatoTindik },
+            { label: "Status tes", get: (r) => AdminUI.isi(r.statusTesFisik, "Belum Tes") },
+            { label: "Ukuran seragam", get: (r) => r.ukuranSeragam },
+            { label: "Tgl ukur seragam", get: (r) => r.tglUkurSeragam },
+            { label: "Catatan", get: (r) => r.catatanTesFisik },
           ],
           editTitle: (r) => `Tes fisik: ${r.namaLengkap || r.noPendaftaran}`,
           fields: [

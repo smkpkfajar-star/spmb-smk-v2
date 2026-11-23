@@ -196,7 +196,42 @@
     return { nama, password: pw || null };
   }
 
-  root.AdminUI = { cekUbahPetugas, cariNomorDobel, barisMilik, pesanNomorBaru, polaBunyi: () => polaBunyi(), URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
+  // ---------- Ekspor laporan (Excel/PDF) ----------
+  // Kolom yang selalu ada di setiap laporan; kolom khusus modul ditambahkan di belakangnya.
+  const KOLOM_EKSPOR_UMUM = [
+    { label: "No. pendaftaran", get: (r) => r.noPendaftaran },
+    { label: "Nama", get: (r) => r.namaLengkap },
+    { label: "NISN", get: (r) => isi(r.nisn, r._nisn) },
+    { label: "Jenis kelamin", get: (r) => r._jk },
+    { label: "Jurusan", get: (r) => isi(r.jurusan1, r._jurusan) },
+    { label: "Asal sekolah", get: (r) => r._asal },
+    { label: "Waktu daftar", get: (r) => (r._waktuAsli ? formatWaktu(r._waktuAsli) : "") },
+  ];
+  // Nilai sel: "-"/kosong -> ""; kolom angka -> Number (0 dianggap belum diisi)
+  function selEkspor(v, angka) {
+    const t = isi(v, "");
+    if (!angka) return t === "-" ? "" : t;
+    const n = Number(String(t).replace(/[^\d.,-]/g, "").replace(",", "."));
+    return Number.isFinite(n) && n > 0 ? n : "";
+  }
+  function tabelEkspor(rows, kolomModul = []) {
+    const kolom = [...KOLOM_EKSPOR_UMUM, ...kolomModul];
+    return {
+      header: ["No", ...kolom.map((k) => k.label)],
+      body: rows.map((r, i) => [i + 1, ...kolom.map((k) => selEkspor(k.get(r), k.angka))]),
+    };
+  }
+  const keteranganFilter = (bagian) => {
+    const b = bagian.filter(Boolean);
+    return b.length ? b.join(" · ") : "Semua data (tanpa filter)";
+  };
+  function namaFileLaporan(judul, ext, date = new Date()) {
+    const tgl = new Date(date.getTime() + 7 * 3600 * 1000).toISOString().slice(0, 10);
+    const aman = String(judul).replace(/&/g, "dan").replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim();
+    return `Laporan ${aman} ${tgl}.${ext}`;
+  }
+
+  root.AdminUI = { tabelEkspor, keteranganFilter, namaFileLaporan, cekUbahPetugas, cariNomorDobel, barisMilik, pesanNomorBaru, polaBunyi: () => polaBunyi(), URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
   if (typeof document === "undefined") return;
 
   /* ---------- tampilan ---------- */
@@ -243,7 +278,9 @@
   };
 
   // Panel admin: sidebar putih bergaris (laci di HP, bisa dikecilkan di laptop) + topbar
+  let petugasAktif = null;
   function renderShell(profile, activeId) {
+    petugasAktif = profile;
     const A = root.AdminAuth;
     const header = document.getElementById("adminHeader");
     if (!header) return;
@@ -638,6 +675,81 @@
     render: (r) => `<span class="whitespace-nowrap font-mono text-[13px] text-ink-600">${esc(formatWaktu(r._waktuAsli))}</span>`,
   };
 
+  // Pustaka dimuat hanya saat petugas menekan ekspor (halaman admin tetap ringan)
+  const PUSTAKA = {
+    pdf: ["https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"],
+    xlsx: ["https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"],
+  };
+  const skripDimuat = {};
+  function muatSkrip(src) {
+    if (!skripDimuat[src])
+      skripDimuat[src] = new Promise((ok, gagal) => {
+        const el = document.createElement("script");
+        el.src = src;
+        el.onload = ok;
+        el.onerror = () => {
+          delete skripDimuat[src];
+          el.remove();
+          gagal(new Error("pustaka tidak termuat, periksa koneksi internet"));
+        };
+        document.head.appendChild(el);
+      });
+    return skripDimuat[src];
+  }
+  const NAMA_SEKOLAH = "SMK Tamansiswa Jetis";
+  const dicetakTeks = () => {
+    const oleh = petugasAktif ? ` oleh ${petugasAktif.nama_lengkap || petugasAktif.email}` : "";
+    return `Dicetak ${formatWaktu(new Date().toISOString())} WIB${oleh}`;
+  };
+
+  async function eksporExcel(lap) {
+    await muatSkrip(PUSTAKA.xlsx[0]);
+    const X = root.XLSX;
+    const atas = [[`Laporan ${lap.judul} - SPMB ${NAMA_SEKOLAH}`], [`Filter: ${lap.keterangan}`], [`Jumlah: ${lap.body.length} pendaftar · ${dicetakTeks()}`], []];
+    const ws = X.utils.aoa_to_sheet([...atas, lap.header, ...lap.body]);
+    // lebar kolom mengikuti isi terpanjang (dibatasi)
+    ws["!cols"] = lap.header.map((h, i) => ({ wch: Math.min(48, Math.max(String(h).length, ...lap.body.map((r) => String(r[i] ?? "").length)) + 2) }));
+    ws["!autofilter"] = { ref: X.utils.encode_range({ s: { r: atas.length, c: 0 }, e: { r: atas.length + lap.body.length, c: lap.header.length - 1 } }) };
+    const wb = X.utils.book_new();
+    X.utils.book_append_sheet(wb, ws, lap.judul.replace(/[\\/?*[\]:]/g, " ").slice(0, 31));
+    X.writeFile(wb, namaFileLaporan(lap.judul, "xlsx"));
+  }
+
+  async function eksporPdf(lap) {
+    for (const src of PUSTAKA.pdf) await muatSkrip(src);
+    const { jsPDF } = root.jspdf;
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const lebar = doc.internal.pageSize.getWidth();
+    const tinggi = doc.internal.pageSize.getHeight();
+    const hijau = [22, 82, 58];
+    doc.setFillColor(...hijau);
+    doc.roundedRect(12, 11, 9, 9, 2.4, 2.4, "F");
+    doc.setTextColor(255, 255, 255).setFont("helvetica", "bold").setFontSize(9).text("TS", 16.5, 17, { align: "center" });
+    doc.setTextColor(110, 110, 110).setFont("helvetica", "normal").setFontSize(9).text(`SPMB ${NAMA_SEKOLAH}`, 24, 14.5);
+    doc.setTextColor(17, 17, 17).setFont("helvetica", "bold").setFontSize(14).text(`Laporan ${lap.judul}`, 24, 20);
+    doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(70, 70, 70);
+    const ket = doc.splitTextToSize(`Filter: ${lap.keterangan}`, lebar - 24);
+    doc.text(ket, 12, 27);
+    const yInfo = 27 + ket.length * 4;
+    doc.text(`Jumlah: ${lap.body.length} pendaftar   ·   ${dicetakTeks()}`, 12, yInfo);
+    doc.autoTable({
+      head: [lap.header],
+      body: lap.body,
+      startY: yInfo + 4,
+      margin: { left: 12, right: 12, bottom: 14 },
+      styles: { font: "helvetica", fontSize: 7.5, cellPadding: 1.6, overflow: "linebreak", lineColor: [225, 225, 225], lineWidth: 0.1, textColor: [30, 30, 30] },
+      headStyles: { fillColor: hijau, textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [246, 246, 246] },
+      columnStyles: { 0: { halign: "right", cellWidth: 8 } },
+      didDrawPage: () => {
+        doc.setFontSize(8).setTextColor(130, 130, 130);
+        doc.text(`${NAMA_SEKOLAH} · Laporan ${lap.judul}`, 12, tinggi - 7);
+        doc.text(`Halaman ${doc.internal.getNumberOfPages()}`, lebar - 12, tinggi - 7, { align: "right" });
+      },
+    });
+    doc.save(namaFileLaporan(lap.judul, "pdf"));
+  }
+
   function modulePage(config) {
     const columns = [config.columns[0], WAKTU_COL, ...config.columns.slice(1)];
     const app = document.getElementById("app");
@@ -691,6 +803,23 @@
               </div>
             </div>
           </div>
+          <div class="relative">
+            <button type="button" id="eksporBtn" aria-expanded="false" aria-controls="eksporMenu" aria-label="Ekspor laporan" class="inline-flex h-full items-center gap-1.5 rounded-md bg-white px-3.5 py-2 text-[14.5px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+              <span class="hidden sm:inline">Ekspor</span>
+            </button>
+            <div id="eksporMenu" role="dialog" aria-label="Ekspor laporan" tabindex="-1" class="absolute right-0 top-full z-30 mt-2 hidden w-[min(calc(100vw-2rem),20rem)] rounded-lg border border-hairline bg-white p-2 text-left shadow-[0_12px_32px_rgba(0,0,0,0.12)]">
+              <p id="eksporInfo" class="px-2 pb-2 pt-1 text-[13px] leading-snug text-ink-500"></p>
+              <button type="button" data-ekspor="xlsx" class="flex w-full items-center gap-3 rounded-md px-2 py-2.5 text-left hover:bg-sand disabled:opacity-50">
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-ok-50 font-mono text-[11px] font-semibold text-ok-700">XLS</span>
+                <span><span data-judul class="block text-[14.5px] font-medium">Excel (.xlsx)</span><span class="block text-[12.5px] text-ink-500">Untuk diolah, dijumlah, atau difilter lagi</span></span>
+              </button>
+              <button type="button" data-ekspor="pdf" class="flex w-full items-center gap-3 rounded-md px-2 py-2.5 text-left hover:bg-sand disabled:opacity-50">
+                <span class="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-pink-50 font-mono text-[11px] font-semibold text-pink-600">PDF</span>
+                <span><span data-judul class="block text-[14.5px] font-medium">PDF</span><span class="block text-[12.5px] text-ink-500">Siap cetak / dikirim sebagai laporan</span></span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       <div id="filterAktif" class="mt-3 flex flex-wrap gap-1.5 empty:hidden"></div>
@@ -715,6 +844,7 @@
     const saringDefs = [...SARING_UMUM, ...(config.saring || [])];
     const pilihan = {};
     let currentStats = [];
+    const terakhir = { rows: [], keterangan: "" };
 
     // Dropdown saringan; jumlah tiap pilihan dihitung dari semua data
     function renderSaring() {
@@ -783,6 +913,13 @@
         saringAktif.map((d) => label(d.id, `${d.label}: ${pilihan[d.id]}`)).join("") +
         (adaTanggal ? label("tanggal", `Tanggal daftar${rentang.replace(/^ · /, ": ")}`) : "");
       $count.textContent = `${rows.length} dari ${page.rows.length} pendaftar`;
+      terakhir.rows = rows;
+      terakhir.keterangan = keteranganFilter([
+        $f.value ? `${config.filter.label}: ${$f.value}` : "",
+        ...saringAktif.map((d) => `${d.label}: ${pilihan[d.id]}`),
+        adaTanggal ? `Tanggal daftar${rentang.replace(/^ · /, ": ")}` : "",
+        $q.value.trim() ? `Pencarian: "${$q.value.trim()}"` : "",
+      ]);
       if (!rows.length) {
         $list.innerHTML = `<div class="rounded-lg border border-dashed border-hairline p-10 text-center text-[15px] text-ink-500">Tidak ada data yang cocok.</div>`;
         $pager.innerHTML = "";
@@ -948,7 +1085,7 @@
           root.Sheetson.getRows(config.sheet, opts),
           config.sheet === "Data_Pendaftar" ? null : root.Sheetson.getRows("Data_Pendaftar", opts).catch(() => []),
         ]);
-        // Data diri dari Data_Pendaftar: waktu daftar, jurusan, jenis kelamin, asal sekolah
+        // Data diri dari Data_Pendaftar: waktu daftar, jurusan, jenis kelamin, asal sekolah, NISN
         const diri = new Map((daftar || rows).map((r) => [String(r.noPendaftaran), r]));
         rows.forEach((r) => {
           const d = diri.get(String(r.noPendaftaran)) || {};
@@ -957,6 +1094,7 @@
           r._jurusan = d.jurusan1 || "";
           r._jk = d.jenisKelamin || "";
           r._asal = d.asalSekolah || "";
+          r._nisn = d.nisn || "";
         });
         page.rows = rows;
         renderStats();
@@ -1048,6 +1186,54 @@
       state.page = 1;
       renderSaring();
       render();
+    });
+    // Ekspor: data persis seperti yang tampil (cari + tab + filter + tanggal, urutan sama), semua halaman
+    const $ebtn = app.querySelector("#eksporBtn");
+    const $emenu = app.querySelector("#eksporMenu");
+    const bukaEkspor = (buka) => {
+      $emenu.classList.toggle("hidden", !buka);
+      $ebtn.setAttribute("aria-expanded", String(buka));
+      if (buka) {
+        bukaPanel(false);
+        const n = terakhir.rows.length;
+        app.querySelector("#eksporInfo").innerHTML = n
+          ? `<b class="font-medium text-ink-900">${n} pendaftar</b> akan diekspor.<br>${esc(terakhir.keterangan)}`
+          : "Tidak ada data yang cocok dengan filter.";
+        $emenu.querySelectorAll("[data-ekspor]").forEach((b) => (b.disabled = !n));
+        ($emenu.querySelector("[data-ekspor]:not(:disabled)") || $emenu).focus();
+      }
+    };
+    $ebtn.addEventListener("click", () => bukaEkspor($emenu.classList.contains("hidden")));
+    $fbtn.addEventListener("click", () => bukaEkspor(false));
+    const tutupEkspor = (e) => {
+      if (!document.contains($emenu)) return document.removeEventListener("pointerdown", tutupEkspor);
+      if (!$emenu.classList.contains("hidden") && !$emenu.contains(e.target) && !$ebtn.contains(e.target)) bukaEkspor(false);
+    };
+    document.addEventListener("pointerdown", tutupEkspor);
+    $emenu.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        bukaEkspor(false);
+        $ebtn.focus();
+      }
+    });
+    $emenu.addEventListener("click", async (e) => {
+      const b = e.target.closest("button[data-ekspor]");
+      if (!b || b.disabled) return;
+      const jenis = b.dataset.ekspor;
+      const laporan = { judul: config.title, keterangan: terakhir.keterangan, ...tabelEkspor(terakhir.rows, config.ekspor || []) };
+      const $judul = b.querySelector("[data-judul]");
+      const judulAsli = $judul.textContent;
+      $emenu.querySelectorAll("[data-ekspor]").forEach((x) => (x.disabled = true));
+      $judul.textContent = "Menyiapkan…";
+      try {
+        await (jenis === "pdf" ? eksporPdf(laporan) : eksporExcel(laporan));
+        toast(`${laporan.body.length} pendaftar diekspor ke ${jenis === "pdf" ? "PDF" : "Excel"}.`);
+        bukaEkspor(false);
+      } catch (err) {
+        toast("Gagal membuat file: " + (err.message || "periksa koneksi internet"), "error");
+      }
+      $judul.textContent = judulAsli;
+      $emenu.querySelectorAll("[data-ekspor]").forEach((x) => (x.disabled = false));
     });
     app.querySelector("#reload").addEventListener("click", () => load(true));
     load();

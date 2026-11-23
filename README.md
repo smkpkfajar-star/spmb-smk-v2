@@ -46,6 +46,7 @@ docs/                 design.md (panduan gaya) + catatan desain & rencana kerja
 | Isi PDF bukti pendaftaran | `buildPdfContent` di `assets/js/daftar/daftar.js` |
 | Kolom tabel admin, status, tombol | `assets/js/admin/modules.js` |
 | Tampilan tabel/filter admin (semua modul) | `assets/js/admin/ui.js` |
+| Kolom laporan Ekspor Excel/PDF | `ekspor: [...]` tiap modul di `assets/js/admin/modules.js` (kolom umum: `KOLOM_EKSPOR_UMUM` di `ui.js`) |
 | Nomor WhatsApp panitia | cari `628823212784` (tes memastikan semuanya sama) |
 
 ## Menjalankan di komputer sendiri
