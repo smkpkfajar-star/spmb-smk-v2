@@ -71,6 +71,132 @@
     return mini;
   }
 
+  /* ---------- partikel & kilatan ---------- */
+  // Ledakan partikel dari titik (x, y). lebar > 0 = sumber memanjang (mis. garis sobekan).
+  function ledakan(x, y, jumlah, { warna, jarak = 220, ukuran = [7, 14], bentuk = ["✦", "●", "■"], durasi = 950, lebar = 0, gravitasi = false } = {}) {
+    if (!geraknyaHalus()) return;
+    const wadah = document.createElement("div");
+    Object.assign(wadah.style, { position: "fixed", inset: "0", zIndex: "80", pointerEvents: "none", overflow: "hidden" });
+    document.body.appendChild(wadah);
+    for (let i = 0; i < jumlah; i++) {
+      const p = document.createElement("span");
+      const sudut = gravitasi ? -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.4 : Math.random() * Math.PI * 2;
+      const jauh = jarak * (0.45 + Math.random() * 0.75);
+      const dx = Math.cos(sudut) * jauh;
+      const dy = Math.sin(sudut) * jauh + (gravitasi ? jarak * 1.1 : 0);
+      const uk = ukuran[0] + Math.random() * (ukuran[1] - ukuran[0]);
+      const b = bentuk[i % bentuk.length];
+      const w = warna[i % warna.length];
+      const kotakKertas = b === "■";
+      p.textContent = kotakKertas ? "" : b;
+      Object.assign(p.style, {
+        position: "absolute", left: x + (lebar ? (Math.random() - 0.5) * lebar : 0) + "px", top: y + "px",
+        fontSize: uk * 1.5 + "px", lineHeight: "1", color: w,
+        width: kotakKertas ? uk + "px" : "", height: kotakKertas ? uk * 0.62 + "px" : "", background: kotakKertas ? w : "",
+        borderRadius: kotakKertas ? "2px" : "", textShadow: kotakKertas ? "" : "0 0 10px rgba(255,255,255,.85)",
+        transform: "translate(-50%,-50%)",
+      });
+      wadah.appendChild(p);
+      p.animate(
+        [
+          { transform: "translate(-50%,-50%) scale(.3) rotate(0deg)", opacity: 1 },
+          { transform: `translate(calc(-50% + ${dx * 0.7}px), calc(-50% + ${dy * 0.55}px)) scale(1.1) rotate(${Math.random() * 360 - 180}deg)`, opacity: 1, offset: 0.55 },
+          { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.6) rotate(${Math.random() * 720 - 360}deg)`, opacity: 0 },
+        ],
+        { duration: durasi * (0.7 + Math.random() * 0.6), easing: "cubic-bezier(.15,.75,.3,1)", fill: "forwards" }
+      );
+    }
+    setTimeout(() => wadah.remove(), durasi * 1.6);
+  }
+  function kilatan(x, y) {
+    if (!geraknyaHalus()) return;
+    const k = document.createElement("div");
+    Object.assign(k.style, {
+      position: "fixed", inset: "0", zIndex: "79", pointerEvents: "none",
+      background: `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,.95) 0%, rgba(253,230,138,.55) 18%, rgba(253,230,138,0) 55%)`,
+    });
+    document.body.appendChild(k);
+    k.animate([{ opacity: 0 }, { opacity: 1, offset: 0.25 }, { opacity: 0 }], { duration: 520, easing: "ease-out", fill: "forwards" }).finished.then(() => k.remove(), () => k.remove());
+  }
+
+  /* ---------- muncul ala tarikan kartu gacha ---------- */
+  const PELAN = {
+    masuk: (t) => t * t,
+    keluar: (t) => 1 - Math.pow(1 - t, 3),
+    halus: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+    pantul: (t) => 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2),
+  };
+  // [waktu 0–1, sudut rotateY, skala, opasitas, pelan menuju titik berikutnya]
+  const LINTASAN = [
+    [0, -1260, 0.16, 0, "masuk"],
+    [0.16, -1000, 0.45, 1, "keluar"],
+    [0.6, -180, 1.04, 1, "halus"],
+    [0.7, -180, 1.08, 1, "pantul"],
+    [1, 0, 1, 1, null],
+  ];
+  // Kartu berputar beberapa kali (sisi belakang & depan bergantian), lalu membalik memperlihatkan tiket.
+  // Sisi yang tampil dipilih dari sudut putaran tiap frame (lebih andal daripada backface-visibility).
+  function putarKartu(isi, durasi) {
+    const depan = isi.querySelector("a");
+    const belakang = isi.querySelector(".promo-kartu-belakang");
+    return new Promise((selesai) => {
+      const mulai = performance.now();
+      const langkah = (kini) => {
+        const t = Math.min(1, (kini - mulai) / durasi);
+        let i = 0;
+        while (i < LINTASAN.length - 2 && t > LINTASAN[i + 1][0]) i++;
+        const [t0, a0, s0, o0, pelan] = LINTASAN[i];
+        const [t1, a1, s1, o1] = LINTASAN[i + 1];
+        const k = PELAN[pelan]((t - t0) / (t1 - t0 || 1));
+        const sudut = a0 + (a1 - a0) * k;
+        isi.style.transform = `scale(${s0 + (s1 - s0) * k}) rotateY(${sudut}deg)`;
+        isi.style.opacity = String(o0 + (o1 - o0) * Math.min(1, k));
+        const depanTampak = Math.cos((sudut * Math.PI) / 180) > 0;
+        depan.style.visibility = depanTampak ? "" : "hidden";
+        belakang.style.visibility = depanTampak ? "hidden" : "visible";
+        if (t < 1) requestAnimationFrame(langkah);
+        else {
+          isi.style.transform = "";
+          isi.style.opacity = "";
+          depan.style.visibility = "";
+          belakang.style.visibility = "hidden";
+          selesai();
+        }
+      };
+      requestAnimationFrame(langkah);
+    });
+  }
+
+  async function gacha(kotak) {
+    const isi = kotak.querySelector(".promo-kartu-isi");
+    const sinar = kotak.querySelector(".promo-sinar");
+    const tombol = kotak.querySelectorAll("[data-promo-tutup]");
+    if (!geraknyaHalus() || !isi.animate) {
+      sinar.style.opacity = ".4";
+      return;
+    }
+    tombol.forEach((b) => (b.style.opacity = "0"));
+    const DURASI = 1750;
+    sinar.classList.add("nyala");
+    sinar.animate(
+      [{ opacity: 0 }, { opacity: 0, offset: 0.4 }, { opacity: 1, offset: 0.72 }, { opacity: 0.42 }],
+      { duration: DURASI + 600, fill: "forwards" }
+    );
+    // kilatan + ledakan tepat saat kartu mulai membalik
+    setTimeout(() => {
+      const r = isi.getBoundingClientRect();
+      const x = r.left + r.width / 2;
+      const y = r.top + r.height / 2;
+      kilatan(x, y);
+      ledakan(x, y, 34, { warna: ["#FDE68A", "#F2B53A", "#ffffff", "#F472B6", "#4ADE80"], jarak: Math.max(r.width, 260) * 0.8 });
+    }, DURASI * 0.7);
+    await putarKartu(isi, DURASI);
+    tombol.forEach((b) => {
+      b.style.transition = "opacity .3s";
+      b.style.opacity = "1";
+    });
+  }
+
   /* ---------- sobek karcis saat tiket diklik ---------- */
   let garisSobek = null;
   function bacaGarisSobek(img) {
@@ -109,6 +235,10 @@
     const bagianAtas = potong(true);
     const bagianBawah = potong(false);
     img.style.visibility = "hidden";
+    ledakan(r.left + r.width / 2, r.top + (r.height * g) / 100, 26, {
+      warna: ["#F7C869", "#16523A", "#ffffff", "#0E3A29"], bentuk: ["■", "■", "■", "✦"], ukuran: [6, 11],
+      jarak: 150, lebar: r.width * 0.9, gravitasi: true, durasi: 1000,
+    });
     const kilau = img.parentElement && img.parentElement.querySelectorAll(".promo-kilap, .promo-bintang");
     if (kilau) kilau.forEach((x) => (x.style.display = "none"));
     await Promise.all([
@@ -136,21 +266,32 @@
     const pemicu = document.activeElement;
     const el = document.createElement("div");
     el.id = "promoSpmb";
-    el.className = "fixed inset-0 z-[70] flex items-center justify-center bg-black/55 p-4 motion-safe:animate-[promoLatar_.25s_ease-out]";
+    el.className = "fixed inset-0 z-[70] flex items-center justify-center overflow-hidden bg-black/60 p-4 motion-safe:animate-[promoLatar_.25s_ease-out]";
     el.setAttribute("role", "dialog");
     el.setAttribute("aria-modal", "true");
     el.setAttribute("aria-label", "Promo SPMB: daftar ulang makin ringan");
     el.innerHTML = `
-      <div data-promo-kotak tabindex="-1" class="relative flex flex-col items-center outline-none ${dariRect ? "" : "motion-safe:animate-[promoMasuk_.35s_cubic-bezier(.2,.9,.3,1.2)]"}">
+      <div data-promo-kotak tabindex="-1" class="relative flex flex-col items-center outline-none">
         <button type="button" data-promo-tutup class="absolute -right-2 -top-2 z-10 grid h-10 w-10 place-items-center rounded-full text-[17px] font-bold leading-none shadow-[0_6px_20px_rgba(0,0,0,.35)] transition hover:scale-105" style="background:#fff;color:#0E3A29" aria-label="Tutup">&#x2715;</button>
-        <a href="daftar/index.html" data-promo-daftar class="promo-tiket-besar block rounded-[24px] focus:outline-none focus-visible:ring-4 focus-visible:ring-white/70">
-          <img src="${GAMBAR}" width="420" height="597" alt="SPMB 2026/2027 resmi dibuka. Daftar ulang makin ringan! Mulai dengan Rp2 juta, sisa biaya bisa diangsur. Daftar sekarang." class="block h-auto w-auto max-w-full drop-shadow-[0_30px_60px_rgba(0,0,0,.45)]" style="max-height:calc(100dvh - 6.5rem)" />
-          <span class="promo-kilap" aria-hidden="true"></span>
-          <span class="promo-bintang" style="left:88%;top:47%" aria-hidden="true">✦</span>
-          <span class="promo-bintang" style="left:10%;top:61%;animation-delay:.9s;font-size:14px" aria-hidden="true">✦</span>
-          <span class="promo-bintang" style="left:78%;top:30%;animation-delay:1.6s;font-size:12px" aria-hidden="true">✦</span>
-          <span class="promo-bintang" style="left:55%;top:71%;animation-delay:2.3s;font-size:11px" aria-hidden="true">✦</span>
-        </a>
+        <div class="promo-panggung">
+          <span class="promo-sinar" aria-hidden="true"></span>
+          <div class="promo-kartu-isi">
+            <a href="daftar/index.html" data-promo-daftar class="promo-tiket-besar block rounded-[24px] focus:outline-none focus-visible:ring-4 focus-visible:ring-white/70">
+              <img src="${GAMBAR}" width="420" height="597" alt="SPMB 2026/2027 resmi dibuka. Daftar ulang makin ringan! Mulai dengan Rp2 juta, sisa biaya bisa diangsur. Daftar sekarang." class="block h-auto w-auto max-w-full drop-shadow-[0_30px_60px_rgba(0,0,0,.45)]" style="max-height:calc(100dvh - 6.5rem)" />
+              <span class="promo-kilap" aria-hidden="true"></span>
+              <span class="promo-bintang" style="left:88%;top:47%" aria-hidden="true">✦</span>
+              <span class="promo-bintang" style="left:10%;top:61%;animation-delay:.9s;font-size:14px" aria-hidden="true">✦</span>
+              <span class="promo-bintang" style="left:78%;top:30%;animation-delay:1.6s;font-size:12px" aria-hidden="true">✦</span>
+              <span class="promo-bintang" style="left:55%;top:71%;animation-delay:2.3s;font-size:11px" aria-hidden="true">✦</span>
+            </a>
+            <div class="promo-kartu-belakang" aria-hidden="true">
+              <img src="assets/img/logo.svg" alt="" width="88" height="88" />
+              <span class="promo-kb-judul">SPMB 2026/2027</span>
+              <span class="promo-kb-sub">SMK Tamansiswa Jetis</span>
+              <span class="promo-kb-bintang">✦ ✦ ✦</span>
+            </div>
+          </div>
+        </div>
         <button type="button" data-promo-tutup class="mt-3 rounded-full px-4 py-1.5 text-[14px] font-semibold underline-offset-4 hover:underline" style="color:rgba(255,255,255,.92)">Nanti saja</button>
       </div>`;
     const kotak = el.querySelector("[data-promo-kotak]");
@@ -210,7 +351,10 @@
     document.addEventListener("keydown", tombol, true);
     document.documentElement.classList.add("overflow-hidden");
     document.body.appendChild(el);
-    if (dariRect) {
+    if (!dariRect) gacha(kotak);
+    else {
+      kotak.querySelector(".promo-sinar").style.opacity = ".42";
+      kotak.querySelector(".promo-sinar").classList.add("nyala");
       // kebalikan dari tutup: terbang membesar dari ikon kecil ke tengah
       const t = transformTerbang(gambar.getBoundingClientRect(), dariRect);
       animasi(kotak, [
