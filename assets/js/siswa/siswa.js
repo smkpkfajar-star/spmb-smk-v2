@@ -249,8 +249,8 @@
     });
     // Dua pilihan unggah: foto langsung (kamera) atau pilih berkas
     if (root.PilihBerkas) {
-      root.PilihBerkas.siapkan(document.querySelector("#uploadBox [data-pilih-berkas]"));
       root.PilihBerkas.pasang({
+        tombol: $("unggahTombol"),
         kamera: $("kameraInput"),
         target: $("fileInput"),
         saatProses: (on) => {

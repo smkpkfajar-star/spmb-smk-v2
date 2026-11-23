@@ -289,8 +289,8 @@ function initBerkasInfo() {
   if (!input || !info) return;
   // Dua pilihan unggah: foto langsung (kamera) atau pilih berkas
   if (window.PilihBerkas) {
-    window.PilihBerkas.siapkan(document.querySelector("#bagian-3 [data-pilih-berkas]"));
     window.PilihBerkas.pasang({
+      tombol: document.getElementById("berkasTombol"),
       kamera: document.getElementById("berkasKamera"),
       target: input,
       saatProses: (on) => {

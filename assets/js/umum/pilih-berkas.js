@@ -72,8 +72,9 @@
     }
   }
 
-  // kamera: <input type=file accept=image/* capture=environment>; target: input file utama
-  function pasang({ kamera, target, saatProses }) {
+  // Satu tombol "Unggah berkas" → pop-up dua pilihan: Ambil foto / Pilih berkas.
+  // tombol: elemen pemicu; kamera: <input type=file accept=image/* capture>; target: input file utama
+  function pasang({ tombol, kamera, target, saatProses }) {
     if (!target) return;
     let sibuk = false;
     const proses = async (file, dariKamera) => {
@@ -99,24 +100,18 @@
         }
         kamera.value = "";
       });
-      // Komputer: tombol "Ambil foto" membuka webcam di jendela kecil
-      const label = document.querySelector(`label[for="${kamera.id}"]`);
-      if (label && !adaKamera() && bisaWebcam()) {
-        const buka = () => bukaWebcam((file) => proses(file, true));
-        label.addEventListener("click", (e) => {
-          e.preventDefault();
-          buka();
-        });
-        label.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            buka();
-          }
-        });
-        if (!label.hasAttribute("tabindex")) label.tabIndex = 0;
-        const ket = label.querySelector("[data-ket-kamera]");
-        if (ket) ket.textContent = "pakai webcam";
-      }
+    }
+    const ambilFoto = () => {
+      if (adaKamera() && kamera) kamera.click(); // HP/tablet: kamera bawaan
+      else bukaWebcam((file) => proses(file, true)); // komputer: webcam
+    };
+    const bisaFoto = () => !!kamera && (adaKamera() || bisaWebcam());
+    if (tombol) {
+      tombol.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!bisaFoto()) return target.click(); // tak ada kamera sama sekali → langsung pilih berkas
+        bukaPilihan({ ambilFoto, pilihBerkas: () => target.click(), keFokus: tombol });
+      });
     }
     // gambar besar dari galeri ikut dikecilkan
     target.addEventListener("change", () => {
@@ -261,14 +256,60 @@
     q("[data-batal]").focus();
   }
 
-  // Pilihan "Ambil foto" disembunyikan hanya bila perangkat tidak punya cara memotret sama sekali
-  function siapkan(wadah) {
-    if (!wadah || adaKamera() || bisaWebcam()) return;
-    const kam = wadah.querySelector("[data-pilihan-kamera]");
-    const brk = wadah.querySelector("[data-pilihan-berkas]");
-    if (kam) kam.classList.add("hidden");
-    if (brk) brk.classList.add("col-span-2");
+  /* ---------- pop-up pilihan: Ambil foto / Pilih berkas ---------- */
+  const IKON_KAMERA = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>';
+  const IKON_BERKAS = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>';
+
+  function bukaPilihan({ ambilFoto, pilihBerkas, keFokus }) {
+    const el = document.createElement("div");
+    el.className = "fixed inset-0 z-[90] flex items-end justify-center bg-black/50 p-3 sm:items-center sm:p-4";
+    el.setAttribute("role", "dialog");
+    el.setAttribute("aria-modal", "true");
+    el.setAttribute("aria-labelledby", "pilihanJudul");
+    const opsi = (aksi, ikon, judul, ket) =>
+      `<button type="button" data-opsi="${aksi}" class="flex w-full items-center gap-4 px-4 py-4 text-left hover:bg-sand focus:bg-sand focus:outline-none">
+        <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-sand text-ink-900">${ikon}</span>
+        <span class="min-w-0"><span class="block text-[16px] font-semibold">${judul}</span><span class="block text-[13.5px] text-ink-500">${ket}</span></span>
+      </button>`;
+    el.innerHTML = `
+      <div class="w-full max-w-sm bg-white shadow-soft">
+        <div class="flex items-center justify-between gap-3 px-4 pb-2 pt-4">
+          <h3 id="pilihanJudul" class="text-[17px] font-semibold">Unggah berkas dengan&hellip;</h3>
+          <button type="button" data-tutup class="grid h-9 w-9 place-items-center rounded-full text-ink-500 hover:bg-sand hover:text-ink-900" aria-label="Tutup">&#x2715;</button>
+        </div>
+        <div class="divide-y divide-hairline border-y border-hairline">
+          ${opsi("foto", IKON_KAMERA, "Ambil foto", adaKamera() ? "Potret dokumen pakai kamera HP" : "Potret dokumen pakai webcam")}
+          ${opsi("berkas", IKON_BERKAS, "Pilih berkas", "PDF/JPG/PNG dari galeri atau file")}
+        </div>
+        <p class="px-4 py-3 text-center text-[12.5px] text-ink-500">Pilih salah satu saja &middot; maks. 5 MB</p>
+      </div>`;
+    document.body.appendChild(el);
+    const tombolKey = (e) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        e.preventDefault();
+        tutup();
+      }
+    };
+    function tutup(kembalikanFokus = true) {
+      document.removeEventListener("keydown", tombolKey, true);
+      el.remove();
+      if (kembalikanFokus && keFokus && keFokus.focus) keFokus.focus();
+    }
+    document.addEventListener("keydown", tombolKey, true);
+    el.addEventListener("click", (e) => {
+      if (e.target === el || e.target.closest("[data-tutup]")) return tutup();
+      const b = e.target.closest("[data-opsi]");
+      if (!b) return;
+      tutup(false);
+      if (b.dataset.opsi === "foto") ambilFoto();
+      else pilihBerkas();
+    });
+    el.querySelector("[data-opsi]").focus();
   }
 
-  Object.assign(root.PilihBerkas, { kecilkanFoto, pasang, adaKamera, bisaWebcam, bukaWebcam, siapkan });
+  // (kompatibilitas) dulu menyembunyikan pilihan kamera; kini pilihan ada di pop-up
+  function siapkan() {}
+
+  Object.assign(root.PilihBerkas, { kecilkanFoto, pasang, adaKamera, bisaWebcam, bukaWebcam, bukaPilihan, siapkan });
 })(typeof window !== "undefined" ? window : globalThis);

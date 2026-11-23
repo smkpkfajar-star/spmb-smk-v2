@@ -191,27 +191,18 @@
               <h2 id="judul-3" class="heading mt-2 text-[26px]">Unggah berkas</h2>
               <p class="mt-1 text-[15px] text-ink-600">Ijazah/SKL belum keluar? Lewati saja, berkas bisa disusulkan dari halaman siswa.</p>
               <div class="mt-6">
-                <!-- Dua pilihan: foto langsung (kamera HP) atau pilih berkas -->
-                <div class="grid grid-cols-2 gap-3" data-pilih-berkas>
-                  <label for="berkasKamera" data-pilihan-kamera class="flex cursor-pointer flex-col items-center justify-center gap-2 border-[1.5px] border-dashed border-line bg-white px-3 py-8 text-center hover:border-ink-900 hover:bg-sand/60">
-                    <span class="grid h-12 w-12 place-items-center rounded-full bg-white shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
-                    </span>
-                    <span class="text-base font-semibold">Ambil foto</span>
-                    <span data-ket-kamera class="text-[13px] text-ink-500">langsung pakai kamera</span>
-                  </label>
-                  <label for="berkasFile" data-pilihan-berkas class="flex cursor-pointer flex-col items-center justify-center gap-2 border-[1.5px] border-dashed border-line bg-white px-3 py-8 text-center hover:border-ink-900 hover:bg-sand/60">
-                    <span class="grid h-12 w-12 place-items-center rounded-full bg-white shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
-                    </span>
-                    <span class="text-base font-semibold">Pilih berkas</span>
-                    <span class="text-[13px] text-ink-500">PDF/JPG/PNG dari galeri/file</span>
-                  </label>
-                </div>
-                <p class="mt-2 text-center font-mono text-[12.8px] text-ink-500">KK · kartu pelajar · SKL — maks. 5 MB, foto otomatis dikecilkan</p>
-                <p class="mt-2 text-center"><span id="berkasInfo" class="hidden rounded-full bg-ok-50 px-3 py-1 text-[13px] font-semibold text-ok-700"></span></p>
-                <input type="file" id="berkasKamera" accept="image/*" capture="environment" class="sr-only" />
-                <input type="file" id="berkasFile" accept=".pdf, .jpg, .jpeg, .png" class="sr-only" />
+                <!-- Satu tombol → pop-up pilihan: Ambil foto / Pilih berkas -->
+                <button type="button" id="berkasTombol" class="hero-bg flex w-full cursor-pointer flex-col items-center justify-center gap-2 border-[1.5px] border-dashed border-line px-4 py-10 text-center hover:border-ink-900"><span class="cahaya" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                  <span class="grid h-12 w-12 place-items-center rounded-full bg-white shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+                  </span>
+                  <span class="text-base font-semibold">Unggah berkas</span>
+                  <span class="text-[14px] text-ink-600">Ambil foto atau pilih file</span>
+                  <span class="font-mono text-[12.8px] text-ink-500">KK · kartu pelajar · SKL — maks. 5 MB</span>
+                  <span id="berkasInfo" class="hidden rounded-full bg-ok-50 px-3 py-1 text-[13px] font-semibold text-ok-700"></span>
+                </button>
+                <input type="file" id="berkasKamera" accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true" />
+                <input type="file" id="berkasFile" accept=".pdf, .jpg, .jpeg, .png" class="sr-only" tabindex="-1" aria-label="Berkas" />
                 <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
               </div>
             </section>
