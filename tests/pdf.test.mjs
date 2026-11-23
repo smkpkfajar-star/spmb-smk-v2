@@ -3,16 +3,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
-// Muat daftar.js di sandbox tanpa DOM nyata
-const ctx = {
-  window: { APP_CONFIG: { emailDomain: { siswa: "siswa.spmb.local" } } },
-  document: { addEventListener() {}, getElementById: () => null, querySelectorAll: () => [] },
-  console: { log() {}, error() {} },
-};
-ctx.window.window = ctx.window;
+// Modul bersama PDF bukti pendaftaran (dipakai formulir, halaman siswa, admin)
+const ctx = { window: {} };
 vm.createContext(ctx);
-vm.runInContext(readFileSync(new URL("../assets/js/daftar/daftar.js", import.meta.url), "utf8"), ctx);
-const { buildPdfContent } = ctx;
+vm.runInContext(readFileSync(new URL("../assets/js/umum/bukti-pdf.js", import.meta.url), "utf8"), ctx);
+const { buildPdfContent, gabungData, tanggalTeks, namaFile } = ctx.window.BuktiPdf;
 
 const data = {
   noPendaftaran: "SPMB-734293",
@@ -84,4 +79,36 @@ test("kolom tanda tangan: calon siswa, orang tua/wali, panitia — dengan nama",
 test("nama orang tua kosong → garis isian, bukan '-'", () => {
   const t = buildPdfContent({ ...data, namaOrtu: "" }, "x").ttd;
   assert.equal(t[1].nama, "");
+});
+
+test("tanggalTeks: ISO dibalik, format sheet dibiarkan", () => {
+  assert.equal(tanggalTeks("2011-08-17"), "17-08-2011");
+  assert.equal(tanggalTeks("17-08-2011"), "17-08-2011");
+  assert.equal(tanggalTeks(""), "");
+});
+
+test("gabungData: data diri dari Data_Pendaftar + status & berkas dari Verifikasi_Berkas", () => {
+  const diri = { noPendaftaran: "SPMB-2026-RPL-007", namaLengkap: "Siti", nisn: 12345678, tanggalLahir: "17-08-2011", namaOrtu: "Budi", jurusan1: "RPL" };
+  const verif = { noPendaftaran: "SPMB-2026-RPL-007", nisn: "0012345678", statusPendaftaran: "Diterima", namaBerkas: "kk.pdf\nijazah.pdf", rowIndex: 9 };
+  const g = gabungData(diri, verif);
+  assert.equal(g.nisn, "0012345678");
+  assert.equal(g.statusPendaftaran, "Diterima");
+  assert.equal(g.namaBerkas, "kk.pdf, ijazah.pdf");
+  assert.equal(g.namaOrtu, "Budi");
+  const c = buildPdfContent(g, "x");
+  const ttl = c.sections[0].rows.find(([l]) => l === "Tempat, Tanggal Lahir")[1];
+  assert.match(ttl, /17-08-2011$/);
+  assert.equal(c.ttd[1].nama, "Budi");
+});
+
+test("gabungData: hanya baris verifikasi → status default Pending, tidak error", () => {
+  const g = gabungData(null, { noPendaftaran: "A", namaLengkap: "X", nisn: "1", statusPendaftaran: "-" });
+  assert.equal(g.statusPendaftaran, "Pending");
+  assert.equal(g.nisn, "0000000001");
+  assert.equal(g.namaBerkas, "");
+});
+
+test("namaFile aman untuk sistem berkas", () => {
+  assert.equal(namaFile("SPMB-2026-RPL-007"), "Bukti-Pendaftaran-SPMB-2026-RPL-007.pdf");
+  assert.equal(namaFile("a/b c"), "Bukti-Pendaftaran-a-b-c.pdf");
 });

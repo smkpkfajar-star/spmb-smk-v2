@@ -927,6 +927,7 @@
       }
       const actionsHtml = (row) =>
         `<button type="button" data-edit="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Ubah</button>` +
+        `<button type="button" data-bukti="${esc(row.rowIndex)}" class="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900 disabled:opacity-60" title="Unduh bukti pendaftaran (PDF, kertas F4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>Bukti PDF</button>` +
         (config.actions || [])
           .filter((a) => !a.show || a.show(row))
           .map(
@@ -1019,10 +1020,11 @@
       }
       const btn = e.target.closest("button");
       if (!btn) return;
-      const idx = btn.dataset.edit ?? btn.dataset.row;
+      const idx = btn.dataset.edit ?? btn.dataset.bukti ?? btn.dataset.row;
       const row = page.rows.find((r) => String(r.rowIndex) === String(idx));
       if (!row) return;
-      if (btn.dataset.edit !== undefined) edit(row);
+      if (btn.dataset.bukti !== undefined) unduhBukti(row, btn);
+      else if (btn.dataset.edit !== undefined) edit(row);
       else config.actions[Number(btn.dataset.action)].run(row, page);
     });
     $pager.addEventListener("click", (e) => {
@@ -1048,6 +1050,24 @@
       state.page = 1;
       render();
     });
+
+    // Bukti pendaftaran (PDF F4) dibuat ulang dari data terbaru di sheet
+    async function unduhBukti(row, btn) {
+      if (!root.BuktiPdf) return toast("Fitur bukti PDF belum termuat. Muat ulang halaman.");
+      btn.disabled = true;
+      try {
+        // NISN lebih pasti (nomor pendaftaran bisa dobel); nomor dipakai bila NISN kosong
+        const nisn = String(row.nisn || row._nisn || "").replace(/\D/g, "");
+        const kunci = nisn ? { nisn } : { noPendaftaran: row.noPendaftaran };
+        const data = await root.BuktiPdf.cariData(kunci);
+        if (!data) throw new Error("Data pendaftar tidak ditemukan di sheet");
+        await root.BuktiPdf.unduh(data);
+        toast(`Bukti pendaftaran diunduh: ${data.namaLengkap || data.noPendaftaran}`);
+      } catch (err) {
+        toast(err.message || "Gagal membuat PDF");
+      }
+      btn.disabled = false;
+    }
 
     function edit(row) {
       const original = {};

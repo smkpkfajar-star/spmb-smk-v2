@@ -410,6 +410,11 @@
             </div>
             <h2 id="homeNama" class="mt-2 text-[24px] font-semibold leading-tight tracking-tight sm:text-[28px]">Halo</h2>
             <p id="homeMeta" class="mt-1 font-mono text-[13px] text-ink-500"></p>
+            <button id="buktiBtn" type="button" class="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-ink-900 px-4 py-2.5 text-[14px] font-semibold text-white disabled:opacity-60 sm:w-auto">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>
+              <span>Unduh bukti pendaftaran (PDF)</span>
+            </button>
+            <p id="buktiMsg" class="hidden" role="status"></p>
           </div>
 
           <div id="homeBody" class="mt-3"></div>
@@ -434,6 +439,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="assets/js/umum/app-config.js" defer></script>
     <script src="assets/js/umum/sheetson.js" defer></script>
+    <script src="assets/js/umum/bukti-pdf.js" defer></script>
     <script src="assets/js/siswa/siswa.js" defer></script>
   </body>
 </html>

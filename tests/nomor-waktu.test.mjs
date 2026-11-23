@@ -14,6 +14,7 @@ const dctx = {
 dctx.window.window = dctx.window;
 vm.createContext(dctx);
 vm.runInContext(read("../assets/js/daftar/daftar.js"), dctx);
+vm.runInContext(read("../assets/js/umum/bukti-pdf.js"), dctx); // PDF bukti kini modul bersama
 
 // admin-ui.js
 const actx = { window: {} };
@@ -114,7 +115,7 @@ test("ambilNomorPendaftaran: balasan database aneh tidak dipakai", async () => {
 /* ---------- bukti PDF ---------- */
 
 test("bukti PDF mencantumkan waktu pendaftaran", () => {
-  const c = dctx.buildPdfContent({ noPendaftaran: "SPMB-2026-0001", createdAt: "2026-11-22 15:22:27" }, "x");
+  const c = dctx.window.BuktiPdf.buildPdfContent({ noPendaftaran: "SPMB-2026-0001", createdAt: "2026-11-22 15:22:27" }, "x");
   const rows = c.sections.flatMap((s) => s.rows);
   assert.deepEqual([...rows.find((r) => r[0] === "Waktu Pendaftaran")], ["Waktu Pendaftaran", "22-11-2026 pukul 15.22 WIB"]);
 });

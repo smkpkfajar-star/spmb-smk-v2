@@ -249,6 +249,27 @@
     });
     $("uploadBtn").addEventListener("click", () => upload(user));
     $("reloadBtn").addEventListener("click", () => user && loadHome(user));
+    // Unduh ulang bukti pendaftaran — dibuat dari data terbaru di sheet
+    $("buktiBtn").addEventListener("click", async () => {
+      if (!user) return;
+      const btn = $("buktiBtn");
+      const label = btn.querySelector("span");
+      const info = $("buktiMsg");
+      info.className = "hidden";
+      btn.disabled = true;
+      label.textContent = "Menyiapkan PDF…";
+      try {
+        const data = await root.BuktiPdf.cariData({ nisn: nisnFromEmail(user.email) });
+        if (!data) throw new Error("Data pendaftaranmu belum terbaca. Tunggu beberapa menit lalu coba lagi.");
+        await root.BuktiPdf.unduh(data);
+        info.textContent = "Bukti pendaftaran diunduh. Cetak di kertas F4, lalu tanda tangani bersama orang tua/wali.";
+        info.className = "mt-3 rounded-md bg-sand p-3 text-[14px] text-ink-600";
+      } catch (e) {
+        msg(info, e.message || "Gagal membuat PDF. Coba lagi.", false);
+      }
+      btn.disabled = false;
+      label.textContent = "Unduh bukti pendaftaran (PDF)";
+    });
     // Keluar cukup sekali ketuk (masuk lagi pun mudah); pesan singkat muncul di form login
     $("logoutBtn").addEventListener("click", async () => {
       $("logoutBtn").disabled = true;
@@ -256,6 +277,7 @@
       $("logoutBtn").disabled = false;
       user = null;
       $("uploadMsg").className = "hidden";
+      $("buktiMsg").className = "hidden";
       $("nisn").value = "";
       show("loginView");
       $("logoutInfo").classList.remove("hidden");

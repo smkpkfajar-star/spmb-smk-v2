@@ -43,7 +43,7 @@ docs/                 design.md (panduan gaya) + catatan desain & rencana kerja
 | Logo & ikon tab browser | `assets/img/logo.svg` (sumber), PNG ukuran lain + `favicon.ico` di folder utama dibuat dari SVG itu |
 | Teks penjelasan jurusan | `assets/js/beranda/jurusan.js` (atau `index.html`) |
 | Isian formulir pendaftaran | `daftar/index.html` + `assets/js/daftar/daftar.js` |
-| Isi PDF bukti pendaftaran (kertas F4, pernyataan persetujuan, kolom tanda tangan) | `buildPdfContent` di `assets/js/daftar/daftar.js` |
+| PDF bukti pendaftaran (kertas F4, pernyataan, tanda tangan) — dipakai formulir, halaman siswa & tombol "Bukti PDF" admin | `assets/js/umum/bukti-pdf.js` |
 | Kolom tabel admin, status, tombol | `assets/js/admin/modules.js` |
 | Tampilan tabel/filter admin (semua modul) | `assets/js/admin/ui.js` |
 | Kolom laporan Ekspor Excel/PDF | `ekspor: [...]` tiap modul di `assets/js/admin/modules.js` (kolom umum: `KOLOM_EKSPOR_UMUM` di `ui.js`) |
