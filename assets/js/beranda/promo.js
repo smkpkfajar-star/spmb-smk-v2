@@ -5,7 +5,8 @@
    - Tutup: tombol ✕, tombol "Nanti saja", Esc, atau klik di luar kotak.
      Saat ditutup, tiket mengecil & terbang ke pojok kanan bawah menjadi ikon
      kecil mengambang (klik = buka lagi, ✕ kecil = sembunyikan).
-   - Tidak muncul bila halaman dibuka lewat tautan langsung (#login, #faq, …).
+   - Tidak muncul bila halaman dibuka lewat tautan langsung (#login, #faq, …),
+     bila superadmin mematikan pop-up, atau bila SPMB sedang ditutup.
    ============================================================ */
 (function (root) {
   const GAMBAR = "assets/img/promo-tiket.png"; // sumber desain: docs/desain/promo-tiket.html
@@ -317,8 +318,12 @@
       gambar.onload = r;
       gambar.onerror = r;
     });
+    // Superadmin bisa mematikan pop-up (atau menutup SPMB) dari panel admin
+    const izin = root.Pengaturan ? root.Pengaturan.ambil() : Promise.resolve({ spmbDibuka: true, popupPromo: true });
     setTimeout(async () => {
       await siap;
+      const p = await izin;
+      if (!p.popupPromo || !p.spmbDibuka) return;
       if (root.location.hash && root.location.hash !== "#") return;
       if (gambar.naturalWidth && !document.getElementById("promoSpmb")) tampilkan(null);
     }, 700);

@@ -13,7 +13,51 @@ document.addEventListener("DOMContentLoaded", () => {
   initTabSwitcher();
   initFormValidationAndSubmit(SHEETSON_CONFIG, SUPABASE_CONFIG);
   initStatusChecker(SHEETSON_CONFIG);
+
+  // Superadmin bisa menutup SPMB dari panel admin → formulir diganti pesan "ditutup"
+  if (window.Pengaturan) {
+    window.Pengaturan.ambil().then((p) => {
+      if (!p.spmbDibuka) tampilkanSpmbDitutup();
+    });
+  }
 });
+
+/* --- SPMB DITUTUP (diatur superadmin) --- */
+function tampilkanSpmbDitutup() {
+  const tab = document.getElementById("tab-pendaftaran");
+  const layout = document.getElementById("formLayout");
+  if (!tab || document.getElementById("spmbDitutup")) return;
+  if (layout) layout.style.display = "none";
+  const intro = document.getElementById("formIntro");
+  if (intro) {
+    const badge = intro.querySelector("span.inline-flex");
+    if (badge) badge.innerHTML = '<span class="h-2 w-2 rounded-full" style="background:#EF4444" aria-hidden="true"></span>Pendaftaran 2026/2027 ditutup';
+    intro.querySelectorAll("p").forEach((x) => (x.style.display = "none"));
+  }
+  const kotak = document.createElement("section");
+  kotak.id = "spmbDitutup";
+  kotak.setAttribute("role", "status");
+  kotak.className = "mx-auto mt-10 max-w-xl border border-hairline bg-white p-6 text-center sm:p-8";
+  kotak.innerHTML = `
+    <p class="text-[40px] leading-none" aria-hidden="true">🔒</p>
+    <h2 class="mt-3 text-[22px] font-semibold">Pendaftaran sedang ditutup</h2>
+    <p class="mt-2 text-[15.5px] leading-relaxed text-ink-600">Saat ini formulir pendaftaran SPMB 2026/2027 belum bisa diisi. Pantau informasi terbaru atau hubungi panitia.</p>
+    <div class="mt-6 flex flex-col justify-center gap-2.5 sm:flex-row">
+      <a href="#cek-status" data-tab-link="cek-status" class="inline-flex h-12 items-center justify-center rounded-full bg-ink-900 px-6 text-[15px] font-semibold text-white">Cek status pendaftaran</a>
+      <a href="https://wa.me/628823212784" target="_blank" rel="noopener" class="inline-flex h-12 items-center justify-center rounded-full px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">WhatsApp panitia</a>
+    </div>
+    <p class="mt-4 text-[13.5px] text-ink-500">Sudah mendaftar? <a href="../#login" class="font-medium text-ink-900 underline">Login siswa</a> untuk melihat berkas & unduh bukti pendaftaran.</p>`;
+  if (intro && intro.nextSibling) tab.insertBefore(kotak, intro.nextSibling);
+  else tab.appendChild(kotak);
+  // tautan "Cek status" di kotak ini ikut berpindah tab
+  const cek = kotak.querySelector("[data-tab-link]");
+  const tabCek = document.querySelector('.tab-btn[data-tab="cek-status"]');
+  if (cek && tabCek)
+    cek.addEventListener("click", (e) => {
+      e.preventDefault();
+      tabCek.click();
+    });
+}
 
 /* --- 1. TAB & MOBILE MENU SWITCHER --- */
 function initTabSwitcher() {
@@ -92,6 +136,16 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
 
       // Semua pesan salah tampil sekaligus; halaman menggulir ke yang pertama
       if (!validateFormInputs(regForm, jurusan1, jurusan2, jurusanSamaWarning)) return;
+
+      // SPMB mungkin baru saja ditutup superadmin saat formulir sedang diisi
+      if (window.Pengaturan) {
+        const p = await window.Pengaturan.ambil({ segar: true });
+        if (!p.spmbDibuka) {
+          tampilkanSpmbDitutup();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+      }
 
       const nisnVal = document.getElementById("nisn").value.trim();
       const passwordVal = document.getElementById("password").value;
@@ -635,6 +689,9 @@ async function ambilNomorPendaftaran(client, jurusan, now = new Date(), sudahDip
     } catch (err) {
       console.warn("Nomor urut database gagal, memakai nomor cadangan:", err);
       break;
+    }
+    if (error && /DITUTUP/.test(error.message || "")) {
+      throw userError("Maaf, pendaftaran SPMB sedang ditutup oleh panitia. Silakan hubungi panitia lewat WhatsApp.");
     }
     if (error && /PENUH/.test(error.message || "")) {
       throw userError(

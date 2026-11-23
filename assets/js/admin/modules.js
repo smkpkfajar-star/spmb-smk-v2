@@ -402,7 +402,15 @@
       async mount(app, profile) {
         app.innerHTML = `
       <h1 class="text-[26px] font-semibold tracking-tight">Superadmin</h1>
-      <p class="mt-1 text-[15px] text-ink-600">Rekap pendaftaran, unduh data, kelola akun petugas, dan reset password.</p>
+      <p class="mt-1 text-[15px] text-ink-600">Pengaturan situs, rekap pendaftaran, unduh data, kelola akun petugas, dan reset password.</p>
+
+      <!-- PENGATURAN SITUS -->
+      <section class="mt-6 rounded-lg border border-hairline bg-white p-5" aria-labelledby="pengaturanJudul">
+        <h2 id="pengaturanJudul" class="text-lg font-semibold">Pengaturan situs</h2>
+        <p class="mt-1 text-[14.5px] text-ink-600">Berlaku langsung untuk semua pengunjung tanpa perlu mengubah kode.</p>
+        <div id="pengaturanIsi" class="mt-4 divide-y divide-hairline border-y border-hairline" aria-hidden="true"><div class="skeleton my-3 h-14"></div><div class="skeleton my-3 h-14"></div></div>
+        <p id="pengaturanInfo" class="mt-3 hidden rounded-lg p-3 text-[14.5px]"></p>
+      </section>
 
       <!-- REKAP -->
       <section class="mt-6" aria-labelledby="rekapJudul">
@@ -484,6 +492,90 @@
         }
         document.getElementById("reloadRekap").addEventListener("click", () => loadRekap(true));
         loadRekap();
+
+        /* ---------- pengaturan situs (tabel "pengaturan", supabase/03-pengaturan.sql) ---------- */
+        const SAKLAR = [
+          {
+            kunci: "spmb_dibuka",
+            judul: "Pendaftaran SPMB dibuka",
+            nyala: "Formulir pendaftaran bisa diisi.",
+            mati: "Ditutup: formulir diganti pesan \"pendaftaran ditutup\", tombol Daftar di beranda disembunyikan, pendaftar baru ditolak. Cek status & login siswa tetap bisa.",
+            tanyaMati: "Tutup pendaftaran SPMB sekarang?\n\nCalon siswa tidak bisa mendaftar sampai dibuka lagi. Cek status & login siswa tetap bisa.",
+          },
+          {
+            kunci: "popup_promo",
+            judul: "Pop-up promo di beranda",
+            nyala: "Pop-up \"Daftar Ulang Makin Ringan! Rp2 Juta\" muncul saat beranda dibuka.",
+            mati: "Pop-up promo tidak ditampilkan.",
+          },
+        ];
+        const fmtWaktu = (iso) => {
+          if (!iso) return "";
+          const d = new Date(iso);
+          return isNaN(d) ? "" : d.toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+        };
+        const infoPengaturan = (pesan, baik) => {
+          const el = document.getElementById("pengaturanInfo");
+          el.textContent = pesan;
+          el.className = `mt-3 rounded-lg p-3 text-[14.5px] ${baik ? "bg-ok-50 text-ok-700" : "bg-red-50 text-red-700"}`;
+        };
+        async function loadPengaturan() {
+          const wadah = document.getElementById("pengaturanIsi");
+          const { data, error } = await db.from("pengaturan").select("kunci,nilai,diubah");
+          if (error) {
+            wadah.removeAttribute("aria-hidden");
+            wadah.innerHTML = "";
+            infoPengaturan(
+              /pengaturan|schema cache|does not exist|42P01|PGRST2/i.test(error.message + " " + (error.code || ""))
+                ? "Tabel pengaturan belum dibuat. Jalankan supabase/03-pengaturan.sql di Supabase (SQL Editor → New query → Run), lalu muat ulang halaman ini."
+                : "Gagal memuat pengaturan: " + error.message,
+              false
+            );
+            return;
+          }
+          const peta = new Map((data || []).map((r) => [r.kunci, r]));
+          wadah.removeAttribute("aria-hidden");
+          wadah.innerHTML = SAKLAR.map((k) => {
+            const r = peta.get(k.kunci);
+            const on = !r || r.nilai !== false;
+            return `<div class="flex items-start justify-between gap-4 py-4">
+              <div class="min-w-0">
+                <p class="text-[15.5px] font-semibold" id="lbl-${k.kunci}">${esc(k.judul)}</p>
+                <p class="mt-0.5 text-[14px] ${on ? "text-ink-600" : "font-medium text-red-700"}">${esc(on ? k.nyala : k.mati)}</p>
+                ${r && r.diubah ? `<p class="mt-1 font-mono text-[12px] text-ink-500">diubah ${esc(fmtWaktu(r.diubah))}</p>` : ""}
+              </div>
+              <button type="button" role="switch" aria-checked="${on}" aria-labelledby="lbl-${k.kunci}" data-saklar="${k.kunci}"
+                class="relative mt-1 inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-50"
+                style="background:${on ? "#16A34A" : "#A1A1AA"}">
+                <span class="sr-only">${on ? "Nyala" : "Mati"}</span>
+                <span class="inline-block h-6 w-6 rounded-full bg-white shadow transition-transform" style="transform:translateX(${on ? "28px" : "4px"})" aria-hidden="true"></span>
+              </button>
+            </div>`;
+          }).join("");
+        }
+        document.getElementById("pengaturanIsi").addEventListener("click", async (e) => {
+          const tombol = e.target.closest("[data-saklar]");
+          if (!tombol) return;
+          const k = SAKLAR.find((x) => x.kunci === tombol.dataset.saklar);
+          const nilaiBaru = tombol.getAttribute("aria-checked") !== "true";
+          if (!nilaiBaru && k.tanyaMati && !window.confirm(k.tanyaMati)) return;
+          tombol.disabled = true;
+          const { data: u } = await db.auth.getUser();
+          const { data, error } = await db
+            .from("pengaturan")
+            .update({ nilai: nilaiBaru, diubah: new Date().toISOString(), diubah_oleh: u && u.user ? u.user.id : null })
+            .eq("kunci", k.kunci)
+            .select("kunci");
+          if (error || !data || !data.length) {
+            tombol.disabled = false;
+            infoPengaturan("Gagal menyimpan" + (error ? ": " + error.message : " (hanya superadmin yang boleh mengubah)."), false);
+            return;
+          }
+          AdminUI.toast(`${k.judul}: ${nilaiBaru ? "NYALA" : "MATI"}`);
+          document.getElementById("pengaturanInfo").className = "mt-3 hidden rounded-lg p-3 text-[14.5px]";
+          loadPengaturan();
+        });
+        loadPengaturan();
 
         /* ---------- unduh CSV ---------- */
         const unduh = document.getElementById("unduh");

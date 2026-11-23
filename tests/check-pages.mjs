@@ -16,7 +16,7 @@ const idsUsed = (js) => [...js.matchAll(/getElementById\(\s*["'`]([\w-]+)["'`]\s
 const hasId = (html, id) => new RegExp(`id=["']${id}["']`).test(html);
 
 // dibuat dinamis oleh JS atau memang opsional
-const OPTIONAL_DAFTAR_IDS = new Set(["kodeVoucher", "timelineContainer", "toast", "btnWhatsAppStatus"]);
+const OPTIONAL_DAFTAR_IDS = new Set(["kodeVoucher", "timelineContainer", "toast", "btnWhatsAppStatus", "spmbDitutup"]);
 for (const id of new Set(idsUsed(daftarJs))) {
   if (!OPTIONAL_DAFTAR_IDS.has(id) && !hasId(pages["daftar/index.html"], id))
     problems.push(`daftar/index.html: id "${id}" dipakai daftar.js tapi tidak ada`);
