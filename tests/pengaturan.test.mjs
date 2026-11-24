@@ -201,3 +201,22 @@ test("ringkasKuota: nama jurusan & persen terisi untuk grafik", () => {
   assert.equal(per.DKV.persen, 100); // kuota 0 = penuh
   assert.equal(per.DKV.nada, "bad");
 });
+
+test("kalimatDesak: hanya dari kondisi nyata", () => {
+  const { ringkasKuota, kalimatDesak } = ctx.window.Pengaturan;
+  const buat = (rows) => ringkasKuota(rows);
+  // semua longgar → tidak ada desakan
+  assert.equal(kalimatDesak(buat([{ jurusan: "DKV", kuota: 36, terisi: 5 }])), "");
+  // ada yang tinggal sedikit
+  assert.equal(kalimatDesak(buat([{ jurusan: "RPL", kuota: 36, terisi: 32 }, { jurusan: "DKV", kuota: 36, terisi: 5 }])), "RPL tinggal 4 kursi. Jangan sampai kehabisan!");
+  // beberapa sedikit + satu penuh
+  assert.equal(
+    kalimatDesak(buat([{ jurusan: "RPL", kuota: 36, terisi: 34 }, { jurusan: "TKR", kuota: 30, terisi: 29 }, { jurusan: "TSM", kuota: 20, terisi: 20 }])),
+    "RPL tinggal 2 kursi, TKR tinggal 1 kursi. Jangan sampai kehabisan! TSM sudah penuh."
+  );
+  // satu penuh, lainnya longgar
+  assert.match(kalimatDesak(buat([{ jurusan: "TSM", kuota: 20, terisi: 20 }, { jurusan: "DKV", kuota: 36, terisi: 5 }])), /^TSM sudah penuh\. Amankan kursi di jurusan lain/);
+  // semua penuh → tidak mendesak (tidak ada kursi yang bisa diamankan)
+  assert.equal(kalimatDesak(buat([{ jurusan: "TSM", kuota: 20, terisi: 20 }])), "");
+  assert.equal(kalimatDesak(null), "");
+});

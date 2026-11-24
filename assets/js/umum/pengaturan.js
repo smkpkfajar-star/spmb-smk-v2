@@ -152,6 +152,21 @@
       .sort((a, b) => URUTAN_JURUSAN.indexOf(a.jurusan) - URUTAN_JURUSAN.indexOf(b.jurusan));
   }
 
+  // Kalimat pemancing daftar untuk section kuota; hanya dari kondisi nyata, "" bila tidak ada yang genting.
+  function kalimatDesak(ringkas) {
+    const daftar = Array.isArray(ringkas) ? ringkas : [];
+    const sedikit = daftar.filter((k) => k.nada === "wait");
+    const penuh = daftar.filter((k) => k.nada === "bad");
+    const longgar = daftar.filter((k) => k.nada !== "bad");
+    if (sedikit.length) {
+      const bagian = sedikit.map((k) => `${k.jurusan} tinggal ${k.kuota - k.terisi} kursi`).join(", ");
+      const catatan = penuh.length ? ` ${penuh.map((k) => k.jurusan).join(", ")} sudah penuh.` : "";
+      return `${bagian}. Jangan sampai kehabisan!${catatan}`;
+    }
+    if (penuh.length && longgar.length) return `${penuh.map((k) => k.jurusan).join(", ")} sudah penuh. Amankan kursi di jurusan lain sebelum ikut habis!`;
+    return "";
+  }
+
   // Sebelum hasil diumumkan, Diterima/Ditolak tampil sebagai "Diverifikasi" (menunggu pengumuman)
   function sembunyikanHasil(status, hasilDiumumkan) {
     if (hasilDiumumkan !== false) return status;
@@ -346,6 +361,7 @@
     teksHitungMundur,
     statusKuota,
     ringkasKuota,
+    kalimatDesak,
     NAMA_JURUSAN,
     sembunyikanHasil,
     ambil,

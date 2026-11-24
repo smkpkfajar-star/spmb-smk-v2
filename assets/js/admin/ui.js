@@ -249,7 +249,24 @@
     return String(detail.keterangan || "");
   }
 
-  root.AdminUI = { ringkasPerubahan, teksDetailRiwayat, tabelEkspor, keteranganFilter, namaFileLaporan, cekUbahPetugas, cariNomorDobel, barisMilik, pesanNomorBaru, polaBunyi: () => polaBunyi(), URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
+  /* Jumlah siswa berstatus "Diterima" per jurusan (dasar kuota). Jurusan diambil dari Data_Pendaftar
+     (dicocokkan lewat NISN, cadangan no. pendaftaran); bila daftar tidak diberikan, dipakai kolom _jurusan. */
+  const kunciSiswa = (r) => {
+    const n = String((r && (r.nisn ?? r._nisn)) ?? "").trim().replace(/^0+/, "");
+    return n ? "n" + n : "p" + String((r && r.noPendaftaran) ?? "").trim();
+  };
+  function hitungDiterima(verif, daftar) {
+    const jurusan = new Map((daftar || []).map((r) => [kunciSiswa(r), String(r.jurusan1 || "").trim().toUpperCase()]));
+    const hasil = { DKV: 0, RPL: 0, TITL: 0, TKR: 0, TSM: 0 };
+    (verif || []).forEach((r) => {
+      if (String(r.statusPendaftaran || "").trim().toLowerCase() !== "diterima") return;
+      const j = jurusan.get(kunciSiswa(r)) || String(r._jurusan || "").trim().toUpperCase();
+      if (Object.prototype.hasOwnProperty.call(hasil, j)) hasil[j] += 1;
+    });
+    return hasil;
+  }
+
+  root.AdminUI = { hitungDiterima, ringkasPerubahan, teksDetailRiwayat, tabelEkspor, keteranganFilter, namaFileLaporan, cekUbahPetugas, cariNomorDobel, barisMilik, pesanNomorBaru, polaBunyi: () => polaBunyi(), URUTAN_JURUSAN, SARING_UMUM, opsiSaring, saringTambahan, isi, filterRows, changedFields, toCsv, badgeTone, paginate, sortRows, tabTitle, parseWaktu, formatWaktu, waktuKey, pageNumbers, tanggalWIB, filterTanggal };
   if (typeof document === "undefined") return;
 
   /* ---------- tampilan ---------- */
@@ -519,6 +536,21 @@
           o.stop(mulai + n.d + 0.05);
         });
       });
+    } catch (_) {}
+  }
+
+  // Simpan jumlah Diterima per jurusan ke database (dasar kuota yang dilihat pengunjung).
+  // Hanya superadmin/verifikasi; hanya dikirim bila angkanya berbeda dari yang terakhir dikirim; gagal diam-diam.
+  let sinkronTerakhir = "";
+  async function sinkronDiterima(verif, daftar, role) {
+    const peran = role || (petugasAktif && petugasAktif.role);
+    if (!["superadmin", "verifikasi"].includes(peran) || !root.AdminAuth) return;
+    const hitung = hitungDiterima(verif, daftar);
+    const isi = JSON.stringify(hitung);
+    if (isi === sinkronTerakhir) return;
+    try {
+      const { error } = await root.AdminAuth.getClient().rpc("perbarui_diterima", { p_hitung: hitung });
+      if (!error) sinkronTerakhir = isi;
     } catch (_) {}
   }
 
@@ -1224,6 +1256,7 @@
           const label = Object.fromEntries(config.fields.map((f) => [f.name, f.label]));
           catatModul("Ubah data", row, { perubahan: ringkasPerubahan(original, changes, label) });
           Object.assign(row, changes);
+          if (config.sheet === "Verifikasi_Berkas" && "statusPendaftaran" in changes) sinkronDiterima(page.rows, null);
           renderStats();
           renderSaring();
           render();
@@ -1254,6 +1287,7 @@
         render();
         bar.remove();
         showNew(baru.size);
+        if (config.sheet === "Verifikasi_Berkas") sinkronDiterima(page.rows, null);
       } catch (err) {
         bar.remove();
         $count.textContent = "";
@@ -1432,5 +1466,5 @@
     return page;
   }
 
-  Object.assign(root.AdminUI, { badge, toast, renderShell, setActiveNav, statCards, openDialog, downloadFile, modulePage, watchNew, newBanner, stopAllWatchers, daftarPengamat });
+  Object.assign(root.AdminUI, { badge, toast, renderShell, setActiveNav, statCards, openDialog, downloadFile, modulePage, watchNew, newBanner, stopAllWatchers, daftarPengamat, sinkronDiterima });
 })(typeof window !== "undefined" ? window : globalThis);

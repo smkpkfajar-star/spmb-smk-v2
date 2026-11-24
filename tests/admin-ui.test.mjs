@@ -84,3 +84,28 @@ test("tabTitle menambahkan jumlah pendaftar baru", () => {
   assert.equal(tabTitle("Verifikasi — Admin SPMB", 3), "(3) Verifikasi — Admin SPMB");
   assert.equal(tabTitle("(2) Verifikasi — Admin SPMB", 5), "(5) Verifikasi — Admin SPMB");
 });
+
+test("hitungDiterima: hanya status Diterima, jurusan dari Data_Pendaftar lewat NISN", () => {
+  const { hitungDiterima } = ctx.window.AdminUI;
+  const daftar = [
+    { nisn: "0012345678", noPendaftaran: "A1", jurusan1: "RPL" },
+    { nisn: "22", noPendaftaran: "A2", jurusan1: "dkv" },
+    { nisn: "33", noPendaftaran: "A3", jurusan1: "TKR" },
+    { nisn: "44", noPendaftaran: "A4", jurusan1: "XYZ" },
+  ];
+  const verif = [
+    { nisn: "12345678", noPendaftaran: "A1", statusPendaftaran: "Diterima" }, // nol di depan hilang di sheet
+    { nisn: "22", noPendaftaran: "A2", statusPendaftaran: " diterima " },
+    { nisn: "33", noPendaftaran: "A3", statusPendaftaran: "Diverifikasi" },
+    { nisn: "44", noPendaftaran: "A4", statusPendaftaran: "Diterima" }, // jurusan tak dikenal diabaikan
+    { nisn: "55", noPendaftaran: "A5", statusPendaftaran: "Ditolak" },
+  ];
+  assert.deepEqual({ ...hitungDiterima(verif, daftar) }, { DKV: 1, RPL: 1, TITL: 0, TKR: 0, TSM: 0 });
+});
+
+test("hitungDiterima: tanpa daftar memakai kolom _jurusan; data kosong aman", () => {
+  const { hitungDiterima } = ctx.window.AdminUI;
+  const hasil = hitungDiterima([{ noPendaftaran: "B1", statusPendaftaran: "Diterima", _jurusan: "TSM" }, { noPendaftaran: "B2", statusPendaftaran: "Diterima", _jurusan: "TSM" }], null);
+  assert.deepEqual({ ...hasil }, { DKV: 0, RPL: 0, TITL: 0, TKR: 0, TSM: 2 });
+  assert.deepEqual({ ...hitungDiterima(null, null) }, { DKV: 0, RPL: 0, TITL: 0, TKR: 0, TSM: 0 });
+});

@@ -52,6 +52,43 @@
   const WARNA_BATANG = { ok: "#16A34A", wait: "#D97706", bad: "#DC2626" };
   const tanpaGerak = () => !!(root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
+  // Animasi pemancing daftar (mati bila pengunjung memilih "kurangi gerakan"):
+  //  kq-bar    kilau melintas di batang       kq-strip   garis miring bergerak (kursi tinggal sedikit)
+  //  kq-denyut lencana berdenyut              kq-goyang  kalimat desakan bergoyang sesekali
+  //  kq-ajak   tombol daftar berdenyut pelan
+  const CSS_KUOTA =
+    ".kq-bar{position:relative;overflow:hidden}" +
+    ".kq-bar::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:kq-sweep 2.2s ease-in-out 1.2s infinite}" +
+    ".kq-strip{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.32) 0 7px,transparent 7px 14px);background-size:20px 20px;animation:kq-strip .7s linear infinite}" +
+    ".kq-denyut{animation:kq-denyut 1.3s ease-in-out infinite}" +
+    ".kq-goyang{animation:kq-goyang 3.2s ease-in-out infinite}" +
+    ".kq-ajak{animation:kq-ajak 1.8s ease-in-out infinite}" +
+    "@keyframes kq-sweep{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}" +
+    "@keyframes kq-strip{to{background-position:20px 0}}" +
+    "@keyframes kq-denyut{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(217,119,6,.45)}50%{transform:scale(1.06);box-shadow:0 0 0 7px rgba(217,119,6,0)}}" +
+    "@keyframes kq-goyang{0%,86%,100%{transform:translateX(0)}88%{transform:translateX(-3px)}91%{transform:translateX(3px)}94%{transform:translateX(-2px)}97%{transform:translateX(2px)}}" +
+    "@keyframes kq-ajak{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}" +
+    "@media (prefers-reduced-motion:reduce){.kq-bar::after,.kq-strip,.kq-denyut,.kq-goyang,.kq-ajak{animation:none}}";
+  function pasangGayaKuota() {
+    if (document.getElementById("gayaKuota")) return;
+    const g = document.createElement("style");
+    g.id = "gayaKuota";
+    g.textContent = CSS_KUOTA;
+    document.head.appendChild(g);
+  }
+
+  // Angka naik dari 0 ke tujuan (ease-out)
+  function hitungNaik(sampai, durasi, tulis) {
+    if (tanpaGerak() || !root.requestAnimationFrame) return tulis(sampai);
+    const t0 = root.performance.now();
+    const langkah = (t) => {
+      const f = Math.min(1, (t - t0) / durasi);
+      tulis(Math.round(sampai * (1 - Math.pow(1 - f, 3))));
+      if (f < 1) root.requestAnimationFrame(langkah);
+    };
+    root.requestAnimationFrame(langkah);
+  }
+
   // Satu baris grafik: nama, lencana sisa, batang terisi, angka. Semua teks lewat textContent.
   function barisGrafik(k) {
     const li = document.createElement("li");
@@ -68,7 +105,7 @@
     judul.textContent = k.nama || k.jurusan;
     nama.append(kode, judul);
     const lencana = document.createElement("span");
-    lencana.className = `shrink-0 rounded-full px-3 py-1 text-[13px] font-medium ${NADA_KUOTA[k.nada]}`;
+    lencana.className = `shrink-0 rounded-full px-3 py-1 text-[13px] font-medium ${NADA_KUOTA[k.nada]}${k.nada === "wait" ? " kq-denyut" : ""}`;
     lencana.textContent = k.kuota - k.terisi > 0 ? `sisa ${k.kuota - k.terisi} kursi` : "penuh";
     atas.append(nama, lencana);
 
@@ -77,17 +114,17 @@
     jalur.setAttribute("role", "img");
     jalur.setAttribute("aria-label", `${k.terisi} dari ${k.kuota} kursi terisi`);
     const batang = document.createElement("div");
-    batang.className = "h-full rounded-full";
-    batang.style.background = WARNA_BATANG[k.nada];
+    batang.className = `h-full rounded-full${k.nada === "bad" ? "" : " kq-bar"}${k.nada === "wait" ? " kq-strip" : ""}`;
+    batang.style.backgroundColor = WARNA_BATANG[k.nada];
     batang.style.width = tanpaGerak() ? `${k.persen}%` : "0%";
     batang.style.transition = tanpaGerak() ? "none" : "width .9s cubic-bezier(.2,.8,.2,1)";
     jalur.appendChild(batang);
-    if (!tanpaGerak()) requestAnimationFrame(() => requestAnimationFrame(() => (batang.style.width = `${k.persen}%`)));
 
     const bawah = document.createElement("div");
     bawah.className = "mt-2 flex items-center justify-between gap-3 font-mono text-[12.5px] text-ink-500";
     const angka = document.createElement("span");
-    angka.textContent = `${k.terisi} / ${k.kuota} terisi · ${k.persen}%`;
+    const tulisAngka = (n) => (angka.textContent = `${n} / ${k.kuota} terisi · ${k.kuota > 0 ? Math.min(100, Math.round((n / k.kuota) * 100)) : 100}%`);
+    tulisAngka(tanpaGerak() ? k.terisi : 0);
     bawah.appendChild(angka);
     if (k.kuota - k.terisi > 0) {
       const daftar = document.createElement("a");
@@ -98,7 +135,12 @@
       bawah.appendChild(daftar);
     }
     li.append(atas, jalur, bawah);
-    return li;
+    // dipanggil saat baris terlihat di layar: batang tumbuh & angka naik
+    const mulai = () => {
+      batang.style.width = `${k.persen}%`;
+      hitungNaik(k.terisi, 900, tulisAngka);
+    };
+    return { li, mulai };
   }
 
   async function pasangKuota() {
@@ -106,11 +148,34 @@
     const grafik = document.getElementById("kuotaGrafik");
     const ringkas = root.Pengaturan.ringkasKuota(await root.Pengaturan.ambilKuota());
     if (!ringkas.length) return;
+    pasangGayaKuota();
     // section grafik
     if (grafik) {
-      ringkas.forEach((k) => grafik.appendChild(barisGrafik(k)));
+      const baris = ringkas.map(barisGrafik);
+      baris.forEach((b) => grafik.appendChild(b.li));
       const seksi = document.getElementById("kuota");
       if (seksi) seksi.classList.remove("hidden");
+      const desak = root.Pengaturan.kalimatDesak(ringkas);
+      const $desak = document.getElementById("kuotaDesak");
+      if ($desak && desak) {
+        $desak.textContent = `🔥 ${desak}`;
+        $desak.classList.remove("hidden");
+      }
+      // Batang tumbuh saat section masuk layar (bukan saat halaman dibuka, agar tidak terbuang)
+      const mulaiSemua = () => baris.forEach((b, i) => setTimeout(b.mulai, tanpaGerak() ? 0 : i * 130));
+      if (tanpaGerak() || !("IntersectionObserver" in root)) mulaiSemua();
+      else {
+        const io = new root.IntersectionObserver(
+          (e) => {
+            if (e.some((x) => x.isIntersecting)) {
+              io.disconnect();
+              mulaiSemua();
+            }
+          },
+          { threshold: 0.25 }
+        );
+        io.observe(grafik);
+      }
     }
     if (!wadah) return;
     const judul = document.createElement("a");
@@ -120,7 +185,7 @@
     wadah.appendChild(judul);
     ringkas.forEach((k) => {
       const chip = document.createElement("span");
-      chip.className = `rounded-full px-3 py-1 text-[13px] font-medium ${NADA_KUOTA[k.nada]}`;
+      chip.className = `rounded-full px-3 py-1 text-[13px] font-medium ${NADA_KUOTA[k.nada]}${k.nada === "wait" ? " kq-denyut" : ""}`;
       chip.textContent = k.teks;
       chip.title = `${k.terisi} dari ${k.kuota} kursi terisi`;
       wadah.appendChild(chip);

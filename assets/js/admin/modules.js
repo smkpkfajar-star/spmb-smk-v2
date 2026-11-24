@@ -130,6 +130,7 @@
             const [daftar, verif, uang, fisik] = await Promise.all(NAMA_SHEET.map((s) => Sheetson.getRows(s, { fresh: fresh === true })));
             data = { daftar, verif, uang, fisik };
             tampilDash();
+            AdminUI.sinkronDiterima(verif, daftar, profile.role);
             showNew(baruDash.size);
             if (!watcher) watcher = AdminUI.watchNew("Data_Pendaftar", () => data.daftar.length, tambahBaru);
             bar.remove();
@@ -778,7 +779,9 @@
           const teks = (k) => esc((peta.get(k) && peta.get(k).teks) || "");
           const kuotaInput = AdminUI.URUTAN_JURUSAN.map((j) => {
             const r = peta.get("kuota_" + j.toLowerCase());
-            return `<label class="flex flex-col gap-1 text-[13px] text-ink-500">${esc(j)}<input data-kuota="${esc(j.toLowerCase())}" type="number" inputmode="numeric" min="0" max="999" placeholder="tanpa batas" value="${r && Number.isInteger(r.angka) ? r.angka : ""}" class="${kolom}" /></label>`;
+            const dt = peta.get("diterima_" + j.toLowerCase());
+            const diterima = dt && Number.isInteger(dt.angka) ? dt.angka : 0;
+            return `<label class="flex flex-col gap-1 text-[13px] text-ink-500">${esc(j)} <span class="font-mono text-[12px]">diterima ${diterima}</span><input data-kuota="${esc(j.toLowerCase())}" type="number" inputmode="numeric" min="0" max="999" placeholder="tanpa batas" value="${r && Number.isInteger(r.angka) ? r.angka : ""}" class="${kolom}" /></label>`;
           }).join("");
           return {
             kontak: `
@@ -794,7 +797,7 @@
             kuota: `
             <div class="py-5" data-blok="kuota">
               <p class="text-[15.5px] font-semibold">Kuota per jurusan</p>
-              <p class="mt-0.5 text-[14px] text-ink-600">Batas pendaftar jurusan utama tahun ini. Bila penuh, jurusan itu tidak bisa dipilih dan database menolak pendaftar baru. Kosong = tanpa batas. Pendaftar yang sudah masuk tidak terhapus bila kuota diturunkan.</p>
+              <p class="mt-0.5 text-[14px] text-ink-600">Jumlah kursi tiap jurusan. Sisa kursi = kuota dikurangi siswa berstatus <b>Diterima</b> di spreadsheet (angka &ldquo;diterima&rdquo; di bawah, diperbarui otomatis saat petugas verifikasi/superadmin membuka Dashboard atau modul Verifikasi dan saat status diubah). Bila sisa 0, jurusan itu tidak bisa dipilih dan database menolak pendaftar baru. Kosong = tanpa batas.</p>
               <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">${kuotaInput}</div>
               <div class="mt-3 flex items-center gap-3">${tombolSimpan("kuota")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
             </div>`,
