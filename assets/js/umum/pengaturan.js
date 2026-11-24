@@ -123,6 +123,26 @@
     return { terbatas: true, penuh: sisa === 0, sisa };
   }
 
+  // Ringkasan kuota untuk beranda: [{ jurusan, teks, nada: ok|wait|bad }] urut DKV, RPL, TITL, TKR, TSM.
+  // Hanya jurusan yang diberi batas. "wait" (kuning) bila sisa tinggal sedikit (≤ 3 atau ≤ 15% kuota).
+  const URUTAN_JURUSAN = ["DKV", "RPL", "TITL", "TKR", "TSM"];
+  function ringkasKuota(rows) {
+    return (Array.isArray(rows) ? rows : [])
+      .filter((r) => r && URUTAN_JURUSAN.includes(r.jurusan) && Number.isInteger(r.kuota))
+      .map((r) => {
+        const st = statusKuota(r.kuota, r.terisi);
+        const sedikit = !st.penuh && (st.sisa <= 3 || st.sisa <= r.kuota * 0.15);
+        return {
+          jurusan: r.jurusan,
+          terisi: r.terisi || 0,
+          kuota: r.kuota,
+          teks: st.penuh ? `${r.jurusan} · penuh` : `${r.jurusan} · sisa ${st.sisa} kursi`,
+          nada: st.penuh ? "bad" : sedikit ? "wait" : "ok",
+        };
+      })
+      .sort((a, b) => URUTAN_JURUSAN.indexOf(a.jurusan) - URUTAN_JURUSAN.indexOf(b.jurusan));
+  }
+
   // Sebelum hasil diumumkan, Diterima/Ditolak tampil sebagai "Diverifikasi" (menunggu pengumuman)
   function sembunyikanHasil(status, hasilDiumumkan) {
     if (hasilDiumumkan !== false) return status;
@@ -271,6 +291,7 @@
     tampilWa,
     teksHitungMundur,
     statusKuota,
+    ringkasKuota,
     sembunyikanHasil,
     ambil,
     ambilKuota,

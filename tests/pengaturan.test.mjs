@@ -169,3 +169,20 @@ test("hitung mundur: hari, jam, kurang dari sejam, sudah lewat", () => {
   assert.equal(teksHitungMundur(-5), "");
   assert.equal(teksHitungMundur(NaN), "");
 });
+
+test("ringkasKuota: hanya jurusan berkuota, berurutan, dengan nada", () => {
+  const { ringkasKuota } = ctx.window.Pengaturan;
+  const r = ringkasKuota([
+    { jurusan: "TSM", kuota: 36, terisi: 36 },
+    { jurusan: "DKV", kuota: 36, terisi: 10 },
+    { jurusan: "RPL", kuota: 36, terisi: 32 },
+    { jurusan: "TKR", kuota: null, terisi: 5 },
+    { jurusan: "XXX", kuota: 10, terisi: 1 },
+  ]).map((x) => ({ ...x }));
+  assert.deepEqual(r.map((x) => x.jurusan), ["DKV", "RPL", "TSM"]);
+  assert.deepEqual(r.map((x) => x.nada), ["ok", "wait", "bad"]);
+  assert.equal(r[0].teks, "DKV · sisa 26 kursi");
+  assert.equal(r[2].teks, "TSM · penuh");
+  assert.equal(ringkasKuota(null).length, 0);
+  assert.equal(ringkasKuota([]).length, 0);
+});

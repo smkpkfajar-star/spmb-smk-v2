@@ -47,6 +47,28 @@
     setInterval(tampil, 60000);
   }
 
+  // Sisa kursi per jurusan (hanya jurusan yang diberi kuota), di hero beranda
+  const NADA_KUOTA = { ok: "bg-ok-50 text-ok-700", wait: "bg-warn-50 text-warn-700", bad: "bg-red-50 text-red-700" };
+  async function pasangKuota() {
+    const wadah = document.getElementById("kuotaHero");
+    if (!wadah) return;
+    const ringkas = root.Pengaturan.ringkasKuota(await root.Pengaturan.ambilKuota());
+    if (!ringkas.length) return;
+    const judul = document.createElement("span");
+    judul.className = "text-[13.5px] text-ink-500";
+    judul.textContent = "Sisa kursi:";
+    wadah.appendChild(judul);
+    ringkas.forEach((k) => {
+      const chip = document.createElement("span");
+      chip.className = `rounded-full px-3 py-1 text-[13px] font-medium ${NADA_KUOTA[k.nada]}`;
+      chip.textContent = k.teks;
+      chip.title = `${k.terisi} dari ${k.kuota} kursi terisi`;
+      wadah.appendChild(chip);
+    });
+    wadah.classList.remove("hidden");
+    wadah.classList.add("flex");
+  }
+
   document.addEventListener("DOMContentLoaded", async () => {
     if (!root.Pengaturan) return;
     const p = await root.Pengaturan.ambil();
@@ -54,6 +76,7 @@
     root.Pengaturan.pasangBanner(p);
     if (!p.spmbDibuka) terapkanDitutup(p);
     pasangHitungMundur(p);
+    if (p.spmbDibuka) pasangKuota();
     root.Pengaturan.pasangPerawatan(p);
   });
 })(typeof window !== "undefined" ? window : globalThis);
