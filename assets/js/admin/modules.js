@@ -677,8 +677,7 @@
           }
           const peta = new Map((data || []).map((r) => [r.kunci, r]));
           wadah.removeAttribute("aria-hidden");
-          wadah.innerHTML =
-            SAKLAR.filter((k) => !k.perlu06 || peta.has(k.kunci)).map((k) => {
+          const saklarHtml = (k) => {
               const r = peta.get(k.kunci);
               const on = r ? r.nilai !== false : true;
               const buruk = k.bahayaNyala ? on : !on;
@@ -695,10 +694,33 @@
                 <span class="inline-block h-6 w-6 rounded-full bg-white shadow transition-transform" style="transform:translateX(${on ? "28px" : "4px"})" aria-hidden="true"></span>
               </button>
             </div>`;
-            }).join("") +
-            (lanjutan
-              ? pengaturanLanjutanHtml(peta) + (tahap === 0 && peta.has("kuota_dkv") ? pengaturanTambahanHtml(peta) : `<p class="py-4 text-[14px] text-ink-600">Kontak panitia, kuota per jurusan, pengumuman hasil, dan mode perawatan belum aktif. Jalankan <span class="font-mono text-[13px]">supabase/06-pengaturan-tambahan.sql</span> di Supabase (SQL Editor → New query → Run), lalu muat ulang halaman ini.</p>`)
-              : `<p class="py-4 text-[14px] text-ink-600">Jadwal otomatis, pesan saat ditutup, dan banner pengumuman belum aktif. Jalankan <span class="font-mono text-[13px]">supabase/05-pengaturan-lanjutan.sql</span> di Supabase (SQL Editor → New query → Run), lalu muat ulang halaman ini.</p>`);
+          };
+          // Semua blok pengaturan, dikunci dengan namanya; yang belum aktif (SQL belum dijalankan) tidak ada
+          const punya06 = tahap === 0 && peta.has("kuota_dkv");
+          const blok = {
+            ...Object.fromEntries(SAKLAR.filter((k) => !k.perlu06 || peta.has(k.kunci)).map((k) => [k.kunci, saklarHtml(k)])),
+            ...(lanjutan ? pengaturanLanjutanHtml(peta) : {}),
+            ...(punya06 ? pengaturanTambahanHtml(peta) : {}),
+          };
+          // Urutan tampil: yang paling mendesak / sering diubah di atas, yang jarang diubah di bawah
+          const URUTAN_PENGATURAN = [
+            "spmb_dibuka", // buka/tutup pendaftaran
+            "perawatan", // mode perawatan
+            "banner", // pengumuman (sering ganti)
+            "pesan", // pesan saat ditutup
+            "jadwal", // jadwal buka/tutup otomatis
+            "hasil_diumumkan", // umumkan hasil seleksi
+            "kuota", // kuota per jurusan
+            "popup_promo", // pop-up promo
+            "kontak", // nomor WA & jam layanan (jarang)
+            "pesan_perawatan", // teks layar perawatan (jarang)
+          ];
+          const catatanSql = !lanjutan
+            ? `<p class="py-4 text-[14px] text-ink-600">Jadwal otomatis, pesan saat ditutup, dan banner pengumuman belum aktif. Jalankan <span class="font-mono text-[13px]">supabase/05-pengaturan-lanjutan.sql</span> di Supabase (SQL Editor → New query → Run), lalu muat ulang halaman ini.</p>`
+            : !punya06
+              ? `<p class="py-4 text-[14px] text-ink-600">Kontak panitia, kuota per jurusan, pengumuman hasil, dan mode perawatan belum aktif. Jalankan <span class="font-mono text-[13px]">supabase/06-pengaturan-tambahan.sql</span> di Supabase (SQL Editor → New query → Run), lalu muat ulang halaman ini.</p>`
+              : "";
+          wadah.innerHTML = URUTAN_PENGATURAN.map((k) => blok[k] || "").join("") + catatanSql;
         }
 
         /* --- jadwal otomatis, pesan saat ditutup, banner pengumuman (supabase/05-pengaturan-lanjutan.sql) --- */
@@ -715,7 +737,8 @@
           const pesan = peta.get("pesan_tutup");
           const banner = peta.get("banner_info");
           const bannerOn = !!banner && banner.nilai === true;
-          return `
+          return {
+            jadwal: `
             <div class="py-5" data-blok="jadwal">
               <p class="text-[15.5px] font-semibold">Jadwal buka &amp; tutup otomatis</p>
               <p class="mt-0.5 text-[14px] text-ink-600">Pendaftaran membuka dan menutup sendiri pada jam ini (WIB). Kosongkan bila tidak dipakai. Saklar &ldquo;Pendaftaran SPMB dibuka&rdquo; di atas tetap yang utama: bila MATI, pendaftaran tertutup walau jadwal sedang berjalan.</p>
@@ -724,13 +747,15 @@
                 <label class="flex flex-col gap-1 text-[13px] text-ink-500">Ditutup mulai<input id="jadwalTutup" type="datetime-local" value="${esc(keInputWIB(tutup && tutup.waktu))}" class="${kolom}" /></label>
               </div>
               <div class="mt-3 flex items-center gap-3">${tombolSimpan("jadwal")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
-            </div>
+            </div>`,
+            pesan: `
             <div class="py-5" data-blok="pesan">
               <label for="pesanTutup" class="text-[15.5px] font-semibold">Pesan saat pendaftaran ditutup</label>
               <p class="mt-0.5 text-[14px] text-ink-600">Tampil di beranda dan halaman daftar. Kosongkan untuk memakai tulisan bawaan (atau tanggal buka berikutnya bila jadwal sudah diisi).</p>
               <textarea id="pesanTutup" rows="2" maxlength="280" placeholder="Contoh: Gelombang 1 sudah ditutup. Gelombang 2 dibuka 1 Maret 2027." class="mt-3 ${kolom}">${esc((pesan && pesan.teks) || "")}</textarea>
               <div class="mt-3 flex items-center gap-3">${tombolSimpan("pesan")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
-            </div>
+            </div>`,
+            banner: `
             <div class="py-5" data-blok="banner">
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0">
@@ -746,7 +771,8 @@
               <label for="bannerTeks" class="sr-only">Teks banner</label>
               <textarea id="bannerTeks" rows="2" maxlength="280" placeholder="Contoh: Hari ini loket panitia tutup pukul 12.00." class="mt-3 ${kolom}">${esc((banner && banner.teks) || "")}</textarea>
               <div class="mt-3 flex items-center gap-3">${tombolSimpan("banner")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
-            </div>`;
+            </div>`,
+          };
         }
         function pengaturanTambahanHtml(peta) {
           const teks = (k) => esc((peta.get(k) && peta.get(k).teks) || "");
@@ -754,7 +780,8 @@
             const r = peta.get("kuota_" + j.toLowerCase());
             return `<label class="flex flex-col gap-1 text-[13px] text-ink-500">${esc(j)}<input data-kuota="${esc(j.toLowerCase())}" type="number" inputmode="numeric" min="0" max="999" placeholder="tanpa batas" value="${r && Number.isInteger(r.angka) ? r.angka : ""}" class="${kolom}" /></label>`;
           }).join("");
-          return `
+          return {
+            kontak: `
             <div class="py-5" data-blok="kontak">
               <p class="text-[15.5px] font-semibold">Kontak panitia</p>
               <p class="mt-0.5 text-[14px] text-ink-600">Nomor WhatsApp dipakai semua tombol &ldquo;Chat panitia&rdquo; di beranda dan formulir. Kosongkan untuk memakai nomor bawaan.</p>
@@ -763,19 +790,22 @@
                 <label class="flex flex-col gap-1 text-[13px] text-ink-500">Jam layanan<input id="jamLayanan" type="text" maxlength="120" placeholder="Senin–Sabtu, 08.00–15.00 WIB" value="${teks("jam_layanan")}" class="${kolom}" /></label>
               </div>
               <div class="mt-3 flex items-center gap-3">${tombolSimpan("kontak")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
-            </div>
+            </div>`,
+            kuota: `
             <div class="py-5" data-blok="kuota">
               <p class="text-[15.5px] font-semibold">Kuota per jurusan</p>
               <p class="mt-0.5 text-[14px] text-ink-600">Batas pendaftar jurusan utama tahun ini. Bila penuh, jurusan itu tidak bisa dipilih dan database menolak pendaftar baru. Kosong = tanpa batas. Pendaftar yang sudah masuk tidak terhapus bila kuota diturunkan.</p>
               <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">${kuotaInput}</div>
               <div class="mt-3 flex items-center gap-3">${tombolSimpan("kuota")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
-            </div>
+            </div>`,
+            pesan_perawatan: `
             <div class="py-5" data-blok="perawatan">
               <label for="pesanPerawatan" class="text-[15.5px] font-semibold">Pesan saat mode perawatan</label>
               <p class="mt-0.5 text-[14px] text-ink-600">Tampil di layar pemeliharaan. Kosongkan untuk tulisan bawaan.</p>
               <textarea id="pesanPerawatan" rows="2" maxlength="280" placeholder="Contoh: Situs sedang diperbarui, kembali lagi pukul 14.00 WIB." class="mt-3 ${kolom}">${teks("pesan_perawatan")}</textarea>
               <div class="mt-3 flex items-center gap-3">${tombolSimpan("perawatan")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
-            </div>`;
+            </div>`,
+          };
         }
         async function simpanBaris(kunci, isi) {
           const { data: u } = await db.auth.getUser();
