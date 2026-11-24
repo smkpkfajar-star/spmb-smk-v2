@@ -300,7 +300,9 @@
   const SVG_TENIS =
     '<svg viewBox="0 0 320 150" class="mx-auto h-auto w-full max-w-[340px]" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true">' +
     '<line x1="10" y1="132" x2="310" y2="132" opacity=".25"/>' +
-    '<rect x="158" y="94" width="4" height="38" fill="currentColor" stroke="none" opacity=".18"/><line x1="150" y1="94" x2="170" y2="94" opacity=".55"/>' +
+    // net: jaring berpetak dengan pita atas, tiang di kiri-kanan
+    '<g stroke-width="1.4"><rect x="152" y="94" width="16" height="38" opacity=".3"/><path d="M152 102h16M152 110h16M152 118h16M152 126h16M160 94v38" opacity=".28"/></g>' +
+    '<line x1="150" y1="93" x2="170" y2="93" stroke-width="3" opacity=".7"/><line x1="152" y1="93" x2="152" y2="132" opacity=".55"/><line x1="168" y1="93" x2="168" y2="132" opacity=".55"/>' +
     // pemain kiri
     '<g class="tn-bob"><circle cx="60" cy="62" r="9" fill="currentColor" fill-opacity=".08"/><line x1="60" y1="71" x2="60" y2="102"/>' +
     '<line x1="60" y1="102" x2="50" y2="130"/><line x1="60" y1="102" x2="72" y2="130"/><line x1="60" y1="80" x2="48" y2="92"/>' +

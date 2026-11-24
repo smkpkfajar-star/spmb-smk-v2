@@ -49,7 +49,9 @@ async function tandaiKuotaJurusan() {
       const label = document.createElement("span");
       label.className = `text-[12px] font-semibold ${st.penuh ? "text-red-600" : "text-ink-500"}`;
       label.textContent = st.penuh ? "Kuota penuh" : `Sisa ${st.sisa} kursi`;
-      tile.appendChild(label);
+      // di dalam teks nama jurusan, agar susunan kartu (kode di atas, nama di bawah) tidak bergeser
+      label.classList.add("block", "mt-0.5");
+      (tile.querySelector("span:last-of-type") || tile).appendChild(label);
     }
   });
 }
