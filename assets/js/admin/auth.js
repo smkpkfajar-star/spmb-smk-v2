@@ -26,13 +26,14 @@
     { id: "keuangan", href: "#keuangan", title: "Keuangan & Voucher", desc: "Catat pembayaran, potongan, dan status voucher.", roles: ["keuangan"] },
     { id: "tes-fisik", href: "#tes-fisik", title: "Tes Fisik & Seragam", desc: "Isi tinggi/berat, hasil tes fisik, dan ukuran seragam.", roles: ["tes_fisik"] },
     {
-      id: "superadmin", href: "#superadmin", title: "Superadmin", desc: "Pengaturan situs, rekap, unduh data, akun petugas, reset password.", roles: [],
+      id: "superadmin", href: "#superadmin", title: "Superadmin", desc: "Pengaturan situs, reset password, rekap, unduh data, riwayat aktivitas, akun petugas.", roles: [],
       sub: [
+        // Urut dari yang paling mendesak/sering dipakai ke yang jarang diubah (paling bawah)
         { id: "pengaturan", title: "Pengaturan situs" },
-        { id: "rekap", title: "Rekap & unduh data" },
-        { id: "petugas", title: "Akun petugas" },
         { id: "reset", title: "Reset password" },
+        { id: "rekap", title: "Rekap & unduh data" },
         { id: "riwayat", title: "Riwayat aktivitas" },
+        { id: "petugas", title: "Akun petugas" },
       ],
     },
   ]);

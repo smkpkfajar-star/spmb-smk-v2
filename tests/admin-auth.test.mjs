@@ -89,6 +89,6 @@ test("sub-menu superadmin: #superadmin/petugas → modul superadmin, sub petugas
   // modul tanpa sub-menu
   assert.equal(subFromHash("#verifikasi"), null);
   const sa = MODULES.find((m) => m.id === "superadmin");
-  assert.equal(sa.sub.map((s) => s.id).join(","), "pengaturan,rekap,petugas,reset,riwayat");
+  assert.equal(sa.sub.map((s) => s.id).join(","), "pengaturan,reset,rekap,riwayat,petugas");
   assert.equal(subFromHash("#superadmin/riwayat"), "riwayat");
 });
