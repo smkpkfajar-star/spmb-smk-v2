@@ -126,6 +126,13 @@
   // Ringkasan kuota untuk beranda: [{ jurusan, teks, nada: ok|wait|bad }] urut DKV, RPL, TITL, TKR, TSM.
   // Hanya jurusan yang diberi batas. "wait" (kuning) bila sisa tinggal sedikit (≤ 3 atau ≤ 15% kuota).
   const URUTAN_JURUSAN = ["DKV", "RPL", "TITL", "TKR", "TSM"];
+  const NAMA_JURUSAN = Object.freeze({
+    DKV: "Desain Komunikasi Visual",
+    RPL: "Rekayasa Perangkat Lunak",
+    TITL: "Teknik Instalasi Tenaga Listrik",
+    TKR: "Teknik Kendaraan Ringan",
+    TSM: "Teknik Sepeda Motor",
+  });
   function ringkasKuota(rows) {
     return (Array.isArray(rows) ? rows : [])
       .filter((r) => r && URUTAN_JURUSAN.includes(r.jurusan) && Number.isInteger(r.kuota))
@@ -134,8 +141,10 @@
         const sedikit = !st.penuh && (st.sisa <= 3 || st.sisa <= r.kuota * 0.15);
         return {
           jurusan: r.jurusan,
+          nama: NAMA_JURUSAN[r.jurusan],
           terisi: r.terisi || 0,
           kuota: r.kuota,
+          persen: r.kuota > 0 ? Math.min(100, Math.round(((r.terisi || 0) / r.kuota) * 100)) : 100,
           teks: st.penuh ? `${r.jurusan} · penuh` : `${r.jurusan} · sisa ${st.sisa} kursi`,
           nada: st.penuh ? "bad" : sedikit ? "wait" : "ok",
         };
@@ -337,6 +346,7 @@
     teksHitungMundur,
     statusKuota,
     ringkasKuota,
+    NAMA_JURUSAN,
     sembunyikanHasil,
     ambil,
     ambilKuota,

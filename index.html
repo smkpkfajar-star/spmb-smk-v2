@@ -16,8 +16,8 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="assets/js/umum/tailwind-config.js"></script>
-    <script src="assets/js/umum/awal-halaman.js"></script>
     <script src="assets/js/umum/tema.js"></script>
+    <script src="assets/js/umum/awal-halaman.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -258,6 +258,15 @@
       </section>
 
       <!-- ======================= FAQ ======================= -->
+      <!-- Kuota per jurusan: diisi status-spmb.js dari Pengaturan situs; tersembunyi bila belum ada kuota -->
+      <section id="kuota" class="rule hidden px-4 py-12 sm:px-10 sm:py-16" aria-labelledby="kuotaJudul">
+        <span class="tag" style="--dot:#EC4899">kuota/2026-2027</span>
+        <h2 id="kuotaJudul" class="display mt-3 text-[32px] sm:text-[44px]">Kursi tiap jurusan terbatas</h2>
+        <p class="mt-3 max-w-xl text-[17px] text-ink-600">Pantau sisa kursi dan daftar sebelum jurusan pilihanmu penuh.</p>
+        <ul id="kuotaGrafik" class="mt-8 grid gap-4 lg:grid-cols-2"></ul>
+        <p class="mt-5 font-mono text-[12.5px] text-ink-500">Angka diperbarui setiap halaman ini dibuka.</p>
+      </section>
+
       <section id="faq" class="rule px-4 py-12 sm:px-10 sm:py-16">
         <h2 class="display text-[32px] sm:text-[44px]">Pertanyaan yang sering diajukan</h2>
         <p class="mt-3 text-[17px] text-ink-600">Jawaban cepat seputar pendaftaran SPMB 2026/2027.</p>

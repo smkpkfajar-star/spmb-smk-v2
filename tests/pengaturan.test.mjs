@@ -186,3 +186,18 @@ test("ringkasKuota: hanya jurusan berkuota, berurutan, dengan nada", () => {
   assert.equal(ringkasKuota(null).length, 0);
   assert.equal(ringkasKuota([]).length, 0);
 });
+
+test("ringkasKuota: nama jurusan & persen terisi untuk grafik", () => {
+  const { ringkasKuota } = ctx.window.Pengaturan;
+  const r = ringkasKuota([
+    { jurusan: "RPL", kuota: 36, terisi: 9 },
+    { jurusan: "TKR", kuota: 30, terisi: 45 },
+    { jurusan: "DKV", kuota: 0, terisi: 0 },
+  ]).map((x) => ({ ...x }));
+  const per = Object.fromEntries(r.map((x) => [x.jurusan, x]));
+  assert.equal(per.RPL.persen, 25);
+  assert.equal(per.RPL.nama, "Rekayasa Perangkat Lunak");
+  assert.equal(per.TKR.persen, 100); // melebihi kuota tidak lewat 100%
+  assert.equal(per.DKV.persen, 100); // kuota 0 = penuh
+  assert.equal(per.DKV.nada, "bad");
+});
