@@ -258,23 +258,68 @@
     document.body.insertBefore(el, document.body.firstChild);
   }
 
+  // Animasi "maintenis": dua pemain tenis saling memukul bola. Murni CSS (tanpa gambar/library);
+  // mati bila pengunjung memilih "kurangi gerakan".
+  const CSS_TENIS =
+    ".tn-bx{animation:tn-x 1s linear infinite alternate}" +
+    ".tn-by{animation:tn-y 1s ease-in-out infinite}" +
+    ".tn-l{transform-origin:60px 80px;animation:tn-swl 2s ease-in-out infinite}" +
+    ".tn-r{transform-origin:260px 80px;animation:tn-swr 2s ease-in-out infinite}" +
+    ".tn-bob{animation:tn-bob 1s ease-in-out infinite}" +
+    "@keyframes tn-x{from{transform:translateX(100px)}to{transform:translateX(220px)}}" +
+    "@keyframes tn-y{0%,100%{transform:translateY(0)}50%{transform:translateY(-38px)}}" +
+    "@keyframes tn-swl{0%{transform:rotate(15deg)}12%{transform:rotate(-5deg)}30%{transform:rotate(-40deg)}80%{transform:rotate(-40deg)}100%{transform:rotate(15deg)}}" +
+    "@keyframes tn-swr{0%,30%{transform:rotate(40deg)}50%{transform:rotate(-15deg)}62%{transform:rotate(5deg)}80%,100%{transform:rotate(40deg)}}" +
+    "@keyframes tn-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}" +
+    "@media (prefers-reduced-motion:reduce){.tn-bx,.tn-by,.tn-l,.tn-r,.tn-bob{animation:none}.tn-bx{transform:translateX(160px)}}";
+
+  const SVG_TENIS =
+    '<svg viewBox="0 0 320 150" class="mx-auto h-auto w-full max-w-[340px]" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true">' +
+    '<line x1="10" y1="132" x2="310" y2="132" opacity=".25"/>' +
+    '<rect x="158" y="94" width="4" height="38" fill="currentColor" stroke="none" opacity=".18"/><line x1="150" y1="94" x2="170" y2="94" opacity=".55"/>' +
+    // pemain kiri
+    '<g class="tn-bob"><circle cx="60" cy="62" r="9" fill="currentColor" fill-opacity=".08"/><line x1="60" y1="71" x2="60" y2="102"/>' +
+    '<line x1="60" y1="102" x2="50" y2="130"/><line x1="60" y1="102" x2="72" y2="130"/><line x1="60" y1="80" x2="48" y2="92"/>' +
+    '<g class="tn-l"><line x1="60" y1="80" x2="84" y2="70"/><line x1="84" y1="70" x2="92" y2="63" stroke="#EC4899"/><circle cx="98" cy="56" r="9" stroke="#EC4899" fill="#EC4899" fill-opacity=".15"/></g></g>' +
+    // pemain kanan
+    '<g class="tn-bob" style="animation-delay:.5s"><circle cx="260" cy="62" r="9" fill="currentColor" fill-opacity=".08"/><line x1="260" y1="71" x2="260" y2="102"/>' +
+    '<line x1="260" y1="102" x2="270" y2="130"/><line x1="260" y1="102" x2="248" y2="130"/><line x1="260" y1="80" x2="272" y2="92"/>' +
+    '<g class="tn-r"><line x1="260" y1="80" x2="236" y2="70"/><line x1="236" y1="70" x2="228" y2="63" stroke="#EC4899"/><circle cx="222" cy="56" r="9" stroke="#EC4899" fill="#EC4899" fill-opacity=".15"/></g></g>' +
+    // bola
+    '<g class="tn-bx"><g class="tn-by"><circle cx="0" cy="58" r="5" fill="#F2B53A" stroke="none"/></g></g>' +
+    "</svg>";
+
   // Mode perawatan: halaman publik tertutup layar penuh (panel admin tidak memuat berkas ini)
   function pasangPerawatan(p) {
     if (typeof document === "undefined" || !p || !p.perawatan || document.getElementById("layarPerawatan")) return;
+    if (!document.getElementById("gayaTenis")) {
+      const gaya = document.createElement("style");
+      gaya.id = "gayaTenis";
+      gaya.textContent = CSS_TENIS;
+      document.head.appendChild(gaya);
+    }
     const el = document.createElement("div");
     el.id = "layarPerawatan";
     el.setAttribute("role", "alert");
     el.className = "fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto bg-white p-6 text-ink-900";
     el.innerHTML =
-      '<div class="max-w-md text-center">' +
-      '<p class="text-[44px] leading-none" aria-hidden="true">🛠️</p>' +
-      '<h1 class="mt-4 text-[24px] font-semibold tracking-tight">Sedang dalam pemeliharaan</h1>' +
-      '<p class="mt-3 text-[15.5px] leading-relaxed text-ink-600" data-teks></p>' +
+      '<div class="w-full max-w-md text-center">' +
+      SVG_TENIS +
+      '<h1 class="mt-4 text-[26px] font-semibold tracking-tight">Lagi maintenis nih 🎾</h1>' +
+      '<p class="mt-1 text-[13.5px] italic text-ink-500">(maksudnya maintenance. Tapi kami memang lagi servis kok.)</p>' +
+      '<p class="mt-4 text-[15.5px] leading-relaxed text-ink-600" data-teks></p>' +
+      '<p class="mt-3 font-mono text-[12.5px] text-ink-500">Skor sementara: Panitia 40 – 0 Bug</p>' +
       '<a data-wa class="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-ink-900 px-6 text-[15px] font-semibold text-white" target="_blank" rel="noopener">Hubungi panitia lewat WhatsApp</a></div>';
-    el.querySelector("[data-teks]").textContent = p.pesanPerawatan || "Situs SPMB sedang diperbarui. Silakan kembali beberapa saat lagi.";
+    el.querySelector("[data-teks]").textContent = p.pesanPerawatan || "Situs SPMB sedang dirapikan. Sebentar lagi pertandingan selesai, silakan kembali beberapa saat lagi.";
     el.querySelector("[data-wa]").setAttribute("href", linkWa(p.kontakWa));
     document.body.appendChild(el);
     document.documentElement.style.overflow = "hidden";
+    // Perawatan selesai → halaman muat ulang sendiri (1 permintaan kecil tiap 90 detik, hanya saat tab terlihat)
+    setInterval(async () => {
+      if (document.visibilityState !== "visible") return;
+      const baru = await ambil({ segar: true });
+      if (!baru.perawatan && root.location && root.location.reload) root.location.reload();
+    }, 90000);
   }
 
   root.Pengaturan = {
