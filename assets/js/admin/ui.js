@@ -47,6 +47,7 @@
   function badgeTone(status) {
     const s = String(status || "").toLowerCase();
     if (s === "tidak ada" || s === "-") return "wait";
+    if (/mengundurkan/.test(s)) return "info";
     if (/ditolak|tidak|gagal/.test(s)) return "bad";
     if (/diterima|lunas|valid|terverifikasi|lulus|sudah|diverifikasi/.test(s)) return "ok";
     return "wait";

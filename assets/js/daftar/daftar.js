@@ -1144,6 +1144,7 @@ const STATUS_LABEL = {
   Diverifikasi: { text: "Diverifikasi", tone: "info" },
   Diterima: { text: "Diterima", tone: "ok" },
   Ditolak: { text: "Tidak diterima", tone: "bad" },
+  "Mengundurkan Diri": { text: "Mengundurkan diri", tone: "info" },
 };
 function statusLabel(status) {
   return STATUS_LABEL[String(status || "").trim()] || STATUS_LABEL.Pending;
@@ -1152,6 +1153,14 @@ function statusLabel(status) {
 // Tahapan seleksi: done | active | todo | bad | skip
 function statusStages(status) {
   const s = String(status || "").trim();
+  if (s === "Mengundurkan Diri") {
+    return [
+      { label: "Terdaftar", desc: "Formulir diterima sistem.", state: "done" },
+      { label: "Verifikasi berkas", desc: "Dihentikan.", state: "skip" },
+      { label: "Pengumuman", desc: "Kamu telah mengundurkan diri.", state: "skip" },
+      { label: "Daftar ulang", desc: "Tidak berlaku.", state: "skip" },
+    ];
+  }
   const verified = ["Diverifikasi", "Diterima", "Ditolak"].includes(s);
   return [
     { label: "Terdaftar", desc: "Formulir diterima sistem.", state: "done" },

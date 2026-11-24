@@ -53,3 +53,34 @@ test("nadaStatus memberi warna badge", () => {
   assert.equal(nadaStatus("Pending"), "wait");
   assert.equal(nadaStatus("Belum Unggah"), "wait");
 });
+
+/* ---------- pengunduran diri ---------- */
+test("bisaMundur: sebelum ditolak/mundur boleh; sesudahnya tidak", () => {
+  const { bisaMundur } = ctx.window.Siswa;
+  ["", "-", "Pending", "Diverifikasi", "Diterima", "diterima", undefined, null].forEach((s) => assert.equal(bisaMundur(s), true, String(s)));
+  ["Ditolak", "Mengundurkan Diri", "mengundurkan diri"].forEach((s) => assert.equal(bisaMundur(s), false, s));
+});
+
+test("catatanMundur: satu baris rapi, alasan dipotong 200 huruf", () => {
+  const { catatanMundur } = ctx.window.Siswa;
+  assert.equal(catatanMundur("", "24 Nov 2026, 14.05 WIB"), "Pengunduran diri oleh siswa (24 Nov 2026, 14.05 WIB)");
+  assert.equal(catatanMundur("  pindah\nkota   ", "t"), "Pengunduran diri oleh siswa (t): pindah kota");
+  assert.equal(catatanMundur("x".repeat(500), "t").length, "Pengunduran diri oleh siswa (t): ".length + 200);
+  assert.equal(catatanMundur(null, "t"), "Pengunduran diri oleh siswa (t)");
+});
+
+test("catatanUntukSiswa: baris sistem pengunduran diri disembunyikan, catatan panitia tetap", () => {
+  const { catatanUntukSiswa } = ctx.window.Siswa;
+  assert.equal(catatanUntukSiswa("Foto KK buram\nPengunduran diri oleh siswa (t): pindah"), "Foto KK buram");
+  assert.equal(catatanUntukSiswa("Pengunduran diri oleh siswa (t)"), "");
+  assert.equal(catatanUntukSiswa("Catatan biasa"), "Catatan biasa");
+  assert.equal(catatanUntukSiswa(undefined), "");
+});
+
+test("langkahSiswa: mengundurkan diri → verifikasi dihentikan, hasil bertanda", () => {
+  const { langkahSiswa, nadaStatus } = ctx.window.Siswa;
+  const l = langkahSiswa({ statusBerkas: "Sudah Unggah", statusPendaftaran: "Mengundurkan Diri" });
+  assert.equal(l.map((x) => x.state).join(","), "done,done,todo,bad");
+  assert.equal(l[3].ket, "Mengundurkan diri");
+  assert.equal(nadaStatus("Mengundurkan Diri"), "info");
+});

@@ -22,6 +22,7 @@
   // Warna badge status: ok (hijau) | bad (merah) | info (biru) | wait (kuning)
   function nadaStatus(text) {
     const t = String(text || "");
+    if (/Mengundurkan/i.test(t)) return "info";
     if (/Ditolak|Gagal/i.test(t)) return "bad";
     if (/Diterima|Terverifikasi|Sudah/i.test(t)) return "ok";
     if (/Diverifikasi/i.test(t)) return "info";
@@ -42,9 +43,16 @@
           : /Ditolak/i.test(b)
             ? ["bad", "Ditolak, unggah ulang"]
             : ["now", "Unggah ijazah/SKL"];
+    const mundur = /^Mengundurkan Diri$/i.test(s);
     const sudahDiperiksa = /^(Diverifikasi|Diterima|Ditolak)$/i.test(s);
-    const verif = sudahDiperiksa ? ["done", "Data sudah dicek"] : [berkas[0] === "done" ? "now" : "todo", "Menunggu panitia"];
-    const hasil = /^Diterima$/i.test(s)
+    const verif = mundur
+      ? ["todo", "Dihentikan"]
+      : sudahDiperiksa
+        ? ["done", "Data sudah dicek"]
+        : [berkas[0] === "done" ? "now" : "todo", "Menunggu panitia"];
+    const hasil = mundur
+      ? ["bad", "Mengundurkan diri"]
+      : /^Diterima$/i.test(s)
       ? ["done", "Selamat, kamu diterima!"]
       : /^Ditolak$/i.test(s)
         ? ["bad", "Belum diterima"]
@@ -57,7 +65,28 @@
     ];
   }
 
-  root.Siswa = { appendLine, findMyRow, nisnFromEmail, nadaStatus, langkahSiswa };
+  /* ---------- pengunduran diri (fungsi murni, dites) ---------- */
+  const STATUS_MUNDUR = "Mengundurkan Diri";
+  // Boleh mundur selama belum Ditolak / belum mundur (kosong, "-", Pending, Diverifikasi, Diterima)
+  function bisaMundur(status) {
+    const s = String(status == null ? "" : status).trim();
+    return s === "" || s === "-" || /^(Pending|Diverifikasi|Diterima)$/i.test(s);
+  }
+  // Baris yang ditambahkan ke kolom catatan agar petugas melihat siapa/kapan/mengapa
+  function catatanMundur(alasan, waktuTeks) {
+    const a = String(alasan == null ? "" : alasan).replace(/\s+/g, " ").trim().slice(0, 200);
+    return `Pengunduran diri oleh siswa (${waktuTeks})${a ? ": " + a : ""}`;
+  }
+  // Baris catatan sistem itu tidak ditampilkan lagi ke siswa sebagai "Catatan panitia"
+  function catatanUntukSiswa(catatan) {
+    return String(catatan == null ? "" : catatan)
+      .split(/\r?\n/)
+      .filter((l) => !/^Pengunduran diri oleh siswa/.test(l.trim()))
+      .join("\n")
+      .trim();
+  }
+
+  root.Siswa = { appendLine, findMyRow, nisnFromEmail, nadaStatus, langkahSiswa, STATUS_MUNDUR, bisaMundur, catatanMundur, catatanUntukSiswa };
   if (typeof document === "undefined") return;
 
   /* ---------- halaman ---------- */
@@ -132,15 +161,19 @@
     if (!row) {
       $("homeBody").innerHTML = `<p class="border border-hairline bg-white p-4 text-[15px] text-ink-600">Data pendaftaranmu belum terbaca. Tunggu beberapa menit lalu muat ulang. Kalau tetap tidak muncul, hubungi panitia.</p>`;
       $("uploadBox").classList.add("hidden");
+      $("undurBox").classList.add("hidden");
       return;
     }
-    $("uploadBox").classList.remove("hidden");
+    const sudahMundur = /^Mengundurkan Diri$/i.test(String(row.statusPendaftaran || "").trim());
+    $("uploadBox").classList.toggle("hidden", sudahMundur);
+    $("undurBox").classList.toggle("hidden", !bisaMundur(row.statusPendaftaran));
+    resetFormMundur();
     // Sebelum hasil diumumkan panitia, Diterima/Ditolak tampil sebagai "Diverifikasi" (menunggu pengumuman)
     if (root.Pengaturan) await root.Pengaturan.ambil();
     const dilihat = root.Pengaturan ? { ...row, statusPendaftaran: root.Pengaturan.statusTampil(row.statusPendaftaran) } : row;
     const urls = String(row.urlBerkas || "").split(/\r?\n/).filter((u) => /^https?:\/\//.test(u.trim()));
     const names = String(row.namaBerkas || "").split(/\r?\n/);
-    const catatan = row.catatanAdmin && row.catatanAdmin !== "-" && !/^Berkas gagal diunggah otomatis/.test(row.catatanAdmin) ? row.catatanAdmin : "";
+    const catatan = row.catatanAdmin && row.catatanAdmin !== "-" && !/^Berkas gagal diunggah otomatis/.test(row.catatanAdmin) ? catatanUntukSiswa(row.catatanAdmin) : "";
     const nama = String(row.namaLengkap || "").trim();
     $("homeNama").textContent = nama && nama !== "-" ? `Halo, ${nama}` : "Halo";
     $("homeMeta").textContent = `${row.noPendaftaran || "-"} · ${row.jurusan1 || "-"}`;
@@ -158,6 +191,11 @@
       ${
         catatan
           ? `<div class="mt-3 border border-hairline border-l-2 border-l-ink-900 bg-white p-4 sm:px-6"><p class="text-[12.5px] text-ink-500">Catatan panitia</p><p class="mt-1 whitespace-pre-line text-[15px]">${esc(catatan)}</p></div>`
+          : ""
+      }
+      ${
+        sudahMundur
+          ? `<div class="mt-3 border border-hairline border-l-2 border-l-sky-600 bg-white p-4 sm:px-6"><p class="text-[15px] font-semibold">Kamu telah mengundurkan diri</p><p class="mt-1 text-[14.5px] text-ink-600">Kursimu dilepas untuk calon siswa lain. Bila ini keliru atau kamu ingin mendaftar kembali, <a href="${esc(root.Pengaturan ? root.Pengaturan.waTautan("Halo panitia SPMB, saya ingin menanyakan pengunduran diri akun NISN " + nisn) : "https://wa.me/628823212784")}" target="_blank" rel="noopener" class="font-medium text-ink-900 underline">hubungi panitia lewat WhatsApp</a>.</p></div>`
           : ""
       }
       <div class="mt-3 border border-hairline bg-white p-5 sm:p-6">
@@ -178,6 +216,41 @@
       </div>`;
     $("uploadBox").dataset.row = row.rowIndex;
     $("uploadBox")._row = row;
+  }
+
+  // Tutup & kosongkan formulir pengunduran diri
+  function resetFormMundur() {
+    $("undurForm").classList.add("hidden");
+    $("undurBuka").classList.remove("hidden");
+    $("undurAlasan").value = "";
+    $("undurSetuju").checked = false;
+    $("undurMsg").className = "hidden";
+  }
+
+  async function undurDiri(user) {
+    const info = $("undurMsg");
+    if (!$("undurSetuju").checked) return msg(info, "Centang pernyataan di atas dulu untuk melanjutkan.", false);
+    const btn = $("undurKirim");
+    btn.disabled = true;
+    btn.textContent = "Memproses…";
+    try {
+      // Pakai data TERBARU: status mungkin baru saja diubah panitia
+      const segar = findMyRow(await root.Sheetson.getRows(SHEET, { fresh: true }), nisnFromEmail(user.email));
+      if (!segar) throw new Error("Data pendaftaranmu belum terbaca. Coba lagi beberapa menit lagi.");
+      if (!bisaMundur(segar.statusPendaftaran)) throw new Error("Status pendaftaranmu sudah berubah. Muat ulang halaman, atau hubungi panitia.");
+      const waktu = new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " WIB";
+      const ubah = {
+        statusPendaftaran: STATUS_MUNDUR,
+        catatanAdmin: appendLine(segar.catatanAdmin, catatanMundur($("undurAlasan").value, waktu)),
+      };
+      await root.Sheetson.patchRow(SHEET, segar.rowIndex, ubah);
+      Object.assign(segar, ubah); // salinan sementara Sheetson ikut terbarui
+      await loadHome(user);
+    } catch (e) {
+      msg(info, e.message || "Gagal memproses. Coba lagi.", false);
+    }
+    btn.disabled = false;
+    btn.textContent = "Ya, saya mengundurkan diri";
   }
 
   async function upload(user) {
@@ -269,6 +342,16 @@
       });
     }
     $("uploadBtn").addEventListener("click", () => upload(user));
+    $("undurBuka").addEventListener("click", () => {
+      $("undurForm").classList.remove("hidden");
+      $("undurBuka").classList.add("hidden");
+      $("undurAlasan").focus();
+    });
+    $("undurBatal").addEventListener("click", resetFormMundur);
+    $("undurForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (user) undurDiri(user);
+    });
     $("reloadBtn").addEventListener("click", () => user && loadHome(user));
     // Unduh ulang bukti pendaftaran — dibuat dari data terbaru di sheet
     $("buktiBtn").addEventListener("click", async () => {
@@ -299,6 +382,7 @@
       user = null;
       $("uploadMsg").className = "hidden";
       $("buktiMsg").className = "hidden";
+      resetFormMundur();
       $("nisn").value = "";
       show("loginView");
       $("logoutInfo").classList.remove("hidden");

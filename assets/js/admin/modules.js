@@ -281,7 +281,7 @@
           ],
           title: "Verifikasi Berkas",
           intro: "Periksa berkas, ubah status, dan hubungi orang tua bila ada yang kurang.",
-          filter: { field: "statusPendaftaran", label: "Status pendaftaran", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak"] },
+          filter: { field: "statusPendaftaran", label: "Status pendaftaran", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak", "Mengundurkan Diri"] },
           saring: [
             { id: "berkas", label: "Status berkas", get: (r) => AdminUI.isi(r.statusBerkas, "Belum diisi"), options: ["Belum Unggah", "Sudah Unggah", "Gagal Unggah", "Berkas Terverifikasi", "Berkas Ditolak"] },
             { id: "catatan", label: "Catatan", get: (r) => (AdminUI.isi(r.catatanAdmin, "") ? "Ada catatan" : "Tanpa catatan"), options: ["Ada catatan", "Tanpa catatan"] },
@@ -305,7 +305,7 @@
           editTitle: (r) => `Verifikasi: ${r.namaLengkap || r.noPendaftaran}`,
           fields: [
             { name: "statusBerkas", label: "Status berkas", type: "select", options: ["Belum Unggah", "Sudah Unggah", "Gagal Unggah", "Berkas Terverifikasi", "Berkas Ditolak"] },
-            { name: "statusPendaftaran", label: "Status pendaftaran", type: "select", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak"], help: "Siswa melihat status ini di menu Cek Status." },
+            { name: "statusPendaftaran", label: "Status pendaftaran", type: "select", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak", "Mengundurkan Diri"], help: "Siswa melihat status ini di menu Cek Status. \"Mengundurkan Diri\" diisi otomatis saat siswa mundur sendiri; ubah kembali bila itu keliru." },
             { name: "catatanAdmin", label: "Catatan untuk siswa", type: "textarea", help: "Contoh: Foto KK buram, mohon unggah ulang." },
           ],
           actions: [

@@ -109,3 +109,8 @@ test("hitungDiterima: tanpa daftar memakai kolom _jurusan; data kosong aman", ()
   assert.deepEqual({ ...hasil }, { DKV: 0, RPL: 0, TITL: 0, TKR: 0, TSM: 2 });
   assert.deepEqual({ ...hitungDiterima(null, null) }, { DKV: 0, RPL: 0, TITL: 0, TKR: 0, TSM: 0 });
 });
+
+test("badgeTone: Mengundurkan Diri berwarna info (bukan merah/hijau)", () => {
+  assert.equal(badgeTone("Mengundurkan Diri"), "info");
+  assert.equal(badgeTone("Ditolak"), "bad");
+});
