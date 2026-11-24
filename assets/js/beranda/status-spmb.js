@@ -3,6 +3,7 @@
    - SPMB ditutup: badge "resmi dibuka" → "ditutup", tombol Daftar disembunyikan,
      jadwal "Dibuka" → "Ditutup", info singkat (pesan superadmin / tanggal buka) di hero.
    - Hitung mundur penutupan bila jadwal tutup sudah diisi.
+   - Grafik sisa kursi per jurusan: menggantikan panel terminal (section 2) bila kuota sudah diisi.
    - Banner pengumuman, nomor WhatsApp & jam layanan, layar pemeliharaan.
    (Pop-up promo diatur terpisah di promo.js.)
    ============================================================ */
@@ -47,25 +48,23 @@
     setInterval(tampil, 60000);
   }
 
-  // Sisa kursi per jurusan (hanya jurusan yang diberi kuota): chip kecil di hero + section grafik
-  const NADA_KUOTA = { ok: "bg-ok-50 text-ok-700", wait: "bg-warn-50 text-warn-700", bad: "bg-red-50 text-red-700" };
-  const WARNA_BATANG = { ok: "#16A34A", wait: "#D97706", bad: "#DC2626" };
+  /* ---------- grafik sisa kursi (panel gelap, section 2) ---------- */
+  const WARNA_BATANG = { ok: "#4ADE80", wait: "#F2B53A", bad: "#F87171" };
   const tanpaGerak = () => !!(root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   // Animasi pemancing daftar (mati bila pengunjung memilih "kurangi gerakan"):
-  //  kq-bar    kilau melintas di batang       kq-strip   garis miring bergerak (kursi tinggal sedikit)
-  //  kq-denyut lencana berdenyut              kq-goyang  kalimat desakan bergoyang sesekali
-  //  kq-ajak   tombol daftar berdenyut pelan
+  //  kq-bar kilau melintas di batang · kq-strip garis miring bergerak (kursi tinggal sedikit)
+  //  kq-denyut label berdenyut · kq-goyang kalimat desakan bergoyang sesekali · kq-ajak tombol berdenyut pelan
   const CSS_KUOTA =
     ".kq-bar{position:relative;overflow:hidden}" +
     ".kq-bar::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:kq-sweep 2.2s ease-in-out 1.2s infinite}" +
-    ".kq-strip{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.32) 0 7px,transparent 7px 14px);background-size:20px 20px;animation:kq-strip .7s linear infinite}" +
+    ".kq-strip{background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.18) 0 7px,transparent 7px 14px);background-size:20px 20px;animation:kq-strip .7s linear infinite}" +
     ".kq-denyut{animation:kq-denyut 1.3s ease-in-out infinite}" +
     ".kq-goyang{animation:kq-goyang 3.2s ease-in-out infinite}" +
     ".kq-ajak{animation:kq-ajak 1.8s ease-in-out infinite}" +
     "@keyframes kq-sweep{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}" +
     "@keyframes kq-strip{to{background-position:20px 0}}" +
-    "@keyframes kq-denyut{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(217,119,6,.45)}50%{transform:scale(1.06);box-shadow:0 0 0 7px rgba(217,119,6,0)}}" +
+    "@keyframes kq-denyut{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(242,181,58,.5)}50%{transform:scale(1.07);box-shadow:0 0 0 6px rgba(242,181,58,0)}}" +
     "@keyframes kq-goyang{0%,86%,100%{transform:translateX(0)}88%{transform:translateX(-3px)}91%{transform:translateX(3px)}94%{transform:translateX(-2px)}97%{transform:translateX(2px)}}" +
     "@keyframes kq-ajak{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}" +
     "@media (prefers-reduced-motion:reduce){.kq-bar::after,.kq-strip,.kq-denyut,.kq-goyang,.kq-ajak{animation:none}}";
@@ -77,42 +76,21 @@
     document.head.appendChild(g);
   }
 
-  // Angka naik dari 0 ke tujuan (ease-out)
-  function hitungNaik(sampai, durasi, tulis) {
-    if (tanpaGerak() || !root.requestAnimationFrame) return tulis(sampai);
-    const t0 = root.performance.now();
-    const langkah = (t) => {
-      const f = Math.min(1, (t - t0) / durasi);
-      tulis(Math.round(sampai * (1 - Math.pow(1 - f, 3))));
-      if (f < 1) root.requestAnimationFrame(langkah);
-    };
-    root.requestAnimationFrame(langkah);
-  }
-
-  // Satu baris grafik: nama, lencana sisa, batang terisi, angka. Semua teks lewat textContent.
+  // Satu baris sederhana: kode jurusan · batang terisi · sisa kursi. Semua teks lewat textContent.
   function barisGrafik(k) {
+    const sisa = k.kuota - k.terisi;
     const li = document.createElement("li");
-    li.className = "border border-hairline bg-white p-4 sm:p-5";
-    const atas = document.createElement("div");
-    atas.className = "flex items-start justify-between gap-3";
-    const nama = document.createElement("div");
-    nama.className = "min-w-0";
+    li.className = "grid grid-cols-[3.4rem_1fr_auto] items-center gap-3";
+    li.title = `${k.nama || k.jurusan}: ${k.terisi} dari ${k.kuota} kursi terisi`;
+
     const kode = document.createElement("span");
-    kode.className = "font-mono text-[12.5px] text-ink-500";
-    kode.textContent = `jurusan/${k.jurusan.toLowerCase()}`;
-    const judul = document.createElement("p");
-    judul.className = "text-[16px] font-semibold leading-snug";
-    judul.textContent = k.nama || k.jurusan;
-    nama.append(kode, judul);
-    const lencana = document.createElement("span");
-    lencana.className = `shrink-0 rounded-full px-3 py-1 text-[13px] font-medium ${NADA_KUOTA[k.nada]}${k.nada === "wait" ? " kq-denyut" : ""}`;
-    lencana.textContent = k.kuota - k.terisi > 0 ? `sisa ${k.kuota - k.terisi} kursi` : "penuh";
-    atas.append(nama, lencana);
+    kode.className = "font-semibold";
+    kode.textContent = k.jurusan;
 
     const jalur = document.createElement("div");
-    jalur.className = "mt-3 h-3 w-full overflow-hidden rounded-full bg-sand";
+    jalur.className = "h-3 w-full overflow-hidden rounded-full bg-white/15";
     jalur.setAttribute("role", "img");
-    jalur.setAttribute("aria-label", `${k.terisi} dari ${k.kuota} kursi terisi`);
+    jalur.setAttribute("aria-label", `${k.jurusan}: ${k.terisi} dari ${k.kuota} kursi terisi`);
     const batang = document.createElement("div");
     batang.className = `h-full rounded-full${k.nada === "bad" ? "" : " kq-bar"}${k.nada === "wait" ? " kq-strip" : ""}`;
     batang.style.backgroundColor = WARNA_BATANG[k.nada];
@@ -120,78 +98,53 @@
     batang.style.transition = tanpaGerak() ? "none" : "width .9s cubic-bezier(.2,.8,.2,1)";
     jalur.appendChild(batang);
 
-    const bawah = document.createElement("div");
-    bawah.className = "mt-2 flex items-center justify-between gap-3 font-mono text-[12.5px] text-ink-500";
-    const angka = document.createElement("span");
-    const tulisAngka = (n) => (angka.textContent = `${n} / ${k.kuota} terisi · ${k.kuota > 0 ? Math.min(100, Math.round((n / k.kuota) * 100)) : 100}%`);
-    tulisAngka(tanpaGerak() ? k.terisi : 0);
-    bawah.appendChild(angka);
-    if (k.kuota - k.terisi > 0) {
-      const daftar = document.createElement("a");
-      daftar.href = `daftar/index.html?jurusan=${encodeURIComponent(k.jurusan)}`;
-      daftar.className = "font-sans text-[13.5px] font-semibold text-ink-900 underline";
-      daftar.setAttribute("data-spmb-daftar", "");
-      daftar.textContent = `Daftar ${k.jurusan} →`;
-      bawah.appendChild(daftar);
+    const label = document.createElement("span");
+    label.className = "min-w-[4.6rem] text-right text-[12.5px]";
+    if (sisa > 0) {
+      label.textContent = `sisa ${sisa}`;
+      label.className += k.nada === "wait" ? " kq-denyut inline-block rounded-full bg-gold-500/20 px-2 py-0.5 font-semibold text-gold-400" : " text-white/80";
+    } else {
+      label.textContent = "PENUH";
+      label.className += " font-semibold text-red-400";
     }
-    li.append(atas, jalur, bawah);
-    // dipanggil saat baris terlihat di layar: batang tumbuh & angka naik
-    const mulai = () => {
-      batang.style.width = `${k.persen}%`;
-      hitungNaik(k.terisi, 900, tulisAngka);
-    };
-    return { li, mulai };
+    li.append(kode, jalur, label);
+    return { li, mulai: () => (batang.style.width = `${k.persen}%`) };
   }
 
   async function pasangKuota() {
-    const wadah = document.getElementById("kuotaHero");
+    const panel = document.getElementById("kuotaPanel");
     const grafik = document.getElementById("kuotaGrafik");
+    if (!panel || !grafik) return;
     const ringkas = root.Pengaturan.ringkasKuota(await root.Pengaturan.ambilKuota());
-    if (!ringkas.length) return;
+    if (!ringkas.length) return; // belum ada kuota → panel terminal tetap tampil
     pasangGayaKuota();
-    // section grafik
-    if (grafik) {
-      const baris = ringkas.map(barisGrafik);
-      baris.forEach((b) => grafik.appendChild(b.li));
-      const seksi = document.getElementById("kuota");
-      if (seksi) seksi.classList.remove("hidden");
-      const desak = root.Pengaturan.kalimatDesak(ringkas);
-      const $desak = document.getElementById("kuotaDesak");
-      if ($desak && desak) {
-        $desak.textContent = `🔥 ${desak}`;
-        $desak.classList.remove("hidden");
-      }
-      // Batang tumbuh saat section masuk layar (bukan saat halaman dibuka, agar tidak terbuang)
-      const mulaiSemua = () => baris.forEach((b, i) => setTimeout(b.mulai, tanpaGerak() ? 0 : i * 130));
-      if (tanpaGerak() || !("IntersectionObserver" in root)) mulaiSemua();
-      else {
-        const io = new root.IntersectionObserver(
-          (e) => {
-            if (e.some((x) => x.isIntersecting)) {
-              io.disconnect();
-              mulaiSemua();
-            }
-          },
-          { threshold: 0.25 }
-        );
-        io.observe(grafik);
-      }
+    const baris = ringkas.map(barisGrafik);
+    baris.forEach((b) => grafik.appendChild(b.li));
+    const desak = root.Pengaturan.kalimatDesak(ringkas);
+    const $desak = document.getElementById("kuotaDesak");
+    if ($desak && desak) {
+      $desak.textContent = `🔥 ${desak}`;
+      $desak.classList.remove("hidden");
     }
-    if (!wadah) return;
-    const judul = document.createElement("a");
-    judul.href = "#kuota";
-    judul.className = "text-[13.5px] text-ink-500 underline decoration-dotted underline-offset-4 hover:text-ink-900";
-    judul.textContent = "Sisa kursi ↓";
-    wadah.appendChild(judul);
-    ringkas.forEach((k) => {
-      const chip = document.createElement("span");
-      chip.className = `rounded-full px-3 py-1 text-[13px] font-medium ${NADA_KUOTA[k.nada]}${k.nada === "wait" ? " kq-denyut" : ""}`;
-      chip.textContent = k.teks;
-      chip.title = `${k.terisi} dari ${k.kuota} kursi terisi`;
-      wadah.appendChild(chip);
-    });
-    wadah.classList.remove("hidden");
-    wadah.classList.add("flex");
+    // Grafik menggantikan panel terminal
+    const terminal = document.getElementById("terminalPanel");
+    if (terminal) terminal.classList.add("hidden");
+    panel.classList.remove("hidden");
+    // Batang tumbuh saat panel terlihat di layar
+    const mulaiSemua = () => baris.forEach((b, i) => setTimeout(b.mulai, tanpaGerak() ? 0 : i * 130));
+    if (tanpaGerak() || !("IntersectionObserver" in root)) mulaiSemua();
+    else {
+      const io = new root.IntersectionObserver(
+        (e) => {
+          if (e.some((x) => x.isIntersecting)) {
+            io.disconnect();
+            mulaiSemua();
+          }
+        },
+        { threshold: 0.2 }
+      );
+      io.observe(panel);
+    }
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
