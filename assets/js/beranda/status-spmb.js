@@ -1,13 +1,15 @@
 /* ============================================================
-   status-spmb.js — beranda menyesuaikan diri bila superadmin MENUTUP SPMB:
-   badge "resmi dibuka" → "ditutup", tombol Daftar disembunyikan,
-   jadwal "Dibuka" → "Ditutup", dan info singkat tampil di hero.
+   status-spmb.js — beranda menyesuaikan diri dengan pengaturan superadmin:
+   - SPMB ditutup: badge "resmi dibuka" → "ditutup", tombol Daftar disembunyikan,
+     jadwal "Dibuka" → "Ditutup", info singkat (pesan superadmin / tanggal buka) di hero.
+   - Hitung mundur penutupan bila jadwal tutup sudah diisi.
+   - Banner pengumuman, nomor WhatsApp & jam layanan, layar pemeliharaan.
    (Pop-up promo diatur terpisah di promo.js.)
    ============================================================ */
 (function (root) {
   if (typeof document === "undefined") return;
 
-  function terapkanDitutup() {
+  function terapkanDitutup(p) {
     const badge = document.getElementById("badgeSpmb");
     if (badge) {
       badge.removeAttribute("href");
@@ -24,12 +26,34 @@
       jadwal.className = "rounded-full bg-red-50 px-3 py-1 text-[13px] font-medium text-red-700";
     }
     const info = document.getElementById("spmbTutupInfo");
-    if (info) info.classList.remove("hidden");
+    if (info) {
+      info.classList.remove("hidden");
+      // pesan dari superadmin / jadwal buka (selalu lewat textContent)
+      const pesan = info.querySelector("#spmbTutupPesan");
+      if (pesan) pesan.textContent = root.Pengaturan.pesanKhusus(p);
+    }
+  }
+
+  // "Pendaftaran ditutup dalam N hari" — diperbarui tiap menit selama halaman terbuka
+  function pasangHitungMundur(p) {
+    const el = document.getElementById("hitungMundur");
+    if (!el || !p.spmbDibuka || p.jadwalTutup == null) return;
+    const tampil = () => {
+      const teks = root.Pengaturan.teksHitungMundur(p.jadwalTutup - Date.now());
+      el.textContent = teks;
+      el.classList.toggle("hidden", !teks);
+    };
+    tampil();
+    setInterval(tampil, 60000);
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
     if (!root.Pengaturan) return;
     const p = await root.Pengaturan.ambil();
-    if (!p.spmbDibuka) terapkanDitutup();
+    root.Pengaturan.terapkanKontak(p);
+    root.Pengaturan.pasangBanner(p);
+    if (!p.spmbDibuka) terapkanDitutup(p);
+    pasangHitungMundur(p);
+    root.Pengaturan.pasangPerawatan(p);
   });
 })(typeof window !== "undefined" ? window : globalThis);

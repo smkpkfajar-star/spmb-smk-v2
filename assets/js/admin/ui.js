@@ -469,8 +469,8 @@
     paint();
   }
 
-  /* ---------- pendaftar baru: cek berkala yang hemat ---------- */
-  const POLL_MS = 60000;
+  /* ---------- pendaftar baru: langsung muncul, cek berkala yang hemat ---------- */
+  const POLL_MS = 30000;
   const SOUND_KEY = "spmb-bunyi";
   const soundOn = () => {
     try { return root.localStorage.getItem(SOUND_KEY) === "1"; } catch (_) { return false; }
@@ -530,20 +530,22 @@
     return () => ACTIVE_WATCHERS.delete(w);
   };
 
-  // Cek tiap 60 detik selama tab terlihat; langsung cek saat tab kembali dibuka.
-  // getKnown() → jumlah baris yang sudah tampil; onNew(n) dipanggil bila ada baris baru.
+  // Langsung (realtime hemat): tiap 30 detik, hanya saat tab terlihat, SATU permintaan kecil
+  // yang hanya meminta baris setelah yang sudah tampil. Tab yang disembunyikan tidak memanggil
+  // server sama sekali; begitu dibuka lagi langsung cek. Permintaan tidak pernah menumpuk.
+  // getKnown() → jumlah baris yang sudah tampil; onNew(rows) dipanggil bila ada baris baru
+  // (penerima menambahkannya ke tabel, sehingga getKnown() ikut naik).
   function watchNew(sheet, getKnown, onNew) {
     let busy = false;
-    let lastN = 0;
     async function check() {
       if (busy || document.visibilityState !== "visible") return;
       busy = true;
       try {
         const rows = await root.Sheetson.rowsAfter(sheet, getKnown());
-        const n = rows.length;
-        if (n > lastN && soundOn()) beep();
-        lastN = n;
-        onNew(n);
+        if (rows.length) {
+          if (soundOn()) beep();
+          await onNew(rows);
+        }
       } catch (_) {
         // jaringan putus sesaat: coba lagi di putaran berikutnya
       } finally {
@@ -555,7 +557,6 @@
     document.addEventListener("visibilitychange", onVisible);
     const handle = {
       check,
-      reset: () => (lastN = 0),
       stop: () => {
         clearInterval(timer);
         document.removeEventListener("visibilitychange", onVisible);
@@ -566,8 +567,9 @@
     return handle;
   }
 
-  // Pemberitahuan di atas tabel + judul tab
-  function newBanner(container, onShow) {
+  // Pemberitahuan di atas tabel + judul tab: jumlah pendaftar baru yang BELUM dilihat.
+  // Baris baru diwarnai di tabel; angka turun saat barisnya diklik. onDismiss = "tandai semua dilihat".
+  function newBanner(container, onDismiss) {
     const baseTitle = document.title;
     const el = document.createElement("div");
     el.className = "hidden";
@@ -581,9 +583,9 @@
         return;
       }
       el.className = "mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-pink-100 bg-pink-50 px-4 py-3";
-      el.innerHTML = `<span class="flex items-center gap-2 text-[14.5px]"><span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-pink-400 opacity-60"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-pink-500"></span></span><b class="font-semibold">${n} pendaftar baru</b> sejak data terakhir dimuat</span>
-        <button type="button" class="rounded-md bg-ink-900 px-3 py-1.5 text-[14px] font-medium text-white hover:opacity-90">Tampilkan</button>`;
-      el.querySelector("button").addEventListener("click", onShow);
+      el.innerHTML = `<span class="flex items-center gap-2 text-[14.5px]"><span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-pink-400 opacity-60"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-pink-500"></span></span><b class="font-semibold">${n} pendaftar baru</b> belum dilihat · ditandai warna pink, klik barisnya bila sudah dibaca</span>
+        <button type="button" class="rounded-md bg-ink-900 px-3 py-1.5 text-[14px] font-medium text-white hover:opacity-90">Tandai semua dilihat</button>`;
+      el.querySelector("button").addEventListener("click", onDismiss);
     };
   }
 
@@ -850,7 +852,6 @@
           <h1 class="text-[26px] font-semibold tracking-tight">${esc(config.title)}</h1>
           <p class="mt-1 text-[15px] text-ink-600">${esc(config.intro)}</p>
         </div>
-        <button id="reload" type="button" class="btn rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">Muat ulang</button>
       </div>
       <div id="stats" class="mt-6"></div>
       <div class="mt-6 flex flex-col gap-3 border-b border-hairline lg:flex-row lg:items-end lg:justify-between">
@@ -936,6 +937,22 @@
     const pilihan = {};
     let currentStats = [];
     const terakhir = { rows: [], keterangan: "" };
+    // Pendaftar baru yang masuk sendiri (rowIndex) dan belum diklik petugas
+    const baru = new Set();
+    const eBaru = (r) => baru.has(String(r.rowIndex));
+    const lencanaBaru = '<span data-baru class="mr-1.5 inline-block rounded-full bg-pink-500 px-1.5 py-0.5 align-middle text-[10.5px] font-semibold uppercase leading-none tracking-wide text-white">Baru</span>';
+    // Data diri (Data_Pendaftar) yang ditempelkan ke tiap baris; diingat agar baris baru cukup minta sedikit
+    let diri = new Map();
+    let jumlahDaftar = 0;
+    const lengkapi = (r) => {
+      const d = diri.get(String(r.noPendaftaran)) || {};
+      r._waktuAsli = d.createdAt || "";
+      r._waktu = waktuKey(r._waktuAsli);
+      r._jurusan = d.jurusan1 || "";
+      r._jk = d.jenisKelamin || "";
+      r._asal = d.asalSekolah || "";
+      r._nisn = d.nisn || "";
+    };
 
     // Dropdown saringan; jumlah tiap pilihan dihitung dari semua data
     function renderSaring() {
@@ -1048,8 +1065,8 @@
               ${pg.items
                 .map(
                   (r) =>
-                    `<tr class="bg-white even:bg-sand hover:bg-pink-50">${columns
-                      .map((c, i) => `<td class="border-b border-hairline bg-inherit px-4 py-2.5 align-middle ${i === 0 ? STICKY_L : c.wrap ? "min-w-[180px] max-w-[280px]" : "whitespace-nowrap"}">${c.render(r)}</td>`)
+                    `<tr data-rid="${esc(r.rowIndex)}" class="${eBaru(r) ? "bg-pink-100 hover:bg-pink-100" : "bg-white even:bg-sand hover:bg-pink-50"}">${columns
+                      .map((c, i) => `<td class="border-b border-hairline bg-inherit px-4 py-2.5 align-middle ${i === 0 ? STICKY_L : c.wrap ? "min-w-[180px] max-w-[280px]" : "whitespace-nowrap"}">${i === 0 && eBaru(r) ? lencanaBaru : ""}${c.render(r)}</td>`)
                       .join("")}<td class="border-b border-hairline bg-inherit px-3 py-2 align-middle ${STICKY_R}"><div class="flex justify-end gap-1 whitespace-nowrap">${actionsHtml(r)}</div></td></tr>`
                 )
                 .join("")}
@@ -1060,7 +1077,8 @@
         <div class="divide-y divide-hairline rounded-lg border border-hairline bg-white md:hidden">
           ${pg.items
             .map(
-              (r) => `<article class="p-4">
+              (r) => `<article data-rid="${esc(r.rowIndex)}" class="p-4 ${eBaru(r) ? "bg-pink-100" : ""}">
+                ${eBaru(r) ? `<div data-baru class="pb-1">${lencanaBaru}</div>` : ""}
                 ${columns.map((c) => `<div class="flex justify-between gap-3 py-1.5"><span class="font-mono text-[12.8px] text-ink-500">${esc(c.label)}</span><span class="text-right text-[15px]">${c.render(r)}</span></div>`).join("")}
                 <div class="mt-3 flex flex-wrap gap-1">${actionsHtml(r)}</div>
               </article>`
@@ -1100,7 +1118,24 @@
         </nav>`;
     }
 
+    // Klik baris baru → warnanya jadi sama seperti baris lain (tanpa menggambar ulang tabel)
+    const tandaiDilihat = (rid) => {
+      if (!baru.delete(String(rid))) return;
+      $list.querySelectorAll(`[data-rid="${CSS.escape(String(rid))}"]`).forEach((el) => {
+        el.classList.remove("bg-pink-100", "hover:bg-pink-100");
+        if (el.tagName === "TR") el.classList.add("bg-white", "even:bg-sand", "hover:bg-pink-50");
+        el.querySelectorAll("[data-baru]").forEach((b) => b.remove());
+      });
+      showNew(baru.size);
+    };
+    const tandaiSemua = () => {
+      baru.clear();
+      showNew(0);
+      render();
+    };
     $list.addEventListener("click", (e) => {
+      const kartu = e.target.closest("[data-rid]");
+      if (kartu) tandaiDilihat(kartu.dataset.rid);
       const sortBtn = e.target.closest("button[data-sort]");
       if (sortBtn) {
         const key = columns[Number(sortBtn.dataset.sort)].sortKey;
@@ -1209,33 +1244,67 @@
           config.sheet === "Data_Pendaftar" ? null : root.Sheetson.getRows("Data_Pendaftar", opts).catch(() => []),
         ]);
         // Data diri dari Data_Pendaftar: waktu daftar, jurusan, jenis kelamin, asal sekolah, NISN
-        const diri = new Map((daftar || rows).map((r) => [String(r.noPendaftaran), r]));
-        rows.forEach((r) => {
-          const d = diri.get(String(r.noPendaftaran)) || {};
-          r._waktuAsli = d.createdAt || "";
-          r._waktu = waktuKey(r._waktuAsli);
-          r._jurusan = d.jurusan1 || "";
-          r._jk = d.jenisKelamin || "";
-          r._asal = d.asalSekolah || "";
-          r._nisn = d.nisn || "";
-        });
+        const sumber = daftar || rows;
+        diri = new Map(sumber.map((r) => [String(r.noPendaftaran), r]));
+        jumlahDaftar = sumber.length;
+        rows.forEach(lengkapi);
         page.rows = rows;
         renderStats();
         renderSaring();
         render();
         bar.remove();
-        if (page.watcher) page.watcher.reset();
-        if (typeof showNew === "function") showNew(0);
+        showNew(baru.size);
       } catch (err) {
         bar.remove();
         $count.textContent = "";
-        $list.innerHTML = `<div class="bg-red-50 p-6 text-[15px] font-semibold text-red-700">${esc(err.message)}. Periksa internet lalu tekan Muat ulang.</div>`;
+        $list.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-3 bg-red-50 p-6 text-[15px] font-semibold text-red-700"><span>${esc(err.message)}. Periksa internet Anda.</span><button type="button" data-coba class="rounded-md bg-ink-900 px-3 py-1.5 text-[14px] font-medium text-white hover:opacity-90">Coba lagi</button></div>`;
+        $list.querySelector("[data-coba]").addEventListener("click", () => load(true));
       }
     }
 
-    const showNew = newBanner(app.querySelector("#newSlot"), () => load(true));
-    const watcher = watchNew(config.sheet, () => page.rows.length, showNew);
+    const showNew = newBanner(app.querySelector("#newSlot"), tandaiSemua);
+
+    // Pendaftar baru masuk langsung ke tabel (diwarnai sampai diklik). Hanya baris baru yang diunduh.
+    async function tambahBaru(masuk) {
+      const ada = new Set(page.rows.map((r) => String(r.rowIndex)));
+      const segar = masuk.filter((r) => !ada.has(String(r.rowIndex)));
+      if (!segar.length) return;
+      if (config.sheet === "Data_Pendaftar") {
+        segar.forEach((r) => diri.set(String(r.noPendaftaran), r));
+        jumlahDaftar += segar.length;
+      } else {
+        try {
+          const d = await root.Sheetson.rowsAfter("Data_Pendaftar", jumlahDaftar);
+          d.forEach((r) => diri.set(String(r.noPendaftaran), r));
+          jumlahDaftar += d.length;
+        } catch (_) {
+          // data diri menyusul di pemuatan berikutnya; baris tetap tampil
+        }
+      }
+      segar.forEach((r) => {
+        lengkapi(r);
+        baru.add(String(r.rowIndex));
+      });
+      page.rows.push(...segar);
+      renderStats();
+      renderSaring();
+      render();
+      showNew(baru.size);
+    }
+    const watcher = watchNew(config.sheet, () => page.rows.length, tambahBaru);
     page.watcher = watcher;
+
+    // Perubahan oleh petugas lain tidak ikut "baris baru": segarkan diam-diam bila tab baru
+    // dibuka lagi setelah >5 menit tersembunyi (tab yang sedang dilihat tidak diunduh ulang).
+    let tersembunyiSejak = 0;
+    const saatTampil = () => {
+      if (document.visibilityState === "hidden") return void (tersembunyiSejak = Date.now());
+      if (tersembunyiSejak && Date.now() - tersembunyiSejak > 5 * 60000) load(true);
+      tersembunyiSejak = 0;
+    };
+    document.addEventListener("visibilitychange", saatTampil);
+    const pengamatSegar = { stop: () => { document.removeEventListener("visibilitychange", saatTampil); ACTIVE_WATCHERS.delete(pengamatSegar); } };
+    ACTIVE_WATCHERS.add(pengamatSegar);
 
     $q.addEventListener("input", () => { state.page = 1; render(); });
     [$dari, $sampai].forEach((el) => el.addEventListener("change", () => { state.page = 1; render(); }));
@@ -1359,7 +1428,6 @@
       $judul.textContent = judulAsli;
       $emenu.querySelectorAll("[data-ekspor]").forEach((x) => (x.disabled = false));
     });
-    app.querySelector("#reload").addEventListener("click", () => load(true));
     load();
     return page;
   }

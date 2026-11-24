@@ -45,7 +45,7 @@ docs/                 design.md (panduan gaya) + catatan desain & rencana kerja
 | Isian formulir pendaftaran | `daftar/index.html` + `assets/js/daftar/daftar.js` |
 | PDF bukti pendaftaran (kertas F4, kop surat, pernyataan, tanda tangan) — dipakai formulir, halaman siswa & tombol "Bukti PDF" admin | `assets/js/umum/bukti-pdf.js` |
 | Kop surat PDF bukti (ganti file ini, nama tetap, untuk mengganti kop) | `assets/template/template-pendaftaran-spmb-online.pdf` |
-| Saklar situs (SPMB dibuka/ditutup, pop-up promo) — diubah superadmin di panel *Superadmin → Pengaturan situs*; tabel dibuat oleh `supabase/03-pengaturan.sql` | `assets/js/umum/pengaturan.js` |
+| Pengaturan situs (saklar SPMB dibuka/ditutup, pop-up promo, jadwal buka/tutup otomatis, pesan saat ditutup, banner pengumuman) — diubah superadmin di panel *Superadmin → Pengaturan situs*; tabel dibuat oleh `supabase/03-pengaturan.sql`, jadwal/pesan/banner oleh `supabase/05-pengaturan-lanjutan.sql`; kontak WA & jam layanan, kuota per jurusan (dijaga database), pengumuman hasil seleksi, mode perawatan oleh `supabase/06-pengaturan-tambahan.sql` | `assets/js/umum/pengaturan.js` |
 | Riwayat aktivitas petugas (hanya superadmin) — dicatat lewat `AdminAuth.catat(...)`; tabel dibuat oleh `supabase/04-riwayat.sql`. Jangan pernah mencatat password. | `assets/js/admin/auth.js`, *Superadmin → Riwayat aktivitas* |
 | Gambar pop-up promo beranda (ubah `docs/desain/promo-tiket.html`, render ulang dengan `node docs/desain/render-tiket.mjs docs/desain/promo-tiket.html assets/img/promo-tiket.png <folder-profil-chrome>`) | `assets/img/promo-tiket.png` |
 | Unggah berkas: satu tombol → pop-up "Ambil foto" (kamera HP / webcam) atau "Pilih berkas"; foto dikecilkan maks. 2000 px | `assets/js/umum/pilih-berkas.js` |

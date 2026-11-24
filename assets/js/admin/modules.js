@@ -26,7 +26,6 @@
               <h1 class="text-[26px] font-semibold tracking-tight">Halo, ${esc(profile.nama_lengkap || "Petugas")}</h1>
               <p class="mt-1 text-[15px] text-ink-600">Ringkasan pendaftaran SPMB 2026/2027.</p>
             </div>
-            <button id="reloadDash" type="button" class="btn rounded-full px-4 py-2 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">Muat ulang</button>
           </div>
           <div id="newSlot"></div>
           <div id="dobelSlot"></div>
@@ -45,51 +44,99 @@
           </div>`;
 
         const val = (v, d) => (v && v !== "-" ? v : d);
-        let jumlahDiketahui = 0;
-        const showNew = AdminUI.newBanner(document.getElementById("newSlot"), () => loadDash(true));
-        const watcher = AdminUI.watchNew("Data_Pendaftar", () => jumlahDiketahui, showNew);
-        async function loadDash(fresh) {
+        const NAMA_SHEET = ["Data_Pendaftar", "Verifikasi_Berkas", "Keuangan_Voucher", "Tes_Fisik_Seragam"];
+        let data = null; // { daftar, verif, uang, fisik }
+        const baruDash = new Set(); // pendaftar masuk sendiri yang belum diklik (rowIndex)
+        const lencana = '<span class="mr-1.5 inline-block rounded-full bg-pink-500 px-1.5 py-0.5 align-middle text-[10.5px] font-semibold uppercase leading-none tracking-wide text-white">Baru</span>';
+        const showNew = AdminUI.newBanner(document.getElementById("newSlot"), () => {
+          baruDash.clear();
+          showNew(0);
+          tampilDash();
+        });
+        function tampilDash() {
+          const { daftar, verif, uang, fisik } = data;
           const $s = document.getElementById("dashStats");
           const $t = document.getElementById("terbaru");
+          const count = (rows, f, v, d) => rows.filter((r) => val(r[f], d) === v).length;
+          $s.innerHTML = AdminUI.statCards([
+            { label: "total pendaftar", value: daftar.length },
+            { label: "pending", value: count(verif, "statusPendaftaran", "Pending", "Pending"), tone: "wait" },
+            { label: "diterima", value: count(verif, "statusPendaftaran", "Diterima", "Pending"), tone: "ok" },
+            { label: "sudah lunas", value: count(uang, "statusBiayaDaftar", "Lunas", "Belum Bayar"), tone: "info" },
+            { label: "sudah tes fisik", value: fisik.filter((r) => val(r.statusTesFisik, "Belum Tes") !== "Belum Tes").length, tone: "ok" },
+          ]);
+          renderDobel(daftar);
+          const status = new Map(verif.map((r) => [r.noPendaftaran, r.statusPendaftaran]));
+          const recent = [...daftar].sort((a, b) => AdminUI.waktuKey(b.createdAt) - AdminUI.waktuKey(a.createdAt)).slice(0, 10);
+          $t.innerHTML = recent.length
+            ? `<div class="overflow-x-auto rounded-lg border border-hairline bg-white"><table class="w-full text-left text-[14.5px]">
+                <thead class="border-b border-hairline bg-brand-50 text-[12.5px] text-ink-500"><tr>
+                  <th scope="col" class="px-4 py-3 font-medium">Siswa</th><th scope="col" class="px-4 py-3 font-medium">Jurusan</th>
+                  <th scope="col" class="px-4 py-3 font-medium">Daftar</th><th scope="col" class="px-4 py-3 font-medium">Status</th></tr></thead>
+                <tbody class="divide-y divide-hairline">${recent
+                  .map(
+                    (r) => `<tr data-rid="${esc(r.rowIndex)}" class="${baruDash.has(String(r.rowIndex)) ? "bg-pink-100" : ""}"><td class="px-4 py-3">${baruDash.has(String(r.rowIndex)) ? lencana : ""}<b class="font-semibold">${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.8px] text-ink-500">${esc(r.noPendaftaran || "")}</span></td>
+                      <td class="px-4 py-3">${esc(r.jurusan1 || "-")}</td>
+                      <td class="px-4 py-3 font-mono text-[13px] text-ink-600">${esc(AdminUI.formatWaktu(r.createdAt))}</td>
+                      <td class="px-4 py-3">${AdminUI.badge(status.get(r.noPendaftaran) || "Pending")}</td></tr>`
+                  )
+                  .join("")}</tbody></table></div>`
+            : `<div class="rounded-lg border border-dashed border-hairline p-10 text-center text-[15px] text-ink-500">Belum ada pendaftar.</div>`;
+        }
+        // klik baris baru → warnanya jadi sama seperti yang lain
+        document.getElementById("terbaru").addEventListener("click", (e) => {
+          const tr = e.target.closest("tr[data-rid]");
+          if (!tr || !baruDash.delete(tr.dataset.rid)) return;
+          tr.classList.remove("bg-pink-100");
+          tr.querySelectorAll("span.uppercase").forEach((b) => b.remove());
+          showNew(baruDash.size);
+        });
+        // Langsung: pendaftar baru masuk sendiri. Hanya baris baru dari tiap sheet yang diminta (4 permintaan kecil).
+        async function tambahBaru(masuk) {
+          if (!data) return;
+          const ada = new Set(data.daftar.map((r) => String(r.rowIndex)));
+          const segar = masuk.filter((r) => !ada.has(String(r.rowIndex)));
+          if (!segar.length) return;
+          const [verif, uang, fisik] = await Promise.all(
+            [["verif", "Verifikasi_Berkas"], ["uang", "Keuangan_Voucher"], ["fisik", "Tes_Fisik_Seragam"]].map(([k, sheet]) =>
+              Sheetson.rowsAfter(sheet, data[k].length).catch(() => [])
+            )
+          );
+          // array yang sama dengan salinan sementara Sheetson → pindah menu tetap konsisten
+          data.daftar.push(...segar);
+          data.verif.push(...verif);
+          data.uang.push(...uang);
+          data.fisik.push(...fisik);
+          segar.forEach((r) => baruDash.add(String(r.rowIndex)));
+          tampilDash();
+          showNew(baruDash.size);
+        }
+        let watcher = null; // mulai memantau setelah data pertama tampil
+        // Perubahan status oleh petugas lain: segarkan diam-diam bila tab dibuka lagi setelah >5 menit tersembunyi
+        let tersembunyiSejak = 0;
+        const saatTampil = () => {
+          if (document.visibilityState === "hidden") return void (tersembunyiSejak = Date.now());
+          if (tersembunyiSejak && Date.now() - tersembunyiSejak > 5 * 60000) loadDash(true);
+          tersembunyiSejak = 0;
+        };
+        document.addEventListener("visibilitychange", saatTampil);
+        const lepasSegar = AdminUI.daftarPengamat({ stop: () => { document.removeEventListener("visibilitychange", saatTampil); lepasSegar(); } });
+        async function loadDash(fresh) {
+          const $s = document.getElementById("dashStats");
           const bar = document.createElement("div");
           bar.className = "loadbar";
           document.body.appendChild(bar);
           try {
-            const [daftar, verif, uang, fisik] = await Promise.all(
-              ["Data_Pendaftar", "Verifikasi_Berkas", "Keuangan_Voucher", "Tes_Fisik_Seragam"].map((s) => Sheetson.getRows(s, { fresh: fresh === true }))
-            );
-            jumlahDiketahui = daftar.length;
-            watcher.reset();
-            showNew(0);
-            const count = (rows, f, v, d) => rows.filter((r) => val(r[f], d) === v).length;
-            $s.innerHTML = AdminUI.statCards([
-              { label: "total pendaftar", value: daftar.length },
-              { label: "pending", value: count(verif, "statusPendaftaran", "Pending", "Pending"), tone: "wait" },
-              { label: "diterima", value: count(verif, "statusPendaftaran", "Diterima", "Pending"), tone: "ok" },
-              { label: "sudah lunas", value: count(uang, "statusBiayaDaftar", "Lunas", "Belum Bayar"), tone: "info" },
-              { label: "sudah tes fisik", value: fisik.filter((r) => val(r.statusTesFisik, "Belum Tes") !== "Belum Tes").length, tone: "ok" },
-            ]);
-            renderDobel(daftar);
-            const status = new Map(verif.map((r) => [r.noPendaftaran, r.statusPendaftaran]));
-            const recent = [...daftar].sort((a, b) => AdminUI.waktuKey(b.createdAt) - AdminUI.waktuKey(a.createdAt)).slice(0, 10);
-            $t.innerHTML = recent.length
-              ? `<div class="overflow-x-auto rounded-lg border border-hairline bg-white"><table class="w-full text-left text-[14.5px]">
-                  <thead class="border-b border-hairline bg-brand-50 text-[12.5px] text-ink-500"><tr>
-                    <th scope="col" class="px-4 py-3 font-medium">Siswa</th><th scope="col" class="px-4 py-3 font-medium">Jurusan</th>
-                    <th scope="col" class="px-4 py-3 font-medium">Daftar</th><th scope="col" class="px-4 py-3 font-medium">Status</th></tr></thead>
-                  <tbody class="divide-y divide-hairline">${recent
-                    .map(
-                      (r) => `<tr><td class="px-4 py-3"><b class="font-semibold">${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.8px] text-ink-500">${esc(r.noPendaftaran || "")}</span></td>
-                        <td class="px-4 py-3">${esc(r.jurusan1 || "-")}</td>
-                        <td class="px-4 py-3 font-mono text-[13px] text-ink-600">${esc(AdminUI.formatWaktu(r.createdAt))}</td>
-                        <td class="px-4 py-3">${AdminUI.badge(status.get(r.noPendaftaran) || "Pending")}</td></tr>`
-                    )
-                    .join("")}</tbody></table></div>`
-              : `<div class="rounded-lg border border-dashed border-hairline p-10 text-center text-[15px] text-ink-500">Belum ada pendaftar.</div>`;
+            const [daftar, verif, uang, fisik] = await Promise.all(NAMA_SHEET.map((s) => Sheetson.getRows(s, { fresh: fresh === true })));
+            data = { daftar, verif, uang, fisik };
+            tampilDash();
+            showNew(baruDash.size);
+            if (!watcher) watcher = AdminUI.watchNew("Data_Pendaftar", () => data.daftar.length, tambahBaru);
             bar.remove();
           } catch (e) {
             bar.remove();
-            $s.innerHTML = `<p class="bg-red-50 p-4 text-[15px] font-semibold text-red-700">${esc(e.message)}. Periksa internet lalu tekan Muat ulang.</p>`;
+            $s.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-3 bg-red-50 p-4 text-[15px] font-semibold text-red-700"><span>${esc(e.message)}. Periksa internet Anda.</span><button type="button" data-coba class="rounded-md bg-ink-900 px-3 py-1.5 text-[14px] font-medium text-white hover:opacity-90">Coba lagi</button></div>`;
+            $s.querySelector("[data-coba]").addEventListener("click", () => loadDash(true));
           }
         }
         /* ---------- nomor pendaftaran dobel: peringatan + "Beri nomor baru" ---------- */
@@ -197,7 +244,6 @@
           beriNomorBaru(nomor, rowIndex, b);
         });
 
-        document.getElementById("reloadDash").addEventListener("click", () => loadDash(true));
         loadDash();
 
       },
@@ -423,7 +469,6 @@
       <section data-sub="rekap" class="mt-6 hidden" aria-labelledby="rekapJudul">
         <div class="flex items-center justify-between gap-3">
           <h2 id="rekapJudul" class="text-lg font-semibold">Rekap</h2>
-          <button id="reloadRekap" type="button" class="rounded-full border-2 border-line bg-white px-4 py-2 text-[15px] font-semibold hover:border-ink-500">Muat ulang</button>
         </div>
         <div id="rekap" class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><div class="skeleton h-32" aria-hidden="true"></div><div class="skeleton h-32" aria-hidden="true"></div><div class="skeleton h-32" aria-hidden="true"></div><div class="skeleton h-32" aria-hidden="true"></div></div>
       </section>
@@ -470,7 +515,6 @@
           <select id="rwPetugas" class="h-10 rounded-md border border-line/50 bg-white px-2 text-[14px]"><option value="">Semua petugas</option></select>
           <label for="rwAksi" class="sr-only">Aktivitas</label>
           <select id="rwAksi" class="h-10 rounded-md border border-line/50 bg-white px-2 text-[14px]"><option value="">Semua aktivitas</option></select>
-          <button id="rwMuatUlang" type="button" class="h-10 rounded-full px-4 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Muat ulang</button>
         </div>
         <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
           <p id="rwJumlah" class="font-mono text-[12.5px] text-ink-500"></p>
@@ -504,22 +548,66 @@
           const e = [...m.entries()];
           return urutan ? e : e.sort((a, b) => b[1] - a[1]);
         };
+        let rekapData = null; // { daftar, verif, uang }
+        function tampilRekap() {
+          const { daftar, verif, uang } = rekapData;
+          document.getElementById("rekap").innerHTML =
+            `<div class="rounded-lg border border-hairline bg-white p-5"><h3 class="text-[13px] text-ink-500">Total pendaftar</h3><p class="mt-1 text-[40px] font-semibold leading-none tracking-tight tabular-nums">${daftar.length}</p></div>` +
+            card("Per jurusan (pilihan 1)", countBy(daftar, "jurusan1", "-", AdminUI.URUTAN_JURUSAN)) +
+            card("Status pendaftaran", countBy(verif, "statusPendaftaran", "Pending")) +
+            card("Pembayaran", countBy(uang, "statusBiayaDaftar", "Belum Bayar"));
+        }
         async function loadRekap(fresh) {
           const el = document.getElementById("rekap");
           document.body.classList.add("is-loading");
           try {
             const [daftar, verif, uang] = await Promise.all(SHEETS.slice(0, 3).map((s) => Sheetson.getRows(s, { fresh: fresh === true })));
             document.body.classList.remove("is-loading");
-            el.innerHTML =
-              `<div class="rounded-lg border border-hairline bg-white p-5"><h3 class="text-[13px] text-ink-500">Total pendaftar</h3><p class="mt-1 text-[40px] font-semibold leading-none tracking-tight tabular-nums">${daftar.length}</p></div>` +
-              card("Per jurusan (pilihan 1)", countBy(daftar, "jurusan1", "-", AdminUI.URUTAN_JURUSAN)) +
-              card("Status pendaftaran", countBy(verif, "statusPendaftaran", "Pending")) +
-              card("Pembayaran", countBy(uang, "statusBiayaDaftar", "Belum Bayar"));
+            rekapData = { daftar, verif, uang };
+            tampilRekap();
+            if (rkAktif) rkMulai();
           } catch (e) {
-            el.innerHTML = `<p class="rounded-2xl bg-red-50 p-4 text-[15px] font-semibold text-red-700">${esc(e.message)}</p>`;
+            document.body.classList.remove("is-loading");
+            el.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-red-50 p-4 text-[15px] font-semibold text-red-700"><span>${esc(e.message)}. Periksa internet Anda.</span><button type="button" data-coba class="rounded-md bg-ink-900 px-3 py-1.5 text-[14px] font-medium text-white hover:opacity-90">Coba lagi</button></div>`;
+            el.querySelector("[data-coba]").addEventListener("click", () => loadRekap(true));
           }
         }
-        document.getElementById("reloadRekap").addEventListener("click", () => loadRekap(true));
+        /* Rekap langsung: hanya jalan saat sub-menu Rekap terbuka. Pendaftar baru → hanya baris baru
+           yang diminta (4 permintaan kecil per kedatangan); tab dibuka lagi >5 menit → segarkan diam-diam. */
+        let rkAktif = false;
+        let rkPantau = null;
+        let rkLepas = null;
+        let rkSembunyi = 0;
+        async function rkTambah(masuk) {
+          const ada = new Set(rekapData.daftar.map((r) => String(r.rowIndex)));
+          const segar = masuk.filter((r) => !ada.has(String(r.rowIndex)));
+          if (!segar.length) return;
+          const [verif, uang] = await Promise.all(
+            [["verif", "Verifikasi_Berkas"], ["uang", "Keuangan_Voucher"]].map(([k, sheet]) => Sheetson.rowsAfter(sheet, rekapData[k].length).catch(() => []))
+          );
+          rekapData.daftar.push(...segar);
+          rekapData.verif.push(...verif);
+          rekapData.uang.push(...uang);
+          tampilRekap();
+        }
+        const rkTampil = () => {
+          if (document.visibilityState === "hidden") return void (rkSembunyi = Date.now());
+          if (rkSembunyi && Date.now() - rkSembunyi > 5 * 60000) loadRekap(true);
+          rkSembunyi = 0;
+        };
+        function rkMulai() {
+          if (rkPantau || !rekapData) return;
+          rkPantau = AdminUI.watchNew("Data_Pendaftar", () => rekapData.daftar.length, rkTambah);
+          document.addEventListener("visibilitychange", rkTampil);
+          rkLepas = AdminUI.daftarPengamat({ stop: rkBerhenti });
+        }
+        function rkBerhenti() {
+          if (rkPantau) rkPantau.stop();
+          rkPantau = null;
+          document.removeEventListener("visibilitychange", rkTampil);
+          if (rkLepas) rkLepas();
+          rkLepas = null;
+        }
 
         /* ---------- pengaturan situs (tabel "pengaturan", supabase/03-pengaturan.sql) ---------- */
         const SAKLAR = [
@@ -536,6 +624,24 @@
             nyala: "Pop-up \"Daftar Ulang Makin Ringan! Rp2 Juta\" muncul saat beranda dibuka.",
             mati: "Pop-up promo tidak ditampilkan.",
           },
+          {
+            kunci: "hasil_diumumkan",
+            judul: "Hasil seleksi diumumkan",
+            nyala: "Siswa bisa melihat hasil (Diterima / Ditolak) di login siswa dan cek status.",
+            mati: "Hasil disembunyikan: siswa hanya melihat \"Diverifikasi, menunggu pengumuman\". Data di panel admin tidak berubah.",
+            tanyaMati: "Sembunyikan hasil seleksi dari siswa?\n\nSiswa yang sudah dinyatakan Diterima/Ditolak hanya akan melihat \"menunggu pengumuman\" sampai saklar ini dinyalakan lagi.",
+            tanyaNyala: "Umumkan hasil seleksi sekarang?\n\nSemua siswa langsung bisa melihat status Diterima / Ditolak mereka. Pastikan data sudah benar.",
+            perlu06: true,
+          },
+          {
+            kunci: "perawatan",
+            judul: "Mode perawatan situs",
+            nyala: "Situs publik menampilkan layar \"sedang pemeliharaan\" dan pendaftar baru ditolak. Panel admin tetap bisa dipakai.",
+            mati: "Situs berjalan normal.",
+            bahayaNyala: true,
+            tanyaNyala: "Aktifkan mode perawatan?\n\nBeranda, formulir daftar, dan login siswa langsung tertutup layar \"sedang pemeliharaan\" untuk semua pengunjung. Panel admin tetap bisa dipakai.",
+            perlu06: true,
+          },
         ];
         const fmtWaktu = (iso) => {
           if (!iso) return "";
@@ -549,7 +655,15 @@
         };
         async function loadPengaturan() {
           const wadah = document.getElementById("pengaturanIsi");
-          const { data, error } = await db.from("pengaturan").select("kunci,nilai,diubah");
+          // Kolom bertahap: SQL 06 (angka) → SQL 05 (teks, waktu) → hanya saklar lama
+          const TAHAP_KOLOM = ["kunci,nilai,diubah,teks,waktu,angka", "kunci,nilai,diubah,teks,waktu", "kunci,nilai,diubah"];
+          let data, error;
+          let tahap = 0;
+          for (; tahap < TAHAP_KOLOM.length; tahap++) {
+            ({ data, error } = await db.from("pengaturan").select(TAHAP_KOLOM[tahap]));
+            if (!error || !/teks|waktu|angka|column/i.test(error.message)) break;
+          }
+          const lanjutan = tahap < 2;
           if (error) {
             wadah.removeAttribute("aria-hidden");
             wadah.innerHTML = "";
@@ -563,30 +677,203 @@
           }
           const peta = new Map((data || []).map((r) => [r.kunci, r]));
           wadah.removeAttribute("aria-hidden");
-          wadah.innerHTML = SAKLAR.map((k) => {
-            const r = peta.get(k.kunci);
-            const on = !r || r.nilai !== false;
-            return `<div class="flex items-start justify-between gap-4 py-4">
+          wadah.innerHTML =
+            SAKLAR.filter((k) => !k.perlu06 || peta.has(k.kunci)).map((k) => {
+              const r = peta.get(k.kunci);
+              const on = r ? r.nilai !== false : true;
+              const buruk = k.bahayaNyala ? on : !on;
+              return `<div class="flex items-start justify-between gap-4 py-4">
               <div class="min-w-0">
                 <p class="text-[15.5px] font-semibold" id="lbl-${k.kunci}">${esc(k.judul)}</p>
-                <p class="mt-0.5 text-[14px] ${on ? "text-ink-600" : "font-medium text-red-700"}">${esc(on ? k.nyala : k.mati)}</p>
+                <p class="mt-0.5 text-[14px] ${buruk ? "font-medium text-red-700" : "text-ink-600"}">${esc(on ? k.nyala : k.mati)}</p>
                 ${r && r.diubah ? `<p class="mt-1 font-mono text-[12px] text-ink-500">diubah ${esc(fmtWaktu(r.diubah))}</p>` : ""}
               </div>
               <button type="button" role="switch" aria-checked="${on}" aria-labelledby="lbl-${k.kunci}" data-saklar="${k.kunci}"
                 class="relative mt-1 inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-50"
-                style="background:${on ? "#16A34A" : "#A1A1AA"}">
+                style="background:${on ? (k.bahayaNyala ? "#DC2626" : "#16A34A") : "#A1A1AA"}">
                 <span class="sr-only">${on ? "Nyala" : "Mati"}</span>
                 <span class="inline-block h-6 w-6 rounded-full bg-white shadow transition-transform" style="transform:translateX(${on ? "28px" : "4px"})" aria-hidden="true"></span>
               </button>
             </div>`;
+            }).join("") +
+            (lanjutan
+              ? pengaturanLanjutanHtml(peta) + (tahap === 0 && peta.has("kuota_dkv") ? pengaturanTambahanHtml(peta) : `<p class="py-4 text-[14px] text-ink-600">Kontak panitia, kuota per jurusan, pengumuman hasil, dan mode perawatan belum aktif. Jalankan <span class="font-mono text-[13px]">supabase/06-pengaturan-tambahan.sql</span> di Supabase (SQL Editor → New query → Run), lalu muat ulang halaman ini.</p>`)
+              : `<p class="py-4 text-[14px] text-ink-600">Jadwal otomatis, pesan saat ditutup, dan banner pengumuman belum aktif. Jalankan <span class="font-mono text-[13px]">supabase/05-pengaturan-lanjutan.sql</span> di Supabase (SQL Editor → New query → Run), lalu muat ulang halaman ini.</p>`);
+        }
+
+        /* --- jadwal otomatis, pesan saat ditutup, banner pengumuman (supabase/05-pengaturan-lanjutan.sql) --- */
+        const WIB = "Asia/Jakarta";
+        // ISO (UTC) → isi kolom datetime-local menurut jam WIB; sebaliknya WIB → ISO
+        const keInputWIB = (iso) => (iso ? new Date(iso).toLocaleString("sv-SE", { timeZone: WIB }).slice(0, 16).replace(" ", "T") : "");
+        const dariInputWIB = (v) => (v ? new Date(v + ":00+07:00").toISOString() : null);
+        const kolom = "w-full rounded-md border border-line/60 bg-white px-3 py-2.5 text-[15px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30";
+        const tombolSimpan = (id) =>
+          `<button type="button" data-simpan="${id}" class="btn rounded-full bg-ink-900 px-5 py-2 text-[14px] font-medium text-white disabled:opacity-60">Simpan</button>`;
+        function pengaturanLanjutanHtml(peta) {
+          const buka = peta.get("jadwal_buka");
+          const tutup = peta.get("jadwal_tutup");
+          const pesan = peta.get("pesan_tutup");
+          const banner = peta.get("banner_info");
+          const bannerOn = !!banner && banner.nilai === true;
+          return `
+            <div class="py-5" data-blok="jadwal">
+              <p class="text-[15.5px] font-semibold">Jadwal buka &amp; tutup otomatis</p>
+              <p class="mt-0.5 text-[14px] text-ink-600">Pendaftaran membuka dan menutup sendiri pada jam ini (WIB). Kosongkan bila tidak dipakai. Saklar &ldquo;Pendaftaran SPMB dibuka&rdquo; di atas tetap yang utama: bila MATI, pendaftaran tertutup walau jadwal sedang berjalan.</p>
+              <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                <label class="flex flex-col gap-1 text-[13px] text-ink-500">Dibuka mulai<input id="jadwalBuka" type="datetime-local" value="${esc(keInputWIB(buka && buka.waktu))}" class="${kolom}" /></label>
+                <label class="flex flex-col gap-1 text-[13px] text-ink-500">Ditutup mulai<input id="jadwalTutup" type="datetime-local" value="${esc(keInputWIB(tutup && tutup.waktu))}" class="${kolom}" /></label>
+              </div>
+              <div class="mt-3 flex items-center gap-3">${tombolSimpan("jadwal")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
+            </div>
+            <div class="py-5" data-blok="pesan">
+              <label for="pesanTutup" class="text-[15.5px] font-semibold">Pesan saat pendaftaran ditutup</label>
+              <p class="mt-0.5 text-[14px] text-ink-600">Tampil di beranda dan halaman daftar. Kosongkan untuk memakai tulisan bawaan (atau tanggal buka berikutnya bila jadwal sudah diisi).</p>
+              <textarea id="pesanTutup" rows="2" maxlength="280" placeholder="Contoh: Gelombang 1 sudah ditutup. Gelombang 2 dibuka 1 Maret 2027." class="mt-3 ${kolom}">${esc((pesan && pesan.teks) || "")}</textarea>
+              <div class="mt-3 flex items-center gap-3">${tombolSimpan("pesan")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
+            </div>
+            <div class="py-5" data-blok="banner">
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                  <p class="text-[15.5px] font-semibold" id="lbl-banner">Banner pengumuman</p>
+                  <p class="mt-0.5 text-[14px] text-ink-600">${bannerOn ? "Tampil di bagian atas beranda dan halaman daftar. Pengunjung bisa menutupnya." : "Tidak ditampilkan. Isi teks lalu nyalakan."}</p>
+                </div>
+                <button type="button" role="switch" aria-checked="${bannerOn}" aria-labelledby="lbl-banner" data-banner-saklar
+                  class="relative mt-1 inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors disabled:opacity-50" style="background:${bannerOn ? "#16A34A" : "#A1A1AA"}">
+                  <span class="sr-only">${bannerOn ? "Nyala" : "Mati"}</span>
+                  <span class="inline-block h-6 w-6 rounded-full bg-white shadow transition-transform" style="transform:translateX(${bannerOn ? "28px" : "4px"})" aria-hidden="true"></span>
+                </button>
+              </div>
+              <label for="bannerTeks" class="sr-only">Teks banner</label>
+              <textarea id="bannerTeks" rows="2" maxlength="280" placeholder="Contoh: Hari ini loket panitia tutup pukul 12.00." class="mt-3 ${kolom}">${esc((banner && banner.teks) || "")}</textarea>
+              <div class="mt-3 flex items-center gap-3">${tombolSimpan("banner")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
+            </div>`;
+        }
+        function pengaturanTambahanHtml(peta) {
+          const teks = (k) => esc((peta.get(k) && peta.get(k).teks) || "");
+          const kuotaInput = AdminUI.URUTAN_JURUSAN.map((j) => {
+            const r = peta.get("kuota_" + j.toLowerCase());
+            return `<label class="flex flex-col gap-1 text-[13px] text-ink-500">${esc(j)}<input data-kuota="${esc(j.toLowerCase())}" type="number" inputmode="numeric" min="0" max="999" placeholder="tanpa batas" value="${r && Number.isInteger(r.angka) ? r.angka : ""}" class="${kolom}" /></label>`;
           }).join("");
+          return `
+            <div class="py-5" data-blok="kontak">
+              <p class="text-[15.5px] font-semibold">Kontak panitia</p>
+              <p class="mt-0.5 text-[14px] text-ink-600">Nomor WhatsApp dipakai semua tombol &ldquo;Chat panitia&rdquo; di beranda dan formulir. Kosongkan untuk memakai nomor bawaan.</p>
+              <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                <label class="flex flex-col gap-1 text-[13px] text-ink-500">Nomor WhatsApp<input id="kontakWa" type="tel" inputmode="tel" maxlength="20" placeholder="0882 3212 784" value="${teks("kontak_wa")}" class="${kolom}" /></label>
+                <label class="flex flex-col gap-1 text-[13px] text-ink-500">Jam layanan<input id="jamLayanan" type="text" maxlength="120" placeholder="Senin–Sabtu, 08.00–15.00 WIB" value="${teks("jam_layanan")}" class="${kolom}" /></label>
+              </div>
+              <div class="mt-3 flex items-center gap-3">${tombolSimpan("kontak")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
+            </div>
+            <div class="py-5" data-blok="kuota">
+              <p class="text-[15.5px] font-semibold">Kuota per jurusan</p>
+              <p class="mt-0.5 text-[14px] text-ink-600">Batas pendaftar jurusan utama tahun ini. Bila penuh, jurusan itu tidak bisa dipilih dan database menolak pendaftar baru. Kosong = tanpa batas. Pendaftar yang sudah masuk tidak terhapus bila kuota diturunkan.</p>
+              <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">${kuotaInput}</div>
+              <div class="mt-3 flex items-center gap-3">${tombolSimpan("kuota")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
+            </div>
+            <div class="py-5" data-blok="perawatan">
+              <label for="pesanPerawatan" class="text-[15.5px] font-semibold">Pesan saat mode perawatan</label>
+              <p class="mt-0.5 text-[14px] text-ink-600">Tampil di layar pemeliharaan. Kosongkan untuk tulisan bawaan.</p>
+              <textarea id="pesanPerawatan" rows="2" maxlength="280" placeholder="Contoh: Situs sedang diperbarui, kembali lagi pukul 14.00 WIB." class="mt-3 ${kolom}">${teks("pesan_perawatan")}</textarea>
+              <div class="mt-3 flex items-center gap-3">${tombolSimpan("perawatan")}<span data-hasil class="text-[13.5px]" role="status"></span></div>
+            </div>`;
+        }
+        async function simpanBaris(kunci, isi) {
+          const { data: u } = await db.auth.getUser();
+          const { data, error } = await db
+            .from("pengaturan")
+            .update({ ...isi, diubah: new Date().toISOString(), diubah_oleh: u && u.user ? u.user.id : null })
+            .eq("kunci", kunci)
+            .select("kunci");
+          if (error || !data || !data.length) throw new Error(error ? error.message : "hanya superadmin yang boleh mengubah");
+        }
+        const tampilWIB = (iso) => (iso ? new Date(iso).toLocaleString("id-ID", { timeZone: WIB, day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " WIB" : "kosong");
+        async function simpanLanjutan(blok, tombol) {
+          const hasil = blok.querySelector("[data-hasil]");
+          const lapor = (teks, baik) => {
+            hasil.textContent = teks;
+            hasil.className = `text-[13.5px] ${baik ? "text-ok-700" : "font-medium text-red-700"}`;
+          };
+          const jenis = tombol.dataset.simpan;
+          tombol.disabled = true;
+          try {
+            if (jenis === "jadwal") {
+              const buka = dariInputWIB(document.getElementById("jadwalBuka").value);
+              const tutup = dariInputWIB(document.getElementById("jadwalTutup").value);
+              if (buka && tutup && new Date(tutup) <= new Date(buka)) return lapor("Waktu tutup harus setelah waktu buka.", false);
+              await simpanBaris("jadwal_buka", { waktu: buka });
+              await simpanBaris("jadwal_tutup", { waktu: tutup });
+              AdminAuth.catat({ aksi: "Ubah pengaturan situs", modul: "Superadmin", sasaran: "Jadwal pendaftaran", detail: { perubahan: [`Dibuka mulai: ${tampilWIB(buka)}`, `Ditutup mulai: ${tampilWIB(tutup)}`] } });
+            } else if (jenis === "kontak") {
+              let wa = document.getElementById("kontakWa").value.replace(/[\s().-]/g, "");
+              if (wa.startsWith("+")) wa = wa.slice(1);
+              if (wa && !/^(0|62|8)\d{8,13}$/.test(wa)) return lapor("Nomor WhatsApp tidak valid. Contoh: 0882 3212 784", false);
+              if (wa.startsWith("0")) wa = "62" + wa.slice(1);
+              else if (wa.startsWith("8")) wa = "62" + wa;
+              const jam = document.getElementById("jamLayanan").value.trim();
+              await simpanBaris("kontak_wa", { teks: wa || null });
+              await simpanBaris("jam_layanan", { teks: jam || null });
+              AdminAuth.catat({ aksi: "Ubah pengaturan situs", modul: "Superadmin", sasaran: "Kontak panitia", detail: { perubahan: [`WhatsApp: ${wa || "(bawaan)"}`, `Jam layanan: ${jam || "(kosong)"}`] } });
+            } else if (jenis === "kuota") {
+              const ringkas = [];
+              const nilai = {};
+              for (const el of document.querySelectorAll("[data-kuota]")) {
+                const mentah = el.value.trim();
+                const n = mentah === "" ? null : Number(mentah);
+                if (n !== null && (!Number.isInteger(n) || n < 0 || n > 999)) return lapor(`Kuota ${el.dataset.kuota.toUpperCase()} harus angka bulat 0–999 (atau kosong).`, false);
+                nilai[el.dataset.kuota] = n;
+                ringkas.push(`${el.dataset.kuota.toUpperCase()}: ${n === null ? "tanpa batas" : n}`);
+              }
+              for (const [j, n] of Object.entries(nilai)) await simpanBaris("kuota_" + j, { angka: n });
+              AdminAuth.catat({ aksi: "Ubah pengaturan situs", modul: "Superadmin", sasaran: "Kuota per jurusan", detail: { perubahan: ringkas } });
+            } else if (jenis === "perawatan") {
+              const teks = document.getElementById("pesanPerawatan").value.trim();
+              await simpanBaris("pesan_perawatan", { teks: teks || null });
+              AdminAuth.catat({ aksi: "Ubah pengaturan situs", modul: "Superadmin", sasaran: "Pesan perawatan", detail: { keterangan: teks || "(dikosongkan, pakai tulisan bawaan)" } });
+            } else if (jenis === "pesan") {
+              const teks = document.getElementById("pesanTutup").value.trim();
+              await simpanBaris("pesan_tutup", { teks: teks || null });
+              AdminAuth.catat({ aksi: "Ubah pengaturan situs", modul: "Superadmin", sasaran: "Pesan saat ditutup", detail: { keterangan: teks || "(dikosongkan, pakai tulisan bawaan)" } });
+            } else {
+              const teks = document.getElementById("bannerTeks").value.trim();
+              await simpanBaris("banner_info", { teks: teks || null });
+              AdminAuth.catat({ aksi: "Ubah pengaturan situs", modul: "Superadmin", sasaran: "Banner pengumuman", detail: { keterangan: teks || "(teks dikosongkan)" } });
+            }
+            lapor("Tersimpan.", true);
+            AdminUI.toast("Pengaturan tersimpan.");
+          } catch (e) {
+            lapor("Gagal menyimpan: " + e.message, false);
+          } finally {
+            tombol.disabled = false;
+          }
+        }
+        // Saklar banner: nyala hanya bila teks terisi
+        async function ubahBanner(tombol) {
+          const nilaiBaru = tombol.getAttribute("aria-checked") !== "true";
+          const teks = document.getElementById("bannerTeks").value.trim();
+          if (nilaiBaru && !teks) return infoPengaturan("Isi teks banner lebih dulu, lalu nyalakan.", false);
+          tombol.disabled = true;
+          try {
+            await simpanBaris("banner_info", { nilai: nilaiBaru, teks: teks || null });
+            AdminUI.toast(`Banner pengumuman: ${nilaiBaru ? "NYALA" : "MATI"}`);
+            AdminAuth.catat({ aksi: "Ubah pengaturan situs", modul: "Superadmin", sasaran: "Banner pengumuman", detail: { perubahan: [`Banner pengumuman: ${nilaiBaru ? "Mati → Nyala" : "Nyala → Mati"}`] } });
+            document.getElementById("pengaturanInfo").className = "mt-3 hidden rounded-lg p-3 text-[14.5px]";
+            loadPengaturan();
+          } catch (e) {
+            tombol.disabled = false;
+            infoPengaturan("Gagal menyimpan: " + e.message, false);
+          }
         }
         document.getElementById("pengaturanIsi").addEventListener("click", async (e) => {
+          const simpan = e.target.closest("[data-simpan]");
+          if (simpan) return simpanLanjutan(simpan.closest("[data-blok]"), simpan);
+          const banner = e.target.closest("[data-banner-saklar]");
+          if (banner) return ubahBanner(banner);
           const tombol = e.target.closest("[data-saklar]");
           if (!tombol) return;
           const k = SAKLAR.find((x) => x.kunci === tombol.dataset.saklar);
           const nilaiBaru = tombol.getAttribute("aria-checked") !== "true";
           if (!nilaiBaru && k.tanyaMati && !window.confirm(k.tanyaMati)) return;
+          if (nilaiBaru && k.tanyaNyala && !window.confirm(k.tanyaNyala)) return;
           tombol.disabled = true;
           const { data: u } = await db.auth.getUser();
           const { data, error } = await db
@@ -943,7 +1230,6 @@
           renderRiwayat();
         }
         ["rwCari", "rwPetugas", "rwAksi"].forEach((id) => document.getElementById(id).addEventListener("input", renderRiwayat));
-        document.getElementById("rwMuatUlang").addEventListener("click", () => loadRiwayat(true));
         document.getElementById("rwLagi").addEventListener("click", () => loadRiwayat(false));
 
         /* ---------- sub-halaman (menu samping: Superadmin → …) ---------- */
@@ -970,6 +1256,9 @@
             rwMulaiLangsung();
           }
           if (id !== "riwayat") rwBerhentiLangsung();
+          rkAktif = id === "rekap";
+          if (rkAktif) rkMulai();
+          else rkBerhenti();
         };
         this.pindahSub = pindahSub;
         pindahSub(sub);

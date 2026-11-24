@@ -135,18 +135,21 @@
       return;
     }
     $("uploadBox").classList.remove("hidden");
+    // Sebelum hasil diumumkan panitia, Diterima/Ditolak tampil sebagai "Diverifikasi" (menunggu pengumuman)
+    if (root.Pengaturan) await root.Pengaturan.ambil();
+    const dilihat = root.Pengaturan ? { ...row, statusPendaftaran: root.Pengaturan.statusTampil(row.statusPendaftaran) } : row;
     const urls = String(row.urlBerkas || "").split(/\r?\n/).filter((u) => /^https?:\/\//.test(u.trim()));
     const names = String(row.namaBerkas || "").split(/\r?\n/);
     const catatan = row.catatanAdmin && row.catatanAdmin !== "-" && !/^Berkas gagal diunggah otomatis/.test(row.catatanAdmin) ? row.catatanAdmin : "";
     const nama = String(row.namaLengkap || "").trim();
     $("homeNama").textContent = nama && nama !== "-" ? `Halo, ${nama}` : "Halo";
     $("homeMeta").textContent = `${row.noPendaftaran || "-"} · ${row.jurusan1 || "-"}`;
-    const statusDaftar = row.statusPendaftaran && row.statusPendaftaran !== "-" ? row.statusPendaftaran : "Pending";
+    const statusDaftar = dilihat.statusPendaftaran && dilihat.statusPendaftaran !== "-" ? dilihat.statusPendaftaran : "Pending";
     const statusBerkas = row.statusBerkas && row.statusBerkas !== "-" ? row.statusBerkas : "Belum Unggah";
     $("homeBody").innerHTML = `
       <div class="border border-hairline bg-white p-5 sm:p-6">
         <h3 class="text-[16px] font-semibold">Tahapan pendaftaran</h3>
-        ${langkahHtml(row)}
+        ${langkahHtml(dilihat)}
         <dl class="mt-5 grid grid-cols-2 gap-4 border-t border-hairline pt-4">
           <div><dt class="text-[12.5px] text-ink-500">Status pendaftaran</dt><dd class="mt-1">${statusTeks(statusDaftar)}</dd></div>
           <div><dt class="text-[12.5px] text-ink-500">Status berkas</dt><dd class="mt-1">${statusTeks(statusBerkas)}</dd></div>

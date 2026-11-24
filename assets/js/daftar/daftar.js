@@ -3,6 +3,8 @@ const ICON_COPY_SVG =
 const ICON_CHECK_SVG =
   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>';
 const SUBMIT_LABEL = "Kirim Formulir Pendaftaran";
+// Nomor WhatsApp panitia (bisa diubah superadmin di Pengaturan situs)
+const nomorWa = () => (window.Pengaturan ? window.Pengaturan.waNomor() : "628823212784");
 
 document.addEventListener("DOMContentLoaded", () => {
   const SHEETSON_CONFIG = window.APP_CONFIG.sheetson;
@@ -17,13 +19,43 @@ document.addEventListener("DOMContentLoaded", () => {
   // Superadmin bisa menutup SPMB dari panel admin → formulir diganti pesan "ditutup"
   if (window.Pengaturan) {
     window.Pengaturan.ambil().then((p) => {
-      if (!p.spmbDibuka) tampilkanSpmbDitutup();
+      window.Pengaturan.terapkanKontak(p);
+      window.Pengaturan.pasangBanner(p);
+      if (!p.spmbDibuka) tampilkanSpmbDitutup(p);
+      window.Pengaturan.pasangPerawatan(p);
     });
+    tandaiKuotaJurusan();
   }
 });
 
+/* --- KUOTA JURUSAN: jurusan yang penuh tidak bisa dipilih (database tetap penjaga sebenarnya) --- */
+async function tandaiKuotaJurusan() {
+  const rows = await window.Pengaturan.ambilKuota();
+  rows.forEach((r) => {
+    const st = window.Pengaturan.statusKuota(r.kuota, r.terisi);
+    const tile = document.querySelector(`.choice[data-for="jurusan1"][data-value="${r.jurusan}"]`);
+    if (!st.terbatas || !tile) return;
+    if (st.penuh) {
+      tile.disabled = true;
+      tile.setAttribute("aria-pressed", "false");
+      tile.classList.add("opacity-50", "cursor-not-allowed");
+      const select = document.getElementById("jurusan1");
+      if (select && select.value === r.jurusan) {
+        select.value = "";
+        select.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    }
+    if (st.penuh || st.sisa <= 10) {
+      const label = document.createElement("span");
+      label.className = `text-[12px] font-semibold ${st.penuh ? "text-red-600" : "text-ink-500"}`;
+      label.textContent = st.penuh ? "Kuota penuh" : `Sisa ${st.sisa} kursi`;
+      tile.appendChild(label);
+    }
+  });
+}
+
 /* --- SPMB DITUTUP (diatur superadmin) --- */
-function tampilkanSpmbDitutup() {
+function tampilkanSpmbDitutup(p) {
   const tab = document.getElementById("tab-pendaftaran");
   const layout = document.getElementById("formLayout");
   if (!tab || document.getElementById("spmbDitutup")) return;
@@ -41,12 +73,14 @@ function tampilkanSpmbDitutup() {
   kotak.innerHTML = `
     <p class="text-[40px] leading-none" aria-hidden="true">🔒</p>
     <h2 class="mt-3 text-[22px] font-semibold">Pendaftaran sedang ditutup</h2>
-    <p class="mt-2 text-[15.5px] leading-relaxed text-ink-600">Saat ini formulir pendaftaran SPMB 2026/2027 belum bisa diisi. Pantau informasi terbaru atau hubungi panitia.</p>
+    <p data-pesan class="mt-2 text-[15.5px] leading-relaxed text-ink-600"></p>
     <div class="mt-6 flex flex-col justify-center gap-2.5 sm:flex-row">
       <a href="#cek-status" data-tab-link="cek-status" class="inline-flex h-12 items-center justify-center rounded-full bg-ink-900 px-6 text-[15px] font-semibold text-white">Cek status pendaftaran</a>
-      <a href="https://wa.me/628823212784" target="_blank" rel="noopener" class="inline-flex h-12 items-center justify-center rounded-full px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">WhatsApp panitia</a>
+      <a href="https://wa.me/${nomorWa()}" target="_blank" rel="noopener" class="inline-flex h-12 items-center justify-center rounded-full px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">WhatsApp panitia</a>
     </div>
     <p class="mt-4 text-[13.5px] text-ink-500">Sudah mendaftar? <a href="../#login" class="font-medium text-ink-900 underline">Login siswa</a> untuk melihat berkas & unduh bukti pendaftaran.</p>`;
+  // pesan dari superadmin (teks bebas) → textContent, bukan HTML
+  kotak.querySelector("[data-pesan]").textContent = window.Pengaturan.pesanDitutup(p);
   if (intro && intro.nextSibling) tab.insertBefore(kotak, intro.nextSibling);
   else tab.appendChild(kotak);
   // tautan "Cek status" di kotak ini ikut berpindah tab
@@ -141,7 +175,7 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
       if (window.Pengaturan) {
         const p = await window.Pengaturan.ambil({ segar: true });
         if (!p.spmbDibuka) {
-          tampilkanSpmbDitutup();
+          tampilkanSpmbDitutup(p);
           window.scrollTo({ top: 0, behavior: "smooth" });
           return;
         }
@@ -819,7 +853,7 @@ function handleRegistrationSuccess(data) {
 
   const btnWhatsApp = document.getElementById("btnWhatsApp");
   if (btnWhatsApp) {
-    const nomorAdmin = "628823212784";
+    const nomorAdmin = nomorWa();
     const catatanBerkas = data.uploadError
       ? `\n\nBerkas *${data.namaBerkas}* gagal terunggah di website, jadi saya lampirkan lewat chat ini.`
       : "";
@@ -1139,6 +1173,8 @@ const TONE_DOT_COLOR = { ok: "#16A34A", bad: "#DC2626", wait: "#D97706", info: "
 
 function renderStatusResult(found, statusResultEl) {
   if (!statusResultEl) return;
+  // Sebelum hasil diumumkan, Diterima/Ditolak tampil sebagai "Diverifikasi" (menunggu pengumuman)
+  if (window.Pengaturan) found = { ...found, statusPendaftaran: window.Pengaturan.statusTampil(found.statusPendaftaran) };
   const label = statusLabel(found.statusPendaftaran);
   const stages = statusStages(found.statusPendaftaran);
   const val = (v) => (v && v !== "-" ? v : "");
@@ -1214,7 +1250,7 @@ function renderStatusResult(found, statusResultEl) {
       }
 
       <div class="mt-6 flex flex-col gap-3 sm:flex-row" id="timelineContainer">
-        <a id="btnWhatsAppStatus" href="https://wa.me/628823212784?text=${waMessage}" target="_blank" rel="noopener" class="btn inline-flex h-12 items-center justify-center rounded-full bg-ink-900 px-6 text-[15px] font-semibold text-white">Tanya status lewat WhatsApp</a>
+        <a id="btnWhatsAppStatus" href="https://wa.me/${nomorWa()}?text=${waMessage}" target="_blank" rel="noopener" class="btn inline-flex h-12 items-center justify-center rounded-full bg-ink-900 px-6 text-[15px] font-semibold text-white">Tanya status lewat WhatsApp</a>
         <a href="${escapeText(siswaUrl)}" class="btn inline-flex h-12 items-center justify-center rounded-full px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">Lengkapi berkas</a>
       </div>
     </div>`;
