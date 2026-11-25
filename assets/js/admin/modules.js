@@ -39,6 +39,13 @@
   }
   const OPSI_LENGKAP = ["Siap diterima", "Belum lengkap", "Sudah diterima", "Ditolak / mundur"];
   const saringLengkap = (sendiri) => ({ id: "lengkap", label: "Kelengkapan (semua divisi)", get: (r) => kelengkapan(r, sendiri).kode, options: OPSI_LENGKAP });
+  // Titik kecil di samping nama siswa: kelengkapan sekilas (hijau siap, kuning belum lengkap, biru sudah diterima, merah ditolak/mundur)
+  const WARNA_TITIK = { "Siap diterima": "#16A34A", "Belum lengkap": "#D97706", "Sudah diterima": "#0369A1", "Ditolak / mundur": "#DC2626" };
+  function titikKelengkapan(r, sendiri) {
+    const kl = kelengkapan(r, sendiri);
+    const ket = kl.kode + (kl.kurang.length ? ` (kurang: ${kl.kurang.join(", ")})` : "");
+    return `<span class="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style="background:${WARNA_TITIK[kl.kode]}" title="${Sheetson.escapeHtml(ket)}" role="img" aria-label="${Sheetson.escapeHtml(ket)}"></span>`;
+  }
   // Isi pop-up "Cek divisi lain": ringkas, hanya dibaca
   function isiDivisiLain(r, sendiri) {
     const esc = Sheetson.escapeHtml;
@@ -359,7 +366,7 @@
             { id: "wa", label: "Chat ortu", get: (r) => (AdminUI.isi(r.tglFollowUpWa, "") ? "Sudah dihubungi" : "Belum dihubungi"), options: ["Belum dihubungi", "Sudah dihubungi"] },
           ],
           columns: [
-            { label: "Siswa", sortKey: "namaLengkap", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.5px] text-ink-500">${esc(r.noPendaftaran || "")}<br>NISN ${esc(r.nisn || "-")}</span>` },
+            { label: "Siswa", sortKey: "namaLengkap", render: (r) => `${titikKelengkapan(r, "verifikasi")}<b>${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.5px] text-ink-500">${esc(r.noPendaftaran || "")}<br>NISN ${esc(r.nisn || "-")}</span>` },
             { label: "Jurusan", sortKey: "jurusan1", render: (r) => esc(r.jurusan1 || "-") + (r.jurusan2 && r.jurusan2 !== "-" ? `<br><span class="text-[13px] text-ink-500">Cadangan: ${esc(r.jurusan2)}</span>` : "") },
             { label: "Status verifikasi", sortKey: "statusPendaftaran", render: (r) => AdminUI.badge(r.statusPendaftaran || "Pending") },
             { label: "Berkas", wrap: true, render: links },
@@ -446,7 +453,7 @@
             { id: "metode", label: "Metode", get: (r) => AdminUI.isi(r.metodePembayaran, "Belum diisi"), options: ["Belum diisi", "Tunai", "Transfer"] },
           ],
           columns: [
-            { label: "Siswa", sortKey: "namaLengkap", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.5px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
+            { label: "Siswa", sortKey: "namaLengkap", render: (r) => `${titikKelengkapan(r, "keuangan")}<b>${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.5px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
             { label: "Voucher", render: (r) => (r.kodeVoucher && r.kodeVoucher !== "-" ? `<b>${esc(r.kodeVoucher)}</b> ` : "") + AdminUI.badge(r.statusVoucher || "Tidak Ada") },
             { label: "Potongan", sortKey: "potonganBiaya", render: (r) => esc(rupiah(r.potonganBiaya)) },
             { label: "Status bayar", sortKey: "statusBiayaDaftar", render: (r) => AdminUI.badge(r.statusBiayaDaftar || "Belum Bayar") },
@@ -503,7 +510,7 @@
             { id: "tato", label: "Tato/tindik", get: (r) => AdminUI.isi(r.tatoTindik, "Belum diisi"), options: ["Belum diisi", "Tidak Ada", "Ada"] },
           ],
           columns: [
-            { label: "Siswa", sortKey: "namaLengkap", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.5px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
+            { label: "Siswa", sortKey: "namaLengkap", render: (r) => `${titikKelengkapan(r, "fisik")}<b>${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.5px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
             { label: "Tinggi / Berat", sortKey: "tinggiBadan", render: (r) => `${num(r.tinggiBadan, "cm")} / ${num(r.beratBadan, "kg")}` },
             { label: "Tato/Tindik", render: (r) => esc(r.tatoTindik || "-") },
             { label: "Status tes", sortKey: "statusTesFisik", render: (r) => AdminUI.badge(r.statusTesFisik || "Belum Tes") },

@@ -1067,6 +1067,7 @@
     }
 
     function render() {
+      tutupMenu();
       renderTabs();
       let rows = filterTanggal(filterRows(page.rows, $q.value, { [config.filter.field]: $f.value }), $dari.value, $sampai.value);
       rows = saringTambahan(rows, saringDefs, pilihan);
@@ -1108,17 +1109,7 @@
       }
       const actionsHtml = (row) =>
         `<button type="button" data-edit="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Ubah</button>` +
-        (config.divisiLain
-          ? `<button type="button" data-lintas="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900">Cek divisi lain</button>`
-          : "") +
-        `<button type="button" data-bukti="${esc(row.rowIndex)}" class="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900 disabled:opacity-60" title="Unduh bukti pendaftaran (PDF, kertas F4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>Bukti PDF</button>` +
-        (config.actions || [])
-          .filter((a) => !a.show || a.show(row))
-          .map(
-            (a, i) =>
-              `<button type="button" data-action="${i}" data-row="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900">${esc(a.label)}</button>`
-          )
-          .join("");
+        `<button type="button" data-menu="${esc(row.rowIndex)}" aria-haspopup="menu" aria-expanded="false" aria-label="Aksi lainnya untuk ${esc(row.namaLengkap || row.noPendaftaran || "siswa")}" title="Aksi lainnya" class="inline-flex h-[34px] w-[34px] items-center justify-center rounded-md text-ink-600 hover:bg-sand hover:text-ink-900"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>`;
       // Kolom pertama (nama) & kolom aksi dibekukan; judul kolom menempel di atas.
       const STICKY_L = "sticky left-0 z-[1] shadow-[1px_0_0_rgb(var(--hairline))]";
       const STICKY_R = "sticky right-0 z-[1] shadow-[-1px_0_0_rgb(var(--hairline))]";
@@ -1222,6 +1213,15 @@
       }
       const btn = e.target.closest("button");
       if (!btn) return;
+      if (btn.dataset.menu !== undefined) {
+        if (menuAktif && menuAktif.pemicu === btn) tutupMenu(true);
+        else bukaMenu(btn);
+        return;
+      }
+      jalankan(btn);
+    });
+
+    function jalankan(btn) {
       const idx = btn.dataset.edit ?? btn.dataset.bukti ?? btn.dataset.lintas ?? btn.dataset.row;
       const row = page.rows.find((r) => String(r.rowIndex) === String(idx));
       if (!row) return;
@@ -1233,7 +1233,83 @@
         catatModul(aksi.label, row);
         aksi.run(row, page);
       }
-    });
+    }
+
+    // Menu "⋯": aksi sekunder (cek divisi lain, bukti PDF, aksi khusus modul) dalam satu daftar kecil
+    let menuAktif = null; // { el, pemicu, lepas }
+    function tutupMenu(kembaliFokus) {
+      if (!menuAktif) return;
+      const { el, pemicu, lepas } = menuAktif;
+      menuAktif = null;
+      lepas();
+      el.remove();
+      pemicu.setAttribute("aria-expanded", "false");
+      if (kembaliFokus && document.body.contains(pemicu)) pemicu.focus();
+    }
+    function bukaMenu(pemicu) {
+      tutupMenu();
+      const row = page.rows.find((r) => String(r.rowIndex) === String(pemicu.dataset.menu));
+      if (!row) return;
+      const rid = esc(row.rowIndex);
+      const item = (atribut, label) => `<button type="button" role="menuitem" ${atribut} class="block w-full rounded-md px-3 py-2 text-left text-[14.5px] text-ink-900 hover:bg-sand focus:bg-sand focus:outline-none">${esc(label)}</button>`;
+      const daftar = [
+        config.divisiLain ? item(`data-lintas="${rid}"`, "Cek divisi lain") : "",
+        item(`data-bukti="${rid}"`, "Unduh bukti PDF"),
+        ...(config.actions || []).map((a, i) => (!a.show || a.show(row) ? item(`data-action="${i}" data-row="${rid}"`, a.label) : "")),
+      ].join("");
+      const el = document.createElement("div");
+      el.setAttribute("role", "menu");
+      el.setAttribute("aria-label", "Aksi lainnya");
+      el.style.cssText = "position:fixed;width:13rem;z-index:55;top:0;left:0";
+      el.className = "rounded-lg border border-hairline bg-white p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.14)]";
+      el.innerHTML = daftar;
+      document.body.appendChild(el);
+      const r = pemicu.getBoundingClientRect();
+      const tinggi = el.offsetHeight;
+      const atas = r.bottom + 4 + tinggi > window.innerHeight - 8 ? Math.max(8, r.top - 4 - tinggi) : r.bottom + 4;
+      el.style.top = `${atas}px`;
+      el.style.left = `${Math.max(8, Math.min(r.right - el.offsetWidth, window.innerWidth - el.offsetWidth - 8))}px`;
+      pemicu.setAttribute("aria-expanded", "true");
+      const luar = (ev) => {
+        if (!el.contains(ev.target) && ev.target !== pemicu && !pemicu.contains(ev.target)) tutupMenu();
+      };
+      const tombol = (ev) => {
+        const semua = [...el.querySelectorAll("[role=menuitem]")];
+        const i = semua.indexOf(document.activeElement);
+        if (ev.key === "Escape") {
+          ev.preventDefault();
+          tutupMenu(true);
+        } else if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
+          ev.preventDefault();
+          const n = semua.length;
+          semua[(i + (ev.key === "ArrowDown" ? 1 : -1) + n) % n].focus();
+        } else if (ev.key === "Tab") tutupMenu();
+      };
+      const tutupSaja = () => tutupMenu();
+      document.addEventListener("mousedown", luar, true);
+      document.addEventListener("keydown", tombol, true);
+      window.addEventListener("scroll", tutupSaja, true);
+      window.addEventListener("resize", tutupSaja);
+      window.addEventListener("hashchange", tutupSaja);
+      el.addEventListener("click", (ev) => {
+        const b = ev.target.closest("button[role=menuitem]");
+        if (!b) return;
+        tutupMenu();
+        jalankan(b);
+      });
+      menuAktif = {
+        el,
+        pemicu,
+        lepas: () => {
+          document.removeEventListener("mousedown", luar, true);
+          document.removeEventListener("keydown", tombol, true);
+          window.removeEventListener("scroll", tutupSaja, true);
+          window.removeEventListener("resize", tutupSaja);
+          window.removeEventListener("hashchange", tutupSaja);
+        },
+      };
+      el.querySelector("[role=menuitem]").focus();
+    }
     $pager.addEventListener("click", (e) => {
       const b = e.target.closest("button[data-page]");
       if (!b || b.disabled) return;
