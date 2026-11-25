@@ -768,6 +768,35 @@
     });
   }
 
+  // Pop-up kecil hanya-baca di tengah layar (mis. status divisi lain)
+  function openInfo({ title, subtitle, html }) {
+    const overlay = document.createElement("div");
+    overlay.className = "fixed inset-0 z-[60] flex items-center justify-center bg-black/30 p-4";
+    overlay.setAttribute("data-admin-overlay", "");
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", title);
+    overlay.innerHTML = `<div class="w-full max-w-sm rounded-lg border border-hairline bg-white p-5 shadow-soft">
+        <h2 class="text-[17px] font-semibold tracking-tight">${esc(title)}</h2>
+        ${subtitle ? `<p class="mt-0.5 font-mono text-[12.5px] text-ink-500">${esc(subtitle)}</p>` : ""}
+        <div class="mt-4">${html}</div>
+        <button type="button" data-tutup class="btn mt-5 w-full rounded-full bg-ink-900 px-5 py-2.5 text-[14.5px] font-medium text-white">Tutup</button>
+      </div>`;
+    const close = () => {
+      overlay.remove();
+      document.removeEventListener("keydown", onKey);
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") close();
+    };
+    document.addEventListener("keydown", onKey);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay || e.target.closest("[data-tutup]")) close();
+    });
+    document.body.appendChild(overlay);
+    overlay.querySelector("[data-tutup]").focus();
+  }
+
   function downloadFile(filename, text, type = "text/csv;charset=utf-8") {
     const url = URL.createObjectURL(new Blob([text], { type }));
     const a = document.createElement("a");
@@ -888,10 +917,10 @@
       </div>
       <div id="stats" class="mt-6"></div>
       <div class="mt-6 flex flex-col gap-3 border-b border-hairline lg:flex-row lg:items-end lg:justify-between">
-        <div id="tabs" class="no-scrollbar -mb-px flex gap-5 overflow-x-auto" role="tablist" aria-label="${esc(config.filter.label)}"></div>
+        <div id="tabs" class="no-scrollbar -mb-px flex gap-4 overflow-x-auto" role="tablist" aria-label="${esc(config.filter.label)}"></div>
         <div class="flex gap-2 pb-3">
           <label for="q" class="sr-only">Cari</label>
-          <input id="q" type="search" class="min-w-0 flex-1 rounded-md border border-line/60 bg-white px-3 py-2 text-[14.5px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30 lg:w-80 lg:flex-none" placeholder="Cari nama, NISN, atau no. pendaftaran" />
+          <input id="q" type="search" class="min-w-0 flex-1 rounded-md border border-line/60 bg-white px-3 py-2 text-[14.5px] focus:border-ink-900 focus:outline-none focus:ring-2 focus:ring-pink-500/30 lg:w-52 lg:flex-none" placeholder="Cari nama, NISN, atau no. pendaftaran" />
           <label for="f" class="sr-only">${esc(config.filter.label)}</label>
           <select id="f" class="sr-only" tabindex="-1">
             <option value="">Semua</option>${config.filter.options.map((o) => `<option>${esc(o)}</option>`).join("")}
@@ -1026,7 +1055,7 @@
         const v = r[config.filter.field] && r[config.filter.field] !== "-" ? r[config.filter.field] : config.filter.options[0];
         counts.set(v, (counts.get(v) || 0) + 1);
       });
-      const tabs = [["", "Semua", page.rows.length], ...config.filter.options.map((o) => [o, o, counts.get(o) || 0])];
+      const tabs = [["", "Semua", page.rows.length], ...config.filter.options.map((o) => [o, (config.filter.labels && config.filter.labels[o]) || o, counts.get(o) || 0])];
       $tabs.innerHTML = tabs
         .map(([value, label, n]) => {
           const on = $f.value === value;
@@ -1079,6 +1108,9 @@
       }
       const actionsHtml = (row) =>
         `<button type="button" data-edit="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Ubah</button>` +
+        (config.divisiLain
+          ? `<button type="button" data-lintas="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900">Cek divisi lain</button>`
+          : "") +
         `<button type="button" data-bukti="${esc(row.rowIndex)}" class="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[14px] font-medium text-ink-600 hover:bg-sand hover:text-ink-900 disabled:opacity-60" title="Unduh bukti pendaftaran (PDF, kertas F4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/></svg>Bukti PDF</button>` +
         (config.actions || [])
           .filter((a) => !a.show || a.show(row))
@@ -1111,7 +1143,7 @@
                   (r) =>
                     `<tr data-rid="${esc(r.rowIndex)}" class="${eBaru(r) ? "bg-pink-100 hover:bg-pink-100" : "bg-white even:bg-sand hover:bg-pink-50"}">${columns
                       .map((c, i) => `<td class="border-b border-hairline bg-inherit px-4 py-2.5 align-middle ${i === 0 ? STICKY_L : c.wrap ? "min-w-[180px] max-w-[280px]" : "whitespace-nowrap"}">${i === 0 && eBaru(r) ? lencanaBaru : ""}${c.render(r)}</td>`)
-                      .join("")}<td class="border-b border-hairline bg-inherit px-3 py-2 align-middle ${STICKY_R}"><div class="flex justify-end gap-1 whitespace-nowrap">${actionsHtml(r)}</div></td></tr>`
+                      .join("")}<td class="border-b border-hairline bg-inherit px-3 py-2 align-middle ${STICKY_R}"><div class="flex justify-start gap-1 whitespace-nowrap">${actionsHtml(r)}</div></td></tr>`
                 )
                 .join("")}
             </tbody>
@@ -1190,10 +1222,11 @@
       }
       const btn = e.target.closest("button");
       if (!btn) return;
-      const idx = btn.dataset.edit ?? btn.dataset.bukti ?? btn.dataset.row;
+      const idx = btn.dataset.edit ?? btn.dataset.bukti ?? btn.dataset.lintas ?? btn.dataset.row;
       const row = page.rows.find((r) => String(r.rowIndex) === String(idx));
       if (!row) return;
       if (btn.dataset.bukti !== undefined) unduhBukti(row, btn);
+      else if (btn.dataset.lintas !== undefined) openInfo({ title: row.namaLengkap || row.noPendaftaran, subtitle: `${row.noPendaftaran || ""} · Status divisi lain`, html: config.divisiLain(row) });
       else if (btn.dataset.edit !== undefined) edit(row);
       else {
         const aksi = config.actions[Number(btn.dataset.action)];
@@ -1491,5 +1524,5 @@
     return page;
   }
 
-  Object.assign(root.AdminUI, { badge, toast, renderShell, setActiveNav, statCards, openDialog, downloadFile, modulePage, watchNew, newBanner, stopAllWatchers, daftarPengamat, sinkronDiterima });
+  Object.assign(root.AdminUI, { badge, toast, renderShell, setActiveNav, statCards, openDialog, openInfo, downloadFile, modulePage, watchNew, newBanner, stopAllWatchers, daftarPengamat, sinkronDiterima });
 })(typeof window !== "undefined" ? window : globalThis);

@@ -39,43 +39,36 @@
   }
   const OPSI_LENGKAP = ["Siap diterima", "Belum lengkap", "Sudah diterima", "Ditolak / mundur"];
   const saringLengkap = (sendiri) => ({ id: "lengkap", label: "Kelengkapan (semua divisi)", get: (r) => kelengkapan(r, sendiri).kode, options: OPSI_LENGKAP });
-  function kolomDivisiLain(sendiri) {
+  // Isi pop-up "Cek divisi lain": ringkas, hanya dibaca
+  function isiDivisiLain(r, sendiri) {
     const esc = Sheetson.escapeHtml;
     const ada = (v) => v && v !== "-";
-    const baris = (judul, isi) => `<div class="flex items-center gap-1.5 py-0.5"><span class="w-[4.2rem] shrink-0 text-[12.5px] text-ink-500">${judul}</span>${isi}</div>`;
+    const l = r._lintas || {};
+    const kl = kelengkapan(r, sendiri);
+    const baris = (judul, isi) => `<div class="flex items-center justify-between gap-3 py-2.5"><span class="text-[14px] text-ink-600">${judul}</span><span class="text-right">${isi}</span></div>`;
+    const tak = `<span class="text-ink-500">-</span>`;
+    const v = l[SHEET_DIVISI.verifikasi];
+    const u = l[SHEET_DIVISI.keuangan];
+    const f = l[SHEET_DIVISI.fisik];
+    const rows = [];
+    if (sendiri !== "verifikasi")
+      rows.push(baris("Berkas", v ? AdminUI.badge(AdminUI.isi(v.statusBerkas, "Belum Unggah")) : tak), baris("Pendaftaran", v ? AdminUI.badge(AdminUI.isi(v.statusPendaftaran, "Pending")) : tak));
+    if (sendiri !== "keuangan")
+      rows.push(baris("Pembayaran", u ? AdminUI.badge(AdminUI.isi(u.statusBiayaDaftar, "Belum Bayar")) : tak));
+    if (sendiri !== "fisik")
+      rows.push(baris("Tes fisik", f ? AdminUI.badge(AdminUI.isi(f.statusTesFisik, "Belum Tes")) : tak));
+    const kurang = kl.kurang.length ? `<p class="mt-1 text-[13px] text-ink-500">Yang masih kurang: ${esc(kl.kurang.join(", "))}.</p>` : "";
+    const siap = sendiri === "keuangan" ? `<div class="mt-2 text-[13.5px]">${AdminUI.badge(kesiapan(r))}</div>` : "";
+    return `<div class="rounded-md bg-sand px-3.5 py-3"><div class="font-semibold">${AdminUI.badge(kl.kode)}</div>${kurang}${siap}</div>
+      <div class="mt-2 divide-y divide-hairline">${rows.join("")}</div>`;
+  }
+  // Catatan sistem pengunduran diri dipisah dari catatan untuk siswa
+  function pisahCatatan(c) {
+    const baris = String(c && c !== "-" ? c : "").split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
+    const awal = /^Pengunduran diri oleh siswa/;
     return {
-      label: "Status divisi lain",
-      wrap: true,
-      render: (r) => {
-        const l = r._lintas || {};
-        const v = l[SHEET_DIVISI.verifikasi];
-        const u = l[SHEET_DIVISI.keuangan];
-        const f = l[SHEET_DIVISI.fisik];
-        const out = [];
-        const kl = kelengkapan(r, sendiri);
-        out.push(`<div class="pb-1 font-semibold">${AdminUI.badge(kl.kode)}${kl.kurang.length ? ` <span class="text-[12.5px] font-normal text-ink-500">kurang: ${kl.kurang.join(", ")}</span>` : ""}</div>`);
-        if (sendiri === "keuangan") {
-          const k = kesiapan(r);
-          out.push(`<div class="pb-1">${AdminUI.badge(k)}</div>`);
-        }
-        if (sendiri !== "verifikasi")
-          out.push(baris("Berkas", v ? AdminUI.badge(AdminUI.isi(v.statusBerkas, "Belum Unggah")) + " " + AdminUI.badge(AdminUI.isi(v.statusPendaftaran, "Pending")) : `<span class="text-ink-500">-</span>`));
-        if (sendiri !== "keuangan")
-          out.push(
-            baris(
-              "Bayar",
-              u ? AdminUI.badge(AdminUI.isi(u.statusBiayaDaftar, "Belum Bayar")) + (ada(u.statusVoucher) && u.statusVoucher !== "Tidak Ada" ? ` <span class="text-[12.5px] text-ink-500">Voucher ${esc(u.statusVoucher)}</span>` : "") : `<span class="text-ink-500">-</span>`
-            )
-          );
-        if (sendiri !== "fisik")
-          out.push(
-            baris(
-              "Tes fisik",
-              f ? AdminUI.badge(AdminUI.isi(f.statusTesFisik, "Belum Tes")) + (ada(f.ukuranSeragam) ? ` <span class="text-[12.5px] text-ink-500">Seragam ${esc(f.ukuranSeragam)}</span>` : "") : `<span class="text-ink-500">-</span>`
-            )
-          );
-        return out.join("");
-      },
+      catatan: baris.filter((x) => !awal.test(x)).join("\n"),
+      mundur: baris.filter((x) => awal.test(x)).map((x) => x.replace(awal, "").trim()).join("\n"),
     };
   }
   const MODULES = {
@@ -347,16 +340,18 @@
         AdminUI.modulePage({
           sheet: "Verifikasi_Berkas",
           lintas: lintasUntuk("verifikasi"),
+          divisiLain: (r) => isiDivisiLain(r, "verifikasi"),
           stats: (rows) => [
             { label: "total", value: rows.length, filter: "" },
             { label: "pending", value: hitung(rows, "statusPendaftaran", "Pending", "Pending"), tone: "wait", filter: "Pending" },
             { label: "diverifikasi", value: hitung(rows, "statusPendaftaran", "Diverifikasi", "Pending"), tone: "info", filter: "Diverifikasi" },
             { label: "diterima", value: hitung(rows, "statusPendaftaran", "Diterima", "Pending"), tone: "ok", filter: "Diterima" },
             { label: "ditolak", value: hitung(rows, "statusPendaftaran", "Ditolak", "Pending"), tone: "bad", filter: "Ditolak" },
+            { label: "mundur", value: hitung(rows, "statusPendaftaran", "Mengundurkan Diri", "Pending"), tone: "info", filter: "Mengundurkan Diri" },
           ],
           title: "Verifikasi Berkas",
           intro: "Periksa berkas, ubah status, dan hubungi orang tua bila ada yang kurang.",
-          filter: { field: "statusPendaftaran", label: "Status pendaftaran", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak", "Mengundurkan Diri"] },
+          filter: { field: "statusPendaftaran", label: "Status pendaftaran", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak", "Mengundurkan Diri"], labels: { "Mengundurkan Diri": "Mundur" } },
           saring: [
             saringLengkap("verifikasi"),
             { id: "berkas", label: "Status berkas", get: (r) => AdminUI.isi(r.statusBerkas, "Belum diisi"), options: ["Belum Unggah", "Sudah Unggah", "Gagal Unggah", "Berkas Terverifikasi", "Berkas Ditolak"] },
@@ -368,9 +363,17 @@
             { label: "Jurusan", sortKey: "jurusan1", render: (r) => esc(r.jurusan1 || "-") + (r.jurusan2 && r.jurusan2 !== "-" ? `<br><span class="text-[13px] text-ink-500">Cadangan: ${esc(r.jurusan2)}</span>` : "") },
             { label: "Status verifikasi", sortKey: "statusPendaftaran", render: (r) => AdminUI.badge(r.statusPendaftaran || "Pending") },
             { label: "Berkas", wrap: true, render: links },
-            { label: "Catatan", wrap: true, render: (r) => esc(r.catatanAdmin && r.catatanAdmin !== "-" ? r.catatanAdmin : "") + (r.tglFollowUpWa && r.tglFollowUpWa !== "-" ? `<br><span class="text-[13px] text-ink-500">WA ortu: ${esc(r.tglFollowUpWa)}</span>` : "") },
+            {
+              label: "Catatan",
+              wrap: true,
+              render: (r) => {
+                const c = pisahCatatan(r.catatanAdmin);
+                const wa = r.tglFollowUpWa && r.tglFollowUpWa !== "-" ? `<span class="block text-[13px] text-ink-500">WA ortu: ${esc(r.tglFollowUpWa)}</span>` : "";
+                const m = c.mundur ? `<span class="block text-[13px] text-ink-500">Mundur ${esc(c.mundur)}</span>` : "";
+                return (c.catatan ? `<span class="block">${esc(c.catatan)}</span>` : "") + m + wa || `<span class="text-ink-500">-</span>`;
+              },
+            },
             { label: "Status berkas", sortKey: "statusBerkas", render: (r) => AdminUI.badge(r.statusBerkas) },
-            kolomDivisiLain("verifikasi"),
           ],
           ekspor: [
             { label: "Jurusan cadangan", get: (r) => r.jurusan2 },
@@ -388,12 +391,12 @@
           actions: [
             {
               label: "Chat ortu",
-              show: (r) => !!toWa(r.waOrtu),
+              show: (r) => !!toWa(r.waOrtu) && r.statusPendaftaran !== "Mengundurkan Diri",
               run: async (r, page) => {
                 const pesan =
                   `Assalamualaikum / Selamat siang Bapak/Ibu orang tua dari *${r.namaLengkap}*.\n\n` +
                   `Kami dari Panitia SPMB SMK Tamansiswa Jetis terkait pendaftaran nomor *${r.noPendaftaran}*.\n` +
-                  (r.catatanAdmin && r.catatanAdmin !== "-" ? `Catatan: ${r.catatanAdmin}\n` : "") +
+                  (pisahCatatan(r.catatanAdmin).catatan ? `Catatan: ${pisahCatatan(r.catatanAdmin).catatan}\n` : "") +
                   `\nTerima kasih.`;
                 window.open(`https://wa.me/${toWa(r.waOrtu)}?text=${encodeURIComponent(pesan)}`, "_blank", "noopener");
                 try {
@@ -426,6 +429,7 @@
         AdminUI.modulePage({
           sheet: "Keuangan_Voucher",
           lintas: lintasUntuk("keuangan"),
+          divisiLain: (r) => isiDivisiLain(r, "keuangan"),
           stats: (rows) => [
             { label: "total", value: rows.length, filter: "" },
             { label: "lunas", value: hitung(rows, "statusBiayaDaftar", "Lunas", "Belum Bayar"), tone: "ok", filter: "Lunas" },
@@ -448,7 +452,6 @@
             { label: "Status bayar", sortKey: "statusBiayaDaftar", render: (r) => AdminUI.badge(r.statusBiayaDaftar || "Belum Bayar") },
             { label: "Metode", render: (r) => esc(r.metodePembayaran || "-") },
             { label: "Catatan", wrap: true, render: (r) => esc(r.catatanBendahara && r.catatanBendahara !== "-" ? r.catatanBendahara : "") },
-            kolomDivisiLain("keuangan"),
           ],
           ekspor: [
             { label: "Status bayar", get: (r) => AdminUI.isi(r.statusBiayaDaftar, "Belum Bayar") },
@@ -483,6 +486,7 @@
         AdminUI.modulePage({
           sheet: "Tes_Fisik_Seragam",
           lintas: lintasUntuk("fisik"),
+          divisiLain: (r) => isiDivisiLain(r, "fisik"),
           stats: (rows) => [
             { label: "total", value: rows.length, filter: "" },
             { label: "belum tes", value: hitung(rows, "statusTesFisik", "Belum Tes", "Belum Tes"), tone: "wait", filter: "Belum Tes" },
@@ -505,7 +509,6 @@
             { label: "Status tes", sortKey: "statusTesFisik", render: (r) => AdminUI.badge(r.statusTesFisik || "Belum Tes") },
             { label: "Seragam", sortKey: "ukuranSeragam", render: (r) => `<b>${esc(r.ukuranSeragam || "-")}</b>` + (r.tglUkurSeragam && r.tglUkurSeragam !== "-" ? `<br><span class="text-[13px] text-ink-500">${esc(r.tglUkurSeragam)}</span>` : "") },
             { label: "Catatan", wrap: true, render: (r) => esc(r.catatanTesFisik && r.catatanTesFisik !== "-" ? r.catatanTesFisik : "") },
-            kolomDivisiLain("fisik"),
           ],
           ekspor: [
             { label: "Tinggi (cm)", get: (r) => r.tinggiBadan, angka: true },
