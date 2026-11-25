@@ -882,6 +882,11 @@ function handleRegistrationSuccess(data) {
   });
 
   successCard.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  // Mode Teras (loket): bukti pendaftaran langsung dicetak begitu pendaftaran berhasil
+  if (document.documentElement.classList.contains("kiosk") && window.BuktiPdf && window.BuktiPdf.cetak) {
+    setTimeout(() => window.BuktiPdf.cetak(data, new URL("../siswa/", window.location.href).href).catch((e) => console.warn("Cetak otomatis gagal:", e)), 900);
+  }
 }
 
 function setupCopyButton(noPendaftaranEl) {

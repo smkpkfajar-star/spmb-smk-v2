@@ -26,7 +26,7 @@
     { id: "verifikasi", href: "#verifikasi", title: "Verifikasi Berkas", desc: "Periksa berkas, ubah status pendaftaran, hubungi orang tua.", roles: ["verifikasi"] },
     { id: "keuangan", href: "#keuangan", title: "Keuangan & Voucher", desc: "Catat pembayaran, potongan, dan status voucher.", roles: ["keuangan"] },
     { id: "tes-fisik", href: "#tes-fisik", title: "Tes Fisik & Seragam", desc: "Isi tinggi/berat, hasil tes fisik, dan ukuran seragam.", roles: ["tes_fisik"] },
-    { id: "loket", href: "#loket", title: "Mode Teras (Loket)", desc: "Nyalakan atau matikan Mode Teras di komputer loket pendaftaran.", roles: ["jaga_loket"] },
+    { id: "loket", href: "#loket", title: "Loket Pendaftaran", desc: "Pantau pendaftar langsung, bantu cetak bukti, dan atur Mode Teras.", roles: ["jaga_loket"] },
     {
       id: "superadmin", href: "#superadmin", title: "Superadmin", desc: "Pengaturan situs, reset password, rekap, unduh data, riwayat aktivitas, akun petugas.", roles: [],
       sub: [

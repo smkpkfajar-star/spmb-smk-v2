@@ -388,7 +388,8 @@
   // Alamat halaman login siswa (situs di-hosting di akar domain)
   const alamatSiswa = () => new URL("/siswa/", root.location.href).href;
 
-  async function unduh(data, siswaUrl) {
+  // Buat berkas PDF (dengan kop bila ada). Mengembalikan { bytes, nama }.
+  async function buatBerkas(data, siswaUrl) {
     await muatJsPdf();
     const url = siswaUrl || alamatSiswa();
     const kiosk = !!(root.document && root.document.documentElement.classList.contains("kiosk"));
@@ -396,16 +397,51 @@
     if (kop) {
       try {
         const { doc, namaFile: nama } = buatDokumen(data, url, { kop: true, kiosk });
-        simpanBerkas(await tempelKop(doc.output("arraybuffer"), kop), nama);
-        return nama;
+        return { bytes: await tempelKop(doc.output("arraybuffer"), kop), nama };
       } catch (e) {
         if (root.console) console.warn("Gagal menempel kop, PDF dibuat tanpa kop:", e);
       }
     }
     const { doc, namaFile: nama } = buatDokumen(data, url, { kiosk });
-    doc.save(nama);
+    return { bytes: doc.output("arraybuffer"), nama };
+  }
+
+  async function unduh(data, siswaUrl) {
+    const { bytes, nama } = await buatBerkas(data, siswaUrl);
+    simpanBerkas(bytes, nama);
     return nama;
   }
 
-  root.BuktiPdf = { KOP_URL, NAMA_JURUSAN, buildPdfContent, gabungData, cariData, unduh, namaFile, tanggalTeks, waktuDaftarTeks };
+  // Cetak langsung: PDF dimuat di bingkai tersembunyi lalu dialog cetak dibuka.
+  // Bila peramban menolak mencetak dari bingkai, PDF dibuka di tab baru.
+  async function cetak(data, siswaUrl) {
+    const { bytes, nama } = await buatBerkas(data, siswaUrl);
+    const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+    const bingkai = document.createElement("iframe");
+    bingkai.setAttribute("aria-hidden", "true");
+    bingkai.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0";
+    let selesai = false;
+    const bersihkan = () => {
+      setTimeout(() => {
+        bingkai.remove();
+        URL.revokeObjectURL(url);
+      }, 60000);
+    };
+    bingkai.onload = () => {
+      if (selesai) return;
+      selesai = true;
+      try {
+        bingkai.contentWindow.focus();
+        bingkai.contentWindow.print();
+      } catch (_) {
+        root.open(url, "_blank");
+      }
+      bersihkan();
+    };
+    bingkai.src = url;
+    document.body.appendChild(bingkai);
+    return nama;
+  }
+
+  root.BuktiPdf = { KOP_URL, NAMA_JURUSAN, buildPdfContent, gabungData, cariData, unduh, cetak, namaFile, tanggalTeks, waktuDaftarTeks };
 })(typeof window !== "undefined" ? window : globalThis);

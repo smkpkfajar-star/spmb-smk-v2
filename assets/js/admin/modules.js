@@ -486,38 +486,65 @@
       },
     },
     "loket": {
-      title: "Mode Teras (Loket)",
+      title: "Loket Pendaftaran",
       roles: ["jaga_loket"],
       async mount(app) {
+        const esc = Sheetson.escapeHtml;
+        const hitung = (rows, field, value, fallback) => rows.filter((r) => (r[field] && r[field] !== "-" ? r[field] : fallback) === value).length;
+        // Data yang tampil sengaja hanya yang bersifat umum (tanpa NISN, alamat, nomor HP, catatan).
+        AdminUI.modulePage({
+          sheet: "Verifikasi_Berkas",
+          bacaSaja: true,
+          title: "Loket Pendaftaran",
+          intro: "Pantau pendaftar yang masuk secara langsung dan bantu mencetak bukti pendaftaran bila ada kendala.",
+          stats: (rows) => [
+            { label: "total pendaftar", value: rows.length, filter: "" },
+            { label: "pending", value: hitung(rows, "statusPendaftaran", "Pending", "Pending"), tone: "wait", filter: "Pending" },
+            { label: "diterima", value: hitung(rows, "statusPendaftaran", "Diterima", "Pending"), tone: "ok", filter: "Diterima" },
+            { label: "berkas belum unggah", value: rows.filter((r) => !r.statusBerkas || /^(belum|-)/i.test(r.statusBerkas)).length, tone: "info" },
+          ],
+          filter: { field: "statusPendaftaran", label: "Status pendaftaran", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak", "Mengundurkan Diri"], labels: { "Mengundurkan Diri": "Mundur" } },
+          saring: [],
+          columns: [
+            { label: "Siswa", sortKey: "namaLengkap", render: (r) => `<b>${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.5px] text-ink-500">${esc(r.noPendaftaran || "")}</span>` },
+            { label: "Jurusan", sortKey: "jurusan1", render: (r) => esc(r.jurusan1 || "-") },
+            { label: "Status", sortKey: "statusPendaftaran", render: (r) => AdminUI.badge(r.statusPendaftaran || "Pending") },
+            { label: "Berkas", sortKey: "statusBerkas", render: (r) => AdminUI.badge(r.statusBerkas) },
+          ],
+          ekspor: [],
+          editTitle: (r) => r.namaLengkap || r.noPendaftaran,
+          fields: [],
+        });
+
         // Mode Teras hanya dinyalakan dari sini (perlu login petugas loket); pilihannya diingat di komputer ini
         const KUNCI = "spmb-kiosk";
         const aktif = () => { try { return root.localStorage.getItem(KUNCI) === "1"; } catch (_) { return false; } };
         const simpan = (nyala) => { try { nyala ? root.localStorage.setItem(KUNCI, "1") : root.localStorage.removeItem(KUNCI); } catch (_) {} };
+        app.insertAdjacentHTML("afterbegin", '<div id="loketMode" class="mb-6"></div>');
         const gambar = () => {
           const on = aktif();
-          app.innerHTML = `
-            <h1 class="text-[26px] font-semibold tracking-tight">Mode Teras (Loket)</h1>
-            <p class="mt-1 text-[15px] text-ink-600">Untuk komputer pendaftaran di loket sekolah. Layar jadi besar dan kontras tinggi, form dikosongkan otomatis setelah selesai atau ditinggal.</p>
-            <div class="mt-6 max-w-lg rounded-lg border border-hairline bg-white p-5">
-              <p class="text-[14px] text-ink-500">Status di komputer ini</p>
-              <p class="mt-1 text-[18px] font-semibold">${on ? "Mode Teras menyala" : "Mode Teras mati"}</p>
-              <div class="mt-4 flex flex-wrap gap-2">
-                ${on
-                  ? `<a href="../daftar/" class="rounded-full bg-brand-600 px-5 py-2.5 text-[15px] font-bold text-white hover:bg-brand-700">Ke layar pendaftaran</a>
-                     <button type="button" data-loket="mati" class="rounded-full px-5 py-2.5 text-[15px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Matikan Mode Teras</button>`
-                  : `<button type="button" data-loket="nyala" class="rounded-full bg-brand-600 px-5 py-2.5 text-[15px] font-bold text-white hover:bg-brand-700">Buka Mode Teras</button>`}
+          document.getElementById("loketMode").innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-hairline bg-white px-4 py-3">
+              <div>
+                <p class="text-[13px] text-ink-500">Mode Teras di komputer ini</p>
+                <p class="text-[16px] font-semibold">${on ? "Menyala" : "Mati"}</p>
               </div>
-              <p class="mt-4 text-[13.5px] text-ink-500">Bukti pendaftaran yang dicetak dari komputer ini mencantumkan kolom tanda tangan <b>Pengawas Loket</b>.</p>
+              <div class="flex flex-wrap gap-2">
+                ${on
+                  ? `<a href="../daftar/" class="rounded-full bg-brand-600 px-4 py-2 text-[14.5px] font-bold text-white hover:bg-brand-700">Ke layar pendaftaran</a>
+                     <button type="button" data-loket="mati" class="rounded-full px-4 py-2 text-[14.5px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Matikan</button>`
+                  : `<button type="button" data-loket="nyala" class="rounded-full bg-brand-600 px-4 py-2 text-[14.5px] font-bold text-white hover:bg-brand-700">Buka Mode Teras</button>`}
+              </div>
             </div>`;
         };
-        app.onclick = (e) => {
+        document.getElementById("loketMode").addEventListener("click", (e) => {
           const b = e.target.closest("[data-loket]");
           if (!b) return;
           const nyala = b.dataset.loket === "nyala";
           simpan(nyala);
           if (nyala) root.location.href = "../daftar/";
           else gambar();
-        };
+        });
         gambar();
       },
     },

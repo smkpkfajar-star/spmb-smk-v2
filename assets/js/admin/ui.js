@@ -1111,7 +1111,9 @@
         return;
       }
       const actionsHtml = (row) =>
-        `<button type="button" data-edit="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Ubah</button>` +
+        (config.bacaSaja
+          ? `<button type="button" data-cetak="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Cetak bukti</button>`
+          : `<button type="button" data-edit="${esc(row.rowIndex)}" class="rounded-md px-3 py-1.5 text-[14px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Ubah</button>`) +
         `<button type="button" data-menu="${esc(row.rowIndex)}" aria-haspopup="menu" aria-expanded="false" aria-label="Aksi lainnya untuk ${esc(row.namaLengkap || row.noPendaftaran || "siswa")}" title="Aksi lainnya" class="inline-flex h-[34px] w-[34px] items-center justify-center rounded-md text-ink-600 hover:bg-sand hover:text-ink-900"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>`;
       // Kolom pertama (nama) & kolom aksi dibekukan; judul kolom menempel di atas.
       const STICKY_L = "sticky left-0 z-[1] shadow-[1px_0_0_rgb(var(--hairline))]";
@@ -1225,10 +1227,11 @@
     });
 
     function jalankan(btn) {
-      const idx = btn.dataset.edit ?? btn.dataset.bukti ?? btn.dataset.lintas ?? btn.dataset.row;
+      const idx = btn.dataset.edit ?? btn.dataset.cetak ?? btn.dataset.bukti ?? btn.dataset.lintas ?? btn.dataset.row;
       const row = page.rows.find((r) => String(r.rowIndex) === String(idx));
       if (!row) return;
-      if (btn.dataset.bukti !== undefined) unduhBukti(row, btn);
+      if (btn.dataset.cetak !== undefined) unduhBukti(row, btn, true);
+      else if (btn.dataset.bukti !== undefined) unduhBukti(row, btn);
       else if (btn.dataset.lintas !== undefined) openInfo({ title: row.namaLengkap || row.noPendaftaran, subtitle: `${row.noPendaftaran || ""} · Status divisi lain`, html: config.divisiLain(row) });
       else if (btn.dataset.edit !== undefined) edit(row);
       else {
@@ -1343,7 +1346,7 @@
       root.AdminAuth && root.AdminAuth.catat({ aksi, modul: config.title, sasaran: row ? sasaranBaris(row) : null, detail });
 
     // Bukti pendaftaran (PDF F4) dibuat ulang dari data terbaru di sheet
-    async function unduhBukti(row, btn) {
+    async function unduhBukti(row, btn, cetak) {
       if (!root.BuktiPdf) return toast("Fitur bukti PDF belum termuat. Muat ulang halaman.");
       btn.disabled = true;
       try {
@@ -1352,9 +1355,10 @@
         const kunci = nisn ? { nisn } : { noPendaftaran: row.noPendaftaran };
         const data = await root.BuktiPdf.cariData(kunci);
         if (!data) throw new Error("Data pendaftar tidak ditemukan di sheet");
-        await root.BuktiPdf.unduh(data);
-        toast(`Bukti pendaftaran diunduh: ${data.namaLengkap || data.noPendaftaran}`);
-        catatModul("Unduh bukti PDF", row);
+        if (cetak) await root.BuktiPdf.cetak(data);
+        else await root.BuktiPdf.unduh(data);
+        toast(`Bukti pendaftaran ${cetak ? "dikirim ke printer" : "diunduh"}: ${data.namaLengkap || data.noPendaftaran}`);
+        catatModul(cetak ? "Cetak bukti PDF" : "Unduh bukti PDF", row);
       } catch (err) {
         toast(err.message || "Gagal membuat PDF");
       }
@@ -1570,6 +1574,7 @@
     });
     // Ekspor: data persis seperti yang tampil (cari + tab + filter + tanggal, urutan sama), semua halaman
     const $ebtn = app.querySelector("#eksporBtn");
+    if (config.bacaSaja && $ebtn) $ebtn.parentElement.classList.add("hidden"); // loket: tanpa ekspor data
     const $emenu = app.querySelector("#eksporMenu");
     const bukaEkspor = (buka) => {
       $emenu.classList.toggle("hidden", !buka);
