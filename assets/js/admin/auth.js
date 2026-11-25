@@ -243,12 +243,13 @@
       return new Promise(() => {});
     }
     // Halaman dibuka lagi setelah ditinggal lebih dari 20 menit
-    if (sesiHabis(bacaAktif(), Date.now())) {
+    if (profile.role !== "jaga_loket" && sesiHabis(bacaAktif(), Date.now())) {
       await logout("habis");
       return new Promise(() => {});
     }
     catatAktif();
-    pantauDiam();
+    // Komputer loket menyala seharian: Petugas Loket tidak dikeluarkan otomatis saat diam
+    if (profile.role !== "jaga_loket") pantauDiam();
     if (!canOpen(profile.role, allowed)) {
       root.location.replace("dashboard.html#dashboard");
       return new Promise(() => {});
