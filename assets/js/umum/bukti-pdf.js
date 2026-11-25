@@ -49,7 +49,7 @@
   };
 
   // Isi bukti pendaftaran (tanpa jsPDF, agar bisa dites)
-  function buildPdfContent(data, siswaUrl) {
+  function buildPdfContent(data, siswaUrl, opsi) {
     const v = (x) => (x === undefined || x === null || String(x).trim() === "" ? "-" : String(x));
     const jurusan = (k) => (k && k !== "-" ? NAMA_JURUSAN[k] || k : "-");
     return {
@@ -103,6 +103,8 @@
         { peran: "Calon Siswa", nama: isiNama(data.namaLengkap) },
         { peran: "Orang Tua/Wali", nama: isiNama(data.namaOrtu) },
         { peran: "Panitia SPMB", nama: "" },
+        // Mode Teras (loket sekolah): pengawas yang menjaga loket; daftar lewat HP: Ketua SPMB
+        opsi && opsi.kiosk ? { peran: "Pengawas Loket", nama: "" } : { peran: "Ketua SPMB", nama: "" },
       ],
     };
   }
@@ -115,7 +117,7 @@
   function buatDokumen(data, siswaUrl, opsi) {
     const pakaiKop = !!(opsi && opsi.kop);
     const { jsPDF } = root.jspdf;
-    const c = buildPdfContent(data, siswaUrl);
+    const c = buildPdfContent(data, siswaUrl, { kiosk: !!(opsi && opsi.kiosk) });
     const doc = new jsPDF({ unit: "mm", format: c.kertas }); // F4: 215 x 330 mm
     const PAGE_W = c.kertas[0];
     const PAGE_H = c.kertas[1];
@@ -389,17 +391,18 @@
   async function unduh(data, siswaUrl) {
     await muatJsPdf();
     const url = siswaUrl || alamatSiswa();
+    const kiosk = !!(root.document && root.document.documentElement.classList.contains("kiosk"));
     const kop = await ambilKop();
     if (kop) {
       try {
-        const { doc, namaFile: nama } = buatDokumen(data, url, { kop: true });
+        const { doc, namaFile: nama } = buatDokumen(data, url, { kop: true, kiosk });
         simpanBerkas(await tempelKop(doc.output("arraybuffer"), kop), nama);
         return nama;
       } catch (e) {
         if (root.console) console.warn("Gagal menempel kop, PDF dibuat tanpa kop:", e);
       }
     }
-    const { doc, namaFile: nama } = buatDokumen(data, url);
+    const { doc, namaFile: nama } = buatDokumen(data, url, { kiosk });
     doc.save(nama);
     return nama;
   }

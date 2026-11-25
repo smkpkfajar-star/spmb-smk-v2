@@ -69,11 +69,16 @@ test("ada pernyataan persetujuan siswa & orang tua", () => {
   assert.ok(c.pernyataan.butir.some((b) => /benar/i.test(b)));
 });
 
-test("kolom tanda tangan: calon siswa, orang tua/wali, panitia — dengan nama", () => {
+test("kolom tanda tangan: calon siswa, orang tua/wali, panitia, Ketua SPMB (daftar lewat HP)", () => {
   const t = buildPdfContent(data, "x").ttd;
-  assert.equal(t.map((x) => x.peran).join("|"), "Calon Siswa|Orang Tua/Wali|Panitia SPMB");
+  assert.equal(t.map((x) => x.peran).join("|"), "Calon Siswa|Orang Tua/Wali|Panitia SPMB|Ketua SPMB");
   assert.equal(t[0].nama, "Siti Aminah");
   assert.equal(t[1].nama, "Ibu Siti");
+});
+
+test("mode kios loket: kolom keempat = Pengawas Loket", () => {
+  const t = buildPdfContent(data, "x", { kiosk: true }).ttd;
+  assert.equal(t.map((x) => x.peran).join("|"), "Calon Siswa|Orang Tua/Wali|Panitia SPMB|Pengawas Loket");
 });
 
 test("nama orang tua kosong → garis isian, bukan '-'", () => {
