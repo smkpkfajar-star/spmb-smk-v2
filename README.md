@@ -22,7 +22,7 @@ assets/js/
     sheetson.js         ← baca/tulis Google Sheets
   beranda/            main.js (menu & navigasi), jurusan.js (penjelajah jurusan & animasi hero)
   daftar/             daftar.js (formulir, nomor, unggah, PDF bukti),
-                      form-steps.js (langkah formulir), kiosk.js ("Mode Teras" untuk komputer pendaftaran di sekolah)
+                      form-steps.js (langkah formulir), kiosk.js ("Mode Teras" untuk komputer pendaftaran di sekolah; dinyalakan petugas loket lewat admin)
   siswa/              siswa.js (halaman akun siswa)
   admin/              auth.js (login petugas), ui.js (tabel, filter, halaman),
                       modules.js (isi tiap modul: verifikasi, keuangan, tes fisik, superadmin)

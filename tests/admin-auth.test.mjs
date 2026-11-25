@@ -11,10 +11,11 @@ const { modulesFor, isStaffRole, usernameToEmail, canOpen } = ctx.window.AdminAu
 const ids = (role) => [...modulesFor(role).map((m) => m.id)];
 
 test("modul per peran", () => {
-  assert.deepEqual(ids("superadmin"), ["verifikasi", "keuangan", "tes-fisik", "superadmin"]);
+  assert.deepEqual(ids("superadmin"), ["verifikasi", "keuangan", "tes-fisik", "loket", "superadmin"]);
   assert.deepEqual(ids("verifikasi"), ["verifikasi"]);
   assert.deepEqual(ids("keuangan"), ["keuangan"]);
   assert.deepEqual(ids("tes_fisik"), ["tes-fisik"]);
+  assert.deepEqual(ids("jaga_loket"), ["loket"]);
   assert.deepEqual(ids("pendaftar"), []);
 });
 
@@ -61,7 +62,7 @@ test("routeFromHash: modul dikenal, selain itu dashboard", () => {
 
 test("link menu memakai #modul (satu halaman)", () => {
   const { MODULES } = ctx.window.AdminAuth;
-  assert.deepEqual([...MODULES.map((m) => m.href)], ["#verifikasi", "#keuangan", "#tes-fisik", "#superadmin"]);
+  assert.deepEqual([...MODULES.map((m) => m.href)], ["#verifikasi", "#keuangan", "#tes-fisik", "#loket", "#superadmin"]);
 });
 
 test("sesi diam: keluar setelah 20 menit tanpa aktivitas", () => {

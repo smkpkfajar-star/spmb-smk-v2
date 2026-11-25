@@ -30,10 +30,7 @@
     }
   };
   const mq = root.matchMedia ? root.matchMedia("(prefers-color-scheme: dark)") : null;
-  const kiosk = () => {
-    const p = new URLSearchParams(root.location.search).get("kiosk");
-    return p === "1" || (p !== "0" && baca("spmb-kiosk") === "1");
-  };
+  const kiosk = () => baca("spmb-kiosk") === "1"; // dinyalakan dari admin (petugas loket)
 
   function terapkan(tema) {
     const gelap = tema === "gelap";

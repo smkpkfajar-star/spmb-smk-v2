@@ -485,6 +485,42 @@
 
       },
     },
+    "loket": {
+      title: "Mode Teras (Loket)",
+      roles: ["jaga_loket"],
+      async mount(app) {
+        // Mode Teras hanya dinyalakan dari sini (perlu login petugas loket); pilihannya diingat di komputer ini
+        const KUNCI = "spmb-kiosk";
+        const aktif = () => { try { return root.localStorage.getItem(KUNCI) === "1"; } catch (_) { return false; } };
+        const simpan = (nyala) => { try { nyala ? root.localStorage.setItem(KUNCI, "1") : root.localStorage.removeItem(KUNCI); } catch (_) {} };
+        const gambar = () => {
+          const on = aktif();
+          app.innerHTML = `
+            <h1 class="text-[26px] font-semibold tracking-tight">Mode Teras (Loket)</h1>
+            <p class="mt-1 text-[15px] text-ink-600">Untuk komputer pendaftaran di loket sekolah. Layar jadi besar dan kontras tinggi, form dikosongkan otomatis setelah selesai atau ditinggal.</p>
+            <div class="mt-6 max-w-lg rounded-lg border border-hairline bg-white p-5">
+              <p class="text-[14px] text-ink-500">Status di komputer ini</p>
+              <p class="mt-1 text-[18px] font-semibold">${on ? "Mode Teras menyala" : "Mode Teras mati"}</p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                ${on
+                  ? `<a href="../daftar/" class="rounded-full bg-brand-600 px-5 py-2.5 text-[15px] font-bold text-white hover:bg-brand-700">Ke layar pendaftaran</a>
+                     <button type="button" data-loket="mati" class="rounded-full px-5 py-2.5 text-[15px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Matikan Mode Teras</button>`
+                  : `<button type="button" data-loket="nyala" class="rounded-full bg-brand-600 px-5 py-2.5 text-[15px] font-bold text-white hover:bg-brand-700">Buka Mode Teras</button>`}
+              </div>
+              <p class="mt-4 text-[13.5px] text-ink-500">Bukti pendaftaran yang dicetak dari komputer ini mencantumkan kolom tanda tangan <b>Pengawas Loket</b>.</p>
+            </div>`;
+        };
+        app.onclick = (e) => {
+          const b = e.target.closest("[data-loket]");
+          if (!b) return;
+          const nyala = b.dataset.loket === "nyala";
+          simpan(nyala);
+          if (nyala) root.location.href = "../daftar/";
+          else gambar();
+        };
+        gambar();
+      },
+    },
     "tes-fisik": {
       title: 'Tes Fisik & Seragam',
       roles: ["tes_fisik"],
@@ -631,7 +667,7 @@
         const esc = Sheetson.escapeHtml;
         const db = AdminAuth.getClient();
         const SHEETS = ["Data_Pendaftar", "Verifikasi_Berkas", "Keuangan_Voucher", "Tes_Fisik_Seragam"];
-        const STAFF_ROLES = ["verifikasi", "keuangan", "tes_fisik", "superadmin"];
+        const STAFF_ROLES = ["verifikasi", "keuangan", "tes_fisik", "jaga_loket", "superadmin"];
         const today = new Date().toISOString().slice(0, 10);
 
         /* ---------- rekap ---------- */
@@ -1132,7 +1168,7 @@
               { name: "nama", label: "Nama petugas", type: "text" },
               { name: "username", label: "Username (huruf kecil, tanpa spasi)", type: "text", help: "Contoh: bendahara1" },
               { name: "password", label: "Password (min. 8 karakter)", type: "text" },
-              { name: "role", label: "Tugas", type: "select", options: ["verifikasi", "keuangan", "tes_fisik", "superadmin"] },
+              { name: "role", label: "Tugas", type: "select", options: ["verifikasi", "keuangan", "tes_fisik", "jaga_loket", "superadmin"] },
             ],
             values: { role: "verifikasi" },
             onSave: async (v) => {

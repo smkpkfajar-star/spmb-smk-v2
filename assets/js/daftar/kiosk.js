@@ -1,7 +1,7 @@
 /* ============================================================
    kiosk.js — "Mode Teras" untuk komputer pendaftaran di sekolah.
-   Nyalakan sekali dengan  daftar/?kiosk=1  (diingat di komputer itu),
-   matikan dengan  daftar/?kiosk=0 .
+   Dinyalakan/dimatikan petugas loket lewat admin (modul "Mode Teras", perlu login),
+   lalu diingat di komputer itu. Parameter ?kiosk= di alamat tidak lagi berpengaruh.
    - Kontras sangat tinggi (lihat .kiosk di style.css)
    - Setelah sukses: hitung mundur lalu form kosong lagi
    - Form setengah terisi & ditinggal: tanya "Masih mengisi?", lalu dikosongkan
@@ -15,9 +15,6 @@
   // Fungsi murni: tentukan mode dari URL + nilai tersimpan.
   // store: "1" = simpan, null = hapus, undefined = biarkan.
   function resolveMode(search, stored) {
-    const param = new URLSearchParams(search).get("kiosk");
-    if (param === "1") return { on: true, store: "1" };
-    if (param === "0") return { on: false, store: null };
     return { on: stored === "1", store: undefined };
   }
 
