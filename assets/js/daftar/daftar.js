@@ -911,8 +911,8 @@ function sameNisn(a, b) {
 
 // Sheetson mengirim "cache-control: max-age=14400" (4 jam) dan jawabannya
 // di-cache Cloudflare. Tanpa penanda waktu, Cek Status & cek NISN membaca data basi.
-async function sheetsonGet(config, query) {
-  const res = await fetch(`https://api.sheetson.com/v2/sheets/Verifikasi_Berkas?${query}&_=${Date.now()}`, {
+async function sheetsonGet(config, query, sheet = "Verifikasi_Berkas") {
+  const res = await fetch(`https://api.sheetson.com/v2/sheets/${sheet}?${query}&_=${Date.now()}`, {
     cache: "no-store",
     headers: {
       Authorization: `Bearer ${config.apiKey}`,
@@ -923,17 +923,17 @@ async function sheetsonGet(config, query) {
   return res.json();
 }
 
-async function fetchRecordByNisn(config, nisn) {
+async function fetchRecordByNisn(config, nisn, sheet = "Verifikasi_Berkas") {
   const variants = [nisn];
   if (/^\d+$/.test(nisn)) variants.push(Number(nisn));
   for (const value of variants) {
-    const json = await sheetsonGet(config, `where=${encodeURIComponent(JSON.stringify({ nisn: value }))}`);
+    const json = await sheetsonGet(config, `where=${encodeURIComponent(JSON.stringify({ nisn: value }))}`, sheet);
     const rows = (json.results || []).filter((row) => sameNisn(row.nisn, nisn));
     if (rows.length) return rows;
   }
 
   for (let skip = 0; ; skip += SHEETSON_PAGE_SIZE) {
-    const json = await sheetsonGet(config, `limit=${SHEETSON_PAGE_SIZE}&skip=${skip}`);
+    const json = await sheetsonGet(config, `limit=${SHEETSON_PAGE_SIZE}&skip=${skip}`, sheet);
     const page = json.results || [];
     const rows = page.filter((row) => sameNisn(row.nisn, nisn));
     if (rows.length) return rows;
@@ -1107,7 +1107,13 @@ function initStatusChecker(config) {
         return;
       }
 
-      renderStatusResult(records[0], statusResult);
+      // "Status siswa" (resmi/belum) ada di Data_Pendaftar; gagal baca tidak menghalangi hasil
+      let statusSiswa = "";
+      try {
+        const diri = await fetchRecordByNisn(config, nisnVal, "Data_Pendaftar");
+        statusSiswa = diri && diri[0] ? diri[0].statusSiswa : "";
+      } catch (_) {}
+      renderStatusResult({ ...records[0], statusSiswa }, statusResult);
     } catch (err) {
       console.error("Gagal Cek Status:", err);
       if (cekStatusError) {
@@ -1153,7 +1159,7 @@ function statusLabel(status) {
 }
 
 // Tahapan seleksi: done | active | todo | bad | skip
-function statusStages(status) {
+function statusStages(status, resmi) {
   const s = String(status || "").trim();
   if (s === "Mengundurkan Diri") {
     return [
@@ -1174,8 +1180,8 @@ function statusStages(status) {
     },
     {
       label: "Daftar ulang",
-      desc: s === "Diterima" ? "Segera lakukan daftar ulang." : s === "Ditolak" ? "Tidak berlaku." : "Setelah pengumuman.",
-      state: s === "Diterima" ? "active" : s === "Ditolak" ? "skip" : "todo",
+      desc: resmi ? "Kamu sudah terdaftar sebagai siswa resmi." : s === "Diterima" ? "Segera lakukan daftar ulang." : s === "Ditolak" ? "Tidak berlaku." : "Setelah pengumuman.",
+      state: resmi ? "done" : s === "Diterima" ? "active" : s === "Ditolak" ? "skip" : "todo",
     },
   ];
 }
@@ -1185,9 +1191,10 @@ const TONE_DOT_COLOR = { ok: "#16A34A", bad: "#DC2626", wait: "#D97706", info: "
 function renderStatusResult(found, statusResultEl) {
   if (!statusResultEl) return;
   // Sebelum hasil diumumkan, Diterima/Ditolak tampil sebagai "Diverifikasi" (menunggu pengumuman)
+  const ss = window.Pengaturan ? window.Pengaturan.statusSiswaTampil(found.statusSiswa, found.statusPendaftaran) : { tampil: false, resmi: false };
   if (window.Pengaturan) found = { ...found, statusPendaftaran: window.Pengaturan.statusTampil(found.statusPendaftaran) };
   const label = statusLabel(found.statusPendaftaran);
-  const stages = statusStages(found.statusPendaftaran);
+  const stages = statusStages(found.statusPendaftaran, ss.resmi);
   const val = (v) => (v && v !== "-" ? v : "");
   const catatan = val(found.catatanAdmin) && !/^Berkas gagal diunggah otomatis/.test(found.catatanAdmin) ? found.catatanAdmin : "";
   const jurusan = val(found.jurusan1) ? ((window.BuktiPdf && window.BuktiPdf.NAMA_JURUSAN[found.jurusan1]) || found.jurusan1) : "-";
@@ -1219,7 +1226,7 @@ function renderStatusResult(found, statusResultEl) {
       </span>
     </div>
 
-    <dl class="grid border-b border-hairline sm:grid-cols-3">
+    <dl class="grid border-b border-hairline ${ss.tampil ? "sm:grid-cols-4" : "sm:grid-cols-3"}">
       <div class="border-b border-hairline p-5 sm:border-b-0 sm:border-r sm:p-6">
         <dt class="text-[13px] text-ink-500">Jurusan pilihan</dt>
         <dd class="mt-1 text-[15px] font-medium">${escapeText(jurusan)}</dd>
@@ -1228,6 +1235,14 @@ function renderStatusResult(found, statusResultEl) {
         <dt class="text-[13px] text-ink-500">Status berkas</dt>
         <dd class="mt-1 text-[15px] font-medium">${escapeText(val(found.statusBerkas) || "Belum unggah")}</dd>
       </div>
+      ${
+        ss.tampil
+          ? `<div class="border-b border-hairline p-5 sm:border-b-0 sm:border-r sm:p-6">
+        <dt class="text-[13px] text-ink-500">Status siswa</dt>
+        <dd class="mt-1 text-[15px] font-medium" id="statusSiswaTeks">${escapeText(ss.resmi ? "Siswa resmi" : "Belum terdaftar resmi")}</dd>
+      </div>`
+          : ""
+      }
       <div class="p-5 sm:p-6">
         <dt class="text-[13px] text-ink-500">Berkas menyusul?</dt>
         <dd class="mt-1"><a href="${escapeText(siswaUrl)}" class="text-[15px] font-medium underline underline-offset-4">Lengkapi berkas →</a></dd>

@@ -47,9 +47,10 @@
   function badgeTone(status) {
     const s = String(status || "").toLowerCase();
     if (s === "tidak ada" || s === "-") return "wait";
+    if (/^belum/.test(s)) return "wait";
     if (/mengundurkan/.test(s)) return "info";
     if (/ditolak|tidak|gagal/.test(s)) return "bad";
-    if (/diterima|lunas|valid|terverifikasi|lulus|sudah|diverifikasi/.test(s)) return "ok";
+    if (/diterima|lunas|valid|terverifikasi|lulus|sudah|diverifikasi|terdaftar/.test(s)) return "ok";
     return "wait";
   }
 
@@ -1014,6 +1015,7 @@
       r._jk = d.jenisKelamin || "";
       r._asal = d.asalSekolah || "";
       r._nisn = d.nisn || "";
+      r._resmi = d.statusSiswa && d.statusSiswa !== "-" ? d.statusSiswa : ""; // status siswa resmi (kolom di Data_Pendaftar)
       // status dari divisi lain (hanya dibaca): { Verifikasi_Berkas: baris, ... }
       r._lintas = {};
       (config.lintas || []).forEach((s) => {
@@ -1360,7 +1362,12 @@
 
     function edit(row) {
       const original = {};
-      config.fields.forEach((f) => (original[f.name] = row[f.name] ?? ""));
+      const barisDiri = diri.get(String(row.noPendaftaran)) || null;
+      config.fields.forEach((f) => {
+        const sumber = f.sheet ? barisDiri : row;
+        const nilai = sumber && sumber[f.name] != null ? sumber[f.name] : "";
+        original[f.name] = f.bawaan && (nilai === "" || nilai === "-") ? f.bawaan : nilai;
+      });
       openDialog({
         title: config.editTitle(row),
         subtitle: `${row.noPendaftaran || ""} · NISN ${row.nisn || "-"}`,
@@ -1373,10 +1380,23 @@
             toast("Tidak ada perubahan.");
             return;
           }
-          await root.Sheetson.patchRow(config.sheet, row.rowIndex, changes);
+          // Bidang bertanda `sheet` disimpan di sheet lain (mis. status siswa di Data_Pendaftar)
+          const luar = {};
+          const dalam = {};
+          Object.entries(changes).forEach(([k, v]) => {
+            const f = config.fields.find((x) => x.name === k);
+            (f && f.sheet ? luar : dalam)[k] = v;
+          });
+          if (Object.keys(luar).length) {
+            if (!barisDiri) throw new Error("Data pendaftar belum terbaca. Muat ulang halaman lalu coba lagi.");
+            await root.Sheetson.patchRow("Data_Pendaftar", barisDiri.rowIndex, luar);
+            Object.assign(barisDiri, luar);
+          }
+          if (Object.keys(dalam).length) await root.Sheetson.patchRow(config.sheet, row.rowIndex, dalam);
           const label = Object.fromEntries(config.fields.map((f) => [f.name, f.label]));
           catatModul("Ubah data", row, { perubahan: ringkasPerubahan(original, changes, label) });
-          Object.assign(row, changes);
+          Object.assign(row, dalam);
+          lengkapi(row);
           if (config.sheet === "Verifikasi_Berkas" && "statusPendaftaran" in changes) sinkronDiterima(page.rows, null);
           renderStats();
           renderSaring();

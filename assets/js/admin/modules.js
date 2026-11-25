@@ -29,18 +29,19 @@
     const v = ambil("verifikasi"), u = ambil("keuangan"), f = ambil("fisik");
     const isi = (x, d) => (x && x !== "-" ? x : d);
     const sp = isi(v.statusPendaftaran, "Pending");
-    if (sp === "Diterima") return { kode: "Sudah diterima", kurang: [] };
     if (sp === "Ditolak" || sp === "Mengundurkan Diri") return { kode: "Ditolak / mundur", kurang: [] };
+    if (/(terdaftar|resmi)/i.test(r._resmi || "") && !/^(belum|tidak|-)/i.test(r._resmi)) return { kode: "Sudah jadi siswa resmi", kurang: [] };
+    if (sp === "Diterima") return { kode: "Sudah diterima", kurang: [] };
     const kurang = [];
     if (!(v.statusBerkas === "Berkas Terverifikasi" || sp === "Diverifikasi")) kurang.push("berkas");
     if (isi(u.statusBiayaDaftar, "Belum Bayar") !== "Lunas") kurang.push("bayar");
     if (isi(f.statusTesFisik, "Belum Tes") !== "Lulus Tes") kurang.push("tes fisik");
     return { kode: kurang.length ? "Belum lengkap" : "Siap diterima", kurang };
   }
-  const OPSI_LENGKAP = ["Siap diterima", "Belum lengkap", "Sudah diterima", "Ditolak / mundur"];
+  const OPSI_LENGKAP = ["Siap diterima", "Belum lengkap", "Sudah diterima", "Sudah jadi siswa resmi", "Ditolak / mundur"];
   const saringLengkap = (sendiri) => ({ id: "lengkap", label: "Kelengkapan (semua divisi)", get: (r) => kelengkapan(r, sendiri).kode, options: OPSI_LENGKAP });
   // Titik kecil di samping nama siswa: kelengkapan sekilas (hijau siap, kuning belum lengkap, biru sudah diterima, merah ditolak/mundur)
-  const WARNA_TITIK = { "Siap diterima": "#16A34A", "Belum lengkap": "#D97706", "Sudah diterima": "#0369A1", "Ditolak / mundur": "#DC2626" };
+  const WARNA_TITIK = { "Siap diterima": "#16A34A", "Belum lengkap": "#D97706", "Sudah diterima": "#0369A1", "Sudah jadi siswa resmi": "#0F766E", "Ditolak / mundur": "#DC2626" };
   function titikKelengkapan(r, sendiri) {
     const kl = kelengkapan(r, sendiri);
     const ket = kl.kode + (kl.kurang.length ? ` (kurang: ${kl.kurang.join(", ")})` : "");
@@ -64,6 +65,7 @@
       rows.push(baris("Pembayaran", u ? AdminUI.badge(AdminUI.isi(u.statusBiayaDaftar, "Belum Bayar")) : tak));
     if (sendiri !== "fisik")
       rows.push(baris("Tes fisik", f ? AdminUI.badge(AdminUI.isi(f.statusTesFisik, "Belum Tes")) : tak));
+    rows.push(baris("Siswa resmi", AdminUI.badge(AdminUI.isi(r._resmi, "Belum Terdaftar"))));
     const kurang = kl.kurang.length ? `<p class="mt-1 text-[13px] text-ink-500">Yang masih kurang: ${esc(kl.kurang.join(", "))}.</p>` : "";
     const siap = sendiri === "keuangan" ? `<div class="mt-2 text-[13.5px]">${AdminUI.badge(kesiapan(r))}</div>` : "";
     return `<div class="rounded-md bg-sand px-3.5 py-3"><div class="font-semibold">${AdminUI.badge(kl.kode)}</div>${kurang}${siap}</div>
@@ -449,6 +451,7 @@
           saring: [
             saringLengkap("keuangan"),
             { id: "siap", label: "Kesiapan (dari divisi lain)", get: kesiapan, options: ["Sudah siap diproses", "Menunggu berkas", "Menunggu tes fisik", "Tidak lulus tes", "Ditolak / mundur"] },
+            { id: "siswa", label: "Status siswa", get: (r) => AdminUI.isi(r._resmi, "Belum Terdaftar"), options: ["Belum Terdaftar", "Terdaftar"] },
             { id: "voucher", label: "Voucher", get: (r) => AdminUI.isi(r.statusVoucher, "Tidak Ada"), options: ["Tidak Ada", "Pending", "Valid", "Tidak Valid"] },
             { id: "metode", label: "Metode", get: (r) => AdminUI.isi(r.metodePembayaran, "Belum diisi"), options: ["Belum diisi", "Tunai", "Transfer"] },
           ],
@@ -457,11 +460,13 @@
             { label: "Voucher", render: (r) => (r.kodeVoucher && r.kodeVoucher !== "-" ? `<b>${esc(r.kodeVoucher)}</b> ` : "") + AdminUI.badge(r.statusVoucher || "Tidak Ada") },
             { label: "Potongan", sortKey: "potonganBiaya", render: (r) => esc(rupiah(r.potonganBiaya)) },
             { label: "Status bayar", sortKey: "statusBiayaDaftar", render: (r) => AdminUI.badge(r.statusBiayaDaftar || "Belum Bayar") },
+            { label: "Status siswa", sortKey: "_resmi", render: (r) => AdminUI.badge(AdminUI.isi(r._resmi, "Belum Terdaftar")) },
             { label: "Metode", render: (r) => esc(r.metodePembayaran || "-") },
             { label: "Catatan", wrap: true, render: (r) => esc(r.catatanBendahara && r.catatanBendahara !== "-" ? r.catatanBendahara : "") },
           ],
           ekspor: [
             { label: "Status bayar", get: (r) => AdminUI.isi(r.statusBiayaDaftar, "Belum Bayar") },
+            { label: "Status siswa", get: (r) => AdminUI.isi(r._resmi, "Belum Terdaftar") },
             { label: "Metode", get: (r) => r.metodePembayaran },
             { label: "Kode voucher", get: (r) => r.kodeVoucher },
             { label: "Status voucher", get: (r) => AdminUI.isi(r.statusVoucher, "Tidak Ada") },
@@ -472,6 +477,7 @@
           fields: [
             { name: "statusBiayaDaftar", label: "Status pembayaran", type: "select", options: ["Belum Bayar", "Lunas"] },
             { name: "metodePembayaran", label: "Metode pembayaran", type: "select", options: ["-", "Tunai", "Transfer"] },
+            { name: "statusSiswa", sheet: "Data_Pendaftar", bawaan: "Belum Terdaftar", label: "Status siswa", type: "select", options: ["Belum Terdaftar", "Terdaftar"], help: "Pilih Terdaftar bila siswa sudah resmi menjadi siswa. Siswa langsung melihatnya di Cek Status dan akunnya (setelah pengumuman)." },
             { name: "statusVoucher", label: "Status voucher", type: "select", options: ["Tidak Ada", "Pending", "Valid", "Tidak Valid"] },
             { name: "potonganBiaya", label: "Potongan biaya (Rp)", type: "number", help: "Angka saja, tanpa titik. Contoh: 250000" },
             { name: "catatanBendahara", label: "Catatan bendahara", type: "textarea" },

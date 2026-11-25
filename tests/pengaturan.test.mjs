@@ -220,3 +220,17 @@ test("kalimatDesak: hanya dari kondisi nyata", () => {
   assert.equal(kalimatDesak(buat([{ jurusan: "TSM", kuota: 20, terisi: 20 }])), "");
   assert.equal(kalimatDesak(null), "");
 });
+
+test("statusSiswa: resmi / belum, hanya untuk yang Diterima, tersembunyi sebelum pengumuman", () => {
+  const { statusSiswa } = ctx.window.Pengaturan;
+  const lihat = (...a) => ({ ...statusSiswa(...a) });
+  assert.deepEqual(lihat("Terdaftar", "Diterima", true), { tampil: true, resmi: true, teks: "Sudah terdaftar sebagai siswa resmi" });
+  assert.deepEqual(lihat("  terdaftar ", "Diterima", undefined), { tampil: true, resmi: true, teks: "Sudah terdaftar sebagai siswa resmi" });
+  assert.deepEqual(lihat("Belum Terdaftar", "Diterima", true), { tampil: true, resmi: false, teks: "Belum terdaftar sebagai siswa resmi" });
+  assert.deepEqual(lihat("", "Diterima", true), { tampil: true, resmi: false, teks: "Belum terdaftar sebagai siswa resmi" });
+  assert.deepEqual(lihat("-", "Diterima", true), { tampil: true, resmi: false, teks: "Belum terdaftar sebagai siswa resmi" });
+  // belum diterima → tidak ditampilkan; hasil belum diumumkan → disembunyikan
+  assert.equal(statusSiswa("", "Pending", true).tampil, false);
+  assert.equal(statusSiswa("Terdaftar", "Diterima", false).tampil, false);
+  assert.equal(statusSiswa(undefined, undefined, true).tampil, false);
+});

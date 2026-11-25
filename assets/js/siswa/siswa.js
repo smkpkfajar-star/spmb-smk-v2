@@ -152,8 +152,14 @@
     $("homeMeta").textContent = "";
     $("homeBody").innerHTML = `<div class="border border-hairline bg-white p-5 sm:p-6" aria-hidden="true"><div class="skeleton h-4 w-40"></div><div class="mt-5 grid grid-cols-4 gap-3"><div class="skeleton h-14"></div><div class="skeleton h-14"></div><div class="skeleton h-14"></div><div class="skeleton h-14"></div></div></div><span class="sr-only">Memuat data</span>`;
     let row = null;
+    let statusSiswaSheet = "";
     try {
       row = findMyRow(await root.Sheetson.getRows(SHEET), nisn);
+      // Status "siswa resmi" ada di Data_Pendaftar (diisi bagian keuangan); gagal baca tidak menghalangi halaman
+      try {
+        const diri = findMyRow(await root.Sheetson.getRows("Data_Pendaftar"), nisn);
+        statusSiswaSheet = diri ? diri.statusSiswa : "";
+      } catch (_) {}
     } catch (e) {
       $("homeBody").innerHTML = `<p class="bg-red-50 p-4 text-[15px] font-medium text-red-700">${esc(e.message)}. Periksa internet lalu muat ulang.</p>`;
       return;
@@ -179,6 +185,7 @@
     $("homeMeta").textContent = `${row.noPendaftaran || "-"} · ${row.jurusan1 || "-"}`;
     const statusDaftar = dilihat.statusPendaftaran && dilihat.statusPendaftaran !== "-" ? dilihat.statusPendaftaran : "Pending";
     const statusBerkas = row.statusBerkas && row.statusBerkas !== "-" ? row.statusBerkas : "Belum Unggah";
+    const ss = root.Pengaturan ? root.Pengaturan.statusSiswaTampil(statusSiswaSheet, row.statusPendaftaran) : { tampil: false };
     $("homeBody").innerHTML = `
       <div class="border border-hairline bg-white p-5 sm:p-6">
         <h3 class="text-[16px] font-semibold">Tahapan pendaftaran</h3>
@@ -186,6 +193,7 @@
         <dl class="mt-5 grid grid-cols-2 gap-4 border-t border-hairline pt-4">
           <div><dt class="text-[12.5px] text-ink-500">Status pendaftaran</dt><dd class="mt-1">${statusTeks(statusDaftar)}</dd></div>
           <div><dt class="text-[12.5px] text-ink-500">Status berkas</dt><dd class="mt-1">${statusTeks(statusBerkas)}</dd></div>
+          ${ss.tampil ? `<div class="col-span-2"><dt class="text-[12.5px] text-ink-500">Status siswa</dt><dd class="mt-1" id="homeStatusSiswa">${statusTeks(ss.teks)}</dd></div>` : ""}
         </dl>
       </div>
       ${

@@ -173,6 +173,16 @@
     return /^(Diterima|Ditolak)$/i.test(String(status || "").trim()) ? "Diverifikasi" : status;
   }
 
+  // Kolom "statusSiswa" di Data_Pendaftar (diisi bagian keuangan): sudah resmi jadi siswa atau belum.
+  // Hanya ditampilkan ke siswa bila hasil sudah diumumkan dan ia berstatus Diterima (atau sudah resmi).
+  function statusSiswa(nilai, statusPendaftaran, hasilDiumumkan) {
+    const t = String(nilai == null ? "" : nilai).trim();
+    const resmi = /(terdaftar|resmi)/i.test(t) && !/^(belum|tidak|-)/i.test(t);
+    const diterima = /^Diterima$/i.test(String(statusPendaftaran || "").trim());
+    if (hasilDiumumkan === false || !(resmi || diterima)) return { tampil: false, resmi: false, teks: "" };
+    return { tampil: true, resmi, teks: resmi ? "Sudah terdaftar sebagai siswa resmi" : "Belum terdaftar sebagai siswa resmi" };
+  }
+
   /* ---------- ambil dari server ---------- */
   let janji = null;
   let terakhir = { ...BAWAAN };
@@ -240,6 +250,7 @@
   const waNomor = () => terakhir.kontakWa || NOMOR_BAWAAN;
   const waTautan = (teks) => linkWa(waNomor(), teks);
   const statusTampil = (status) => sembunyikanHasil(status, terakhir.hasilDiumumkan);
+  const statusSiswaTampil = (nilai, statusPendaftaran) => statusSiswa(nilai, statusPendaftaran, terakhir.hasilDiumumkan);
 
   /* ---------- tampilan di halaman publik (teks dari admin selalu lewat textContent) ---------- */
   // Nomor WhatsApp & jam layanan di tautan/teks yang sudah tertulis di HTML
@@ -366,6 +377,8 @@
     kalimatDesak,
     NAMA_JURUSAN,
     sembunyikanHasil,
+    statusSiswa,
+    statusSiswaTampil,
     ambil,
     ambilKuota,
     waNomor,
