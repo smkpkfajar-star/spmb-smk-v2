@@ -985,6 +985,17 @@
       r._jk = d.jenisKelamin || "";
       r._asal = d.asalSekolah || "";
       r._nisn = d.nisn || "";
+      // status dari divisi lain (hanya dibaca): { Verifikasi_Berkas: baris, ... }
+      r._lintas = {};
+      (config.lintas || []).forEach((s) => {
+        r._lintas[s] = (lintasPeta[s] && lintasPeta[s].get(String(r.noPendaftaran))) || null;
+      });
+    };
+    const lintasPeta = {}; // sheet → Map(noPendaftaran → baris)
+    const lintasData = {}; // sheet → semua baris (untuk meminta baris baru saja)
+    const petakanLintas = (s, rows) => {
+      lintasData[s] = rows;
+      lintasPeta[s] = new Map(rows.map((r) => [String(r.noPendaftaran), r]));
     };
 
     // Dropdown saringan; jumlah tiap pilihan dihitung dari semua data
@@ -1273,10 +1284,12 @@
       document.body.appendChild(bar);
       try {
         const opts = { fresh: fresh === true };
-        const [rows, daftar] = await Promise.all([
+        const [rows, daftar, ...lintas] = await Promise.all([
           root.Sheetson.getRows(config.sheet, opts),
           config.sheet === "Data_Pendaftar" ? null : root.Sheetson.getRows("Data_Pendaftar", opts).catch(() => []),
+          ...(config.lintas || []).map((s) => root.Sheetson.getRows(s, opts).catch(() => [])),
         ]);
+        (config.lintas || []).forEach((s, i) => petakanLintas(s, lintas[i]));
         // Data diri dari Data_Pendaftar: waktu daftar, jurusan, jenis kelamin, asal sekolah, NISN
         const sumber = daftar || rows;
         diri = new Map(sumber.map((r) => [String(r.noPendaftaran), r]));
@@ -1316,6 +1329,17 @@
           // data diri menyusul di pemuatan berikutnya; baris tetap tampil
         }
       }
+      // status divisi lain untuk baris baru (satu permintaan kecil per sheet)
+      await Promise.all(
+        (config.lintas || []).map(async (s) => {
+          try {
+            const t = await root.Sheetson.rowsAfter(s, (lintasData[s] || []).length);
+            petakanLintas(s, [...(lintasData[s] || []), ...t]);
+          } catch (_) {
+            // menyusul di pemuatan berikutnya
+          }
+        })
+      );
       segar.forEach((r) => {
         lengkapi(r);
         baru.add(String(r.rowIndex));

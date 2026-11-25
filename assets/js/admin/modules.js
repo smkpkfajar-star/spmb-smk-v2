@@ -4,6 +4,61 @@
    Rute: dashboard.html#verifikasi, #keuangan, #tes-fisik, #superadmin (kosong = dashboard).
    ============================================================ */
 (function (root) {
+  // Kolom "Status divisi lain": semua petugas bisa melihat posisi siswa di divisi lain
+  // (hanya dibaca), jadi tidak perlu bertanya ke divisi sebelah.
+  const SHEET_DIVISI = { verifikasi: "Verifikasi_Berkas", keuangan: "Keuangan_Voucher", fisik: "Tes_Fisik_Seragam" };
+  const lintasUntuk = (sendiri) => Object.values(SHEET_DIVISI).filter((s) => s !== SHEET_DIVISI[sendiri]);
+  // Keuangan = tahap terakhir: siswa baru "siap diproses" bila berkas beres dan lulus tes fisik.
+  function kesiapan(r) {
+    const l = r._lintas || {};
+    const v = l[SHEET_DIVISI.verifikasi];
+    const f = l[SHEET_DIVISI.fisik];
+    const sp = v && v.statusPendaftaran && v.statusPendaftaran !== "-" ? v.statusPendaftaran : "Pending";
+    if (sp === "Ditolak" || sp === "Mengundurkan Diri") return "Ditolak / mundur";
+    const berkasBeres = (v && v.statusBerkas === "Berkas Terverifikasi") || sp === "Diverifikasi" || sp === "Diterima";
+    if (!berkasBeres) return "Menunggu berkas";
+    const tes = f && f.statusTesFisik && f.statusTesFisik !== "-" ? f.statusTesFisik : "Belum Tes";
+    if (tes === "Tidak Lulus") return "Tidak lulus tes";
+    if (tes !== "Lulus Tes") return "Menunggu tes fisik";
+    return "Sudah siap diproses";
+  }
+  function kolomDivisiLain(sendiri) {
+    const esc = Sheetson.escapeHtml;
+    const ada = (v) => v && v !== "-";
+    const baris = (judul, isi) => `<div class="flex items-center gap-1.5 py-0.5"><span class="w-[4.2rem] shrink-0 text-[12.5px] text-ink-500">${judul}</span>${isi}</div>`;
+    return {
+      label: "Status divisi lain",
+      wrap: true,
+      render: (r) => {
+        const l = r._lintas || {};
+        const v = l[SHEET_DIVISI.verifikasi];
+        const u = l[SHEET_DIVISI.keuangan];
+        const f = l[SHEET_DIVISI.fisik];
+        const out = [];
+        if (sendiri === "keuangan") {
+          const k = kesiapan(r);
+          out.push(`<div class="pb-1 font-semibold">${AdminUI.badge(k)}</div>`);
+        }
+        if (sendiri !== "verifikasi")
+          out.push(baris("Berkas", v ? AdminUI.badge(AdminUI.isi(v.statusBerkas, "Belum Unggah")) + " " + AdminUI.badge(AdminUI.isi(v.statusPendaftaran, "Pending")) : `<span class="text-ink-500">-</span>`));
+        if (sendiri !== "keuangan")
+          out.push(
+            baris(
+              "Bayar",
+              u ? AdminUI.badge(AdminUI.isi(u.statusBiayaDaftar, "Belum Bayar")) + (ada(u.statusVoucher) && u.statusVoucher !== "Tidak Ada" ? ` <span class="text-[12.5px] text-ink-500">Voucher ${esc(u.statusVoucher)}</span>` : "") : `<span class="text-ink-500">-</span>`
+            )
+          );
+        if (sendiri !== "fisik")
+          out.push(
+            baris(
+              "Tes fisik",
+              f ? AdminUI.badge(AdminUI.isi(f.statusTesFisik, "Belum Tes")) + (ada(f.ukuranSeragam) ? ` <span class="text-[12.5px] text-ink-500">Seragam ${esc(f.ukuranSeragam)}</span>` : "") : `<span class="text-ink-500">-</span>`
+            )
+          );
+        return out.join("");
+      },
+    };
+  }
   const MODULES = {
     "dashboard": {
       title: 'Dashboard',
@@ -272,6 +327,7 @@
         const hitung = (rows, field, value, fallback) => rows.filter((r) => (r[field] && r[field] !== "-" ? r[field] : fallback) === value).length;
         AdminUI.modulePage({
           sheet: "Verifikasi_Berkas",
+          lintas: lintasUntuk("verifikasi"),
           stats: (rows) => [
             { label: "total", value: rows.length, filter: "" },
             { label: "pending", value: hitung(rows, "statusPendaftaran", "Pending", "Pending"), tone: "wait", filter: "Pending" },
@@ -294,6 +350,7 @@
             { label: "Berkas", wrap: true, render: links },
             { label: "Catatan", wrap: true, render: (r) => esc(r.catatanAdmin && r.catatanAdmin !== "-" ? r.catatanAdmin : "") + (r.tglFollowUpWa && r.tglFollowUpWa !== "-" ? `<br><span class="text-[13px] text-ink-500">WA ortu: ${esc(r.tglFollowUpWa)}</span>` : "") },
             { label: "Status berkas", sortKey: "statusBerkas", render: (r) => AdminUI.badge(r.statusBerkas) },
+            kolomDivisiLain("verifikasi"),
           ],
           ekspor: [
             { label: "Jurusan cadangan", get: (r) => r.jurusan2 },
@@ -348,6 +405,7 @@
         const hitung = (rows, field, value, fallback) => rows.filter((r) => (r[field] && r[field] !== "-" ? r[field] : fallback) === value).length;
         AdminUI.modulePage({
           sheet: "Keuangan_Voucher",
+          lintas: lintasUntuk("keuangan"),
           stats: (rows) => [
             { label: "total", value: rows.length, filter: "" },
             { label: "lunas", value: hitung(rows, "statusBiayaDaftar", "Lunas", "Belum Bayar"), tone: "ok", filter: "Lunas" },
@@ -358,6 +416,7 @@
           intro: "Catat pembayaran, metode bayar, dan validasi kode voucher.",
           filter: { field: "statusBiayaDaftar", label: "Status bayar", options: ["Belum Bayar", "Lunas"] },
           saring: [
+            { id: "siap", label: "Kesiapan (dari divisi lain)", get: kesiapan, options: ["Sudah siap diproses", "Menunggu berkas", "Menunggu tes fisik", "Tidak lulus tes", "Ditolak / mundur"] },
             { id: "voucher", label: "Voucher", get: (r) => AdminUI.isi(r.statusVoucher, "Tidak Ada"), options: ["Tidak Ada", "Pending", "Valid", "Tidak Valid"] },
             { id: "metode", label: "Metode", get: (r) => AdminUI.isi(r.metodePembayaran, "Belum diisi"), options: ["Belum diisi", "Tunai", "Transfer"] },
           ],
@@ -368,6 +427,7 @@
             { label: "Status bayar", sortKey: "statusBiayaDaftar", render: (r) => AdminUI.badge(r.statusBiayaDaftar || "Belum Bayar") },
             { label: "Metode", render: (r) => esc(r.metodePembayaran || "-") },
             { label: "Catatan", wrap: true, render: (r) => esc(r.catatanBendahara && r.catatanBendahara !== "-" ? r.catatanBendahara : "") },
+            kolomDivisiLain("keuangan"),
           ],
           ekspor: [
             { label: "Status bayar", get: (r) => AdminUI.isi(r.statusBiayaDaftar, "Belum Bayar") },
@@ -401,6 +461,7 @@
         const hitung = (rows, field, value, fallback) => rows.filter((r) => (r[field] && r[field] !== "-" ? r[field] : fallback) === value).length;
         AdminUI.modulePage({
           sheet: "Tes_Fisik_Seragam",
+          lintas: lintasUntuk("fisik"),
           stats: (rows) => [
             { label: "total", value: rows.length, filter: "" },
             { label: "belum tes", value: hitung(rows, "statusTesFisik", "Belum Tes", "Belum Tes"), tone: "wait", filter: "Belum Tes" },
@@ -422,6 +483,7 @@
             { label: "Status tes", sortKey: "statusTesFisik", render: (r) => AdminUI.badge(r.statusTesFisik || "Belum Tes") },
             { label: "Seragam", sortKey: "ukuranSeragam", render: (r) => `<b>${esc(r.ukuranSeragam || "-")}</b>` + (r.tglUkurSeragam && r.tglUkurSeragam !== "-" ? `<br><span class="text-[13px] text-ink-500">${esc(r.tglUkurSeragam)}</span>` : "") },
             { label: "Catatan", wrap: true, render: (r) => esc(r.catatanTesFisik && r.catatanTesFisik !== "-" ? r.catatanTesFisik : "") },
+            kolomDivisiLain("fisik"),
           ],
           ekspor: [
             { label: "Tinggi (cm)", get: (r) => r.tinggiBadan, angka: true },

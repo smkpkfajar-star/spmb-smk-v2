@@ -308,6 +308,9 @@
     kotak.focus({ preventScroll: true });
   }
 
+  // Beri pengunjung waktu melihat sisa kuota di layar pertama sebelum pop-up muncul
+  const JEDA_MUNCUL = 6000;
+
   document.addEventListener("DOMContentLoaded", () => {
     if (document.documentElement.classList.contains("kiosk")) return; // mode kios sekolah: tanpa pop-up
     if (!perluTampil({ hash: root.location.hash })) return;
@@ -326,6 +329,6 @@
       if (!p.popupPromo || !p.spmbDibuka) return;
       if (root.location.hash && root.location.hash !== "#") return;
       if (gambar.naturalWidth && !document.getElementById("promoSpmb")) tampilkan(null);
-    }, 700);
+    }, JEDA_MUNCUL);
   });
 })(typeof window !== "undefined" ? window : globalThis);
