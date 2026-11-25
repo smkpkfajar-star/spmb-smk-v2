@@ -177,7 +177,7 @@
   // Hanya ditampilkan ke siswa bila hasil sudah diumumkan dan ia berstatus Diterima (atau sudah resmi).
   function statusSiswa(nilai, statusPendaftaran, hasilDiumumkan) {
     const t = String(nilai == null ? "" : nilai).trim();
-    const resmi = /(terdaftar|resmi)/i.test(t) && !/^(belum|tidak|-)/i.test(t);
+    const resmi = /(terdaftar|resmi|diterima|aktif)/i.test(t) && !/^(belum|tidak|-)/i.test(t);
     const diterima = /^Diterima$/i.test(String(statusPendaftaran || "").trim());
     if (hasilDiumumkan === false || !(resmi || diterima)) return { tampil: false, resmi: false, teks: "" };
     return { tampil: true, resmi, teks: resmi ? "Sudah terdaftar sebagai siswa resmi" : "Belum terdaftar sebagai siswa resmi" };

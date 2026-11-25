@@ -1111,7 +1111,7 @@ function initStatusChecker(config) {
       let statusSiswa = "";
       try {
         const diri = await fetchRecordByNisn(config, nisnVal, "Data_Pendaftar");
-        statusSiswa = diri && diri[0] ? diri[0].statusSiswa : "";
+        statusSiswa = diri && diri[0] ? diri[0].status_siswa || diri[0].statusSiswa || "" : ""; // kolom Status_Siswa terbaca sebagai status_siswa
       } catch (_) {}
       renderStatusResult({ ...records[0], statusSiswa }, statusResult);
     } catch (err) {

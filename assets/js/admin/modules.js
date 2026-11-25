@@ -30,7 +30,7 @@
     const isi = (x, d) => (x && x !== "-" ? x : d);
     const sp = isi(v.statusPendaftaran, "Pending");
     if (sp === "Ditolak" || sp === "Mengundurkan Diri") return { kode: "Ditolak / mundur", kurang: [] };
-    if (/(terdaftar|resmi)/i.test(r._resmi || "") && !/^(belum|tidak|-)/i.test(r._resmi)) return { kode: "Sudah jadi siswa resmi", kurang: [] };
+    if (/(terdaftar|resmi|diterima|aktif)/i.test(r._resmi || "") && !/^(belum|tidak|-)/i.test(r._resmi)) return { kode: "Sudah jadi siswa resmi", kurang: [] };
     if (sp === "Diterima") return { kode: "Sudah diterima", kurang: [] };
     const kurang = [];
     if (!(v.statusBerkas === "Berkas Terverifikasi" || sp === "Diverifikasi")) kurang.push("berkas");
@@ -476,7 +476,7 @@
           fields: [
             { name: "statusBiayaDaftar", label: "Status pembayaran", type: "select", options: ["Belum Bayar", "Lunas"] },
             { name: "metodePembayaran", label: "Metode pembayaran", type: "select", options: ["-", "Tunai", "Transfer"] },
-            { name: "statusSiswa", sheet: "Data_Pendaftar", bawaan: "Belum Terdaftar", label: "Status siswa", type: "select", options: ["Belum Terdaftar", "Terdaftar"], help: "Pilih Terdaftar bila siswa sudah resmi menjadi siswa. Siswa langsung melihatnya di Cek Status dan akunnya (setelah pengumuman)." },
+            { name: "status_siswa", sheet: "Data_Pendaftar", bawaan: "Belum Terdaftar", label: "Status siswa", type: "select", options: ["Belum Terdaftar", "Terdaftar"], help: "Pilih Terdaftar bila siswa sudah resmi menjadi siswa. Siswa langsung melihatnya di Cek Status dan akunnya (setelah pengumuman)." },
             { name: "statusVoucher", label: "Status voucher", type: "select", options: ["Tidak Ada", "Pending", "Valid", "Tidak Valid"] },
             { name: "potonganBiaya", label: "Potongan biaya (Rp)", type: "number", help: "Angka saja, tanpa titik. Contoh: 250000" },
             { name: "catatanBendahara", label: "Catatan bendahara", type: "textarea" },

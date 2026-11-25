@@ -226,6 +226,8 @@ test("statusSiswa: resmi / belum, hanya untuk yang Diterima, tersembunyi sebelum
   const lihat = (...a) => ({ ...statusSiswa(...a) });
   assert.deepEqual(lihat("Terdaftar", "Diterima", true), { tampil: true, resmi: true, teks: "Sudah terdaftar sebagai siswa resmi" });
   assert.deepEqual(lihat("  terdaftar ", "Diterima", undefined), { tampil: true, resmi: true, teks: "Sudah terdaftar sebagai siswa resmi" });
+  assert.equal(statusSiswa("Diterima", "Diterima", true).resmi, true); // isian "Diterima" di kolom juga dianggap resmi
+  assert.equal(statusSiswa("Belum Diterima", "Diterima", true).resmi, false);
   assert.deepEqual(lihat("Belum Terdaftar", "Diterima", true), { tampil: true, resmi: false, teks: "Belum terdaftar sebagai siswa resmi" });
   assert.deepEqual(lihat("", "Diterima", true), { tampil: true, resmi: false, teks: "Belum terdaftar sebagai siswa resmi" });
   assert.deepEqual(lihat("-", "Diterima", true), { tampil: true, resmi: false, teks: "Belum terdaftar sebagai siswa resmi" });

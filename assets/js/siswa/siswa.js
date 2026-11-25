@@ -158,7 +158,7 @@
       // Status "siswa resmi" ada di Data_Pendaftar (diisi bagian keuangan); gagal baca tidak menghalangi halaman
       try {
         const diri = findMyRow(await root.Sheetson.getRows("Data_Pendaftar"), nisn);
-        statusSiswaSheet = diri ? diri.statusSiswa : "";
+        statusSiswaSheet = diri ? diri.status_siswa || diri.statusSiswa || "" : ""; // kolom Status_Siswa terbaca sebagai status_siswa
       } catch (_) {}
     } catch (e) {
       $("homeBody").innerHTML = `<p class="bg-red-50 p-4 text-[15px] font-medium text-red-700">${esc(e.message)}. Periksa internet lalu muat ulang.</p>`;

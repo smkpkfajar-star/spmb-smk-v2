@@ -1015,7 +1015,8 @@
       r._jk = d.jenisKelamin || "";
       r._asal = d.asalSekolah || "";
       r._nisn = d.nisn || "";
-      r._resmi = d.statusSiswa && d.statusSiswa !== "-" ? d.statusSiswa : ""; // status siswa resmi (kolom di Data_Pendaftar)
+      const ss = d.status_siswa || d.statusSiswa; // kolom "Status_Siswa" di Data_Pendaftar dibaca Sheetson sebagai status_siswa
+      r._resmi = ss && ss !== "-" ? ss : "";
       // status dari divisi lain (hanya dibaca): { Verifikasi_Berkas: baris, ... }
       r._lintas = {};
       (config.lintas || []).forEach((s) => {
