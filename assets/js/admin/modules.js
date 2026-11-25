@@ -22,6 +22,23 @@
     if (tes !== "Lulus Tes") return "Menunggu tes fisik";
     return "Sudah siap diproses";
   }
+  // "Siap diterima": berkas beres + sudah lunas + lulus tes fisik (belum berstatus Diterima).
+  function kelengkapan(r, sendiri) {
+    const l = r._lintas || {};
+    const ambil = (k) => (sendiri === k ? r : l[SHEET_DIVISI[k]]) || {};
+    const v = ambil("verifikasi"), u = ambil("keuangan"), f = ambil("fisik");
+    const isi = (x, d) => (x && x !== "-" ? x : d);
+    const sp = isi(v.statusPendaftaran, "Pending");
+    if (sp === "Diterima") return { kode: "Sudah diterima", kurang: [] };
+    if (sp === "Ditolak" || sp === "Mengundurkan Diri") return { kode: "Ditolak / mundur", kurang: [] };
+    const kurang = [];
+    if (!(v.statusBerkas === "Berkas Terverifikasi" || sp === "Diverifikasi")) kurang.push("berkas");
+    if (isi(u.statusBiayaDaftar, "Belum Bayar") !== "Lunas") kurang.push("bayar");
+    if (isi(f.statusTesFisik, "Belum Tes") !== "Lulus Tes") kurang.push("tes fisik");
+    return { kode: kurang.length ? "Belum lengkap" : "Siap diterima", kurang };
+  }
+  const OPSI_LENGKAP = ["Siap diterima", "Belum lengkap", "Sudah diterima", "Ditolak / mundur"];
+  const saringLengkap = (sendiri) => ({ id: "lengkap", label: "Kelengkapan (semua divisi)", get: (r) => kelengkapan(r, sendiri).kode, options: OPSI_LENGKAP });
   function kolomDivisiLain(sendiri) {
     const esc = Sheetson.escapeHtml;
     const ada = (v) => v && v !== "-";
@@ -35,9 +52,11 @@
         const u = l[SHEET_DIVISI.keuangan];
         const f = l[SHEET_DIVISI.fisik];
         const out = [];
+        const kl = kelengkapan(r, sendiri);
+        out.push(`<div class="pb-1 font-semibold">${AdminUI.badge(kl.kode)}${kl.kurang.length ? ` <span class="text-[12.5px] font-normal text-ink-500">kurang: ${kl.kurang.join(", ")}</span>` : ""}</div>`);
         if (sendiri === "keuangan") {
           const k = kesiapan(r);
-          out.push(`<div class="pb-1 font-semibold">${AdminUI.badge(k)}</div>`);
+          out.push(`<div class="pb-1">${AdminUI.badge(k)}</div>`);
         }
         if (sendiri !== "verifikasi")
           out.push(baris("Berkas", v ? AdminUI.badge(AdminUI.isi(v.statusBerkas, "Belum Unggah")) + " " + AdminUI.badge(AdminUI.isi(v.statusPendaftaran, "Pending")) : `<span class="text-ink-500">-</span>`));
@@ -339,6 +358,7 @@
           intro: "Periksa berkas, ubah status, dan hubungi orang tua bila ada yang kurang.",
           filter: { field: "statusPendaftaran", label: "Status pendaftaran", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak", "Mengundurkan Diri"] },
           saring: [
+            saringLengkap("verifikasi"),
             { id: "berkas", label: "Status berkas", get: (r) => AdminUI.isi(r.statusBerkas, "Belum diisi"), options: ["Belum Unggah", "Sudah Unggah", "Gagal Unggah", "Berkas Terverifikasi", "Berkas Ditolak"] },
             { id: "catatan", label: "Catatan", get: (r) => (AdminUI.isi(r.catatanAdmin, "") ? "Ada catatan" : "Tanpa catatan"), options: ["Ada catatan", "Tanpa catatan"] },
             { id: "wa", label: "Chat ortu", get: (r) => (AdminUI.isi(r.tglFollowUpWa, "") ? "Sudah dihubungi" : "Belum dihubungi"), options: ["Belum dihubungi", "Sudah dihubungi"] },
@@ -416,6 +436,7 @@
           intro: "Catat pembayaran, metode bayar, dan validasi kode voucher.",
           filter: { field: "statusBiayaDaftar", label: "Status bayar", options: ["Belum Bayar", "Lunas"] },
           saring: [
+            saringLengkap("keuangan"),
             { id: "siap", label: "Kesiapan (dari divisi lain)", get: kesiapan, options: ["Sudah siap diproses", "Menunggu berkas", "Menunggu tes fisik", "Tidak lulus tes", "Ditolak / mundur"] },
             { id: "voucher", label: "Voucher", get: (r) => AdminUI.isi(r.statusVoucher, "Tidak Ada"), options: ["Tidak Ada", "Pending", "Valid", "Tidak Valid"] },
             { id: "metode", label: "Metode", get: (r) => AdminUI.isi(r.metodePembayaran, "Belum diisi"), options: ["Belum diisi", "Tunai", "Transfer"] },
@@ -473,6 +494,7 @@
           intro: "Isi hasil pengukuran, tes fisik, dan ukuran seragam.",
           filter: { field: "statusTesFisik", label: "Status tes", options: ["Belum Tes", "Lulus Tes", "Tidak Lulus"] },
           saring: [
+            saringLengkap("fisik"),
             { id: "seragam", label: "Seragam", get: (r) => AdminUI.isi(r.ukuranSeragam, "Belum diukur"), options: ["Belum diukur", "S", "M", "L", "XL", "XXL"] },
             { id: "tato", label: "Tato/tindik", get: (r) => AdminUI.isi(r.tatoTindik, "Belum diisi"), options: ["Belum diisi", "Tidak Ada", "Ada"] },
           ],
