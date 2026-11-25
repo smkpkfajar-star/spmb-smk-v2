@@ -419,8 +419,30 @@
 
   // Cetak langsung: PDF dimuat di bingkai tersembunyi lalu dialog cetak dibuka.
   // Bila peramban menolak mencetak dari bingkai, PDF dibuka di tab baru.
-  async function cetak(data, siswaUrl) {
-    const { bytes, nama } = await buatBerkas(data, siswaUrl);
+  // opsi.salinan: jumlah rangkap. Peramban tidak bisa mengatur "jumlah salinan" printer, jadi
+  // rangkap dibuat dengan menggandakan halaman F4 dalam satu berkas cetak.
+  async function gandakan(bytes, salinan) {
+    if (!(salinan > 1)) return bytes;
+    try {
+      await muatSkrip(PDFLIB_URL, () => !!root.PDFLib);
+      const { PDFDocument } = root.PDFLib;
+      const asal = await PDFDocument.load(bytes);
+      const out = await PDFDocument.create();
+      for (let i = 0; i < salinan; i++) {
+        const hal = await out.copyPages(asal, asal.getPageIndices());
+        hal.forEach((h) => out.addPage(h));
+      }
+      return await out.save();
+    } catch (e) {
+      if (root.console) console.warn("Gagal menggandakan halaman, dicetak 1 rangkap:", e);
+      return bytes;
+    }
+  }
+
+  async function cetak(data, siswaUrl, opsi) {
+    const dasar = await buatBerkas(data, siswaUrl);
+    const nama = dasar.nama;
+    const bytes = await gandakan(dasar.bytes, (opsi && opsi.salinan) || 1);
     const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
     const bingkai = document.createElement("iframe");
     bingkai.setAttribute("aria-hidden", "true");

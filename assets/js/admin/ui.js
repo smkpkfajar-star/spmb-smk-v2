@@ -1355,7 +1355,7 @@
         const kunci = nisn ? { nisn } : { noPendaftaran: row.noPendaftaran };
         const data = await root.BuktiPdf.cariData(kunci);
         if (!data) throw new Error("Data pendaftar tidak ditemukan di sheet");
-        if (cetak) await root.BuktiPdf.cetak(data);
+        if (cetak) await root.BuktiPdf.cetak(data, undefined, { salinan: 2 }); // loket: 2 rangkap F4
         else await root.BuktiPdf.unduh(data);
         toast(`Bukti pendaftaran ${cetak ? "dikirim ke printer" : "diunduh"}: ${data.namaLengkap || data.noPendaftaran}`);
         catatModul(cetak ? "Cetak bukti PDF" : "Unduh bukti PDF", row);
