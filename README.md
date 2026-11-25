@@ -7,9 +7,9 @@ Terpasang otomatis di Vercel setiap ada push ke `main`.
 ## Peta folder
 
 ```
-index.html            Beranda (info jurusan, alur, FAQ, login siswa)
+index.html            Beranda (info jurusan, alur, FAQ)
 daftar/index.html     Formulir pendaftaran
-siswa/index.html      Cek status pendaftaran siswa
+siswa/index.html      Akun siswa (login, status, unggah berkas, mundur); alamat lama beranda#login dialihkan ke sini
 admin/                Panel panitia (dashboard.html = semua modul;
                       file .html lain hanya pengalih untuk bookmark lama)
 
@@ -23,7 +23,7 @@ assets/js/
   beranda/            main.js (menu & navigasi), jurusan.js (penjelajah jurusan & animasi hero)
   daftar/             daftar.js (formulir, nomor, unggah, PDF bukti),
                       form-steps.js (langkah formulir), kiosk.js ("Mode Teras" untuk komputer pendaftaran di sekolah)
-  siswa/              siswa.js (halaman cek status)
+  siswa/              siswa.js (halaman akun siswa)
   admin/              auth.js (login petugas), ui.js (tabel, filter, halaman),
                       modules.js (isi tiap modul: verifikasi, keuangan, tes fisik, superadmin)
 

@@ -384,7 +384,7 @@
   }
 
   // Alamat halaman login siswa (situs di-hosting di akar domain)
-  const alamatSiswa = () => new URL("/#login", root.location.href).href;
+  const alamatSiswa = () => new URL("/siswa/", root.location.href).href;
 
   async function unduh(data, siswaUrl) {
     await muatJsPdf();

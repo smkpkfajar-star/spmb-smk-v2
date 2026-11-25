@@ -101,7 +101,7 @@
       }));
 
   function show(id) {
-    ["loginView", "homeView"].forEach((v) => $(v).classList.toggle("hidden", v !== id));
+    ["memuatView", "loginView", "homeView"].forEach((v) => $(v) && $(v).classList.toggle("hidden", v !== id));
   }
 
   // Tampilan dibuat netral (hitam-abu); warna hanya pada titik kecil status
@@ -291,7 +291,7 @@
     btn.textContent = "Unggah berkas";
   }
 
-  // Panel login siswa di beranda (#login). Supabase & sheet baru dimuat saat panel dibuka.
+  // Halaman akun siswa (/siswa/): login, status, unggah berkas, pengunduran diri.
   let started = false;
   let user = null;
 
@@ -391,51 +391,27 @@
       show("loginView");
       $("logoutInfo").classList.remove("hidden");
       $("logoutInfo").classList.add("flex");
-      $("siswaPanel").scrollTop = 0;
+      root.scrollTo(0, 0);
       $("nisn").focus();
     });
 
-    const { data } = await db().auth.getSession();
-    user = data && data.session && data.session.user;
+    // Sesi tersimpan di browser: setelah refresh siswa tetap berada di halaman ini, langsung ke akunnya
+    show("memuatView");
+    let sesi = null;
+    try {
+      sesi = (await db().auth.getSession()).data.session;
+    } catch (_) {}
+    user = sesi && sesi.user;
     if (user) loadHome(user);
-    else show("loginView");
-  }
-
-  function setPanel(open) {
-    const panel = $("siswaPanel");
-    if (!panel) return;
-    panel.classList.toggle("hidden", !open);
-    panel.classList.toggle("flex", open);
-    document.documentElement.classList.toggle("overflow-hidden", open);
-    if (open) {
-      start();
-      setTimeout(() => {
-        const first = !$("loginView").classList.contains("hidden") ? $("nisn") : $("siswaClose");
-        if (first) first.focus();
-      }, 50);
+    else {
+      show("loginView");
+      $("nisn").focus();
     }
   }
-  function closePanel() {
-    if (root.location.hash === "#login") root.history.pushState(null, "", root.location.pathname + root.location.search);
-    setPanel(false);
-  }
 
+  // Halaman sendiri (/siswa/): mulai langsung saat siap. Alamat lama beranda#login dialihkan ke sini.
   document.addEventListener("DOMContentLoaded", () => {
     if (!$("siswaPanel")) return;
-    const sync = () => setPanel(root.location.hash === "#login");
-    root.addEventListener("hashchange", sync);
-    root.addEventListener("popstate", sync);
-    $("siswaClose").addEventListener("click", closePanel);
-    // Logo = kembali ke beranda (tutup panel, tanpa memuat ulang halaman)
-    $("siswaHome").addEventListener("click", (e) => {
-      e.preventDefault();
-      closePanel();
-      root.scrollTo({ top: 0, behavior: "smooth" });
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape" || $("siswaPanel").classList.contains("hidden")) return;
-      closePanel();
-    });
-    sync();
+    start();
   });
 })(typeof window !== "undefined" ? window : globalThis);

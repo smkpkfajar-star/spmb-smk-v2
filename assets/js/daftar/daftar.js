@@ -80,7 +80,7 @@ function tampilkanSpmbDitutup(p) {
       <a href="#cek-status" data-tab-link="cek-status" class="inline-flex h-12 items-center justify-center rounded-full bg-ink-900 px-6 text-[15px] font-semibold text-white">Cek status pendaftaran</a>
       <a href="https://wa.me/${nomorWa()}" target="_blank" rel="noopener" class="inline-flex h-12 items-center justify-center rounded-full px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">WhatsApp panitia</a>
     </div>
-    <p class="mt-4 text-[13.5px] text-ink-500">Sudah mendaftar? <a href="../#login" class="font-medium text-ink-900 underline">Login siswa</a> untuk melihat berkas & unduh bukti pendaftaran.</p>`;
+    <p class="mt-4 text-[13.5px] text-ink-500">Sudah mendaftar? <a href="../siswa/" class="font-medium text-ink-900 underline">Login siswa</a> untuk melihat berkas & unduh bukti pendaftaran.</p>`;
   // pesan dari superadmin (teks bebas) → textContent, bukan HTML
   kotak.querySelector("[data-pesan]").textContent = window.Pengaturan.pesanDitutup(p);
   if (intro && intro.nextSibling) tab.insertBefore(kotak, intro.nextSibling);
@@ -1052,7 +1052,7 @@ async function sendDataToSheetson(config, data) {
 /* --- GENERATE PDF (assets/js/umum/bukti-pdf.js) --- */
 window.triggerDownloadPDF = function () {
   if (window.lastRegisteredData) {
-    window.BuktiPdf.unduh(window.lastRegisteredData, new URL("../#login", window.location.href).href).catch((e) => alert(e.message));
+    window.BuktiPdf.unduh(window.lastRegisteredData, new URL("../siswa/", window.location.href).href).catch((e) => alert(e.message));
   } else {
     alert("Belum ada data pendaftaran aktif pada sesi ini.");
   }
@@ -1198,7 +1198,7 @@ function renderStatusResult(found, statusResultEl) {
   const val = (v) => (v && v !== "-" ? v : "");
   const catatan = val(found.catatanAdmin) && !/^Berkas gagal diunggah otomatis/.test(found.catatanAdmin) ? found.catatanAdmin : "";
   const jurusan = val(found.jurusan1) ? ((window.BuktiPdf && window.BuktiPdf.NAMA_JURUSAN[found.jurusan1]) || found.jurusan1) : "-";
-  const siswaUrl = new URL("../#login", window.location.href).href;
+  const siswaUrl = new URL("../siswa/", window.location.href).href;
 
   const dot = (st) =>
     ({

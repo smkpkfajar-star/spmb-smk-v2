@@ -70,7 +70,16 @@ for (const dir of ["admin", "siswa"]) {
   }
 }
 if (/src="\.\/assets\//.test(pages["daftar/index.html"])) problems.push('daftar/index.html: path "./assets/" salah, pakai "../assets/"');
-if (!/id="siswaPanel"/.test(pages["index.html"])) problems.push("index.html: panel login siswa (#siswaPanel) wajib ada");
+// Halaman akun siswa (/siswa/) = halaman sendiri; semua id yang dipakai siswa.js harus ada di sana
+{
+  const siswaHtml = read("siswa/index.html");
+  const siswaJs = read("assets/js/siswa/siswa.js");
+  const ids = new Set([...siswaJs.matchAll(/\$\(\s*["']([\w-]+)["']\s*\)/g)].map((m) => m[1]));
+  for (const id of ids) if (!hasId(siswaHtml, id)) problems.push(`siswa/index.html: id "${id}" dipakai siswa.js tapi tidak ada`);
+  if (/http-equiv="refresh"/.test(siswaHtml)) problems.push("siswa/index.html: seharusnya halaman akun, bukan pengalih");
+  if (/id="siswaPanel"/.test(pages["index.html"])) problems.push("index.html: panel siswa tidak boleh lagi menjadi lapisan di beranda");
+  if (/href="#login"/.test(pages["index.html"])) problems.push('index.html: tautan "#login" harus diganti "siswa/"');
+}
 
 // Semua nomor WhatsApp panitia yang tertulis harus sama
 const WA_PANITIA = "628823212784";
@@ -100,7 +109,7 @@ cekUrutan("daftar/index.html (pilihan jurusan2)", pages["daftar/index.html"].spl
 cekUrutan("admin/ui.js (URUTAN_JURUSAN)", read("assets/js/admin/ui.js").match(/const URUTAN_JURUSAN = [^\n]*/)[0], /"(DKV|RPL|TITL|TKR|TSM)"/g);
 
 // Mode gelap: tema.js dimuat tepat setelah tailwind-config.js, dan ada tombol tema
-for (const name of ["index.html", "daftar/index.html", "admin/index.html", "admin/dashboard.html"]) {
+for (const name of ["index.html", "daftar/index.html", "siswa/index.html", "admin/index.html", "admin/dashboard.html"]) {
   const h = read(name);
   if (!/tailwind-config\.js"><\/script>\s*<script src="[^"]*\/umum\/tema\.js"><\/script>/.test(h)) problems.push(`${name}: tema.js harus dimuat tepat setelah tailwind-config.js`);
   if (name !== "admin/dashboard.html" && !/data-tema\b/.test(h)) problems.push(`${name}: tombol mode gelap (data-tema) belum ada`);
