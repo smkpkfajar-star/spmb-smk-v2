@@ -81,6 +81,13 @@ test("mode kios loket: kolom keempat = Pengawas Loket", () => {
   assert.equal(t.map((x) => x.peran).join("|"), "Calon Siswa|Orang Tua/Wali|Panitia SPMB|Pengawas Loket");
 });
 
+test("mode kios: nama petugas loket tercetak di kolom Pengawas Loket", () => {
+  const t = buildPdfContent(data, "x", { kiosk: true, petugas: "Pak Budi" }).ttd;
+  assert.equal(t[3].peran, "Pengawas Loket");
+  assert.equal(t[3].nama, "Pak Budi");
+  assert.equal(buildPdfContent(data, "x", { kiosk: true }).ttd[3].nama, "");
+});
+
 test("nama orang tua kosong → garis isian, bukan '-'", () => {
   const t = buildPdfContent({ ...data, namaOrtu: "" }, "x").ttd;
   assert.equal(t[1].nama, "");

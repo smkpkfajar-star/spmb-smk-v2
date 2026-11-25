@@ -488,7 +488,7 @@
     "loket": {
       title: "Loket Pendaftaran",
       roles: ["jaga_loket"],
-      async mount(app) {
+      async mount(app, profile) {
         const esc = Sheetson.escapeHtml;
         const hitung = (rows, field, value, fallback) => rows.filter((r) => (r[field] && r[field] !== "-" ? r[field] : fallback) === value).length;
         // Data yang tampil sengaja hanya yang bersifat umum (tanpa NISN, alamat, nomor HP, catatan).
@@ -519,7 +519,18 @@
         // Mode Teras hanya dinyalakan dari sini (perlu login petugas loket); pilihannya diingat di komputer ini
         const KUNCI = "spmb-kiosk";
         const aktif = () => { try { return root.localStorage.getItem(KUNCI) === "1"; } catch (_) { return false; } };
-        const simpan = (nyala) => { try { nyala ? root.localStorage.setItem(KUNCI, "1") : root.localStorage.removeItem(KUNCI); } catch (_) {} };
+        // Nama petugas ikut disimpan: tercetak di kolom "Pengawas Loket" pada bukti pendaftaran
+        const simpan = (nyala) => {
+          try {
+            if (nyala) {
+              root.localStorage.setItem(KUNCI, "1");
+              root.localStorage.setItem("spmb-kiosk-petugas", profile.nama_lengkap || "");
+            } else {
+              root.localStorage.removeItem(KUNCI);
+              root.localStorage.removeItem("spmb-kiosk-petugas");
+            }
+          } catch (_) {}
+        };
         app.insertAdjacentHTML("afterbegin", '<div id="loketMode" class="mb-6"></div>');
         const gambar = () => {
           const on = aktif();
@@ -528,6 +539,7 @@
               <div>
                 <p class="text-[13px] text-ink-500">Mode Teras di komputer ini</p>
                 <p class="text-[16px] font-semibold">${on ? "Menyala" : "Mati"}</p>
+                ${on ? `<p class="text-[13px] text-ink-500">Pengawas di bukti: ${esc((() => { try { return root.localStorage.getItem("spmb-kiosk-petugas") || "(nama belum diisi)"; } catch (_) { return "-"; } })())}</p>` : ""}
               </div>
               <div class="flex flex-wrap gap-2">
                 ${on

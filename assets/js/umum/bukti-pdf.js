@@ -104,7 +104,7 @@
         { peran: "Orang Tua/Wali", nama: isiNama(data.namaOrtu) },
         { peran: "Panitia SPMB", nama: "" },
         // Mode Teras (loket sekolah): pengawas yang menjaga loket; daftar lewat HP: Ketua SPMB
-        opsi && opsi.kiosk ? { peran: "Pengawas Loket", nama: "" } : { peran: "Ketua SPMB", nama: "" },
+        opsi && opsi.kiosk ? { peran: "Pengawas Loket", nama: isiNama(opsi.petugas) } : { peran: "Ketua SPMB", nama: "" },
       ],
     };
   }
@@ -117,7 +117,7 @@
   function buatDokumen(data, siswaUrl, opsi) {
     const pakaiKop = !!(opsi && opsi.kop);
     const { jsPDF } = root.jspdf;
-    const c = buildPdfContent(data, siswaUrl, { kiosk: !!(opsi && opsi.kiosk) });
+    const c = buildPdfContent(data, siswaUrl, { kiosk: !!(opsi && opsi.kiosk), petugas: opsi && opsi.petugas });
     const doc = new jsPDF({ unit: "mm", format: c.kertas }); // F4: 215 x 330 mm
     const PAGE_W = c.kertas[0];
     const PAGE_H = c.kertas[1];
@@ -393,16 +393,21 @@
     await muatJsPdf();
     const url = siswaUrl || alamatSiswa();
     const kiosk = !!(root.document && root.document.documentElement.classList.contains("kiosk"));
+    // Nama petugas loket yang menyalakan Mode Teras (disimpan saat login petugas loket)
+    let petugas = "";
+    if (kiosk) {
+      try { petugas = root.localStorage.getItem("spmb-kiosk-petugas") || ""; } catch (_) {}
+    }
     const kop = await ambilKop();
     if (kop) {
       try {
-        const { doc, namaFile: nama } = buatDokumen(data, url, { kop: true, kiosk });
+        const { doc, namaFile: nama } = buatDokumen(data, url, { kop: true, kiosk, petugas });
         return { bytes: await tempelKop(doc.output("arraybuffer"), kop), nama };
       } catch (e) {
         if (root.console) console.warn("Gagal menempel kop, PDF dibuat tanpa kop:", e);
       }
     }
-    const { doc, namaFile: nama } = buatDokumen(data, url, { kiosk });
+    const { doc, namaFile: nama } = buatDokumen(data, url, { kiosk, petugas });
     return { bytes: doc.output("arraybuffer"), nama };
   }
 
