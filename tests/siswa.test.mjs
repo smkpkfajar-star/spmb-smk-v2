@@ -84,3 +84,16 @@ test("langkahSiswa: mengundurkan diri → verifikasi dihentikan, hasil bertanda"
   assert.equal(l[3].ket, "Mengundurkan diri");
   assert.equal(nadaStatus("Mengundurkan Diri"), "info");
 });
+
+test("berkasTerbaru: hanya berkas paling baru (baris terakhir) yang dipakai", () => {
+  const { berkasTerbaru } = ctx.window.Sheetson;
+  const b = (r) => (berkasTerbaru(r) ? { ...berkasTerbaru(r) } : null);
+  assert.equal(b({}), null);
+  assert.equal(b({ urlBerkas: "-", namaBerkas: "-" }), null);
+  assert.deepEqual(b({ urlBerkas: "https://x/a.pdf", namaBerkas: "a.pdf" }), { url: "https://x/a.pdf", nama: "a.pdf" });
+  // data lama berisi beberapa berkas → ambil yang terakhir beserta namanya
+  assert.deepEqual(b({ urlBerkas: "https://x/a.pdf\nhttps://x/b.png", namaBerkas: "a.pdf\nb.png" }), { url: "https://x/b.png", nama: "b.png" });
+  assert.deepEqual(b({ urlBerkas: "https://x/a.pdf\r\nhttps://x/b.png\r\n", namaBerkas: "a.pdf\r\nb.png" }), { url: "https://x/b.png", nama: "b.png" });
+  // nama tidak berpasangan → pakai nama terakhir yang ada
+  assert.deepEqual(b({ urlBerkas: "https://x/a.pdf\nhttps://x/b.png", namaBerkas: "a.pdf" }), { url: "https://x/b.png", nama: "a.pdf" });
+});

@@ -333,11 +333,10 @@
         const esc = Sheetson.escapeHtml;
 
         const links = (row) => {
-          const urls = String(row.urlBerkas || "").split(/\r?\n/).map((s) => s.trim()).filter((s) => /^https?:\/\//.test(s));
-          if (!urls.length) return `<span class="text-ink-500">Belum ada</span>`;
-          return urls
-            .map((u, i) => `<a href="${esc(u)}" target="_blank" rel="noopener" class="mr-2 inline-block font-bold text-brand-700 underline">Berkas ${i + 1}</a>`)
-            .join("");
+          // hanya berkas terbaru; yang lama sudah diganti
+          const b = Sheetson.berkasTerbaru(row);
+          if (!b) return `<span class="text-ink-500">Belum ada</span>`;
+          return `<a href="${esc(b.url)}" target="_blank" rel="noopener" title="${esc(b.nama)}" class="inline-block max-w-[220px] truncate align-bottom font-bold text-brand-700 underline">${esc(b.nama || "Lihat berkas")}</a>`;
         };
         const toWa = (n) => {
           const d = String(n || "").replace(/\D/g, "");

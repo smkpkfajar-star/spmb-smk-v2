@@ -299,7 +299,7 @@
       jurusan1: ambil("jurusan1"),
       jurusan2: ambil("jurusan2"),
       waOrtu: ambil("waOrtu"),
-      namaBerkas: String(v.namaBerkas ?? "").split(/\r?\n/).filter((x) => x.trim() && x.trim() !== "-").join(", "),
+      namaBerkas: String(v.namaBerkas ?? "").split(/\r?\n/).map((x) => x.trim()).filter((x) => x && x !== "-").pop() || "",
       statusPendaftaran: v.statusPendaftaran && v.statusPendaftaran !== "-" ? v.statusPendaftaran : "Pending",
     };
   }

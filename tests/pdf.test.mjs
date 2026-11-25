@@ -93,7 +93,7 @@ test("gabungData: data diri dari Data_Pendaftar + status & berkas dari Verifikas
   const g = gabungData(diri, verif);
   assert.equal(g.nisn, "0012345678");
   assert.equal(g.statusPendaftaran, "Diterima");
-  assert.equal(g.namaBerkas, "kk.pdf, ijazah.pdf");
+  assert.equal(g.namaBerkas, "ijazah.pdf"); // hanya berkas terbaru
   assert.equal(g.namaOrtu, "Budi");
   const c = buildPdfContent(g, "x");
   const ttl = c.sections[0].rows.find(([l]) => l === "Tempat, Tanggal Lahir")[1];

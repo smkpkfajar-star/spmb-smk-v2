@@ -80,5 +80,17 @@
       .replace(/'/g, "&#39;");
   }
 
-  root.Sheetson = { getRows, rowsAfter, patchRow, normNisn, escapeHtml };
+  // Hanya berkas TERBARU yang dipakai: bila sel berisi beberapa baris (data lama), ambil yang terakhir.
+  // urlBerkas & namaBerkas berpasangan per baris.
+  function berkasTerbaru(row) {
+    const urls = String((row && row.urlBerkas) || "").split(/\r?\n/).map((x) => x.trim());
+    let i = urls.length - 1;
+    while (i >= 0 && !/^https?:\/\//.test(urls[i])) i--;
+    if (i < 0) return null;
+    const names = String((row && row.namaBerkas) || "").split(/\r?\n/).map((x) => x.trim());
+    const nama = names[i] && names[i] !== "-" ? names[i] : [...names].reverse().find((x) => x && x !== "-") || "";
+    return { url: urls[i], nama };
+  }
+
+  root.Sheetson = { berkasTerbaru, getRows, rowsAfter, patchRow, normNisn, escapeHtml };
 })(typeof window !== "undefined" ? window : globalThis);

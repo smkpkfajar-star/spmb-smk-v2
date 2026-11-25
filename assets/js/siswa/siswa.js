@@ -177,8 +177,7 @@
     // Sebelum hasil diumumkan panitia, Diterima/Ditolak tampil sebagai "Diverifikasi" (menunggu pengumuman)
     if (root.Pengaturan) await root.Pengaturan.ambil();
     const dilihat = root.Pengaturan ? { ...row, statusPendaftaran: root.Pengaturan.statusTampil(row.statusPendaftaran) } : row;
-    const urls = String(row.urlBerkas || "").split(/\r?\n/).filter((u) => /^https?:\/\//.test(u.trim()));
-    const names = String(row.namaBerkas || "").split(/\r?\n/);
+    const berkas = root.Sheetson.berkasTerbaru(row);
     const catatan = row.catatanAdmin && row.catatanAdmin !== "-" && !/^Berkas gagal diunggah otomatis/.test(row.catatanAdmin) ? catatanUntukSiswa(row.catatanAdmin) : "";
     const nama = String(row.namaLengkap || "").trim();
     $("homeNama").textContent = nama && nama !== "-" ? `Halo, ${nama}` : "Halo";
@@ -207,18 +206,15 @@
           : ""
       }
       <div class="mt-3 border border-hairline bg-white p-5 sm:p-6">
-        <h3 class="text-[16px] font-semibold">Berkas terunggah <span class="font-normal text-ink-500">(${urls.length})</span></h3>
+        <h3 class="text-[16px] font-semibold">Berkas terunggah</h3>
         ${
-          urls.length
-            ? `<ul class="mt-3 divide-y divide-hairline border-t border-hairline">${urls
-                .map(
-                  (u, i) => `<li><a href="${esc(u.trim())}" target="_blank" rel="noopener" class="group flex items-center gap-3 py-3">
+          berkas
+            ? `<ul class="mt-3 divide-y divide-hairline border-t border-hairline"><li><a href="${esc(berkas.url)}" target="_blank" rel="noopener" class="group flex items-center gap-3 py-3">
                     <span class="shrink-0 text-ink-500">${IKON_BERKAS}</span>
-                    <span class="min-w-0 flex-1 truncate text-[15px] group-hover:underline">${esc(names[i] && names[i] !== "-" ? names[i] : "Berkas " + (i + 1))}</span>
+                    <span class="min-w-0 flex-1 truncate text-[15px] group-hover:underline">${esc(berkas.nama || "Berkas")}</span>
                     <span class="shrink-0 text-[13px] text-ink-500 group-hover:text-ink-900">Lihat ↗</span>
-                  </a></li>`,
-                )
-                .join("")}</ul>`
+                  </a></li></ul>
+                <p class="mt-2 text-[13px] text-ink-500">Mengunggah berkas baru akan menggantikan berkas ini.</p>`
             : `<p class="mt-1 text-[14.5px] text-ink-500">Belum ada berkas.</p>`
         }
       </div>`;
@@ -279,11 +275,11 @@
       const up = await db().storage.from(bucket).upload(path, file);
       if (up.error) throw new Error("Unggah gagal: " + up.error.message);
       const url = db().storage.from(bucket).getPublicUrl(path).data.publicUrl;
-      await root.Sheetson.patchRow(SHEET, row.rowIndex, {
-        namaBerkas: appendLine(row.namaBerkas, file.name),
-        urlBerkas: appendLine(row.urlBerkas, url),
-        statusBerkas: "Sudah Unggah",
-      });
+      // Berkas baru MENGGANTIKAN yang lama (hanya berkas terbaru yang dicantumkan)
+      const ubah = { namaBerkas: file.name, urlBerkas: url, statusBerkas: "Sudah Unggah" };
+      await root.Sheetson.patchRow(SHEET, row.rowIndex, ubah);
+      // Salinan sementara Sheetson memegang objek baris yang sama: perbarui agar kartu "Berkas terunggah" langsung benar
+      Object.assign(row, ubah);
       input.value = "";
       infoBerkas("");
       msg(info, `✓ ${file.name} berhasil diunggah. Panitia akan memeriksanya.`, true);
