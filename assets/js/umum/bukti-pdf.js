@@ -102,7 +102,7 @@
       ttd: [
         { peran: "Calon Siswa", nama: isiNama(data.namaLengkap) },
         { peran: "Orang Tua/Wali", nama: isiNama(data.namaOrtu) },
-        { peran: "Panitia SPMB", nama: "" },
+        { peran: "Kepala Sekolah", nama: "" },
         // Mode Teras (loket sekolah): pengawas yang menjaga loket; daftar lewat HP: Ketua SPMB
         opsi && opsi.kiosk ? { peran: "Pengawas Loket", nama: isiNama(opsi.petugas) } : { peran: "Ketua SPMB", nama: "" },
       ],
