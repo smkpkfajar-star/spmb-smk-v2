@@ -38,6 +38,14 @@
     if (isi(f.statusTesFisik, "Belum Tes") !== "Lulus Tes") kurang.push("tes fisik");
     return { kode: kurang.length ? "Belum lengkap" : "Siap diterima", kurang };
   }
+  // Di dialog Verifikasi: memilih "Diterima" = tahap akhir (pengisian berkas terakhir). Catatan ikut kelengkapan semua divisi.
+  function peringatanTahapAkhir(nilai, r, kini) {
+    if (nilai !== "Diterima") return null;
+    const kl = kelengkapan({ ...r, statusBerkas: kini.statusBerkas, statusPendaftaran: "Pending" }, "verifikasi");
+    return kl.kurang.length
+      ? { nada: "akhir", teks: `Tahap akhir: setelah disimpan, ini pengisian berkas terakhir dan siswa dianggap diterima. Masih kurang: ${kl.kurang.join(", ")}. Sebaiknya dilengkapi dulu.` }
+      : { nada: "siap", teks: "Tahap akhir: berkas, pembayaran, dan tes fisik sudah lengkap. Setelah disimpan, ini pengisian berkas terakhir dan siswa dianggap diterima." };
+  }
   const OPSI_LENGKAP = ["Siap diterima", "Belum lengkap", "Sudah diterima", "Sudah jadi siswa resmi", "Ditolak / mundur"];
   const saringLengkap = (sendiri) => ({ id: "lengkap", label: "Kelengkapan (semua divisi)", get: (r) => kelengkapan(r, sendiri).kode, options: OPSI_LENGKAP });
   // Titik kecil di samping nama siswa: kelengkapan sekilas (hijau siap, kuning belum lengkap, biru sudah diterima, merah ditolak/mundur)
@@ -369,7 +377,7 @@
           columns: [
             { label: "Siswa", sortKey: "namaLengkap", render: (r) => `${titikKelengkapan(r, "verifikasi")}<b>${esc(r.namaLengkap || "-")}</b><br><span class="font-mono text-[12.5px] text-ink-500">${esc(r.noPendaftaran || "")}<br>NISN ${esc(r.nisn || "-")}</span>` },
             { label: "Jurusan", sortKey: "jurusan1", render: (r) => esc(r.jurusan1 || "-") + (r.jurusan2 && r.jurusan2 !== "-" ? `<br><span class="text-[13px] text-ink-500">Cadangan: ${esc(r.jurusan2)}</span>` : "") },
-            { label: "Status verifikasi", sortKey: "statusPendaftaran", render: (r) => AdminUI.badge(r.statusPendaftaran || "Pending") },
+            { label: "Status verifikasi", sortKey: "statusPendaftaran", render: (r) => AdminUI.badge(r.statusPendaftaran || "Pending") + (r.statusPendaftaran === "Diterima" ? `<span class="mt-0.5 block text-[12px] font-medium text-ink-500">Tahap akhir</span>` : "") },
             { label: "Berkas", wrap: true, render: links },
             {
               label: "Catatan",
@@ -393,7 +401,7 @@
           editTitle: (r) => `Verifikasi: ${r.namaLengkap || r.noPendaftaran}`,
           fields: [
             { name: "statusBerkas", label: "Status berkas", type: "select", options: ["Belum Unggah", "Sudah Unggah", "Gagal Unggah", "Berkas Terverifikasi", "Berkas Ditolak"] },
-            { name: "statusPendaftaran", label: "Status pendaftaran", type: "select", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak", "Mengundurkan Diri"], help: "Siswa melihat status ini di menu Cek Status. \"Mengundurkan Diri\" diisi otomatis saat siswa mundur sendiri; ubah kembali bila itu keliru." },
+            { name: "statusPendaftaran", label: "Status pendaftaran", type: "select", options: ["Pending", "Diverifikasi", "Diterima", "Ditolak", "Mengundurkan Diri"], labels: { Diterima: "Diterima (tahap akhir)" }, peringatan: peringatanTahapAkhir, help: "Siswa melihat status ini di menu Cek Status. \"Mengundurkan Diri\" diisi otomatis saat siswa mundur sendiri; ubah kembali bila itu keliru." },
             { name: "catatanAdmin", label: "Catatan untuk siswa", type: "textarea", help: "Contoh: Foto KK buram, mohon unggah ulang." },
           ],
           actions: [

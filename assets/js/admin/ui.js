@@ -658,7 +658,7 @@
   }
 
   // Dialog ubah data. fields: [{name, label, type: select|text|number|textarea|date, options, help}]
-  function openDialog({ title, subtitle, fields, values, onSave }) {
+  function openDialog({ title, subtitle, fields, values, baris, onSave }) {
     const overlay = document.createElement("div");
     overlay.className = "fixed inset-0 z-[60] bg-black/30";
     overlay.setAttribute("data-admin-overlay", "");
@@ -685,6 +685,7 @@
       </div>`;
     const wrap = box.querySelector("[data-fields]");
     const inputs = {};
+    const peringatan = [];
     fields.forEach((f) => {
       const id = `dlg-${f.name}`;
       const div = document.createElement("div");
@@ -701,7 +702,7 @@
         opts.forEach((o) => {
           const opt = document.createElement("option");
           opt.value = o;
-          opt.textContent = o === "" ? "-" : o;
+          opt.textContent = o === "" ? "-" : (f.labels && f.labels[o]) || o;
           input.appendChild(opt);
         });
       } else if (f.type === "textarea") {
@@ -724,9 +725,33 @@
         p.textContent = f.help;
         div.appendChild(p);
       }
+      // Catatan yang menyesuaikan pilihan (mis. penanda "tahap akhir"); f.peringatan(nilai, baris, kini) → { teks, nada } | null
+      if (f.peringatan) {
+        const info = document.createElement("p");
+        info.setAttribute("role", "status");
+        info.className = "mt-2 hidden rounded-md px-3 py-2 text-[13.5px] leading-snug";
+        div.appendChild(info);
+        peringatan.push({ f, info });
+      }
       wrap.appendChild(div);
       inputs[f.name] = input;
     });
+    const NADA_PERINGATAN = { akhir: "bg-amber-50 text-amber-900", siap: "bg-emerald-50 text-emerald-900" };
+    const segarkanPeringatan = () => {
+      const kini = Object.fromEntries(fields.map((f) => [f.name, inputs[f.name].value]));
+      peringatan.forEach(({ f, info }) => {
+        const p = f.peringatan(inputs[f.name].value, baris || {}, kini);
+        info.classList.toggle("hidden", !p);
+        if (p) {
+          info.textContent = p.teks;
+          info.className = `mt-2 rounded-md px-3 py-2 text-[13.5px] leading-snug ${NADA_PERINGATAN[p.nada] || NADA_PERINGATAN.akhir}`;
+        }
+      });
+    };
+    if (peringatan.length) {
+      box.addEventListener("change", segarkanPeringatan);
+      segarkanPeringatan();
+    }
     overlay.appendChild(box);
     document.body.appendChild(overlay);
     const first = box.querySelector("input, select, textarea");
@@ -1397,6 +1422,7 @@
         subtitle: `${row.noPendaftaran || ""} · NISN ${row.nisn || "-"}`,
         fields: config.fields,
         values: original,
+        baris: row,
         onSave: async (after) => {
           let changes = changedFields(original, after);
           if (config.beforeSave) changes = config.beforeSave(changes, row);
