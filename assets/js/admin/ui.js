@@ -471,7 +471,7 @@
     const tombolBunyi = document.querySelectorAll("[data-bunyi]");
     const paint = () => {
       const on = soundOn();
-      const teks = on ? "Bunyi pendaftar baru: nyala (klik untuk mematikan)" : "Bunyi pendaftar baru: mati (klik untuk menyalakan)";
+      const teks = on ? "Suara pendaftar baru: nyala (klik untuk mematikan)" : "Suara pendaftar baru: mati (klik untuk menyalakan)";
       tombolBunyi.forEach((b) => {
         b.setAttribute("aria-pressed", String(on));
         b.setAttribute("aria-label", teks);
@@ -494,7 +494,7 @@
   const soundOn = () => {
     try { return root.localStorage.getItem(SOUND_KEY) === "1"; } catch (_) { return false; }
   };
-  // Bunyi pendaftar baru: lonceng tiga nada naik (G5–B5–E6), diputar 2x (±2 detik).
+  // Bunyi cadangan (bila suara ucapan tidak ada): lonceng tiga nada naik (G5–B5–E6), diputar 2x (±2 detik).
   // f = frekuensi (Hz), t = mulai (detik), d = lama dengung, v = volume puncak.
   function polaBunyi() {
     const lonceng = [784, 988, 1319];
@@ -505,8 +505,30 @@
     return nada;
   }
 
+  // Notifikasi pendaftar baru: diucapkan "Ada pendaftar baru" (suara bawaan peramban, bahasa Indonesia).
+  // Bila peramban tidak mendukung suara ucapan, dipakai lonceng nada di bawah.
+  const UCAPAN_BARU = "Ada pendaftar baru";
+  function ucapkan(teks) {
+    try {
+      const ss = root.speechSynthesis;
+      if (!ss || typeof root.SpeechSynthesisUtterance !== "function") return false;
+      ss.cancel(); // jangan menumpuk bila beberapa pendaftar masuk berdekatan
+      const u = new root.SpeechSynthesisUtterance(teks);
+      u.lang = "id-ID";
+      u.rate = 0.95;
+      u.volume = 1;
+      const suara = (ss.getVoices ? ss.getVoices() : []).find((v) => /^id([-_]|$)/i.test(v.lang));
+      if (suara) u.voice = suara;
+      ss.speak(u);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   let audioCtx = null;
   function beep() {
+    if (ucapkan(UCAPAN_BARU)) return;
     try {
       const Ctx = root.AudioContext || root.webkitAudioContext;
       if (!Ctx) return;
