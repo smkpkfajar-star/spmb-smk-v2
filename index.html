@@ -114,9 +114,9 @@
         <p class="mt-3 font-mono text-[13px] text-ink-500">DKV · RPL · TITL · TKR · TSM — Kurikulum Merdeka</p>
       </section>
 
-      <!-- ======================= JADWAL + TERMINAL ======================= -->
+      <!-- ======================= JADWAL + KUOTA ======================= -->
       <section class="rule grid lg:grid-cols-2">
-        <!-- Grafik sisa kursi: menggantikan panel terminal begitu kuota diisi (status-spmb.js) -->
+        <!-- Grafik sisa kursi: tampil di sebelah jadwal begitu kuota diisi (status-spmb.js) -->
         <div id="kuotaPanel" class="hidden bg-surface p-5 font-mono text-[13px] leading-relaxed text-white sm:p-6" aria-labelledby="kuotaJudul">
           <div class="mb-3 flex items-center gap-1.5 text-white/50">
             <span class="h-2.5 w-2.5 rounded-full bg-white/25" aria-hidden="true"></span><span class="h-2.5 w-2.5 rounded-full bg-white/25" aria-hidden="true"></span><span class="h-2.5 w-2.5 rounded-full bg-gold-500" aria-hidden="true"></span>
@@ -128,22 +128,7 @@
           <p id="kuotaDesak" class="kq-goyang mt-5 hidden rounded-md bg-white/10 px-3 py-2 font-sans text-[13.5px] font-medium leading-snug text-gold-400" role="status"></p>
           <a data-spmb-daftar href="daftar/index.html" class="btn kq-ajak mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-gold-500 px-6 font-sans text-[14.5px] font-semibold text-black">Amankan kursimu <span aria-hidden="true">→</span></a>
         </div>
-        <div id="terminalPanel" class="bg-surface p-6 font-mono text-[13px] leading-relaxed text-white sm:p-8">
-          <div class="mb-4 flex items-center gap-1.5 text-white/50" aria-hidden="true">
-            <span class="h-2.5 w-2.5 rounded-full bg-white/25"></span><span class="h-2.5 w-2.5 rounded-full bg-white/25"></span><span class="h-2.5 w-2.5 rounded-full bg-gold-500"></span>
-            <span class="ml-2">~/spmb-2026</span>
-          </div>
-          <div id="termLines" class="min-h-[13.5rem]">
-            <p><span class="text-gold-500">$ </span><span data-type="cmd">spmb daftar --online</span></p>
-            <p class="text-white/75" data-type="out">✓ formulir 1 halaman · ±10 menit</p>
-            <p class="text-white/75" data-type="out">✓ unggah berkas PDF/JPG/PNG</p>
-            <p class="text-white/75" data-type="out">✓ dapat nomor &amp; bukti PDF</p>
-            <p class="mt-3"><span class="text-gold-500">$ </span><span data-type="cmd">spmb biaya</span></p>
-            <p class="text-gold-400" data-type="out">Pendaftaran online 100% gratis.</p>
-            <p class="text-gold-400" data-type="out">Daftar ulang mulai Rp2 juta, sisanya bisa diangsur.</p>
-          </div>
-        </div>
-        <div class="p-6 sm:p-8">
+        <div class="p-6 sm:p-8 lg:col-span-2 lg:[#kuotaPanel:not(.hidden)~&]:col-span-1">
           <h2 class="heading text-xl">Jadwal penting SPMB</h2>
           <p class="mt-1 text-[15px] text-ink-600">Agenda pendaftaran 2026/2027. Jadwal dapat berubah sewaktu-waktu.</p>
           <ol class="mt-5 divide-y divide-hairline border-y border-hairline">

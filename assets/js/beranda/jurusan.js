@@ -1,6 +1,6 @@
 /* ============================================================
    jurusan.js — beranda: penjelajah jurusan (klik → detail),
-   judul hero berganti kata, dan panel terminal yang mengetik.
+   judul hero berganti kata.
    Tanpa library. Animasi mati bila pengguna memilih "kurangi gerakan"
    atau saat mode teras (kiosk).
 
@@ -191,27 +191,8 @@
     }
   }
 
-  // Panel terminal: baris diketik satu per satu saat pertama kali terlihat
-  function initTerminal() {
-    const box = document.getElementById("termLines");
-    if (!box || calm() || !("IntersectionObserver" in root)) return;
-    const lines = [...box.querySelectorAll("[data-type]")];
-    const texts = lines.map((l) => l.textContent);
-    const io = new IntersectionObserver(async (entries) => {
-      if (!entries.some((e) => e.isIntersecting)) return;
-      io.disconnect();
-      lines.forEach((l) => (l.textContent = ""));
-      for (let k = 0; k < lines.length; k++) {
-        await typeInto(lines[k], texts[k], lines[k].dataset.type === "cmd" ? 30 : 10);
-        await wait(lines[k].dataset.type === "cmd" ? 250 : 60);
-      }
-    }, { threshold: 0.4 });
-    io.observe(box);
-  }
-
   document.addEventListener("DOMContentLoaded", () => {
     initExplorer();
     initHeroWord();
-    initTerminal();
   });
 })(typeof window !== "undefined" ? window : globalThis);

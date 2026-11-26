@@ -3,7 +3,7 @@
    - SPMB ditutup: badge "resmi dibuka" → "ditutup", tombol Daftar disembunyikan,
      jadwal "Dibuka" → "Ditutup", info singkat (pesan superadmin / tanggal buka) di hero.
    - Hitung mundur penutupan bila jadwal tutup sudah diisi.
-   - Grafik sisa kursi per jurusan: menggantikan panel terminal (section 2) bila kuota sudah diisi.
+   - Grafik sisa kursi per jurusan: tampil di sebelah jadwal bila kuota sudah diisi.
    - Banner pengumuman, nomor WhatsApp & jam layanan, layar pemeliharaan.
    (Pop-up promo diatur terpisah di promo.js.)
    ============================================================ */
@@ -116,7 +116,7 @@
     const grafik = document.getElementById("kuotaGrafik");
     if (!panel || !grafik) return;
     const ringkas = root.Pengaturan.ringkasKuota(await root.Pengaturan.ambilKuota());
-    if (!ringkas.length) return; // belum ada kuota → panel terminal tetap tampil
+    if (!ringkas.length) return; // belum ada kuota → panel tetap tersembunyi
     pasangGayaKuota();
     const baris = ringkas.map(barisGrafik);
     baris.forEach((b) => grafik.appendChild(b.li));
@@ -126,9 +126,6 @@
       $desak.textContent = `🔥 ${desak}`;
       $desak.classList.remove("hidden");
     }
-    // Grafik menggantikan panel terminal
-    const terminal = document.getElementById("terminalPanel");
-    if (terminal) terminal.classList.add("hidden");
     panel.classList.remove("hidden");
     // Batang tumbuh saat panel terlihat di layar
     const mulaiSemua = () => baris.forEach((b, i) => setTimeout(b.mulai, tanpaGerak() ? 0 : i * 130));
