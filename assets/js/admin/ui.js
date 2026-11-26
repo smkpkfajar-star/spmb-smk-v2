@@ -795,14 +795,14 @@
   }
 
   // Pop-up kecil hanya-baca di tengah layar (mis. status divisi lain)
-  function openInfo({ title, subtitle, html }) {
+  function openInfo({ title, subtitle, html, lebar }) {
     const overlay = document.createElement("div");
     overlay.className = "fixed inset-0 z-[60] flex items-center justify-center bg-black/30 p-4";
     overlay.setAttribute("data-admin-overlay", "");
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
     overlay.setAttribute("aria-label", title);
-    overlay.innerHTML = `<div class="w-full max-w-sm rounded-lg border border-hairline bg-white p-5 shadow-soft">
+    overlay.innerHTML = `<div class="max-h-[92vh] w-full ${lebar ? "max-w-3xl" : "max-w-sm"} overflow-y-auto rounded-lg border border-hairline bg-white p-5 shadow-soft">
         <h2 class="text-[17px] font-semibold tracking-tight">${esc(title)}</h2>
         ${subtitle ? `<p class="mt-0.5 font-mono text-[12.5px] text-ink-500">${esc(subtitle)}</p>` : ""}
         <div class="mt-4">${html}</div>

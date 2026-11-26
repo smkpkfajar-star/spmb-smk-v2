@@ -357,16 +357,56 @@
           const ext = (b.url.split("?")[0].match(/\.(pdf|jpe?g|png)$/i) || [".pdf"])[0].toLowerCase();
           return b.url + (b.url.includes("?") ? "&" : "?") + "download=" + encodeURIComponent((b.label || "berkas").replace(/\s+/g, "-") + ext);
         };
+        const jenisBerkas = (b) => (b.lama ? "Berkas sebelumnya" : b.label);
+        const jenisFile = (url) => {
+          const e = ((String(url).split("?")[0].match(/\.([a-z0-9]+)$/i) || [])[1] || "").toLowerCase();
+          return /^(jpe?g|png|webp|gif)$/.test(e) ? "gambar" : e === "pdf" ? "pdf" : "lain";
+        };
+        // Pop-up berkas: pilih jenis di atas, pratinjau langsung di bawahnya, tombol Unduh / Buka di tab baru
         const bukaBerkas = (row) => {
           const daftar = Sheetson.daftarBerkas(row);
+          const ada = daftar.filter((b) => b.url);
           const ijazahAda = daftar.some((b) => (b.id === "ijazah" || b.id === "skl") && b.url);
-          const baris = daftar.filter((b) => b.url || b.id === "kk" || b.id === "kartuPelajar" || (b.id === "ijazah" && !ijazahAda));
-          const item = (b) => `<li class="flex items-center gap-3 py-2.5"><span class="min-w-0 flex-1 text-[15px] ${b.url ? "font-medium" : "text-ink-500"}">${esc(b.lama ? "Berkas sebelumnya" : b.id === "ijazah" && !b.url ? "Ijazah/SKL" : b.label)}${b.url ? "" : " · belum"}</span>${
-            b.url
-              ? `<a href="${esc(b.url)}" target="_blank" rel="noopener" class="text-[14px] font-semibold text-brand-700 underline">Lihat</a><a href="${esc(unduhUrl(b))}" download class="text-[14px] font-semibold text-brand-700 underline">Unduh</a>`
-              : ""
-          }</li>`;
-          AdminUI.openInfo({ title: "Berkas pendaftar", subtitle: `${row.namaLengkap || ""} · ${row.noPendaftaran || ""}`, html: `<ul class="divide-y divide-hairline border-y border-hairline">${baris.map(item).join("")}</ul>` });
+          const kurang = daftar.filter((b) => !b.url && (b.id === "kk" || b.id === "kartuPelajar" || (b.id === "ijazah" && !ijazahAda))).map((b) => (b.id === "ijazah" ? "Ijazah/SKL" : b.label));
+          AdminUI.openInfo({
+            title: "Berkas pendaftar",
+            subtitle: `${row.namaLengkap || ""} · ${row.noPendaftaran || ""}`,
+            lebar: true,
+            html: `<div data-berkas-kotak>
+              <div class="flex flex-wrap gap-2">${ada.map((b, i) => `<button type="button" data-berkas-pilih="${i}" class="rounded-full px-3.5 py-1.5 text-[14px] font-semibold"></button>`).join("")}</div>
+              <div data-berkas-lihat class="mt-3 overflow-hidden rounded-md border border-hairline bg-sand"></div>
+              <div class="mt-3 flex items-center gap-4 text-[14px] font-semibold">
+                <a data-berkas-unduh href="#" download class="text-brand-700 underline">Unduh</a>
+                <a data-berkas-tab href="#" target="_blank" rel="noopener" class="text-brand-700 underline">Buka di tab baru</a>
+              </div>
+              ${kurang.length ? `<p class="mt-3 text-[13.5px] text-ink-500">Belum diunggah: ${esc(kurang.join(", "))}</p>` : ""}
+            </div>`,
+          });
+          const ov = [...document.querySelectorAll("[data-admin-overlay]")].pop();
+          const kotak = ov.querySelector("[data-berkas-kotak]");
+          const pilih = (i) => {
+            const b = ada[i];
+            kotak.querySelectorAll("[data-berkas-pilih]").forEach((t, k) => {
+              t.textContent = jenisBerkas(ada[k]);
+              t.className = "rounded-full px-3.5 py-1.5 text-[14px] font-semibold " + (k === i ? "bg-ink-900 text-white" : "shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand");
+            });
+            const jenis = jenisFile(b.url);
+            const lihat = kotak.querySelector("[data-berkas-lihat]");
+            lihat.innerHTML =
+              jenis === "gambar"
+                ? `<img src="${esc(b.url)}" alt="${esc(jenisBerkas(b))}" class="mx-auto max-h-[65vh] w-auto max-w-full object-contain" />`
+                : jenis === "pdf"
+                  ? `<iframe src="${esc(b.url)}" title="${esc(jenisBerkas(b))}" class="h-[65vh] w-full bg-white"></iframe>`
+                  : `<p class="p-6 text-center text-[14.5px] text-ink-600">Pratinjau tidak tersedia untuk jenis berkas ini. Gunakan Unduh atau Buka di tab baru.</p>`;
+            kotak.querySelector("[data-berkas-unduh]").href = unduhUrl(b);
+            kotak.querySelector("[data-berkas-tab]").href = b.url;
+          };
+          kotak.addEventListener("click", (e) => {
+            const t = e.target.closest("[data-berkas-pilih]");
+            if (t) pilih(Number(t.dataset.berkasPilih));
+          });
+          if (ada.length) pilih(0);
+          else kotak.querySelector("[data-berkas-lihat]").innerHTML = `<p class="p-6 text-center text-[14.5px] text-ink-600">Belum ada berkas.</p>`;
         };
         app.addEventListener("click", (e) => {
           const tombol = e.target.closest("[data-berkas-row]");
