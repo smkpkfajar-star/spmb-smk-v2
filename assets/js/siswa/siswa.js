@@ -23,8 +23,8 @@
   function nadaStatus(text) {
     const t = String(text || "");
     if (/Mengundurkan/i.test(t)) return "info";
-    if (/Ditolak|Gagal/i.test(t)) return "bad";
-    if (/Diterima|Terverifikasi|Sudah/i.test(t)) return "ok";
+    if (/Ditolak|Gagal|Tidak Lulus/i.test(t)) return "bad";
+    if (/Diterima|Terverifikasi|Sudah|Lunas|Lulus/i.test(t)) return "ok";
     if (/Diverifikasi/i.test(t)) return "info";
     return "wait";
   }
@@ -65,6 +65,37 @@
     ];
   }
 
+  // Rincian proses yang boleh dilihat siswa (transparansi): pembayaran, voucher, tes fisik, seragam.
+  // Catatan internal petugas (catatanBendahara, catatanTesFisik, riwayat penyakit, tato) sengaja TIDAK ditampilkan.
+  // Hasil tes fisik baru tampil setelah hasil diumumkan; sebelumnya hanya "sudah dites".
+  // Mengembalikan [{ label, nilai, nada? }]; kosong bila datanya belum terbaca.
+  const ada = (v) => v !== undefined && v !== null && String(v).trim() !== "" && String(v).trim() !== "-";
+  const rupiahTeks = (v) => (Number(v) > 0 ? "Rp " + Number(v).toLocaleString("id-ID") : "");
+  function rincianProses(uang, fisik, hasilDiumumkan) {
+    const out = [];
+    if (uang) {
+      out.push({ label: "Pembayaran biaya pendaftaran", nilai: ada(uang.statusBiayaDaftar) ? uang.statusBiayaDaftar : "Belum Bayar" });
+      if (ada(uang.metodePembayaran) && /Lunas/i.test(uang.statusBiayaDaftar || "")) out.push({ label: "Metode pembayaran", nilai: uang.metodePembayaran, polos: true });
+      if (ada(uang.kodeVoucher) && uang.statusVoucher !== "Tidak Ada") {
+        out.push({ label: `Voucher ${uang.kodeVoucher}`, nilai: ada(uang.statusVoucher) ? uang.statusVoucher : "Pending" });
+        if (rupiahTeks(uang.potonganBiaya)) out.push({ label: "Potongan biaya", nilai: rupiahTeks(uang.potonganBiaya), polos: true });
+      }
+    }
+    if (fisik) {
+      const hasil = ada(fisik.statusTesFisik) ? fisik.statusTesFisik : "Belum Tes";
+      const sudah = !/^Belum/i.test(hasil);
+      out.push(
+        sudah && hasilDiumumkan === false
+          ? { label: "Tes fisik", nilai: "Sudah dites (hasil menunggu pengumuman)", nada: "info" }
+          : { label: "Tes fisik", nilai: hasil },
+      );
+      if (Number(fisik.tinggiBadan) > 0 || Number(fisik.beratBadan) > 0)
+        out.push({ label: "Tinggi / berat badan", nilai: `${Number(fisik.tinggiBadan) > 0 ? fisik.tinggiBadan + " cm" : "-"} / ${Number(fisik.beratBadan) > 0 ? fisik.beratBadan + " kg" : "-"}`, polos: true });
+      if (ada(fisik.ukuranSeragam)) out.push({ label: "Ukuran seragam", nilai: fisik.ukuranSeragam, polos: true });
+    }
+    return out;
+  }
+
   /* ---------- pengunduran diri (fungsi murni, dites) ---------- */
   const STATUS_MUNDUR = "Mengundurkan Diri";
   // Boleh mundur selama belum Ditolak / belum mundur (kosong, "-", Pending, Diverifikasi, Diterima)
@@ -86,7 +117,7 @@
       .trim();
   }
 
-  root.Siswa = { appendLine, findMyRow, nisnFromEmail, nadaStatus, langkahSiswa, STATUS_MUNDUR, bisaMundur, catatanMundur, catatanUntukSiswa };
+  root.Siswa = { rincianProses, appendLine, findMyRow, nisnFromEmail, nadaStatus, langkahSiswa, STATUS_MUNDUR, bisaMundur, catatanMundur, catatanUntukSiswa };
   if (typeof document === "undefined") return;
 
   /* ---------- halaman ---------- */
@@ -108,6 +139,8 @@
   const TITIK_NADA = { ok: "#16A34A", bad: "#DC2626", info: "#0284C7", wait: "#D97706" };
   const statusTeks = (text) =>
     `<span class="flex items-start gap-2 text-[15px] font-medium leading-snug"><span class="mt-[7px] h-2 w-2 shrink-0 rounded-full" style="background:${TITIK_NADA[nadaStatus(text)]}" aria-hidden="true"></span>${esc(text)}</span>`;
+  const statusTeksNada = (text, nada) =>
+    `<span class="flex items-start gap-2 text-[15px] font-medium leading-snug"><span class="mt-[7px] h-2 w-2 shrink-0 rounded-full" style="background:${TITIK_NADA[nada]}" aria-hidden="true"></span><span>${esc(text)}</span></span>`;
   const IKON_CENTANG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`;
   const IKON_BERKAS = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>`;
   const STATE_TEKS = { done: "selesai", now: "sedang berjalan", todo: "belum", bad: "perlu perhatian" };
@@ -133,6 +166,26 @@
       )
       .join("")}</ol>`;
   }
+  function rincianHtml(rincian, diri) {
+    const baris = (b) => `<div class="flex items-start justify-between gap-4 py-2.5"><dt class="text-[14px] text-ink-600">${esc(b.label)}</dt><dd class="text-right">${
+      b.polos ? `<span class="text-[15px] font-medium">${esc(b.nilai)}</span>` : b.nada ? statusTeksNada(b.nilai, b.nada) : statusTeks(b.nilai)
+    }</dd></div>`;
+    const data = diri
+      ? [
+          ["Tanggal daftar", ada(diri.createdAt) ? diri.createdAt : ""],
+          ["Jurusan pilihan 1", diri.jurusan1],
+          ["Jurusan pilihan 2", diri.jurusan2],
+          ["Asal sekolah", diri.asalSekolah],
+        ].filter(([, v]) => ada(v))
+      : [];
+    if (!rincian.length && !data.length) return "";
+    return `<div class="mt-3 border border-hairline bg-white p-5 sm:p-6" id="homeRincian">
+        <h3 class="text-[16px] font-semibold">Rincian proses</h3>
+        <p class="mt-0.5 text-[13px] text-ink-500">Semua yang sudah tercatat atas namamu, supaya jelas dan transparan.</p>
+        ${rincian.length ? `<dl class="mt-3 divide-y divide-hairline border-t border-hairline">${rincian.map(baris).join("")}</dl>` : ""}
+        ${data.length ? `<h4 class="mt-4 text-[13px] font-semibold uppercase tracking-wide text-ink-500">Data pendaftaran</h4><dl class="mt-1 divide-y divide-hairline border-t border-hairline">${data.map(([k, v]) => baris({ label: k, nilai: v, polos: true })).join("")}</dl>` : ""}
+      </div>`;
+  }
   // Label nama berkas di tombol unggah (sama seperti formulir pendaftaran)
   const ukuranTeks = (n) => (n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
   function infoBerkas(teks) {
@@ -153,11 +206,13 @@
     $("homeBody").innerHTML = `<div class="border border-hairline bg-white p-5 sm:p-6" aria-hidden="true"><div class="skeleton h-4 w-40"></div><div class="mt-5 grid grid-cols-4 gap-3"><div class="skeleton h-14"></div><div class="skeleton h-14"></div><div class="skeleton h-14"></div><div class="skeleton h-14"></div></div></div><span class="sr-only">Memuat data</span>`;
     let row = null;
     let statusSiswaSheet = "";
+    let diriRow = null;
     try {
       row = findMyRow(await root.Sheetson.getRows(SHEET), nisn);
       // Status "siswa resmi" ada di Data_Pendaftar (diisi bagian keuangan); gagal baca tidak menghalangi halaman
       try {
         const diri = findMyRow(await root.Sheetson.getRows("Data_Pendaftar"), nisn);
+        diriRow = diri;
         statusSiswaSheet = diri ? diri.status_siswa || diri.statusSiswa || "" : ""; // kolom Status_Siswa terbaca sebagai status_siswa
       } catch (_) {}
     } catch (e) {
@@ -175,7 +230,17 @@
     $("undurBox").classList.toggle("hidden", !bisaMundur(row.statusPendaftaran));
     resetFormMundur();
     // Sebelum hasil diumumkan panitia, Diterima/Ditolak tampil sebagai "Diverifikasi" (menunggu pengumuman)
-    if (root.Pengaturan) await root.Pengaturan.ambil();
+    const pengaturan = root.Pengaturan ? await root.Pengaturan.ambil() : null;
+    // Pembayaran & tes fisik (sheet divisi lain) dicari lewat nomor pendaftaran; gagal baca tidak menghalangi halaman
+    const cariNomor = async (sheet) => {
+      try {
+        return (await root.Sheetson.getRows(sheet)).find((r) => String(r.noPendaftaran || "").trim() === String(row.noPendaftaran || "").trim()) || null;
+      } catch (_) {
+        return null;
+      }
+    };
+    const [uangRow, fisikRow] = await Promise.all([cariNomor("Keuangan_Voucher"), cariNomor("Tes_Fisik_Seragam")]);
+    const rincian = rincianProses(uangRow, fisikRow, pengaturan ? pengaturan.hasilDiumumkan : undefined);
     const dilihat = root.Pengaturan ? { ...row, statusPendaftaran: root.Pengaturan.statusTampil(row.statusPendaftaran) } : row;
     const berkas = root.Sheetson.berkasTerbaru(row);
     const catatan = row.catatanAdmin && row.catatanAdmin !== "-" && !/^Berkas gagal diunggah otomatis/.test(row.catatanAdmin) ? catatanUntukSiswa(row.catatanAdmin) : "";
@@ -195,6 +260,7 @@
           ${ss.tampil ? `<div class="col-span-2"><dt class="text-[12.5px] text-ink-500">Status siswa</dt><dd class="mt-1" id="homeStatusSiswa">${statusTeks(ss.teks)}</dd></div>` : ""}
         </dl>
       </div>
+      ${rincianHtml(rincian, diriRow)}
       ${
         catatan
           ? `<div class="mt-3 border border-hairline border-l-2 border-l-ink-900 bg-white p-4 sm:px-6"><p class="text-[12.5px] text-ink-500">Catatan panitia</p><p class="mt-1 whitespace-pre-line text-[15px]">${esc(catatan)}</p></div>`

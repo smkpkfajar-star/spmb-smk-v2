@@ -97,3 +97,27 @@ test("berkasTerbaru: hanya berkas paling baru (baris terakhir) yang dipakai", ()
   // nama tidak berpasangan → pakai nama terakhir yang ada
   assert.deepEqual(b({ urlBerkas: "https://x/a.pdf\nhttps://x/b.png", namaBerkas: "a.pdf" }), { url: "https://x/b.png", nama: "a.pdf" });
 });
+
+test("rincianProses: pembayaran, voucher, tes fisik; catatan internal tidak ikut", () => {
+  const { rincianProses, nadaStatus } = ctx.window.Siswa;
+  const ringkas = (u, f, d) => [...rincianProses(u, f, d)].map((x) => `${x.label}=${x.nilai}`);
+  assert.deepEqual(ringkas(null, null, true), []);
+  const uang = { statusBiayaDaftar: "Lunas", metodePembayaran: "Transfer", kodeVoucher: "-", statusVoucher: "Tidak Ada", potonganBiaya: 0, catatanBendahara: "rahasia" };
+  assert.deepEqual(ringkas(uang, null, true), ["Pembayaran biaya pendaftaran=Lunas", "Metode pembayaran=Transfer"]);
+  assert.deepEqual(ringkas({ statusBiayaDaftar: "-" }, null, true), ["Pembayaran biaya pendaftaran=Belum Bayar"]);
+  const vc = { statusBiayaDaftar: "Belum Bayar", kodeVoucher: "HEMAT", statusVoucher: "Valid", potonganBiaya: 250000 };
+  assert.deepEqual(ringkas(vc, null, true), ["Pembayaran biaya pendaftaran=Belum Bayar", "Voucher HEMAT=Valid", "Potongan biaya=Rp 250.000"]);
+  const fisik = { statusTesFisik: "Lulus Tes", tinggiBadan: 168, beratBadan: 55, ukuranSeragam: "L", tatoTindik: "Tidak Ada", catatanTesFisik: "rahasia" };
+  assert.deepEqual(ringkas(null, fisik, true), ["Tes fisik=Lulus Tes", "Tinggi / berat badan=168 cm / 55 kg", "Ukuran seragam=L"]);
+  assert.deepEqual(ringkas(null, { statusTesFisik: "Belum Tes", tinggiBadan: 0, beratBadan: 0, ukuranSeragam: "-" }, true), ["Tes fisik=Belum Tes"]);
+  // hasil tes belum boleh terlihat sebelum pengumuman
+  assert.deepEqual(ringkas(null, { statusTesFisik: "Tidak Lulus" }, false), ["Tes fisik=Sudah dites (hasil menunggu pengumuman)"]);
+  assert.deepEqual(ringkas(null, { statusTesFisik: "Belum Tes" }, false), ["Tes fisik=Belum Tes"]);
+  const semua = JSON.stringify(rincianProses(uang, fisik, true));
+  assert.ok(!/rahasia|Tato|Tidak Ada/.test(semua.replace(/"Transfer"/g, "")), "catatan internal tidak boleh bocor");
+  assert.equal(nadaStatus("Lunas"), "ok");
+  assert.equal(nadaStatus("Lulus Tes"), "ok");
+  assert.equal(nadaStatus("Tidak Lulus"), "bad");
+  assert.equal(nadaStatus("Belum Bayar"), "wait");
+  assert.equal(nadaStatus("Belum Tes"), "wait");
+});
