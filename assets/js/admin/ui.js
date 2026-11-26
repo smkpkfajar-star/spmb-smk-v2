@@ -505,19 +505,40 @@
     return nada;
   }
 
-  // Notifikasi pendaftar baru: diucapkan "Ada pendaftar baru" (suara bawaan peramban, bahasa Indonesia).
-  // Bila peramban tidak mendukung suara ucapan, dipakai lonceng nada di bawah.
+  // Notifikasi pendaftar baru: dentang dua nada yang merdu, lalu diucapkan "Ada pendaftar baru"
+  // dengan suara paling alami yang ada di perangkat (bahasa Indonesia). Bila suara ucapan tidak
+  // didukung peramban, dipakai lonceng tiga nada (polaBunyi).
   const UCAPAN_BARU = "Ada pendaftar baru";
+  const DENTANG = [
+    { f: 1319, t: 0, d: 0.7, v: 0.28 },
+    { f: 988, t: 0.2, d: 1.0, v: 0.32 },
+  ];
+  // Nilai tiap suara: yang "natural/online" paling bagus, lalu Google, lalu suara Indonesia lain.
+  function nilaiSuara(v) {
+    const n = String(v.name || "");
+    let skor = 0;
+    if (/natural|neural|online/i.test(n)) skor += 4;
+    if (/google/i.test(n)) skor += 3;
+    if (/gadis|damayanti|ardi|andika|indonesia/i.test(n)) skor += 2;
+    if (v.localService === false) skor += 1;
+    return skor;
+  }
+  function suaraTerbaik(ss) {
+    const daftar = (ss.getVoices ? ss.getVoices() : []).filter((v) => /^id([-_]|$)/i.test(v.lang));
+    return daftar.sort((x, y) => nilaiSuara(y) - nilaiSuara(x))[0] || null;
+  }
+  const bisaUcap = () => !!(root.speechSynthesis && typeof root.SpeechSynthesisUtterance === "function");
   function ucapkan(teks) {
     try {
+      if (!bisaUcap()) return false;
       const ss = root.speechSynthesis;
-      if (!ss || typeof root.SpeechSynthesisUtterance !== "function") return false;
       ss.cancel(); // jangan menumpuk bila beberapa pendaftar masuk berdekatan
       const u = new root.SpeechSynthesisUtterance(teks);
       u.lang = "id-ID";
-      u.rate = 0.95;
+      u.rate = 1;
+      u.pitch = 1.1; // sedikit lebih ceria
       u.volume = 1;
-      const suara = (ss.getVoices ? ss.getVoices() : []).find((v) => /^id([-_]|$)/i.test(v.lang));
+      const suara = suaraTerbaik(ss);
       if (suara) u.voice = suara;
       ss.speak(u);
       return true;
@@ -525,10 +546,21 @@
       return false;
     }
   }
+  // Daftar suara dimuat peramban secara tidak serentak; minta lebih awal agar siap saat dibutuhkan.
+  try {
+    if (root.speechSynthesis && root.speechSynthesis.getVoices) root.speechSynthesis.getVoices();
+  } catch (_) {}
 
   let audioCtx = null;
   function beep() {
-    if (ucapkan(UCAPAN_BARU)) return;
+    if (bisaUcap()) {
+      mainkan(DENTANG);
+      setTimeout(() => ucapkan(UCAPAN_BARU), 750);
+      return;
+    }
+    mainkan(polaBunyi());
+  }
+  function mainkan(pola) {
     try {
       const Ctx = root.AudioContext || root.webkitAudioContext;
       if (!Ctx) return;
@@ -541,7 +573,7 @@
       limiter.ratio.value = 12;
       limiter.connect(ac.destination);
       const t0 = ac.currentTime + 0.05;
-      polaBunyi().forEach((n) => {
+      pola.forEach((n) => {
         // nada dasar + dentang oktaf atas yang lebih pelan → terdengar seperti lonceng
         [
           [n.f, "triangle", n.v],
