@@ -111,12 +111,22 @@
     return { li, mulai: () => (batang.style.width = `${k.persen}%`) };
   }
 
+  // Buang kerangka berkilau (shimmer) yang tampil selagi data kuota dimuat
+  function hapusKerangkaKuota() {
+    const k = document.getElementById("kuotaSkel");
+    if (k) k.remove();
+  }
+
   async function pasangKuota() {
     const panel = document.getElementById("kuotaPanel");
     const grafik = document.getElementById("kuotaGrafik");
-    if (!panel || !grafik) return;
-    const ringkas = root.Pengaturan.ringkasKuota(await root.Pengaturan.ambilKuota());
-    if (!ringkas.length) return; // belum ada kuota → panel tetap tersembunyi
+    if (!panel || !grafik) return hapusKerangkaKuota();
+    let ringkas = [];
+    try {
+      ringkas = root.Pengaturan.ringkasKuota(await root.Pengaturan.ambilKuota());
+    } catch (_) {}
+    hapusKerangkaKuota();
+    if (!ringkas.length) return; // belum ada kuota (atau gagal dimuat) → panel tetap tersembunyi
     pasangGayaKuota();
     const baris = ringkas.map(barisGrafik);
     baris.forEach((b) => grafik.appendChild(b.li));
@@ -145,13 +155,20 @@
   }
 
   document.addEventListener("DOMContentLoaded", async () => {
-    if (!root.Pengaturan) return;
-    const p = await root.Pengaturan.ambil();
+    if (!root.Pengaturan) return hapusKerangkaKuota();
+    let p;
+    try {
+      p = await root.Pengaturan.ambil();
+    } catch (e) {
+      hapusKerangkaKuota();
+      throw e;
+    }
     root.Pengaturan.terapkanKontak(p);
     root.Pengaturan.pasangBanner(p);
     if (!p.spmbDibuka) terapkanDitutup(p);
     pasangHitungMundur(p);
     if (p.spmbDibuka) pasangKuota();
+    else hapusKerangkaKuota();
     root.Pengaturan.pasangPerawatan(p);
   });
 })(typeof window !== "undefined" ? window : globalThis);

@@ -117,6 +117,18 @@
       <!-- ======================= JADWAL + KUOTA ======================= -->
       <section class="rule grid lg:grid-cols-2">
         <!-- Grafik sisa kursi: tampil di sebelah jadwal begitu kuota diisi (status-spmb.js) -->
+        <!-- Kerangka berkilau selagi data kuota dimuat; dibuang status-spmb.js begitu data tiba (atau kosong) -->
+        <div id="kuotaSkel" class="bg-surface p-5 sm:p-6" aria-hidden="true">
+          <div class="skeleton-gelap h-5 w-48"></div>
+          <ul class="mt-5 space-y-4">
+            <li class="grid grid-cols-[3.4rem_1fr_auto] items-center gap-3"><span class="skeleton-gelap h-4 w-10"></span><span class="skeleton-gelap h-3 w-full rounded-full"></span><span class="skeleton-gelap h-4 w-14"></span></li>
+            <li class="grid grid-cols-[3.4rem_1fr_auto] items-center gap-3"><span class="skeleton-gelap h-4 w-10"></span><span class="skeleton-gelap h-3 w-full rounded-full"></span><span class="skeleton-gelap h-4 w-14"></span></li>
+            <li class="grid grid-cols-[3.4rem_1fr_auto] items-center gap-3"><span class="skeleton-gelap h-4 w-10"></span><span class="skeleton-gelap h-3 w-full rounded-full"></span><span class="skeleton-gelap h-4 w-14"></span></li>
+            <li class="grid grid-cols-[3.4rem_1fr_auto] items-center gap-3"><span class="skeleton-gelap h-4 w-10"></span><span class="skeleton-gelap h-3 w-full rounded-full"></span><span class="skeleton-gelap h-4 w-14"></span></li>
+            <li class="grid grid-cols-[3.4rem_1fr_auto] items-center gap-3"><span class="skeleton-gelap h-4 w-10"></span><span class="skeleton-gelap h-3 w-full rounded-full"></span><span class="skeleton-gelap h-4 w-14"></span></li>
+          </ul>
+          <div class="skeleton-gelap mt-6 h-11 w-44 rounded-full"></div>
+        </div>
         <div id="kuotaPanel" class="hidden bg-surface p-5 font-mono text-[13px] leading-relaxed text-white sm:p-6" aria-labelledby="kuotaJudul">
           <div class="mb-3 flex items-center gap-1.5 text-white/50">
             <span class="h-2.5 w-2.5 rounded-full bg-white/25" aria-hidden="true"></span><span class="h-2.5 w-2.5 rounded-full bg-white/25" aria-hidden="true"></span><span class="h-2.5 w-2.5 rounded-full bg-gold-500" aria-hidden="true"></span>
@@ -128,7 +140,7 @@
           <p id="kuotaDesak" class="kq-goyang mt-5 hidden rounded-md bg-white/10 px-3 py-2 font-sans text-[13.5px] font-medium leading-snug text-gold-400" role="status"></p>
           <a data-spmb-daftar href="daftar/index.html" class="btn kq-ajak mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-gold-500 px-6 font-sans text-[14.5px] font-semibold text-black">Amankan kursimu <span aria-hidden="true">→</span></a>
         </div>
-        <div class="p-6 sm:p-8 lg:col-span-2 lg:[#kuotaPanel:not(.hidden)~&]:col-span-1">
+        <div class="p-6 sm:p-8 lg:col-span-2 lg:[#kuotaPanel:not(.hidden)~&]:col-span-1 lg:[#kuotaSkel~&]:col-span-1">
           <h2 class="heading text-xl">Jadwal penting SPMB</h2>
           <p class="mt-1 text-[15px] text-ink-600">Agenda pendaftaran 2026/2027. Jadwal dapat berubah sewaktu-waktu.</p>
           <ol class="mt-5 divide-y divide-hairline border-y border-hairline">
