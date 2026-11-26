@@ -209,7 +209,7 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
         updateUploadProgress(25, "Membuat akun siswa...");
         akun = await createStudentAccount(supabaseConfig, nisnVal, passwordVal, namaVal);
 
-        updateUploadProgress(50, "Mengunggah berkas pendukung ke server aman...");
+        updateUploadProgress(50, "Mengunggah berkas ke server aman...");
         const formData = await collectFormData(
           nisnVal,
           jurusan1,
@@ -241,7 +241,7 @@ function initFormValidationAndSubmit(sheetConfig, supabaseConfig) {
         if (formData.uploadError) {
           alert(
             "Pendaftaran Anda BERHASIL tersimpan, tetapi berkas gagal diunggah.\n\n" +
-              "Silakan klik tombol WhatsApp di bawah dan kirimkan berkas Anda langsung ke panitia."
+              "Silakan susulkan berkas dari halaman siswa, atau kirim lewat tombol WhatsApp di bawah."
           );
         }
       } catch (error) {
@@ -372,35 +372,36 @@ function initPasswordToggles() {
   });
 }
 
-// Tampilkan nama & ukuran berkas yang dipilih
+// Empat jenis berkas (Ijazah, SKL, KK, Kartu Pelajar): tiap baris punya tombol Pilih (foto kamera / file)
+function barisBerkas() {
+  return [...document.querySelectorAll("[data-berkas]")];
+}
 function initBerkasInfo() {
-  const input = document.getElementById("berkasFile");
-  const info = document.getElementById("berkasInfo");
-  if (!input || !info) return;
-  // Dua pilihan unggah: foto langsung (kamera) atau pilih berkas
-  if (window.PilihBerkas) {
-    window.PilihBerkas.pasang({
-      tombol: document.getElementById("berkasTombol"),
-      kamera: document.getElementById("berkasKamera"),
-      target: input,
-      saatProses: (on) => {
-        if (!on) return;
-        info.textContent = "Menyiapkan foto…";
-        info.classList.remove("hidden");
-      },
+  const ukuran = (n) => (n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
+  barisBerkas().forEach((baris) => {
+    const input = baris.querySelector("[data-file]");
+    const info = baris.querySelector("[data-info]");
+    const tombol = baris.querySelector("[data-pilih]");
+    if (window.PilihBerkas) {
+      window.PilihBerkas.pasang({
+        tombol,
+        kamera: baris.querySelector("[data-kamera]"),
+        target: input,
+        saatProses: (on) => {
+          if (on) info.textContent = "Menyiapkan foto…";
+        },
+      });
+    } else tombol.addEventListener("click", () => input.click());
+    input.addEventListener("change", () => {
+      const file = input.files && input.files[0];
+      info.textContent = file ? `✓ ${file.name} (${ukuran(file.size)})` : info.dataset.awal;
+      info.classList.toggle("text-ok-700", !!file);
+      info.classList.toggle("text-ink-500", !file);
+      tombol.textContent = file ? "Ganti" : "Pilih";
     });
-  }
-  input.addEventListener("change", () => {
-    const file = input.files && input.files[0];
-    if (!file) {
-      info.classList.add("hidden");
-      return;
-    }
-    const size = file.size >= 1024 * 1024 ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(file.size / 1024))} KB`;
-    info.textContent = `✓ ${file.name} (${size})`;
-    info.classList.remove("hidden");
   });
 }
+
 
 
 
@@ -542,18 +543,14 @@ function validateFormInputs(regForm, jurusan1, jurusan2, jurusanSamaWarning, opt
     isValid = false;
   }
 
-  const berkasFile = document.getElementById("berkasFile");
-  if (berkasFile) {
-    if (berkasFile.files && berkasFile.files[0]) {
-      const file = berkasFile.files[0];
-      const maxAllowedSize = 5 * 1024 * 1024;
-
-      if (file.size > maxAllowedSize) {
-        showFieldError(berkasFile, "Ukuran file lebih dari 5 MB. Pilih file yang lebih kecil atau kirim lewat WhatsApp.");
-        isValid = false;
-      }
+  barisBerkas().forEach((baris) => {
+    const input = baris.querySelector("[data-file]");
+    const file = input.files && input.files[0];
+    if (file && file.size > 5 * 1024 * 1024) {
+      showFieldError(input, "Ukuran file lebih dari 5 MB. Pilih file yang lebih kecil atau susulkan dari halaman siswa.");
+      isValid = false;
     }
-  }
+  });
 
   if (jurusan1 && !jurusan1.value) {
     showFieldError(jurusan1, "Pilih jurusan utama terlebih dahulu.");
@@ -670,9 +667,9 @@ async function createStudentAccount(supabaseConfig, nisn, password, namaLengkap)
   throw new Error("Gagal membuat akun siswa: " + error.message);
 }
 
-async function uploadFileToSupabase(file, akun, bucketName) {
+async function uploadFileToSupabase(file, akun, bucketName, jenis) {
   const fileExt = file.name.split(".").pop().toLowerCase();
-  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+  const fileName = `${jenis ? jenis + "-" : ""}${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
   // Folder "siswa/<id-akun>/" harus sama dengan policy upload di Supabase Storage.
   const filePath = `siswa/${akun.userId}/${fileName}`;
 
@@ -769,32 +766,37 @@ async function collectFormData(nisnVal, jurusan1, jurusan2, supabaseConfig, akun
   const noPendaftaran = await ambilNomorPendaftaran(akun.client, jurusan1.value, new Date(), (no) =>
     nomorDipakaiOrangLain(sheetCfg, no, nisnVal)
   );
-  const fileInput = document.getElementById("berkasFile");
-  let fileUrl = "-";
-  let fileName = "-";
-
+  // Tiap jenis berkas diunggah sendiri. Gagal unggah TIDAK membatalkan pendaftaran: data tetap
+  // disimpan, jenis yang gagal dicatat, dan siswa diminta menyusulkannya dari halaman siswa.
+  const kolomBerkas = {};
+  const namaTerunggah = [];
+  const gagal = [];
   let uploadError = null;
-
-  if (fileInput && fileInput.files && fileInput.files[0]) {
-    const file = fileInput.files[0];
-    fileName = file.name;
-    // Gagal unggah TIDAK membatalkan pendaftaran: data tetap disimpan ke
-    // spreadsheet dengan statusBerkas "Gagal Unggah", dan siswa diminta
-    // mengirim berkas lewat WhatsApp panitia.
+  let adaDipilih = false;
+  for (const baris of barisBerkas()) {
+    const file = baris.querySelector("[data-file]").files[0];
+    if (!file) continue;
+    adaDipilih = true;
+    const jenis = baris.dataset.berkas;
+    const info = window.Sheetson.JENIS_BERKAS.find((j) => j.id === jenis);
     try {
-      fileUrl = await uploadFileToSupabase(file, akun, supabaseConfig.bucketName);
+      kolomBerkas[info.kolom] = await uploadFileToSupabase(file, akun, supabaseConfig.bucketName, jenis);
+      namaTerunggah.push(info.label);
     } catch (err) {
       console.error("Upload berkas gagal:", err);
+      gagal.push(info.label);
       uploadError = err.message || "Unggah berkas gagal";
     }
   }
+  if (gagal.length) uploadError = `${gagal.join(", ")}: ${uploadError}`;
+  const fileUrl = "-";
+  const fileName = namaTerunggah.join(", ") || "-";
 
   const kodeVoucherInput = document.getElementById("kodeVoucher");
   const kodeVoucherVal = kodeVoucherInput ? kodeVoucherInput.value.trim() : "";
-  const isFileUploaded = fileUrl !== "-";
   let statusBerkas = "Belum Unggah";
-  if (isFileUploaded) statusBerkas = "Sudah Unggah";
-  else if (uploadError) statusBerkas = "Gagal Unggah";
+  if (namaTerunggah.length) statusBerkas = window.Sheetson.statusBerkasDari(kolomBerkas);
+  else if (adaDipilih && uploadError) statusBerkas = "Gagal Unggah";
 
   return {
     noPendaftaran,
@@ -814,6 +816,7 @@ async function collectFormData(nisnVal, jurusan1, jurusan2, supabaseConfig, akun
     jurusan2: jurusan2.value || "-",
     namaBerkas: fileName,
     urlBerkas: fileUrl,
+    kolomBerkas,
     statusPendaftaran: "Pending",
     statusBerkas: statusBerkas,
     uploadError: uploadError,
@@ -857,7 +860,7 @@ function handleRegistrationSuccess(data) {
   if (btnWhatsApp) {
     const nomorAdmin = nomorWa();
     const catatanBerkas = data.uploadError
-      ? `\n\nBerkas *${data.namaBerkas}* gagal terunggah di website, jadi saya lampirkan lewat chat ini.`
+      ? `\n\nBerkas (${String(data.uploadError).split(":")[0]}) gagal terunggah di website, jadi saya lampirkan lewat chat ini.`
       : "";
     const pesan = `Halo Panitia SPMB, saya telah mengisi formulir pendaftaran online.\n\n*Nama Lengkap:* ${data.namaLengkap}\n*No. Pendaftaran:* ${data.noPendaftaran}\n*Jurusan:* ${data.jurusan1 || "-"}${catatanBerkas}\n\nBerikut saya kirimkan konfirmasi pendaftaran saya. Mohon verifikasi selanjutnya. Terima kasih.`;
     const whatsappUrl = `https://wa.me/${nomorAdmin}?text=${encodeURIComponent(pesan)}`;
@@ -1046,6 +1049,7 @@ async function sendDataToSheetson(config, data) {
     jurusan2:          data.jurusan2,
     namaBerkas:        data.namaBerkas,
     urlBerkas:         data.urlBerkas,
+    ...data.kolomBerkas, // urlIjazah / urlSkl / urlKk / urlKartuPelajar (hanya yang terunggah)
     statusBerkas:      data.statusBerkas,
     catatanAdmin:      data.catatanAdmin,
     waOrtu:            data.waOrtu,

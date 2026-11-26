@@ -190,21 +190,44 @@
                 <span class="rounded-full bg-sand px-3 py-0.5 font-mono text-[12px] text-ink-600">opsional</span>
               </div>
               <h2 id="judul-3" class="heading mt-2 text-[26px]">Unggah berkas</h2>
-              <p class="mt-1 text-[15px] text-ink-600">Ijazah/SKL belum keluar? Lewati saja, berkas bisa disusulkan dari halaman siswa.</p>
-              <div class="mt-6">
-                <!-- Satu tombol → pop-up pilihan: Ambil foto / Pilih berkas -->
-                <button type="button" id="berkasTombol" class="hero-bg flex w-full cursor-pointer flex-col items-center justify-center gap-2 border-[1.5px] border-dashed border-line px-4 py-10 text-center hover:border-ink-900"><span class="cahaya" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-                  <span class="grid h-12 w-12 place-items-center rounded-full bg-white shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))]">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
-                  </span>
-                  <span class="text-base font-semibold">Unggah berkas</span>
-                  <span class="text-[14px] text-ink-600">Ambil foto atau pilih file</span>
-                  <span class="font-mono text-[12.8px] text-ink-500">KK · kartu pelajar · SKL — maks. 5 MB</span>
-                  <span id="berkasInfo" class="hidden rounded-full bg-ok-50 px-3 py-1 text-[13px] font-semibold text-ok-700"></span>
-                </button>
-                <input type="file" id="berkasKamera" accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true" />
-                <input type="file" id="berkasFile" accept=".pdf, .jpg, .jpeg, .png" class="sr-only" tabindex="-1" aria-label="Berkas" />
-                <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+              <p class="mt-1 text-[15px] text-ink-600">Boleh dilewati, berkas bisa disusulkan dari halaman siswa. PDF/JPG/PNG, maks. 5 MB.</p>
+              <div class="mt-4 divide-y divide-hairline border-y border-hairline">
+                <div class="py-3" data-berkas="ijazah">
+                  <div class="flex items-center gap-3">
+                    <span class="min-w-0 flex-1"><span class="block text-[15px] font-medium">Ijazah</span><span data-info class="block truncate text-[13.5px] text-ink-500" data-awal="Bila belum keluar, cukup unggah SKL">Bila belum keluar, cukup unggah SKL</span></span>
+                    <button type="button" data-pilih class="shrink-0 rounded-full px-4 py-2 text-[14px] font-semibold shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Pilih</button>
+                  </div>
+                  <input type="file" data-kamera accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true" />
+                  <input type="file" data-file accept=".pdf, .jpg, .jpeg, .png" class="sr-only" tabindex="-1" aria-label="Ijazah" />
+                  <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+                </div>
+                <div class="py-3" data-berkas="skl">
+                  <div class="flex items-center gap-3">
+                    <span class="min-w-0 flex-1"><span class="block text-[15px] font-medium">SKL</span><span data-info class="block truncate text-[13.5px] text-ink-500" data-awal="Surat Keterangan Lulus">Surat Keterangan Lulus</span></span>
+                    <button type="button" data-pilih class="shrink-0 rounded-full px-4 py-2 text-[14px] font-semibold shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Pilih</button>
+                  </div>
+                  <input type="file" data-kamera accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true" />
+                  <input type="file" data-file accept=".pdf, .jpg, .jpeg, .png" class="sr-only" tabindex="-1" aria-label="SKL" />
+                  <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+                </div>
+                <div class="py-3" data-berkas="kk">
+                  <div class="flex items-center gap-3">
+                    <span class="min-w-0 flex-1"><span class="block text-[15px] font-medium">Kartu Keluarga</span><span data-info class="block truncate text-[13.5px] text-ink-500" data-awal="Belum dipilih">Belum dipilih</span></span>
+                    <button type="button" data-pilih class="shrink-0 rounded-full px-4 py-2 text-[14px] font-semibold shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Pilih</button>
+                  </div>
+                  <input type="file" data-kamera accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true" />
+                  <input type="file" data-file accept=".pdf, .jpg, .jpeg, .png" class="sr-only" tabindex="-1" aria-label="Kartu Keluarga" />
+                  <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+                </div>
+                <div class="py-3" data-berkas="kartuPelajar">
+                  <div class="flex items-center gap-3">
+                    <span class="min-w-0 flex-1"><span class="block text-[15px] font-medium">Kartu Pelajar</span><span data-info class="block truncate text-[13.5px] text-ink-500" data-awal="Belum dipilih">Belum dipilih</span></span>
+                    <button type="button" data-pilih class="shrink-0 rounded-full px-4 py-2 text-[14px] font-semibold shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Pilih</button>
+                  </div>
+                  <input type="file" data-kamera accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true" />
+                  <input type="file" data-file accept=".pdf, .jpg, .jpeg, .png" class="sr-only" tabindex="-1" aria-label="Kartu Pelajar" />
+                  <span class="field-error mt-1 hidden text-[13px] font-semibold text-red-600"></span>
+                </div>
               </div>
             </section>
 
@@ -406,6 +429,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/umum/app-config.js"></script>
     <script src="../assets/js/umum/pengaturan.js"></script>
+    <script src="../assets/js/umum/sheetson.js"></script>
     <script src="../assets/js/daftar/form-steps.js"></script>
     <script src="../assets/js/umum/bukti-pdf.js"></script>
     <script src="../assets/js/umum/pilih-berkas.js"></script>

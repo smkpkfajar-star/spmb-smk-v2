@@ -92,5 +92,35 @@
     return { url: urls[i], nama };
   }
 
-  root.Sheetson = { berkasTerbaru, getRows, rowsAfter, patchRow, normNisn, escapeHtml };
+  // Berkas dipisah per jenis; tiap jenis punya kolom URL sendiri di sheet Verifikasi_Berkas.
+  // Ijazah dan SKL saling menggantikan (SKL dipakai selama ijazah belum keluar).
+  const JENIS_BERKAS = [
+    { id: "ijazah", label: "Ijazah", kolom: "urlIjazah", ket: "Bila belum keluar, cukup unggah SKL" },
+    { id: "skl", label: "SKL", kolom: "urlSkl", ket: "Surat Keterangan Lulus" },
+    { id: "kk", label: "Kartu Keluarga", kolom: "urlKk", ket: "" },
+    { id: "kartuPelajar", label: "Kartu Pelajar", kolom: "urlKartuPelajar", ket: "" },
+  ];
+  const adaUrl = (v) => /^https?:\/\//.test(String(v ?? "").trim());
+  // [{ id, label, kolom, ket, url|null }] — berkas lama (kolom urlBerkas) ikut sebagai "Berkas lain" bila ada.
+  function daftarBerkas(row) {
+    const out = JENIS_BERKAS.map((j) => ({ ...j, url: adaUrl(row && row[j.kolom]) ? String(row[j.kolom]).trim() : null }));
+    const lama = berkasTerbaru(row);
+    if (lama) out.push({ id: "lain", label: lama.nama || "Berkas lain", kolom: "urlBerkas", ket: "", url: lama.url, lama: true });
+    return out;
+  }
+  // Status berkas otomatis dari kelengkapan: Belum Unggah | Sebagian Unggah | Sudah Unggah.
+  // Lengkap = (Ijazah atau SKL) + Kartu Keluarga + Kartu Pelajar.
+  function statusBerkasDari(row) {
+    const d = Object.fromEntries(daftarBerkas(row).map((b) => [b.id, !!b.url]));
+    if (d.lain && !d.ijazah && !d.skl && !d.kk && !d.kartuPelajar) return "Sudah Unggah"; // data lama: satu berkas
+    const jumlah = ["ijazah", "skl", "kk", "kartuPelajar"].filter((k) => d[k]).length;
+    if (!jumlah) return "Belum Unggah";
+    return (d.ijazah || d.skl) && d.kk && d.kartuPelajar ? "Sudah Unggah" : "Sebagian Unggah";
+  }
+  // Teks ringkas untuk bukti pendaftaran / ekspor: "Ijazah, Kartu Keluarga"
+  function ringkasBerkas(row) {
+    return daftarBerkas(row).filter((b) => b.url).map((b) => b.label).join(", ");
+  }
+
+  root.Sheetson = { berkasTerbaru, JENIS_BERKAS, daftarBerkas, statusBerkasDari, ringkasBerkas, getRows, rowsAfter, patchRow, normNisn, escapeHtml };
 })(typeof window !== "undefined" ? window : globalThis);

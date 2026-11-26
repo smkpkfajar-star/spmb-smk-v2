@@ -29,6 +29,14 @@
     return "wait";
   }
 
+  // Status berkas yang dilihat siswa: keputusan panitia (Terverifikasi/Ditolak) didahulukan,
+  // selain itu dihitung dari berkas yang sudah terunggah per jenis.
+  function statusBerkasTampil(row) {
+    const b = String((row && row.statusBerkas) || "").trim();
+    if (/Terverifikasi|Ditolak/i.test(b)) return b;
+    return root.Sheetson.statusBerkasDari(row);
+  }
+
   // Empat langkah pendaftaran untuk ditampilkan ke siswa.
   // state: done (selesai) | now (sedang berjalan) | todo (belum) | bad (perlu tindakan / tidak lolos)
   function langkahSiswa(row) {
@@ -38,11 +46,13 @@
       ? ["done", "Diterima panitia"]
       : /Sudah/i.test(b)
         ? ["done", "Menunggu diperiksa"]
+        : /Sebagian/i.test(b)
+          ? ["now", "Lengkapi berkas yang kurang"]
         : /Gagal/i.test(b)
           ? ["bad", "Gagal terunggah, unggah ulang"]
           : /Ditolak/i.test(b)
             ? ["bad", "Ditolak, unggah ulang"]
-            : ["now", "Unggah ijazah/SKL"];
+            : ["now", "Unggah ijazah/SKL, KK, kartu pelajar"];
     const mundur = /^Mengundurkan Diri$/i.test(s);
     const sudahDiperiksa = /^(Diverifikasi|Diterima|Ditolak)$/i.test(s);
     const verif = mundur
@@ -117,7 +127,7 @@
       .trim();
   }
 
-  root.Siswa = { rincianProses, appendLine, findMyRow, nisnFromEmail, nadaStatus, langkahSiswa, STATUS_MUNDUR, bisaMundur, catatanMundur, catatanUntukSiswa };
+  root.Siswa = { statusBerkasTampil, rincianProses, appendLine, findMyRow, nisnFromEmail, nadaStatus, langkahSiswa, STATUS_MUNDUR, bisaMundur, catatanMundur, catatanUntukSiswa };
   if (typeof document === "undefined") return;
 
   /* ---------- halaman ---------- */
@@ -188,10 +198,6 @@
   }
   // Label nama berkas di tombol unggah (sama seperti formulir pendaftaran)
   const ukuranTeks = (n) => (n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
-  function infoBerkas(teks) {
-    $("fileName").textContent = teks;
-    $("fileName").classList.toggle("hidden", !teks);
-  }
   function msg(el, text, good) {
     el.textContent = text;
     el.className = `mt-3 rounded-md p-3 text-[14.5px] font-medium ${good ? "bg-ok-50 text-ok-700" : "bg-red-50 text-red-700"}`;
@@ -241,14 +247,13 @@
     };
     const [uangRow, fisikRow] = await Promise.all([cariNomor("Keuangan_Voucher"), cariNomor("Tes_Fisik_Seragam")]);
     const rincian = rincianProses(uangRow, fisikRow, pengaturan ? pengaturan.hasilDiumumkan : undefined);
-    const dilihat = root.Pengaturan ? { ...row, statusPendaftaran: root.Pengaturan.statusTampil(row.statusPendaftaran) } : row;
-    const berkas = root.Sheetson.berkasTerbaru(row);
+    const dilihat = { ...(root.Pengaturan ? { ...row, statusPendaftaran: root.Pengaturan.statusTampil(row.statusPendaftaran) } : row), statusBerkas: statusBerkasTampil(row) };
     const catatan = row.catatanAdmin && row.catatanAdmin !== "-" && !/^Berkas gagal diunggah otomatis/.test(row.catatanAdmin) ? catatanUntukSiswa(row.catatanAdmin) : "";
     const nama = String(row.namaLengkap || "").trim();
     $("homeNama").textContent = nama && nama !== "-" ? `Halo, ${nama}` : "Halo";
     $("homeMeta").textContent = `${row.noPendaftaran || "-"} · ${row.jurusan1 || "-"}`;
     const statusDaftar = dilihat.statusPendaftaran && dilihat.statusPendaftaran !== "-" ? dilihat.statusPendaftaran : "Pending";
-    const statusBerkas = row.statusBerkas && row.statusBerkas !== "-" ? row.statusBerkas : "Belum Unggah";
+    const statusBerkas = statusBerkasTampil(row);
     const ss = root.Pengaturan ? root.Pengaturan.statusSiswaTampil(statusSiswaSheet, row.statusPendaftaran) : { tampil: false };
     $("homeBody").innerHTML = `
       <div class="border border-hairline bg-white p-5 sm:p-6">
@@ -270,22 +275,10 @@
         sudahMundur
           ? `<div class="mt-3 border border-hairline border-l-2 border-l-sky-600 bg-white p-4 sm:px-6"><p class="text-[15px] font-semibold">Kamu telah mengundurkan diri</p><p class="mt-1 text-[14.5px] text-ink-600">Kursimu dilepas untuk calon siswa lain. Bila ini keliru atau kamu ingin mendaftar kembali, <a href="${esc(root.Pengaturan ? root.Pengaturan.waTautan("Halo panitia SPMB, saya ingin menanyakan pengunduran diri akun NISN " + nisn) : "https://wa.me/628823212784")}" target="_blank" rel="noopener" class="font-medium text-ink-900 underline">hubungi panitia lewat WhatsApp</a>.</p></div>`
           : ""
-      }
-      <div class="mt-3 border border-hairline bg-white p-5 sm:p-6">
-        <h3 class="text-[16px] font-semibold">Berkas terunggah</h3>
-        ${
-          berkas
-            ? `<ul class="mt-3 divide-y divide-hairline border-t border-hairline"><li><a href="${esc(berkas.url)}" target="_blank" rel="noopener" class="group flex items-center gap-3 py-3">
-                    <span class="shrink-0 text-ink-500">${IKON_BERKAS}</span>
-                    <span class="min-w-0 flex-1 truncate text-[15px] group-hover:underline">${esc(berkas.nama || "Berkas")}</span>
-                    <span class="shrink-0 text-[13px] text-ink-500 group-hover:text-ink-900">Lihat ↗</span>
-                  </a></li></ul>
-                <p class="mt-2 text-[13px] text-ink-500">Mengunggah berkas baru akan menggantikan berkas ini.</p>`
-            : `<p class="mt-1 text-[14.5px] text-ink-500">Belum ada berkas.</p>`
-        }
-      </div>`;
+      }`;
     $("uploadBox").dataset.row = row.rowIndex;
     $("uploadBox")._row = row;
+    isiDaftarBerkas(row, user);
   }
 
   // Tutup & kosongkan formulir pengunduran diri
@@ -323,38 +316,77 @@
     btn.textContent = "Ya, saya mengundurkan diri";
   }
 
-  async function upload(user) {
-    const input = $("fileInput");
+  // Satu baris per jenis berkas: nama/tautan + tombol Unggah/Ganti (foto kamera atau pilih file)
+  function isiDaftarBerkas(row, user) {
+    const ul = $("berkasDaftar");
+    const daftar = root.Sheetson.daftarBerkas(row);
+    ul.innerHTML = daftar
+      .map((b) => {
+        const lihat = b.url
+          ? `<a href="${esc(b.url)}" target="_blank" rel="noopener" class="text-[13.5px] text-ink-600 underline hover:text-ink-900">${b.lama ? esc(b.label) + " · " : ""}Lihat ↗</a>`
+          : `<span class="text-[13.5px] text-ink-500">${esc(b.ket || "Belum diunggah")}</span>`;
+        const tombol = b.lama
+          ? ""
+          : `<button type="button" data-unggah="${b.id}" class="shrink-0 rounded-full px-4 py-2 text-[14px] font-semibold shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand disabled:opacity-60">${b.url ? "Ganti" : "Unggah"}</button>
+             <input type="file" data-kamera="${b.id}" accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true" />
+             <input type="file" data-file="${b.id}" accept=".pdf, .jpg, .jpeg, .png" class="sr-only" tabindex="-1" aria-label="${esc(b.label)}" />`;
+        return `<li class="flex items-center gap-3 py-3" data-baris="${b.id}">
+            <span class="shrink-0 ${b.url ? "text-ok-700" : "text-ink-500"}">${b.url ? IKON_CENTANG : IKON_BERKAS}</span>
+            <span class="min-w-0 flex-1"><span class="block text-[15px] font-medium">${b.lama ? "Berkas sebelumnya" : esc(b.label)}</span>${lihat}</span>
+            ${tombol}
+          </li>`;
+      })
+      .join("");
+    daftar.filter((b) => !b.lama).forEach((b) => {
+      const li = ul.querySelector(`[data-baris="${b.id}"]`);
+      const tombol = li.querySelector("[data-unggah]");
+      const target = li.querySelector("[data-file]");
+      let proses = false;
+      if (root.PilihBerkas) {
+        root.PilihBerkas.pasang({
+          tombol,
+          kamera: li.querySelector("[data-kamera]"),
+          target,
+          saatProses: (on) => {
+            proses = on;
+            tombol.disabled = on;
+          },
+        });
+      } else tombol.addEventListener("click", () => target.click());
+      target.addEventListener("change", () => {
+        const f = target.files && target.files[0];
+        if (f && !proses) unggahJenis(user, b, f, tombol);
+      });
+    });
+  }
+
+  async function unggahJenis(user, jenis, file, tombol) {
     const info = $("uploadMsg");
-    const file = input.files && input.files[0];
-    if (!file) return msg(info, "Pilih berkas terlebih dahulu.", false);
     const ext = file.name.split(".").pop().toLowerCase();
     if (!ALLOWED_EXT.includes(ext)) return msg(info, "Jenis berkas harus PDF, JPG, atau PNG.", false);
     if (file.size > MAX_SIZE) return msg(info, "Ukuran berkas lebih dari 5 MB. Pilih berkas yang lebih kecil.", false);
     const row = $("uploadBox")._row;
-    const btn = $("uploadBtn");
-    btn.disabled = true;
-    btn.textContent = "Mengunggah…";
+    tombol.disabled = true;
+    tombol.textContent = "Mengunggah…";
     try {
       const bucket = root.APP_CONFIG.supabase.bucketName;
-      const path = `siswa/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const path = `siswa/${user.id}/${jenis.id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const up = await db().storage.from(bucket).upload(path, file);
       if (up.error) throw new Error("Unggah gagal: " + up.error.message);
       const url = db().storage.from(bucket).getPublicUrl(path).data.publicUrl;
-      // Berkas baru MENGGANTIKAN yang lama (hanya berkas terbaru yang dicantumkan)
-      const ubah = { namaBerkas: file.name, urlBerkas: url, statusBerkas: "Sudah Unggah" };
+      // Berkas baru MENGGANTIKAN yang lama pada jenis yang sama; status ikut dihitung ulang.
+      // Keputusan panitia (Terverifikasi/Ditolak) dikembalikan ke "diperiksa ulang" karena isinya berubah.
+      const ubah = { [jenis.kolom]: url, statusBerkas: root.Sheetson.statusBerkasDari({ ...row, [jenis.kolom]: url }) };
       await root.Sheetson.patchRow(SHEET, row.rowIndex, ubah);
-      // Salinan sementara Sheetson memegang objek baris yang sama: perbarui agar kartu "Berkas terunggah" langsung benar
+      // Salinan sementara Sheetson memegang objek baris yang sama: perbarui agar tampilan langsung benar
       Object.assign(row, ubah);
-      input.value = "";
-      infoBerkas("");
-      msg(info, `✓ ${file.name} berhasil diunggah. Panitia akan memeriksanya.`, true);
+      msg(info, `✓ ${jenis.label} berhasil diunggah. Panitia akan memeriksanya.`, true);
       await loadHome(user);
     } catch (e) {
       msg(info, e.message || "Gagal mengunggah. Coba lagi.", false);
+      tombol.disabled = false;
+      tombol.textContent = "Coba lagi";
     }
-    btn.disabled = false;
-    btn.textContent = "Unggah berkas";
   }
 
   // Halaman akun siswa (/siswa/): login, status, unggah berkas, pengunduran diri.
@@ -395,23 +427,6 @@
       $("password").value = "";
       loadHome(user);
     });
-    $("fileInput").addEventListener("change", () => {
-      const f = $("fileInput").files[0];
-      infoBerkas(f ? `✓ ${f.name} (${ukuranTeks(f.size)})` : "");
-    });
-    // Dua pilihan unggah: foto langsung (kamera) atau pilih berkas
-    if (root.PilihBerkas) {
-      root.PilihBerkas.pasang({
-        tombol: $("unggahTombol"),
-        kamera: $("kameraInput"),
-        target: $("fileInput"),
-        saatProses: (on) => {
-          $("uploadBtn").disabled = on;
-          if (on) infoBerkas("Menyiapkan foto…");
-        },
-      });
-    }
-    $("uploadBtn").addEventListener("click", () => upload(user));
     $("undurBuka").addEventListener("click", () => {
       $("undurForm").classList.remove("hidden");
       $("undurBuka").classList.add("hidden");

@@ -301,7 +301,8 @@
       jurusan1: ambil("jurusan1"),
       jurusan2: ambil("jurusan2"),
       waOrtu: ambil("waOrtu"),
-      namaBerkas: String(v.namaBerkas ?? "").split(/\r?\n/).map((x) => x.trim()).filter((x) => x && x !== "-").pop() || "",
+      // berkas dipisah per jenis (Ijazah, SKL, KK, Kartu Pelajar); data lama = satu berkas bernama
+      namaBerkas: (root.Sheetson && root.Sheetson.ringkasBerkas ? root.Sheetson.ringkasBerkas(v) : "") || String(v.namaBerkas ?? "").split(/\r?\n/).map((x) => x.trim()).filter((x) => x && x !== "-").pop() || "",
       statusPendaftaran: v.statusPendaftaran && v.statusPendaftaran !== "-" ? v.statusPendaftaran : "Pending",
     };
   }

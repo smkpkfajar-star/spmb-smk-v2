@@ -121,3 +121,22 @@ test("rincianProses: pembayaran, voucher, tes fisik; catatan internal tidak ikut
   assert.equal(nadaStatus("Belum Bayar"), "wait");
   assert.equal(nadaStatus("Belum Tes"), "wait");
 });
+
+test("berkas dipisah per jenis: daftarBerkas, statusBerkasDari, ringkasBerkas, statusBerkasTampil", () => {
+  const { daftarBerkas, statusBerkasDari, ringkasBerkas } = ctx.window.Sheetson;
+  const { statusBerkasTampil } = ctx.window.Siswa;
+  const u = (n) => `https://x.supabase.co/storage/${n}.pdf`;
+  assert.deepEqual([...daftarBerkas({}).map((b) => b.id)], ["ijazah", "skl", "kk", "kartuPelajar"]);
+  assert.equal(statusBerkasDari({}), "Belum Unggah");
+  assert.equal(statusBerkasDari({ urlKk: u("kk") }), "Sebagian Unggah");
+  assert.equal(statusBerkasDari({ urlIjazah: u("i"), urlKk: u("kk") }), "Sebagian Unggah");
+  assert.equal(statusBerkasDari({ urlIjazah: u("i"), urlKk: u("kk"), urlKartuPelajar: u("kp") }), "Sudah Unggah");
+  assert.equal(statusBerkasDari({ urlSkl: u("s"), urlKk: u("kk"), urlKartuPelajar: u("kp") }), "Sudah Unggah"); // SKL menggantikan ijazah
+  assert.equal(statusBerkasDari({ urlBerkas: u("lama"), namaBerkas: "kk.pdf" }), "Sudah Unggah"); // data lama: satu berkas
+  assert.equal(ringkasBerkas({ urlIjazah: u("i"), urlKk: u("kk") }), "Ijazah, Kartu Keluarga");
+  assert.equal(ringkasBerkas({ urlKk: "-" }), "");
+  // keputusan panitia didahulukan; selain itu dihitung dari berkas
+  assert.equal(statusBerkasTampil({ statusBerkas: "Berkas Terverifikasi" }), "Berkas Terverifikasi");
+  assert.equal(statusBerkasTampil({ statusBerkas: "Berkas Ditolak", urlKk: u("kk") }), "Berkas Ditolak");
+  assert.equal(statusBerkasTampil({ statusBerkas: "Belum Unggah", urlKk: u("kk") }), "Sebagian Unggah");
+});
