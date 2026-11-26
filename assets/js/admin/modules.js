@@ -518,6 +518,8 @@
 
         // Mode Teras hanya dinyalakan dari sini (perlu login petugas loket); pilihannya diingat di komputer ini
         const KUNCI = "spmb-kiosk";
+        // Hanya Petugas Loket yang boleh menyalakan/mematikan; login lain (mis. superadmin) hanya melihat status
+        const bolehAtur = profile.role === "jaga_loket";
         const aktif = () => { try { return root.localStorage.getItem(KUNCI) === "1"; } catch (_) { return false; } };
         // Nama petugas ikut disimpan: tercetak di kolom "Pengawas Loket" pada bukti pendaftaran
         const simpan = (nyala) => {
@@ -542,7 +544,9 @@
                 ${on ? `<p class="text-[13px] text-ink-500">Pengawas di bukti: ${esc((() => { try { return root.localStorage.getItem("spmb-kiosk-petugas") || "(nama belum diisi)"; } catch (_) { return "-"; } })())}</p>` : ""}
               </div>
               <div class="flex flex-wrap gap-2">
-                ${on
+                ${!bolehAtur
+                  ? `<p class="text-[13px] text-ink-500">Hanya Petugas Loket yang dapat menyalakan atau mematikan.</p>`
+                  : on
                   ? `<a href="../daftar/" class="rounded-full bg-brand-600 px-4 py-2 text-[14.5px] font-bold text-white hover:bg-brand-700">Ke layar pendaftaran</a>
                      <button type="button" data-loket="mati" class="rounded-full px-4 py-2 text-[14.5px] font-medium shadow-[inset_0_0_0_1px_rgb(var(--garis-tombol))] hover:bg-sand">Matikan</button>`
                   : `<button type="button" data-loket="nyala" class="rounded-full bg-brand-600 px-4 py-2 text-[14.5px] font-bold text-white hover:bg-brand-700">Buka Mode Teras</button>`}
@@ -551,7 +555,7 @@
         };
         document.getElementById("loketMode").addEventListener("click", (e) => {
           const b = e.target.closest("[data-loket]");
-          if (!b) return;
+          if (!b || !bolehAtur) return;
           const nyala = b.dataset.loket === "nyala";
           simpan(nyala);
           if (nyala) root.location.href = "../daftar/";
