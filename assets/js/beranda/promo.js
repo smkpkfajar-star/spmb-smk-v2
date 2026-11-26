@@ -236,7 +236,7 @@
               <span class="promo-bintang" style="left:55%;top:71%;animation-delay:2.3s;font-size:11px" aria-hidden="true">✦</span>
             </a>
             <div class="promo-kartu-belakang" aria-hidden="true">
-              <img src="assets/img/logo.svg" alt="" width="88" height="88" />
+              <img src="assets/img/logo.webp" alt="" width="88" height="88" />
               <span class="promo-kb-judul">SPMB 2026/2027</span>
               <span class="promo-kb-sub">SMK Tamansiswa Jetis</span>
               <span class="promo-kb-bintang">✦ ✦ ✦</span>

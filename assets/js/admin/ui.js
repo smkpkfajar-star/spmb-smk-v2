@@ -350,7 +350,7 @@
     aside.setAttribute("aria-label", "Menu admin");
     aside.innerHTML = `
       <div class="sb-head flex h-14 items-center gap-2.5 px-5">
-        <img src="../assets/img/logo.svg" alt="" width="28" height="28" class="h-7 w-7 shrink-0 rounded-md" />
+        <img src="../assets/img/logo.webp" alt="" width="28" height="28" class="h-7 w-7 shrink-0 rounded-md" />
         <span class="mini-hide whitespace-nowrap text-[15px] font-semibold tracking-tight">SPMB <span class="font-normal text-ink-500">Admin</span></span>
       </div>
       <nav class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4">
@@ -871,6 +871,26 @@
     X.writeFile(wb, namaFileLaporan(lap.judul, "xlsx"));
   }
 
+  // logo sekolah (WebP ringan) diubah ke PNG lewat canvas agar bisa dipasang di PDF; gagal -> PDF tetap jadi tanpa logo
+  function muatLogoPng() {
+    return new Promise((selesai) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const c = document.createElement("canvas");
+          c.width = img.naturalWidth;
+          c.height = img.naturalHeight;
+          c.getContext("2d").drawImage(img, 0, 0);
+          selesai(c.toDataURL("image/png"));
+        } catch (e) {
+          selesai(null);
+        }
+      };
+      img.onerror = () => selesai(null);
+      img.src = "../assets/img/logo.webp";
+    });
+  }
+
   async function eksporPdf(lap) {
     for (const src of PUSTAKA.pdf) await muatSkrip(src);
     const { jsPDF } = root.jspdf;
@@ -878,9 +898,8 @@
     const lebar = doc.internal.pageSize.getWidth();
     const tinggi = doc.internal.pageSize.getHeight();
     const hijau = [22, 82, 58];
-    doc.setFillColor(...hijau);
-    doc.roundedRect(12, 11, 9, 9, 2.4, 2.4, "F");
-    doc.setTextColor(255, 255, 255).setFont("helvetica", "bold").setFontSize(9).text("TS", 16.5, 17, { align: "center" });
+    const logo = await muatLogoPng();
+    if (logo) doc.addImage(logo, "PNG", 12, 10.5, 10, 10);
     doc.setTextColor(110, 110, 110).setFont("helvetica", "normal").setFontSize(9).text(`SPMB ${NAMA_SEKOLAH}`, 24, 14.5);
     doc.setTextColor(17, 17, 17).setFont("helvetica", "bold").setFontSize(14).text(`Laporan ${lap.judul}`, 24, 20);
     doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(70, 70, 70);
